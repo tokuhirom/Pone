@@ -1,33 +1,7 @@
 #!/usr/bin/env perl6
 use v6;
 
-use Pone::Actions;
-use Pone::Grammar;
-
-class Pone {
-    my $actions = Pone::Actions.new();
-
-    has $.cc = 'gcc';
-
-    method compile(Str $code) {
-        my $got = Pone::Grammar.parse($code, :$actions);
-        if $got {
-            return $got.made;
-        } else {
-            die "parse failed";
-        }
-    }
-
-    method eval(Str $code) {
-        my $c = self.compile($code); 
-
-        my $tmpfile = 'pone_generated.c';
-        open($tmpfile, :w).print($c);
-        my $objfile = 'a.out'; # XXX insecure
-        run $.cc, '-g', '-std=c99', '-o', $objfile, $tmpfile;
-        run "./$objfile";
-    }
-}
+use Pone;
 
 sub MAIN(:$o='pone_generated.c', Str :$e, Bool :$run=False) {
     my $code = do {
@@ -44,7 +18,7 @@ sub MAIN(:$o='pone_generated.c', Str :$e, Bool :$run=False) {
     my $pone = Pone.new;
 
     if $run {
-        $pone.eval($code);
+        $pone.run($code);
     } else {
         my $c = $pone.compile($code);
         open($o, :w).print($c);
