@@ -47,6 +47,7 @@ size_t pone_string_len(pone_val* val);
 pone_val* pone_new_int_mortal(int i);
 void* pone_malloc(size_t size);
 void pone_free(void* ptr);
+void pone_die(const char* str);
 
 pone_world* pone_new_world() {
     // we can't use pone_malloc yet.
@@ -82,6 +83,22 @@ void pone_dd(pone_val* val) {
 pone_val*  pone_builtin_dd(pone_val* val) {
     pone_dd(val);
     return &pone_undef_val;
+}
+
+pone_val*  pone_builtin_abs(pone_val* val) {
+    switch (pone_type(val)) {
+    case PONE_INT: {
+        int i = pone_int_val(val);
+        if (i < 0) {
+            return pone_new_int_mortal(-i);
+        } else {
+            return val;
+        }
+    }
+                   // TODO: NV
+    }
+
+    pone_die("you can't call abs() for non-numeric value");
 }
 
 inline pone_t pone_type(pone_val* val) {
@@ -136,6 +153,18 @@ pone_val* pone_subtract(pone_val* v1, pone_val* v2) {
     int i1 = pone_to_int(v1);
     int i2 = pone_to_int(v2);
     return pone_new_int_mortal(i1 - i2);
+}
+
+pone_val* pone_multiply(pone_val* v1, pone_val* v2) {
+    int i1 = pone_to_int(v1);
+    int i2 = pone_to_int(v2);
+    return pone_new_int_mortal(i1 * i2);
+}
+
+pone_val* pone_divide(pone_val* v1, pone_val* v2) {
+    int i1 = pone_to_int(v1);
+    int i2 = pone_to_int(v2);
+    return pone_new_int_mortal(i1 / i2); // TODO: We should upgrade value to NV
 }
 
 pone_val* pone_str_from_int(int i) {

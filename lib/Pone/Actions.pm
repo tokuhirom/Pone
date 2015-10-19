@@ -2,7 +2,7 @@ unit class Pone::Actions;
 
 use Pone::Utils;
 
-has Set $.builtins = set(<print say dd>);
+has Set $.builtins = set(<print say dd abs>);
 
 # TODO: NaN boxing
 
@@ -11,15 +11,7 @@ has Set $.builtins = set(<print say dd>);
 #   String is immutable.
 
 method TOP($/) {
-    $/.make: [
-        slurp('lib/Pone/runtime.c'),
-        "\n",
-        "// --------------- ^^^^ rutnime   ^^^^ -------------------",
-        "// --------------- vvvv user code vvvv -------------------",
-        'int main(int argc, const char **argv) {',
-            $/<stmts>.made,
-        '}'
-    ].join("\n");
+    $/.make: $/<stmts>.made;
 }
 
 method stmts($/) {
@@ -27,10 +19,50 @@ method stmts($/) {
 }
 
 method stmt($/) {
-    $/.make: $/<funcall>.made;
+    $/.make: $/<term>.made;
 }
 
-method funcall($/) {
+method term($/) { $/.make: $/<expr>.made }
+
+# see integration/99problems-41-to-50.t in roast
+method expr($/) {
+    if $/<value> {
+        $/.make: $/<value>.made;
+    } else {
+        my @e = $/<expr>».made;
+        my @ops = $/<infix-op>».made;
+        my $l = @e.shift;
+        while @e.elems {
+            my $op = @ops.shift;
+            my $r = @e.shift;
+            given $op {
+                when '+' {
+                    $l = "pone_add($l,$r)";
+                }
+                when '-' {
+                    $l = "pone_subtract($l,$r)";
+                }
+                when '*' {
+                    $l = "pone_multiply($l,$r)";
+                }
+                when '/' {
+                    $l = "pone_divide($l,$r)";
+                }
+                when '%' {
+                    $l = "pone_mod($l,$r)";
+                }
+                default {
+                    die "unknown operatar: $op";
+                }
+            }
+        }
+        $/.make: $l;
+    }
+}
+
+method infix-op($/) { $/.make: ~$/ }
+
+method value:sym<funcall>($/) {
     my $ident = ~$/<ident>;
     if $!builtins{$ident} {
         $/.make: "pone_builtin_" ~ $ident ~ "(" ~ $/<args>.made ~ ")";
@@ -41,14 +73,6 @@ method funcall($/) {
 
 method args($/) {
     $/.make: $/<term>».made.join(",");
-}
-
-method term($/) {
-    if $/[0] {
-        die;
-    } else {
-        $/.make: $/<value>.made;
-    }
 }
 
 method value:sym<string>($/) {

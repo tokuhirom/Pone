@@ -17,6 +17,18 @@ method compile(Str $code) {
     }
 }
 
+method wrap(Str $code) {
+    [
+        slurp('lib/Pone/runtime.c'),
+        "\n",
+        "// --------------- ^^^^ rutnime   ^^^^ -------------------",
+        "// --------------- vvvv user code vvvv -------------------",
+        'int main(int argc, const char **argv) {',
+            $code,
+        '}'
+    ].join("\n");
+}
+
 method eval(Str $code) {
     self!run($code, :capture(True));
 }
@@ -29,9 +41,13 @@ method !run(Str $code, :$capture) {
     my $c = self.compile($code); 
 
     my $tmpfile = 'pone_generated.c';
-    open($tmpfile, :w).print($c);
+    open($tmpfile, :w).print(self.wrap($c));
     my $objfile = 'pone_generated.out'; # XXX insecure
+    try unlink $objfile;
     run $.cc, '-g', '-std=c99', '-o', $objfile, $tmpfile;
+    if so %*ENV<PONE_DEBUG> {
+        say "----\n$c\n-----";
+    }
     if $capture {
         qqx!./$objfile!;
     } else {
@@ -50,6 +66,18 @@ Pone - Perl-ish minimal language
 =head1 DESCRIPTION
 
 Pone is a demo software for Perl6' grammar
+
+=head1 TODO
+
+=item if stmt
+
+=item for stmt
+
+=item while stmt
+
+=item funcall
+
+=item implement p5-ish functions
 
 =head1 AUTHOR
 

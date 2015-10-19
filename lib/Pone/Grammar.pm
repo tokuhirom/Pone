@@ -1,19 +1,29 @@
 use v6;
 
-use Grammar::Tracer;
+# use Grammar::Tracer;
 
 grammar Pone::Grammar {
     token TOP { ^ [ <stmts> || '' ] $ }
     token stmts { <stmt> [ ';' <stmt> ]* }
-    token stmt { <funcall> }
-    token funcall { <ident> '(' <args> ')' }
-    rule args { <term> [ ',' <term> ]* }
-    rule term { <value> ( ( '+' | '-' ) <value> )* }
+    token stmt { <term> }
+
+    rule term { <expr(3)> }
+
+    # loosest to tightest
+    multi token infix-op(3) { '+' | '-' }
+    multi token infix-op(2) { '*' | '/' | '%' }
+    multi token infix-op(1) { '**'}
+
+    multi rule expr(0)      { <value> }
+    multi rule expr($pred)  { <expr($pred-1)> +% [ <infix-op($pred)> ] }
 
     proto token value { <...> }
 
+    token value:sym<funcall> { <ident> '(' <args> ')' }
+    rule args { <term> [ ',' <term> ]* }
     token value:sym<decimal> { <decimal> }
     token value:sym<string> { <string> }
+    token value:sym<paren> { '(' <term> ')' }
 
     rule var { \$ <ident> }
     token decimal { '0' || <[+ -]>? <[ 1..9 ]> <[ 0..9 ]>* }
