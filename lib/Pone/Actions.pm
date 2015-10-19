@@ -37,19 +37,19 @@ method expr($/) {
             my $r = @e.shift;
             given $op {
                 when '+' {
-                    $l = "pone_add($l,$r)";
+                    $l = "pone_add(PONE_WORLD, $l,$r)";
                 }
                 when '-' {
-                    $l = "pone_subtract($l,$r)";
+                    $l = "pone_subtract(PONE_WORLD, $l,$r)";
                 }
                 when '*' {
-                    $l = "pone_multiply($l,$r)";
+                    $l = "pone_multiply(PONE_WORLD, $l,$r)";
                 }
                 when '/' {
-                    $l = "pone_divide($l,$r)";
+                    $l = "pone_divide(PONE_WORLD, $l,$r)";
                 }
                 when '%' {
-                    $l = "pone_mod($l,$r)";
+                    $l = "pone_mod(PONE_WORLD, $l,$r)";
                 }
                 default {
                     die "unknown operatar: $op";
@@ -65,9 +65,9 @@ method infix-op($/) { $/.make: ~$/ }
 method value:sym<funcall>($/) {
     my $ident = ~$/<ident>;
     if $!builtins{$ident} {
-        $/.make: "pone_builtin_" ~ $ident ~ "(" ~ $/<args>.made ~ ")";
+        $/.make: "pone_builtin_" ~ $ident ~ "(PONE_WORLD, " ~ $/<args>.made ~ ")";
     } else {
-        $/.make: "pone_user_func_" ~ $ident ~ "(" ~ $/<args>.made ~ ")";
+        $/.make: "pone_user_func_" ~ $ident ~ "(PONE_WORLD, " ~ $/<args>.made ~ ")";
     }
 }
 
@@ -80,7 +80,7 @@ method value:sym<string>($/) {
 }
 
 method value:sym<decimal>($/) {
-    $/.make: "pone_new_int_mortal(" ~ ~$/ ~ ")";
+    $/.make: "pone_new_int_mortal(PONE_WORLD, " ~ ~$/ ~ ")";
 }
 
 # XXX bad code
@@ -95,7 +95,7 @@ method string:sym<sqstring>($m) {
         }
     }
     my $s = @s.join("");
-    $m.make: qq!pone_new_str("{escape-c-str($s)}", {$s.encode.bytes})!;
+    $m.make: qq!pone_new_str(PONE_WORLD, "{escape-c-str($s)}", {$s.encode.bytes})!;
 }
 
 method sqstring-normal($/) {
