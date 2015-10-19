@@ -44,7 +44,11 @@ method args($/) {
 }
 
 method term($/) {
-    $/.make: $/<value>.made;
+    if $/[0] {
+        die;
+    } else {
+        $/.make: $/<value>.made;
+    }
 }
 
 method value:sym<string>($/) {

@@ -8,7 +8,7 @@ grammar Pone::Grammar {
     token stmt { <funcall> }
     token funcall { <ident> '(' <args> ')' }
     rule args { <term> [ ',' <term> ]* }
-    rule term { <value> }
+    rule term { <value> ( ( '+' | '-' ) <value> )* }
 
     proto token value { <...> }
 
@@ -16,7 +16,7 @@ grammar Pone::Grammar {
     token value:sym<string> { <string> }
 
     rule var { \$ <ident> }
-    token decimal { '0' || <[ 1..9 ]> <[ 0..9 ]>* }
+    token decimal { '0' || <[+ -]>? <[ 1..9 ]> <[ 0..9 ]>* }
     token ident { <[ A..Z a..z 0..9 ]> <[ A..Z a..z 0..9 ]>* }
     proto rule string { <...> }
     rule string:sym<sqstring> { "'" ( <sqstring-normal> || <sqstring-escape> )+ "'" }

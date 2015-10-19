@@ -124,16 +124,24 @@ int pone_to_int(pone_val* val) {
     }
 }
 
+// TODO: support NV
 pone_val* pone_add(pone_val* v1, pone_val* v2) {
     int i1 = pone_to_int(v1);
     int i2 = pone_to_int(v2);
     return pone_new_int_mortal(i1 + i2);
 }
 
+// TODO: support NV
+pone_val* pone_subtract(pone_val* v1, pone_val* v2) {
+    int i1 = pone_to_int(v1);
+    int i2 = pone_to_int(v2);
+    return pone_new_int_mortal(i1 - i2);
+}
+
 pone_val* pone_str_from_int(int i) {
     // INT_MAX=2147483647. "2147483647".elems = 10
-    char buf[10+1];
-    int size = snprintf(buf, 10+1, "%d", i);
+    char buf[11+1];
+    int size = snprintf(buf, 11+1, "%d", i);
     return pone_new_str(buf, size);
 }
 
@@ -224,6 +232,13 @@ int main(int argc, char** argv) {
         pone_val* iv1 = pone_new_int(4963);
         pone_val* iv2 = pone_new_int(5963);
         pone_val* result = pone_add(iv1, iv2);
+        pone_builtin_say(result);
+    }
+
+    {
+        pone_val* iv1 = pone_new_int(4649);
+        pone_val* iv2 = pone_new_int(5963);
+        pone_val* result = pone_subtract(iv1, iv2);
         pone_builtin_say(result);
     }
 

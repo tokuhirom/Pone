@@ -1,4 +1,7 @@
+#!/usr/bin/env perl6 -Ilib
 use v6;
+
+use lib 'lib';
 
 use Test;
 use Pone::Utils;
