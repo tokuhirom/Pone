@@ -33,6 +33,9 @@ typedef struct {
     size_t len;
 } pone_string;
 
+typedef struct {
+} pone_world;
+
 static pone_val pone_undef_val = { -1, PONE_UNDEF };
 
 pone_val* pone_new_str(const char*p, size_t len);
@@ -41,6 +44,22 @@ pone_t pone_type(pone_val* val);
 size_t pone_int_val(pone_val* val);
 const char* pone_string_ptr(pone_val* val);
 size_t pone_string_len(pone_val* val);
+pone_val* pone_new_int_mortal(int i);
+void* pone_malloc(size_t size);
+void pone_free(void* ptr);
+
+pone_world* pone_new_world() {
+    // we can't use pone_malloc yet.
+    pone_world* world = malloc(sizeof(pone_world));
+    if (!world) {
+        fprintf(stderr, "Cannot make world\n");
+    }
+    return world;
+}
+
+void pone_destroy_world(pone_world* world) {
+    free(world);
+}
 
 void pone_dd(pone_val* val) {
     switch (pone_type(val)) {
@@ -82,6 +101,33 @@ inline size_t pone_string_len(pone_val* val) {
 inline size_t pone_int_val(pone_val* val) {
     assert(pone_type(val) == PONE_INT);
     return ((pone_int*)val)->i;
+}
+
+void pone_die(const char* str) {
+    fprintf(stderr, "%s\n", str);
+    exit(1);
+}
+
+int pone_to_int(pone_val* val) {
+    switch (pone_type(val)) {
+    case PONE_UNDEF:
+        pone_die("Use of uninitialized value as integer");
+        break;
+    case PONE_INT:
+        return pone_int_val(val);
+    case PONE_STRING: {
+        char *end = (char*)pone_string_ptr(val) + pone_string_len(val);
+        return strtol(pone_string_ptr(val), &end, 10);
+    }
+    default:
+        abort();
+    }
+}
+
+pone_val* pone_add(pone_val* v1, pone_val* v2) {
+    int i1 = pone_to_int(v1);
+    int i2 = pone_to_int(v2);
+    return pone_new_int_mortal(i1 + i2);
 }
 
 pone_val* pone_str_from_int(int i) {
@@ -127,6 +173,10 @@ void* pone_malloc(size_t size) {
     return p;
 }
 
+void pone_free(void* p) {
+    free(p);
+}
+
 const char* pone_strdup(const char* src, size_t size) {
     void* p = malloc(size);
     if (!p) {
@@ -165,11 +215,22 @@ pone_val* pone_new_int_mortal(int i) {
 #ifdef PONE_TESTING
 
 int main(int argc, char** argv) {
+    pone_world* world = pone_new_world();
+
     pone_val* iv = pone_new_int(4963);
     pone_builtin_say(iv);
 
+    {
+        pone_val* iv1 = pone_new_int(4963);
+        pone_val* iv2 = pone_new_int(5963);
+        pone_val* result = pone_add(iv1, iv2);
+        pone_builtin_say(result);
+    }
+
     pone_val* pv = pone_new_str("Hello, world!", strlen("Hello, world!"));
     pone_builtin_say(pv);
+
+    pone_destroy_world(world);
 }
 
 #endif
