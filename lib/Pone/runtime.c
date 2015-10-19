@@ -6,6 +6,7 @@
 typedef enum {
     PONE_UNDEF,
     PONE_INT,
+    PONE_NUM,
     PONE_STRING
 } pone_t;
 
@@ -26,6 +27,11 @@ typedef struct {
     PONE_HEAD;
     int i;
 } pone_int;
+
+typedef struct {
+    PONE_HEAD;
+    int i;
+} pone_number;
 
 typedef struct {
     PONE_HEAD;
