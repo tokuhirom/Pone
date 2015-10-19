@@ -1,0 +1,16 @@
+{
+  "name" : "Pone",
+  "source-url" : "",
+  "perl" : "v6",
+  "build-depends" : [ ],
+  "provides" : {
+    "Pone" : "lib/Pone.pm6"
+  },
+  "depends" : [ ],
+  "description" : "blah blah blah",
+  "test-depends" : [ ],
+  "version" : "*",
+  "authors" : [
+    "Tokuhiro Matsuno"
+  ]
+}
