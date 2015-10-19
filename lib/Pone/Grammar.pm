@@ -1,4 +1,6 @@
-# use Grammar::Tracer;
+use v6;
+
+use Grammar::Tracer;
 
 grammar Pone::Grammar {
     token TOP { ^ [ <stmts> || '' ] $ }
@@ -6,17 +8,20 @@ grammar Pone::Grammar {
     token stmt { <funcall> }
     token funcall { <ident> '(' <args> ')' }
     rule args { <term> [ ',' <term> ]* }
-    rule term { <decimal> }
+    rule term { <value> }
+
+    proto token value { <...> }
+
+    token value:sym<decimal> { <decimal> }
+    token value:sym<string> { <string> }
 
     rule var { \$ <ident> }
     token decimal { '0' || <[ 1..9 ]> <[ 0..9 ]>* }
     token ident { <[ A..Z a..z 0..9 ]> <[ A..Z a..z 0..9 ]>* }
-
-    rule sstr { "'" <sstrchars> "'" }
-    token sstrchars {
-        \\ \'
-    }
-    token sstrchar { <-[ \' ]>+ }
+    proto rule string { <...> }
+    rule string:sym<sqstring> { "'" ( <sqstring-normal> || <sqstring-escape> )+ "'" }
+    token sqstring-normal { <-[ \' \\ ]>+ }
+    token sqstring-escape { \\ ( \' ) }
 }
 
 

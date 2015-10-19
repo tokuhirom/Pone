@@ -1,5 +1,7 @@
 unit class Pone::Actions;
 
+use Pone::Utils;
+
 has Set $.builtins = set(<print say dd>);
 
 # TODO: NaN boxing
@@ -42,10 +44,37 @@ method args($/) {
 }
 
 method term($/) {
-    $/.make: $/<decimal>.made;
+    $/.make: $/<value>.made;
 }
 
-method decimal($/) {
+method value:sym<string>($/) {
+    $/.make: $/<string>.made;
+}
+
+method value:sym<decimal>($/) {
     $/.make: "pone_new_int_mortal(" ~ ~$/ ~ ")";
+}
+
+# XXX bad code
+method string:sym<sqstring>($m) {
+    my @s;
+    for $m[0].list -> $val {
+        my $v = $val.Str;
+        if $val.Str ~~ /^\\(.)$/ {
+            @s.push: ~$0;
+        } else {
+            @s.push: ~$v;
+        }
+    }
+    my $s = @s.join("");
+    $m.make: qq!pone_new_str("{escape-c-str($s)}", {$s.encode.bytes})!;
+}
+
+method sqstring-normal($/) {
+    $/.make: ~$/;
+}
+
+method sqstring-escape($/) {
+    $/.make: ~$0;
 }
 

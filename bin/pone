@@ -24,7 +24,7 @@ class Pone {
         my $tmpfile = 'pone_generated.c';
         open($tmpfile, :w).print($c);
         my $objfile = 'a.out'; # XXX insecure
-        run $.cc, '-std=c99', '-o', $objfile, $tmpfile;
+        run $.cc, '-g', '-std=c99', '-o', $objfile, $tmpfile;
         run "./$objfile";
     }
 }

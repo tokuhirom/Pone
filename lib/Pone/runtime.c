@@ -9,32 +9,31 @@ typedef enum {
     PONE_STRING
 } pone_t;
 
-typedef struct {
-    int refcnt;
+#define PONE_HEAD \
+    int refcnt; \
     pone_t type;
-} head;
 
 typedef struct {
-    head head;
+    PONE_HEAD;
 } pone_val;
 
 typedef struct {
-    head head;
+    PONE_HEAD;
 } pone_undef;
 
 // integer value
 typedef struct {
-    head head;
+    PONE_HEAD;
     int i;
 } pone_int;
 
 typedef struct {
-    head head;
+    PONE_HEAD;
     const char* p;
     size_t len;
 } pone_string;
 
-static pone_val pone_undef_val = { { -1, PONE_UNDEF } };
+static pone_val pone_undef_val = { -1, PONE_UNDEF };
 
 pone_val* pone_new_str(const char*p, size_t len);
 pone_val* pone_str(pone_val* val);
@@ -67,7 +66,7 @@ pone_val*  pone_builtin_dd(pone_val* val) {
 }
 
 inline pone_t pone_type(pone_val* val) {
-    return val->head.type;
+    return val->type;
 }
 
 inline const char* pone_string_ptr(pone_val* val) {
@@ -144,16 +143,16 @@ pone_val* pone_val_2mortal(pone_val* sv) {
 
 pone_val* pone_new_int(int i) {
     pone_int* iv = (pone_int*)pone_malloc(sizeof(pone_int));
-    iv->head.refcnt = 1;
-    iv->head.type   = PONE_INT;
+    iv->refcnt = 1;
+    iv->type   = PONE_INT;
     iv->i = i;
     return (pone_val*)iv;
 }
 
 pone_val* pone_new_str(const char*p, size_t len) {
     pone_string* pv = (pone_string*)pone_malloc(sizeof(pone_str));
-    pv->head.refcnt = 1;
-    pv->head.type = PONE_STRING;
+    pv->refcnt = 1;
+    pv->type = PONE_STRING;
     pv->p = pone_strdup(p, len);
     pv->len = len;
     return (pone_val*)pv;
