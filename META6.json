@@ -8,7 +8,9 @@
   },
   "depends" : [ ],
   "description" : "blah blah blah",
-  "test-depends" : [ ],
+  "test-depends" : [
+      "Test::Base"
+  ],
   "version" : "*",
   "authors" : [
     "Tokuhiro Matsuno"
