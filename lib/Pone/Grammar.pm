@@ -12,7 +12,7 @@ grammar Pone::Grammar {
     # loosest to tightest
     multi token infix-op(3) { '+' | '-' }
     multi token infix-op(2) { '*' | '/' | '%' }
-    multi token infix-op(1) { '**'}
+    multi token infix-op(1) { '**' }
 
     multi rule expr(0)      { <value> }
     multi rule expr($pred)  { <expr($pred-1)> +% [ <infix-op($pred)> ] }
