@@ -82,6 +82,7 @@ void pone_refcnt_inc(pone_world* world, pone_val* val);
 
 pone_val* pone_new_ary(pone_world* world, int n, ...);
 int pone_ary_elems(pone_val* val);
+pone_val* pone_ary_at_pos(pone_val* val, int pos);
 
 // scope
 pone_val* pone_mortalize(pone_world* world, pone_val* val);
@@ -406,6 +407,16 @@ pone_val* pone_new_ary(pone_world* world, int n, ...) {
     return (pone_val*)av;
 }
 
+pone_val* pone_ary_at_pos(pone_val* av, int i) {
+    assert(pone_type(av) == PONE_ARRAY);
+    pone_ary*a = (pone_ary*)av;
+    if (a->len > i) {
+        return a->a[i];
+    } else {
+        return &pone_undef_val;
+    }
+}
+
 int pone_ary_elems(pone_val* av) {
     assert(pone_type(av) == PONE_ARRAY);
     return ((pone_ary*)av)->len;
@@ -505,6 +516,10 @@ int main(int argc, char** argv) {
             pone_mortalize(world, pone_new_int(world, 3))
         ));
         pone_builtin_say(world, pone_builtin_elems(world, av));
+        pone_builtin_say(world, pone_ary_at_pos(av, 0));
+        pone_builtin_say(world, pone_ary_at_pos(av, 1));
+        pone_builtin_say(world, pone_ary_at_pos(av, 2));
+        pone_builtin_say(world, pone_ary_at_pos(av, 3));
     }
 
     pone_leave(world);
