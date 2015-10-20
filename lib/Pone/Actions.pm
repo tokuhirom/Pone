@@ -83,6 +83,10 @@ method value:sym<decimal>($/) {
     $/.make: "pone_mortalize(PONE_WORLD, pone_new_int(PONE_WORLD, " ~ ~$/ ~ "))";
 }
 
+method value:sym<paren>($/) {
+    $/.make: $/<term>.made;
+}
+
 # XXX bad code
 method string:sym<sqstring>($m) {
     my @s;

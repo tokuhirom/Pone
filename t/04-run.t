@@ -16,6 +16,7 @@ is $pone.eval("say(1+2+3)"), "6\n";
 is $pone.eval("say(1-2+3)"), "2\n";
 is $pone.eval("say(5*2)"), "10\n";
 is $pone.eval("say(abs(-1))"), "1\n";
+is $pone.eval("say(abs(-1))"), "1\n";
+is $pone.eval("say((2+3)*4)"), "20\n";
 
 done-testing;
-
