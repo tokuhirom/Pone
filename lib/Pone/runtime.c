@@ -56,6 +56,7 @@ typedef struct {
 } pone_ary;
 
 typedef struct {
+    // save last tmpstack_floor
     size_t* savestack;
     size_t savestack_idx;
     size_t savestack_max;
