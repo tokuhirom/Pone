@@ -3,16 +3,19 @@ use v6;
 # use Grammar::Tracer;
 
 grammar Pone::Grammar {
-    token TOP { ^ [ <stmts> || '' ] $ }
-    token stmts { <stmt> [ ';' <stmt> ]* }
+    token TOP { :s ^ [ <stmts> || '' ] \s* $ }
+    token stmts {:s <stmt> [ ';' <stmt>? ]* }
 
     proto token stmt { * }
     token stmt:sym<if> {:s
-        'if' <term> <block>
+        'if' <term> <block> <else>?
+    }
+    token else {:s
+        'else' <block>
     }
     token stmt:sym<term> { <term> }
 
-    rule block {
+    rule block {:s
         '{' <stmts> '}'
     }
 

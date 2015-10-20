@@ -23,7 +23,15 @@ method stmt:sym<term>($/) {
 }
 
 method stmt:sym<if>($/) {
-    $/.make: "if (pone_so({$/<term>.made})) \{ { $/<block>.made } \}"
+    my $c = "if (pone_so({$/<term>.made})) \{ { $/<block>.made } \}";
+    if $/<else>:exists {
+        $c ~= $/<else>.made;
+    }
+    $/.make: $c;
+}
+
+method else($/) {
+    $/.make: ' else { ' ~ $/<block>.made ~ '}';
 }
 
 method block($/) {

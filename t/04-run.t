@@ -76,3 +76,21 @@ False
 --- input: say(False)
 --- expected
 False
+===
+--- input
+if False {
+    say('not ok');
+} else {
+    say('ok');
+}
+--- expected
+ok
+===
+--- input
+if False {
+    say('not ok');
+} else {
+    say('ok');
+}
+--- expected
+ok
