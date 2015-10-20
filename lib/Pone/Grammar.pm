@@ -40,7 +40,8 @@ grammar Pone::Grammar {
     rule args { <term> [ ',' <term> ]* }
     rule value:sym<decimal> { <decimal> }
     rule value:sym<string> { <string> }
-    rule value:sym<paren> { '(' <term> ')' }
+    rule value:sym<paren> {:s '(' <term> ')' }
+    rule value:sym<array> {:s '[' <term> [ ',' <term> ]* ','? ']' || '[' ']' }
 
     rule var { \$ <ident> }
     token decimal { '0' || <[+ -]>? <[ 1..9 ]> <[ 0..9 ]>* }

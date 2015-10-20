@@ -137,3 +137,15 @@ if False {
 --- expected
 ok
 
+===
+--- input
+say(elems([]))
+--- expected
+0
+
+===
+--- input
+say(elems([1,2,3]))
+--- expected
+3
+

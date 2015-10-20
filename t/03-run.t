@@ -15,6 +15,7 @@ Hello, world!
 True
 False
 3.140000
+3
 ...
 
 done_testing;

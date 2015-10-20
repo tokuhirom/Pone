@@ -2,7 +2,7 @@ unit class Pone::Actions;
 
 use Pone::Utils;
 
-has Set $.builtins = set(<print say dd abs>);
+has Set $.builtins = set(<print say dd abs elems>);
 
 # TODO: NaN boxing
 
@@ -116,6 +116,14 @@ method value:sym<True>($/) {
 
 method value:sym<False>($/) {
     $/.make: "pone_false()";
+}
+
+method value:sym<array>($/) {
+    if $/<term> {
+        $/.make: 'pone_mortalize(PONE_WORLD, pone_new_ary(PONE_WORLD, ' ~ $/<term>.elems ~ "," ~ $/<term>».made.join(",") ~ '))';
+    } else {
+        $/.make: 'pone_mortalize(PONE_WORLD, pone_new_ary(PONE_WORLD, 0))';
+    }
 }
 
 # XXX bad code

@@ -3,12 +3,14 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 typedef enum {
     PONE_UNDEF,
     PONE_INT,
     PONE_NUM,
     PONE_STRING,
+    PONE_ARRAY,
     PONE_BOOL
 } pone_t;
 
@@ -47,6 +49,13 @@ typedef struct {
 } pone_bool;
 
 typedef struct {
+    PONE_HEAD;
+    pone_val** a;
+    int max;
+    int len;
+} pone_ary;
+
+typedef struct {
     size_t* savestack;
     size_t savestack_idx;
     size_t savestack_max;
@@ -69,6 +78,10 @@ bool pone_bool_val(pone_val* val);
 const char* pone_string_ptr(pone_val* val);
 size_t pone_string_len(pone_val* val);
 void pone_refcnt_dec(pone_world* world, pone_val* val);
+void pone_refcnt_inc(pone_world* world, pone_val* val);
+
+pone_val* pone_new_ary(pone_world* world, int n, ...);
+int pone_ary_elems(pone_val* val);
 
 // scope
 pone_val* pone_mortalize(pone_world* world, pone_val* val);
@@ -159,6 +172,12 @@ inline pone_t pone_type(pone_val* val) {
     return val->type;
 }
 
+inline void pone_refcnt_inc(pone_world* world, pone_val* val) {
+    assert(val != NULL);
+
+    val->refcnt++;
+}
+
 // decrement reference count
 inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
     assert(val != NULL);
@@ -169,6 +188,15 @@ inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
         case PONE_STRING:
             free((char*)((pone_string*)val)->p);
             break;
+        case PONE_ARRAY: {
+            pone_ary* a=(pone_ary*)val;
+            size_t l = pone_ary_elems(val);
+            for (int i=0; i<l; ++i) {
+                pone_refcnt_dec(world, a->a[i]);
+            }
+            free(a->a);
+            break;
+        }
         }
         free(val);
     }
@@ -307,6 +335,20 @@ pone_val* pone_builtin_say(pone_world* world, pone_val* val) {
     return &pone_undef_val;
 }
 
+size_t pone_elems(pone_world* world, pone_val* val) {
+    switch (pone_type(val)) {
+    case PONE_STRING:
+        return pone_string_len(val);
+    case PONE_ARRAY:
+        return pone_ary_elems(val);
+    }
+    return 1;
+}
+
+pone_val* pone_builtin_elems(pone_world* world, pone_val* val) {
+    return pone_mortalize(world, pone_new_int(world, pone_elems(world, val)));
+}
+
 // TODO: implement memory pool
 void* pone_malloc(pone_world* world, size_t size) {
     void* p = malloc(size);
@@ -340,6 +382,33 @@ pone_val* pone_mortalize(pone_world* world, pone_val* val) {
         world->tmpstack = ssp;
     }
     return val;
+}
+
+pone_val* pone_new_ary(pone_world* world, int n, ...) {
+    va_list list;
+
+    pone_ary* av = (pone_ary*)pone_malloc(world, sizeof(pone_ary));
+    av->refcnt = 1;
+    av->type   = PONE_ARRAY;
+
+    va_start(list, n);
+    av->a = (pone_val**)pone_malloc(world, sizeof(pone_ary)*n);
+    av->max = n;
+    av->len = n;
+    // we can optimize in case of `[1,2,3]`.
+    for (int i=0; i<n; ++i) {
+        pone_val* v = va_arg(list, pone_val*);
+        av->a[i] = v;
+        pone_refcnt_inc(world, v);
+    }
+    va_end(list);
+
+    return (pone_val*)av;
+}
+
+int pone_ary_elems(pone_val* av) {
+    assert(pone_type(av) == PONE_ARRAY);
+    return ((pone_ary*)av)->len;
 }
 
 pone_val* pone_new_int(pone_world* world, int i) {
@@ -428,6 +497,15 @@ int main(int argc, char** argv) {
 
     pone_val* nv = pone_mortalize(world, pone_new_num(world, 3.14));
     pone_builtin_say(world, nv);
+
+    {
+        pone_val* av = pone_mortalize(world, pone_new_ary(world, 3,
+            pone_mortalize(world, pone_new_int(world, 6)),
+            pone_mortalize(world, pone_new_int(world, 4)),
+            pone_mortalize(world, pone_new_int(world, 3))
+        ));
+        pone_builtin_say(world, pone_builtin_elems(world, av));
+    }
 
     pone_leave(world);
 
