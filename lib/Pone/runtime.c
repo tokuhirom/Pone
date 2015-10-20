@@ -171,6 +171,21 @@ inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
     }
 }
 
+bool pone_so(pone_val* val) {
+    switch (pone_type(val)) {
+    case PONE_INT:
+        return pone_int_val(val) != 0;
+    case PONE_NUM:
+        return pone_int_val(val) != 0;
+    case PONE_STRING:
+        return pone_string_len(val) != 0;
+    case PONE_BOOL:
+        return pone_bool_val(val);
+    default:
+        return true;
+    }
+}
+
 inline const char* pone_string_ptr(pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
     return ((pone_string*)val)->p;
