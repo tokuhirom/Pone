@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Test::More;
 
+unlink 'a.out';
 system("gcc -g -DPONE_TESTING -std=c99 lib/Pone/runtime.c");
 my $out = qx(./a.out);
 

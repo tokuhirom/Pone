@@ -40,6 +40,15 @@ typedef struct {
 } pone_string;
 
 typedef struct {
+    size_t* savestack;
+    size_t savestack_idx;
+    size_t savestack_max;
+
+    // mortals we've made
+    pone_val** tmpstack;
+    size_t tmpstack_idx;
+    size_t tmpstack_floor;
+    size_t tmpstack_max;
 } pone_world;
 
 static pone_val pone_undef_val = { -1, PONE_UNDEF };
@@ -48,11 +57,15 @@ static pone_val pone_undef_val = { -1, PONE_UNDEF };
 size_t pone_int_val(pone_val* val);
 const char* pone_string_ptr(pone_val* val);
 size_t pone_string_len(pone_val* val);
+void pone_refcnt_dec(pone_world* world, pone_val* val);
 
+// scope
+pone_val* pone_mortalize(pone_world* world, pone_val* val);
+
+pone_val* pone_new_int(pone_world* world, int i);
 pone_val* pone_new_str(pone_world* world, const char*p, size_t len);
 pone_val* pone_str(pone_world* world, pone_val* val);
 pone_t pone_type(pone_val* val);
-pone_val* pone_new_int_mortal(pone_world* world, int i);
 void* pone_malloc(pone_world* world, size_t size);
 void pone_die(pone_world* world, const char* str);
 
@@ -62,10 +75,20 @@ pone_world* pone_new_world() {
     if (!world) {
         fprintf(stderr, "Cannot make world\n");
     }
+    memset(world, 0, sizeof(pone_world));
+
+    world->savestack = malloc(sizeof(size_t*) * 64);
+    world->savestack_max = 64;
+
+    world->tmpstack = malloc(sizeof(size_t*) * 64);
+    world->tmpstack_max = 64;
+
     return world;
 }
 
 void pone_destroy_world(pone_world* world) {
+    free(world->savestack);
+    free(world->tmpstack);
     free(world);
 }
 
@@ -97,7 +120,7 @@ pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
     case PONE_INT: {
         int i = pone_int_val(val);
         if (i < 0) {
-            return pone_new_int_mortal(world, -i);
+            return pone_mortalize(world, pone_new_int(world, -i));
         } else {
             return val;
         }
@@ -110,6 +133,21 @@ pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
 
 inline pone_t pone_type(pone_val* val) {
     return val->type;
+}
+
+// decrement reference count
+inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
+    assert(val != NULL);
+
+    val->refcnt--;
+    if (val->refcnt == 0) {
+        switch (pone_type(val)) {
+        case PONE_STRING:
+            free((char*)((pone_string*)val)->p);
+            break;
+        }
+        free(val);
+    }
 }
 
 inline const char* pone_string_ptr(pone_val* val) {
@@ -152,33 +190,33 @@ int pone_to_int(pone_world* world, pone_val* val) {
 pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2) {
     int i1 = pone_to_int(world, v1);
     int i2 = pone_to_int(world, v2);
-    return pone_new_int_mortal(world, i1 + i2);
+    return pone_mortalize(world, pone_new_int(world, i1 + i2));
 }
 
 // TODO: support NV
 pone_val* pone_subtract(pone_world* world, pone_val* v1, pone_val* v2) {
     int i1 = pone_to_int(world, v1);
     int i2 = pone_to_int(world, v2);
-    return pone_new_int_mortal(world, i1 - i2);
+    return pone_mortalize(world, pone_new_int(world, i1 - i2));
 }
 
 pone_val* pone_multiply(pone_world* world, pone_val* v1, pone_val* v2) {
     int i1 = pone_to_int(world, v1);
     int i2 = pone_to_int(world, v2);
-    return pone_new_int_mortal(world, i1 * i2);
+    return pone_mortalize(world, pone_new_int(world, i1 * i2));
 }
 
 pone_val* pone_divide(pone_world* world, pone_val* v1, pone_val* v2) {
     int i1 = pone_to_int(world, v1);
     int i2 = pone_to_int(world, v2);
-    return pone_new_int_mortal(world, i1 / i2); // TODO: We should upgrade value to NV
+    return pone_mortalize(world, pone_new_int(world, i1 / i2)); // TODO: We should upgrade value to NV
 }
 
 pone_val* pone_str_from_int(pone_world* world, int i) {
     // INT_MAX=2147483647. "2147483647".elems = 10
     char buf[11+1];
     int size = snprintf(buf, 11+1, "%d", i);
-    return pone_new_str(world, buf, size);
+    return pone_mortalize(world, pone_new_str(world, buf, size));
 }
 
 pone_val* pone_str(pone_world* world, pone_val* val) {
@@ -227,8 +265,18 @@ const char* pone_strdup(pone_world* world, const char* src, size_t size) {
     return p;
 }
 
-pone_val* pone_val_2mortal(pone_world* world, pone_val* sv) {
-    return sv; // TODO: mortalize
+pone_val* pone_mortalize(pone_world* world, pone_val* val) {
+    world->tmpstack[world->tmpstack_idx] = val;
+    ++world->tmpstack_idx;
+    if (world->tmpstack_idx > world->tmpstack_max) {
+        world->tmpstack_max *= 2;
+        pone_val** ssp = realloc(world->tmpstack, sizeof(pone_val*)*world->tmpstack_max);
+        if (!ssp) {
+            pone_die(world, "Cannot allocate memory");
+        }
+        world->tmpstack = ssp;
+    }
+    return val;
 }
 
 pone_val* pone_new_int(pone_world* world, int i) {
@@ -240,7 +288,7 @@ pone_val* pone_new_int(pone_world* world, int i) {
 }
 
 pone_val* pone_new_str(pone_world* world, const char*p, size_t len) {
-    pone_string* pv = (pone_string*)pone_malloc(world, sizeof(pone_str));
+    pone_string* pv = (pone_string*)pone_malloc(world, sizeof(pone_string));
     pv->refcnt = 1;
     pv->type = PONE_STRING;
     pv->p = pone_strdup(world, p, len);
@@ -248,8 +296,33 @@ pone_val* pone_new_str(pone_world* world, const char*p, size_t len) {
     return (pone_val*)pv;
 }
 
-pone_val* pone_new_int_mortal(pone_world* world, int i) {
-    return pone_val_2mortal(world, pone_new_int(world, i));
+void pone_enter(pone_world* world) {
+    // save original tmpstack_floor
+    world->savestack[world->savestack_idx] = world->tmpstack_floor;
+    ++world->savestack_idx;
+    if (world->savestack_max+1 < world->savestack_idx) {
+        // grow it
+        world->savestack_max *= 2;
+        size_t* ssp = realloc(world->savestack, sizeof(size_t)*world->savestack_max);
+        if (!ssp) {
+            pone_die(world, "Cannot allocate memory");
+        }
+        world->savestack = ssp;
+    }
+
+    // save current tmpstack_idx
+    world->tmpstack_floor = world->tmpstack_idx;
+}
+
+void pone_leave(pone_world* world) {
+    // decrement refcnt for mortalized values
+    while (world->tmpstack_idx > world->tmpstack_floor) {
+        pone_refcnt_dec(world, world->tmpstack[world->tmpstack_idx-1]);
+        --world->tmpstack_idx;
+    }
+
+    // pop tmpstack_floor
+    --world->savestack_idx;
 }
 
 #ifdef PONE_TESTING
@@ -257,25 +330,29 @@ pone_val* pone_new_int_mortal(pone_world* world, int i) {
 int main(int argc, char** argv) {
     pone_world* world = pone_new_world();
 
-    pone_val* iv = pone_new_int(world, 4963);
+    pone_enter(world);
+
+    pone_val* iv = pone_mortalize(world, pone_new_int(world, 4963));
     pone_builtin_say(world, iv);
 
     {
-        pone_val* iv1 = pone_new_int(world, 4963);
-        pone_val* iv2 = pone_new_int(world, 5963);
+        pone_val* iv1 = pone_mortalize(world, pone_new_int(world, 4963));
+        pone_val* iv2 = pone_mortalize(world, pone_new_int(world, 5963));
         pone_val* result = pone_add(world, iv1, iv2);
         pone_builtin_say(world, result);
     }
 
     {
-        pone_val* iv1 = pone_new_int(world, 4649);
-        pone_val* iv2 = pone_new_int(world, 5963);
+        pone_val* iv1 = pone_mortalize(world, pone_new_int(world, 4649));
+        pone_val* iv2 = pone_mortalize(world, pone_new_int(world, 5963));
         pone_val* result = pone_subtract(world, iv1, iv2);
         pone_builtin_say(world, result);
     }
 
-    pone_val* pv = pone_new_str(world, "Hello, world!", strlen("Hello, world!"));
+    pone_val* pv = pone_mortalize(world, pone_new_str(world, "Hello, world!", strlen("Hello, world!")));
     pone_builtin_say(world, pv);
+
+    pone_leave(world);
 
     pone_destroy_world(world);
 }

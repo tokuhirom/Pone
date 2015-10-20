@@ -25,7 +25,9 @@ method wrap(Str $code) {
         "// --------------- vvvv user code vvvv -------------------",
         'int main(int argc, const char **argv) {',
         '    pone_world* PONE_WORLD = pone_new_world();',
+        '    pone_enter(PONE_WORLD);',
             $code,
+        '    pone_leave(PONE_WORLD);',
         '    pone_destroy_world(PONE_WORLD);',
         '}'
     ].join("\n");

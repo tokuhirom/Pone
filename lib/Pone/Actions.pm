@@ -80,7 +80,7 @@ method value:sym<string>($/) {
 }
 
 method value:sym<decimal>($/) {
-    $/.make: "pone_new_int_mortal(PONE_WORLD, " ~ ~$/ ~ ")";
+    $/.make: "pone_mortalize(PONE_WORLD, pone_new_int(PONE_WORLD, " ~ ~$/ ~ "))";
 }
 
 # XXX bad code
