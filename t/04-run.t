@@ -10,7 +10,9 @@ use Pone;
 my $pone = Pone.new;
 
 for blocks($=finish) {
-    is $pone.eval(.input), .expected.chomp, .input;
+    my $title = .input;
+    $title ~~ s:g/\n/\\n/;
+    is $pone.eval(.input), .expected.chomp, $title;
 }
 
 done-testing;
@@ -104,6 +106,30 @@ ok
 ===
 --- input
 if False {
+    say('not ok');
+} else {
+    say('ok');
+}
+--- expected
+ok
+
+===
+--- input
+if False {
+    say('not ok');
+} elsif True {
+    say('ok');
+} else {
+    say('not ok');
+}
+--- expected
+ok
+
+===
+--- input
+if False {
+    say('not ok');
+} elsif False  {
     say('not ok');
 } else {
     say('ok');

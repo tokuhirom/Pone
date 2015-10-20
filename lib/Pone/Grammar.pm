@@ -8,7 +8,10 @@ grammar Pone::Grammar {
 
     proto token stmt { * }
     token stmt:sym<if> {:s
-        'if' <term> <block> <else>?
+        'if' <term> <block> <elsif>* <else>?
+    }
+    token elsif {:s
+        'elsif' <term> <block>
     }
     token else {:s
         'else' <block>

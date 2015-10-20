@@ -23,19 +23,26 @@ method stmt:sym<term>($/) {
 }
 
 method stmt:sym<if>($/) {
-    my $c = "if (pone_so({$/<term>.made})) \{ { $/<block>.made } \}";
+    my $c = "if (pone_so({$/<term>.made}))\n{ $/<block>.made }";
+    if $/<elsif>:exists {
+        $c ~= $/<elsif>».made.join("\n");
+    }
     if $/<else>:exists {
         $c ~= $/<else>.made;
     }
     $/.make: $c;
 }
 
+method elsif($/) {
+    $/.make: ' else if (pone_so(' ~ $/<term>.made ~ "))\n" ~ $/<block>.made;
+}
+
 method else($/) {
-    $/.make: ' else { ' ~ $/<block>.made ~ '}';
+    $/.make: "else\n" ~ $/<block>.made;
 }
 
 method block($/) {
-    $/.make: $/<stmts>.made;
+    $/.make: '{ pone_enter(PONE_WORLD);' ~ "\n" ~ $/<stmts>.made ~ "\n" ~ ' pone_leave(PONE_WORLD); }';
 }
 
 method term($/) { $/.make: $/<expr>.made }
