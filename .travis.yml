@@ -4,6 +4,7 @@ perl6:
 install:
   - rakudobrew build-panda
   - panda --notests installdeps .
+  - cpanm Capture::Tiny Test::Base
 script:
   - perl6 -MPanda::Builder -e 'Panda::Builder.build($*CWD)'
   - prove -lrv .

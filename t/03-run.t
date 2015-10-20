@@ -2,12 +2,35 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Base;
+use Capture::Tiny qw/capture/;
 
-unlink 'a.out';
-system("gcc -g -DPONE_TESTING -std=c99 lib/Pone/runtime.c");
-my $out = qx(./a.out);
+plan tests => 2*blocks();
 
-is $out, <<'...';
+run {
+    my $block = shift;
+    my ($src, $expected) = ($block->input, $block->stdout);
+
+    (my $objfile = $src) =~ s/\.c$/.o/;
+
+    unlink $objfile;
+    system('gcc', '-g', '-std=c99', '-o', $objfile, $src);
+    my ($out, $err, $exit) = capture {
+        system("valgrind ./$objfile");
+    };
+    is $out, $expected, "stdout($src)";
+    like $err, qr/All heap blocks were freed/, 'valgrind';
+}
+
+__END__
+
+===
+--- input: t/c/enter.c
+--- stdout:
+
+===
+--- input: t/c/basic.c
+--- stdout
 4963
 10926
 -1314
@@ -20,6 +43,3 @@ False
 4
 3
 (undef)
-...
-
-done_testing;
