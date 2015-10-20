@@ -17,6 +17,7 @@ grammar Pone::Grammar {
         'else' <block>
     }
     token stmt:sym<term> { <term> }
+    token stmt:sym<funcall> { :s <ident> <args> }
 
     rule block {:s
         '{' <stmts> '}'

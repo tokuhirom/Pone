@@ -149,3 +149,9 @@ say(elems([1,2,3]))
 --- expected
 3
 
+===
+--- input
+say 5963
+--- expected
+5963
+

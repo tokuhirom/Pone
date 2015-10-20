@@ -85,13 +85,21 @@ method expr($/) {
 
 method infix-op($/) { $/.make: ~$/ }
 
-method value:sym<funcall>($/) {
+method !funcall($/) {
     my $ident = ~$/<ident>;
     if $!builtins{$ident} {
         $/.make: "pone_builtin_" ~ $ident ~ "(PONE_WORLD, " ~ $/<args>.made ~ ")";
     } else {
         $/.make: "pone_user_func_" ~ $ident ~ "(PONE_WORLD, " ~ $/<args>.made ~ ")";
     }
+}
+
+method stmt:sym<funcall>($/) {
+    self!funcall($/);
+}
+
+method value:sym<funcall>($/) {
+    self!funcall($/);
 }
 
 method args($/) {
