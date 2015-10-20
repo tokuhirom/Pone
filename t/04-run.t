@@ -4,23 +4,75 @@ use v6;
 use lib 'lib';
 
 use Test;
+use Test::Base;
 use Pone;
 
 my $pone = Pone.new;
-is $pone.eval("say(0)"), "0\n";
-is $pone.eval("say(1)"), "1\n";
-is $pone.eval("say('hello')"), "hello\n";
-is $pone.eval("say(1+2)"), "3\n";
-is $pone.eval("say(1-2)"), "-1\n";
-is $pone.eval("say(1+2+3)"), "6\n";
-is $pone.eval("say(1-2+3)"), "2\n";
-is $pone.eval("say(5*2)"), "10\n";
-is $pone.eval("say(abs(-1))"), "1\n";
-is $pone.eval("say(abs(-1))"), "1\n";
-is $pone.eval("say((2+3)*4)"), "20\n";
-is $pone.eval("say(True)"), "True\n";
-is $pone.eval("say(False)"), "False\n";
-is $pone.eval('if True { say(3) }'), "3\n";
-is $pone.eval('if False { say(3) }'), "";
+
+for blocks($=finish) {
+    is $pone.eval(.input), .expected, .input;
+}
 
 done-testing;
+
+=finish
+
+===
+--- input: say(0)
+--- expected
+0
+===
+--- input: say(1)
+--- expected
+1
+===
+--- input: say('hello')
+--- expected
+hello
+===
+--- input: say(1+2)
+--- expected
+3
+===
+--- input: say(1-2)
+--- expected
+-1
+===
+--- input: say(1+2+3)
+--- expected
+6
+===
+--- input: say(1-2+3)
+--- expected
+2
+===
+--- input: say(5*2)
+--- expected
+10
+===
+--- input: say(abs(-1))
+--- expected
+1
+===
+--- input: say((2+3)*4)
+--- expected
+20
+===
+--- input: say(True)
+--- expected
+True
+===
+--- input: say(False)
+--- expected
+False
+===
+--- input: if True { say(3) }
+--- expected
+3
+===
+--- input: if False { say(3) }
+--- expected:
+===
+--- input: say(False)
+--- expected
+False
