@@ -87,6 +87,14 @@ method value:sym<paren>($/) {
     $/.make: "(" ~ $/<term>.made ~ ")";
 }
 
+method value:sym<true>($/) {
+    $/.make: "pone_true()";
+}
+
+method value:sym<false>($/) {
+    $/.make: "pone_false()";
+}
+
 # XXX bad code
 method string:sym<sqstring>($m) {
     my @s;

@@ -24,6 +24,8 @@ grammar Pone::Grammar {
     token value:sym<decimal> { <decimal> }
     token value:sym<string> { <string> }
     token value:sym<paren> { '(' <term> ')' }
+    token value:sym<true> { 'True' }
+    token value:sym<false> { 'False' }
 
     rule var { \$ <ident> }
     token decimal { '0' || <[+ -]>? <[ 1..9 ]> <[ 0..9 ]>* }
