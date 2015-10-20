@@ -14,6 +14,7 @@ is $out, <<'...';
 Hello, world!
 True
 False
+3.140000
 ...
 
 done_testing;

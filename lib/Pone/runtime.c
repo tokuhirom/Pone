@@ -32,8 +32,8 @@ typedef struct {
 
 typedef struct {
     PONE_HEAD;
-    int i;
-} pone_number;
+    double n; 
+} pone_num;
 
 typedef struct {
     PONE_HEAD;
@@ -64,6 +64,7 @@ static pone_bool pone_false_val = { -1, PONE_BOOL, false };
 
 // SV ops
 int pone_int_val(pone_val* val);
+double pone_num_val(pone_val* val);
 bool pone_bool_val(pone_val* val);
 const char* pone_string_ptr(pone_val* val);
 size_t pone_string_len(pone_val* val);
@@ -75,7 +76,9 @@ pone_val* pone_mortalize(pone_world* world, pone_val* val);
 pone_val* pone_true();
 pone_val* pone_false();
 
+pone_val* pone_str_from_num(pone_world* world, double n);
 pone_val* pone_new_int(pone_world* world, int i);
+pone_val* pone_new_num(pone_world* world, double i);
 pone_val* pone_new_str(pone_world* world, const char*p, size_t len);
 pone_val* pone_str(pone_world* world, pone_val* val);
 pone_t pone_type(pone_val* val);
@@ -201,6 +204,11 @@ inline int pone_int_val(pone_val* val) {
     return ((pone_int*)val)->i;
 }
 
+inline double pone_num_val(pone_val* val) {
+    assert(pone_type(val) == PONE_NUM);
+    return ((pone_num*)val)->n;
+}
+
 inline bool pone_bool_val(pone_val* val) {
     assert(pone_type(val) == PONE_BOOL);
     return ((pone_bool*)val)->b;
@@ -260,12 +268,20 @@ pone_val* pone_str_from_int(pone_world* world, int i) {
     return pone_mortalize(world, pone_new_str(world, buf, size));
 }
 
+pone_val* pone_str_from_num(pone_world* world, double n) {
+    char buf[512+1];
+    int size = snprintf(buf, 512+1, "%f", n);
+    return pone_mortalize(world, pone_new_str(world, buf, size));
+}
+
 pone_val* pone_str(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_UNDEF:
         return pone_mortalize(world, pone_new_str(world, "(undef)", strlen("(undef)")));
     case PONE_INT:
         return pone_str_from_int(world, pone_int_val(val));
+    case PONE_NUM:
+        return pone_str_from_num(world, pone_num_val(val));
     case PONE_STRING:
         return val;
     case PONE_BOOL:
@@ -332,6 +348,14 @@ pone_val* pone_new_int(pone_world* world, int i) {
     iv->type   = PONE_INT;
     iv->i = i;
     return (pone_val*)iv;
+}
+
+pone_val* pone_new_num(pone_world* world, double n) {
+    pone_num* nv = (pone_num*)pone_malloc(world, sizeof(pone_num));
+    nv->refcnt = 1;
+    nv->type   = PONE_NUM;
+    nv->n = n;
+    return (pone_val*)nv;
 }
 
 pone_val* pone_new_str(pone_world* world, const char*p, size_t len) {
@@ -401,6 +425,9 @@ int main(int argc, char** argv) {
 
     pone_builtin_say(world, pone_true());
     pone_builtin_say(world, pone_false());
+
+    pone_val* nv = pone_mortalize(world, pone_new_num(world, 3.14));
+    pone_builtin_say(world, nv);
 
     pone_leave(world);
 

@@ -28,8 +28,8 @@ grammar Pone::Grammar {
 
     proto rule value { <...> }
 
-    rule value:sym<true> { 'True' }
-    rule value:sym<false> { 'False' }
+    rule value:sym<True> { <sym> }
+    rule value:sym<False> { <sym> }
     rule value:sym<funcall> { <ident> '(' <args> ')' }
     rule args { <term> [ ',' <term> ]* }
     rule value:sym<decimal> { <decimal> }

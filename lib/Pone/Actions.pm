@@ -95,11 +95,11 @@ method value:sym<paren>($/) {
     $/.make: "(" ~ $/<term>.made ~ ")";
 }
 
-method value:sym<true>($/) {
+method value:sym<True>($/) {
     $/.make: "pone_true()";
 }
 
-method value:sym<false>($/) {
+method value:sym<False>($/) {
     $/.make: "pone_false()";
 }
 
