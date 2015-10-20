@@ -7,8 +7,8 @@ grammar Pone::Grammar {
     token stmts { <stmt> [ ';' <stmt> ]* }
 
     proto token stmt { * }
-    token stmt:sym<if> {
-        'if' \s+ <term> <block>
+    token stmt:sym<if> {:s
+        'if' <term> <block>
     }
     token stmt:sym<term> { <term> }
 
