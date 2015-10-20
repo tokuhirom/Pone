@@ -16,6 +16,10 @@ True
 False
 3.140000
 3
+6
+4
+3
+(undef)
 ...
 
 done_testing;
