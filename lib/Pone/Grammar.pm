@@ -5,7 +5,16 @@ use v6;
 grammar Pone::Grammar {
     token TOP { ^ [ <stmts> || '' ] $ }
     token stmts { <stmt> [ ';' <stmt> ]* }
-    token stmt { <term> }
+
+    proto token stmt { * }
+    token stmt:sym<if> {
+        'if' \s+ <term> <block>
+    }
+    token stmt:sym<term> { <term> }
+
+    rule block {
+        '{' <stmts> '}'
+    }
 
     rule term { <expr(3)> }
 
@@ -17,15 +26,15 @@ grammar Pone::Grammar {
     multi rule expr(0)      { <value> }
     multi rule expr($pred)  { <expr($pred-1)> +% [ <infix-op($pred)> ] }
 
-    proto token value { <...> }
+    proto rule value { <...> }
 
-    token value:sym<funcall> { <ident> '(' <args> ')' }
+    rule value:sym<true> { 'True' }
+    rule value:sym<false> { 'False' }
+    rule value:sym<funcall> { <ident> '(' <args> ')' }
     rule args { <term> [ ',' <term> ]* }
-    token value:sym<decimal> { <decimal> }
-    token value:sym<string> { <string> }
-    token value:sym<paren> { '(' <term> ')' }
-    token value:sym<true> { 'True' }
-    token value:sym<false> { 'False' }
+    rule value:sym<decimal> { <decimal> }
+    rule value:sym<string> { <string> }
+    rule value:sym<paren> { '(' <term> ')' }
 
     rule var { \$ <ident> }
     token decimal { '0' || <[+ -]>? <[ 1..9 ]> <[ 0..9 ]>* }

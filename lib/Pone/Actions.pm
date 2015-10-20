@@ -18,8 +18,16 @@ method stmts($/) {
     $/.make: $/<stmt>».made.map({ "$_;" }).join("\n");
 }
 
-method stmt($/) {
+method stmt:sym<term>($/) {
     $/.make: $/<term>.made;
+}
+
+method stmt:sym<if>($/) {
+    $/.make: "if (pone_so({$/<term>.made})) \{ { $/<block>.made } \}"
+}
+
+method block($/) {
+    $/.make: $/<stmts>.made;
 }
 
 method term($/) { $/.make: $/<expr>.made }

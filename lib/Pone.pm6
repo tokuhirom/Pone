@@ -69,7 +69,18 @@ Pone - Perl-ish minimal language
 
 =head1 DESCRIPTION
 
-Pone is a demo software for Perl6' grammar
+Pone is a demo software for Perl6' grammar. It has a Perl like syntax.
+This compiler compiles code into C.
+
+=head1 LITERALS
+
+=item C<0>, C<1>, C<100>
+
+There is integer literal.
+
+=item C< 'hoge' >
+
+There is single quotation string literal
 
 =head1 TODO
 

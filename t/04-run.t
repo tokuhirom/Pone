@@ -20,5 +20,7 @@ is $pone.eval("say(abs(-1))"), "1\n";
 is $pone.eval("say((2+3)*4)"), "20\n";
 is $pone.eval("say(True)"), "True\n";
 is $pone.eval("say(False)"), "False\n";
+is $pone.eval('if True { say(3) }'), "3\n";
+is $pone.eval('if False { say(3) }'), "";
 
 done-testing;
