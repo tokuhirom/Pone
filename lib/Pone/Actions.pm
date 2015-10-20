@@ -84,7 +84,7 @@ method value:sym<decimal>($/) {
 }
 
 method value:sym<paren>($/) {
-    $/.make: $/<term>.made;
+    $/.make: "(" ~ $/<term>.made ~ ")";
 }
 
 # XXX bad code

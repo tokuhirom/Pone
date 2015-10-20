@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdbool.h>
 
 typedef enum {
     PONE_UNDEF,
     PONE_INT,
     PONE_NUM,
-    PONE_STRING
+    PONE_STRING,
+    PONE_BOOL
 } pone_t;
 
 #define PONE_HEAD \
@@ -40,6 +42,11 @@ typedef struct {
 } pone_string;
 
 typedef struct {
+    PONE_HEAD;
+    bool b;
+} pone_bool;
+
+typedef struct {
     size_t* savestack;
     size_t savestack_idx;
     size_t savestack_max;
@@ -52,9 +59,12 @@ typedef struct {
 } pone_world;
 
 static pone_val pone_undef_val = { -1, PONE_UNDEF };
+static pone_bool pone_true_val = { -1, PONE_BOOL, true };
+static pone_bool pone_false_val = { -1, PONE_BOOL, false };
 
 // SV ops
-size_t pone_int_val(pone_val* val);
+int pone_int_val(pone_val* val);
+bool pone_bool_val(pone_val* val);
 const char* pone_string_ptr(pone_val* val);
 size_t pone_string_len(pone_val* val);
 void pone_refcnt_dec(pone_world* world, pone_val* val);
@@ -62,12 +72,23 @@ void pone_refcnt_dec(pone_world* world, pone_val* val);
 // scope
 pone_val* pone_mortalize(pone_world* world, pone_val* val);
 
+pone_val* pone_true();
+pone_val* pone_false();
+
 pone_val* pone_new_int(pone_world* world, int i);
 pone_val* pone_new_str(pone_world* world, const char*p, size_t len);
 pone_val* pone_str(pone_world* world, pone_val* val);
 pone_t pone_type(pone_val* val);
 void* pone_malloc(pone_world* world, size_t size);
 void pone_die(pone_world* world, const char* str);
+
+inline pone_val* pone_true() {
+    return (pone_val*)&pone_true_val;
+}
+
+inline pone_val* pone_false() {
+    return (pone_val*)&pone_false_val;
+}
 
 pone_world* pone_new_world() {
     // we can't use pone_malloc yet.
@@ -160,9 +181,14 @@ inline size_t pone_string_len(pone_val* val) {
     return ((pone_string*)val)->len;
 }
 
-inline size_t pone_int_val(pone_val* val) {
+inline int pone_int_val(pone_val* val) {
     assert(pone_type(val) == PONE_INT);
     return ((pone_int*)val)->i;
+}
+
+inline bool pone_bool_val(pone_val* val) {
+    assert(pone_type(val) == PONE_BOOL);
+    return ((pone_bool*)val)->b;
 }
 
 void pone_die(pone_world* world, const char* str) {
@@ -222,11 +248,17 @@ pone_val* pone_str_from_int(pone_world* world, int i) {
 pone_val* pone_str(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_UNDEF:
-        return pone_new_str(world, "(undef)", strlen("(undef)"));
+        return pone_mortalize(world, pone_new_str(world, "(undef)", strlen("(undef)")));
     case PONE_INT:
         return pone_str_from_int(world, pone_int_val(val));
     case PONE_STRING:
         return val;
+    case PONE_BOOL:
+        if (pone_bool_val(val)) {
+            return pone_mortalize(world, pone_new_str(world, "True", strlen("True")));
+        } else {
+            return pone_mortalize(world, pone_new_str(world, "False", strlen("False")));
+        }
     default:
         abort();
     }
@@ -351,6 +383,9 @@ int main(int argc, char** argv) {
 
     pone_val* pv = pone_mortalize(world, pone_new_str(world, "Hello, world!", strlen("Hello, world!")));
     pone_builtin_say(world, pv);
+
+    pone_builtin_say(world, pone_true());
+    pone_builtin_say(world, pone_false());
 
     pone_leave(world);
 
