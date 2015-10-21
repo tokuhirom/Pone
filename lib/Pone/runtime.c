@@ -78,6 +78,9 @@ typedef struct {
     size_t tmpstack_idx;
     size_t tmpstack_floor;
     size_t tmpstack_max;
+
+    // lexical value stack
+    khash_t(str) *lex;
 } pone_world;
 
 static pone_val pone_undef_val = { -1, PONE_UNDEF };
@@ -138,13 +141,37 @@ pone_world* pone_new_world() {
     world->tmpstack = malloc(sizeof(size_t*) * 64);
     world->tmpstack_max = 64;
 
+    world->lex = kh_init(str);
+
     return world;
 }
 
 void pone_destroy_world(pone_world* world) {
+    {
+        const char* k;
+        pone_val* v;
+        kh_foreach(world->lex, k, v, {
+            pone_refcnt_dec(world, v);
+        });
+        kh_destroy(str, world->lex);
+    }
+
     free(world->savestack);
     free(world->tmpstack);
     free(world);
+}
+
+pone_val* pone_get_lex(pone_world* world, const char* key) {
+    khint_t kh = kh_get(str, world->lex, key);
+    assert(kh != kh_end(world->lex));
+    return kh_val(world->lex, kh);
+}
+
+void pone_assign(pone_world* world, const char* key, pone_val* val) {
+    pone_refcnt_inc(world, val);
+    int ret;
+    khint_t k = kh_put(str, world->lex, key, &ret);
+    kh_val(world->lex, k) = val;
 }
 
 void pone_dd(pone_world* world, pone_val* val) {
