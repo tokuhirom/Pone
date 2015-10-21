@@ -27,6 +27,29 @@ int main(int argc, char** argv) {
         assert(world->tmpstack_idx == 1);
     }
 
+    for (int i=0; i<1000; ++i) {
+        pone_mortalize(world, pone_new_int(world, 6));
+    }
+
+    {
+        pone_enter(world);
+
+        for (int i=0; i<1000; ++i) {
+            pone_mortalize(world, pone_new_int(world, 6));
+        }
+
+        pone_leave(world);
+    }
+
+    {
+        for (int i=0; i<1000; ++i) {
+            pone_enter(world);
+        }
+        for (int i=0; i<1000; ++i) {
+            pone_leave(world);
+        }
+    }
+
     pone_leave(world);
 
     pone_destroy_world(world);

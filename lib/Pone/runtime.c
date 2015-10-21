@@ -410,9 +410,7 @@ const char* pone_strdup(pone_world* world, const char* src, size_t size) {
 }
 
 pone_val* pone_mortalize(pone_world* world, pone_val* val) {
-    world->tmpstack[world->tmpstack_idx] = val;
-    ++world->tmpstack_idx;
-    if (world->tmpstack_idx > world->tmpstack_max) {
+    if (world->tmpstack_idx == world->tmpstack_max) {
         world->tmpstack_max *= 2;
         pone_val** ssp = realloc(world->tmpstack, sizeof(pone_val*)*world->tmpstack_max);
         if (!ssp) {
@@ -420,6 +418,8 @@ pone_val* pone_mortalize(pone_world* world, pone_val* val) {
         }
         world->tmpstack = ssp;
     }
+    world->tmpstack[world->tmpstack_idx] = val;
+    ++world->tmpstack_idx;
     return val;
 }
 
