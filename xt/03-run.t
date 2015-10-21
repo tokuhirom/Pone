@@ -48,3 +48,9 @@ False
 4
 3
 (undef)
+
+===
+--- input: t/c/assign.c
+--- stdout
+4963
+

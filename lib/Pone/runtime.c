@@ -67,6 +67,11 @@ typedef struct {
     size_t len;
 } pone_hash;
 
+typedef struct lex_entry {
+    struct lex_entry* parent;
+    khash_t(str) *map;
+} lex_entry;
+
 typedef struct {
     // save last tmpstack_floor
     size_t* savestack;
@@ -80,7 +85,7 @@ typedef struct {
     size_t tmpstack_max;
 
     // lexical value stack
-    khash_t(str) *lex;
+    lex_entry* lex;
 } pone_world;
 
 static pone_val pone_undef_val = { -1, PONE_UNDEF };
@@ -132,16 +137,31 @@ pone_world* pone_new_world() {
     pone_world* world = malloc(sizeof(pone_world));
     if (!world) {
         fprintf(stderr, "Cannot make world\n");
+        exit(1);
     }
     memset(world, 0, sizeof(pone_world));
 
     world->savestack = malloc(sizeof(size_t*) * 64);
+    if (!world->savestack) {
+        fprintf(stderr, "Cannot make world\n");
+        exit(1);
+    }
     world->savestack_max = 64;
 
     world->tmpstack = malloc(sizeof(size_t*) * 64);
+    if (!world->tmpstack) {
+        fprintf(stderr, "Cannot make world\n");
+        exit(1);
+    }
     world->tmpstack_max = 64;
 
-    world->lex = kh_init(str);
+    world->lex = malloc(sizeof(lex_entry));
+    if (!world->lex) {
+        fprintf(stderr, "Cannot make world\n");
+        exit(1);
+    }
+    world->lex->map = kh_init(str);
+    world->lex->parent = NULL;
 
     return world;
 }
@@ -150,10 +170,11 @@ void pone_destroy_world(pone_world* world) {
     {
         const char* k;
         pone_val* v;
-        kh_foreach(world->lex, k, v, {
+        kh_foreach(world->lex->map, k, v, {
             pone_refcnt_dec(world, v);
         });
-        kh_destroy(str, world->lex);
+        kh_destroy(str, world->lex->map);
+        free(world->lex);
     }
 
     free(world->savestack);
@@ -162,16 +183,36 @@ void pone_destroy_world(pone_world* world) {
 }
 
 pone_val* pone_get_lex(pone_world* world, const char* key) {
-    khint_t kh = kh_get(str, world->lex, key);
-    assert(kh != kh_end(world->lex));
-    return kh_val(world->lex, kh);
+    lex_entry* lex = world->lex;
+    while (lex != NULL) {
+        khint_t kh = kh_get(str, lex->map, key);
+        if (kh == kh_end(lex->map)) {
+            lex = lex->parent;
+            continue;
+        }
+        return kh_val(lex->map, kh);
+    }
+    fprintf(stderr, "unknown lexical variable: %s\n", key);
+    abort();
 }
 
-void pone_assign(pone_world* world, const char* key, pone_val* val) {
+void pone_assign(pone_world* world, int up, const char* key, pone_val* val) {
+    lex_entry* lex = world->lex;
+    for (int i=0; i<up; i++) {
+        lex = lex->parent;
+    }
+
     pone_refcnt_inc(world, val);
     int ret;
-    khint_t k = kh_put(str, world->lex, key, &ret);
-    kh_val(world->lex, k) = val;
+    khint_t k = kh_put(str, lex->map, key, &ret);
+    if (ret == -1) {
+        fprintf(stderr, "hash operation failed\n");
+        abort();
+    }
+    if (ret == 0) { // the key is present in the hash table
+        pone_refcnt_dec(world, kh_val(lex->map, k));
+    }
+    kh_val(lex->map, k) = val;
 }
 
 void pone_dd(pone_world* world, pone_val* val) {
@@ -569,6 +610,12 @@ void pone_enter(pone_world* world) {
 
     // save current tmpstack_idx
     world->tmpstack_floor = world->tmpstack_idx;
+
+    // create new lex scope
+    lex_entry* new_lex = pone_malloc(world, sizeof(lex_entry));
+    new_lex->map = kh_init(str);
+    new_lex->parent = world->lex;
+    world->lex = new_lex;
 }
 
 void pone_leave(pone_world* world) {
@@ -583,5 +630,17 @@ void pone_leave(pone_world* world) {
 
     // pop tmpstack_floor
     --world->savestack_idx;
+
+    lex_entry* parent = world->lex->parent;
+    {
+        const char* k;
+        pone_val* v;
+        kh_foreach(world->lex->map, k, v, {
+            pone_refcnt_dec(world, v);
+        });
+    }
+    kh_destroy(str, world->lex->map);
+    free(world->lex);
+    world->lex = parent;
 }
 
