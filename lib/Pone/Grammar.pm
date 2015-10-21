@@ -43,6 +43,10 @@ grammar Pone::Grammar {
     rule value:sym<string> { <string> }
     rule value:sym<paren> {:s '(' <term> ')' }
     rule value:sym<array> {:s '[' <term> [ ',' <term> ]* ','? ']' || '[' ']' }
+    rule value:sym<hash> {:s '{' <hash-pair> [ ',' <hash-pair> ]* ','? '}' || '{' '}' }
+    rule hash-pair {:s <hash-key> '=>' <term> }
+    rule hash-key {:s <term> || <bare-word> }
+    token bare-word { <[A..Z a..z 0..9]>+ }
 
     rule var { \$ <ident> }
     token decimal { '0' || <[+ -]>? <[ 1..9 ]> <[ 0..9 ]>* }

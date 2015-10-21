@@ -17,9 +17,16 @@ method compile(Str $code) {
     }
 }
 
+method !slurp(Str $name) {
+    my $src = slurp($name);
+    $src ~~ s!^^ \N* '/* PONE_INC */' $$!!;
+    qq!#line 1 "$name"\n! ~ $src;
+}
+
 method wrap(Str $code) {
     [
-        slurp('lib/Pone/runtime.c'),
+        self!slurp('lib/Pone/khash.h'),
+        self!slurp('lib/Pone/runtime.c'),
         "\n",
         "// --------------- ^^^^ rutnime   ^^^^ -------------------",
         "// --------------- vvvv user code vvvv -------------------",

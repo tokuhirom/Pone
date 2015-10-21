@@ -25,6 +25,11 @@ run {
 __END__
 
 ===
+--- input: t/c/hash.c
+--- stdout
+2
+
+===
 --- input: t/c/enter.c
 --- stdout:
 

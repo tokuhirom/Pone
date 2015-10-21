@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include "khash.h" /* PONE_INC */
 
 typedef enum {
     PONE_UNDEF,
@@ -11,7 +12,8 @@ typedef enum {
     PONE_NUM,
     PONE_STRING,
     PONE_ARRAY,
-    PONE_BOOL
+    PONE_BOOL,
+    PONE_HASH
 } pone_t;
 
 #define PONE_HEAD \
@@ -21,6 +23,8 @@ typedef enum {
 typedef struct {
     PONE_HEAD;
 } pone_val;
+
+KHASH_MAP_INIT_STR(str, pone_val*)
 
 typedef struct {
     PONE_HEAD;
@@ -51,9 +55,15 @@ typedef struct {
 typedef struct {
     PONE_HEAD;
     pone_val** a;
-    int max;
-    int len;
+    size_t max;
+    size_t len;
 } pone_ary;
+
+typedef struct {
+    PONE_HEAD;
+    khash_t(str) *h;
+    size_t len;
+} pone_hash;
 
 typedef struct {
     // save last tmpstack_floor
@@ -82,7 +92,10 @@ void pone_refcnt_dec(pone_world* world, pone_val* val);
 void pone_refcnt_inc(pone_world* world, pone_val* val);
 
 pone_val* pone_new_ary(pone_world* world, int n, ...);
-int pone_ary_elems(pone_val* val);
+pone_val* pone_new_hash(pone_world* world, int n, ...);
+void pone_hash_put(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
+size_t pone_hash_elems(pone_val* val);
+size_t pone_ary_elems(pone_val* val);
 pone_val* pone_ary_at_pos(pone_val* val, int pos);
 
 // scope
@@ -98,6 +111,7 @@ pone_val* pone_new_str(pone_world* world, const char*p, size_t len);
 pone_val* pone_str(pone_world* world, pone_val* val);
 pone_t pone_type(pone_val* val);
 void* pone_malloc(pone_world* world, size_t size);
+void pone_free(pone_world* world, void* p);
 void pone_die(pone_world* world, const char* str);
 
 inline pone_val* pone_true() {
@@ -188,7 +202,7 @@ inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
     if (val->refcnt == 0) {
         switch (pone_type(val)) {
         case PONE_STRING:
-            free((char*)((pone_string*)val)->p);
+            pone_free(world, (char*)((pone_string*)val)->p);
             break;
         case PONE_ARRAY: {
             pone_ary* a=(pone_ary*)val;
@@ -196,11 +210,22 @@ inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
             for (int i=0; i<l; ++i) {
                 pone_refcnt_dec(world, a->a[i]);
             }
-            free(a->a);
+            pone_free(world, a->a);
+            break;
+        }
+        case PONE_HASH: {
+            pone_hash* h=(pone_hash*)val;
+            const char* k;
+            pone_val* v;
+            kh_foreach(h->h, k, v, {
+                pone_free(world, (void*)k); // k is strdupped.
+                pone_refcnt_dec(world, v);
+            });
+            kh_destroy(str, h->h);
             break;
         }
         }
-        free(val);
+        pone_free(world, val);
     }
 }
 
@@ -304,6 +329,9 @@ pone_val* pone_str_from_num(pone_world* world, double n) {
     return pone_mortalize(world, pone_new_str(world, buf, size));
 }
 
+/**
+ * @return (mortalized)
+ */
 pone_val* pone_str(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_UNDEF:
@@ -343,6 +371,8 @@ size_t pone_elems(pone_world* world, pone_val* val) {
         return pone_string_len(val);
     case PONE_ARRAY:
         return pone_ary_elems(val);
+    case PONE_HASH:
+        return pone_hash_elems(val);
     }
     return 1;
 }
@@ -362,13 +392,18 @@ void* pone_malloc(pone_world* world, size_t size) {
     return p;
 }
 
+void pone_free(pone_world* world, void* p) {
+    free(p);
+}
+
 const char* pone_strdup(pone_world* world, const char* src, size_t size) {
-    void* p = malloc(size);
+    char* p = (char*)malloc(size+1);
     if (!p) {
         fprintf(stderr, "Cannot allocate memory\n");
         exit(1);
     }
     memcpy(p, src, size);
+    p[size] = '\0';
     return p;
 }
 
@@ -408,6 +443,47 @@ pone_val* pone_new_ary(pone_world* world, int n, ...) {
     return (pone_val*)av;
 }
 
+// TODO: delete key
+// TODO: push key
+// TODO: exists key
+pone_val* pone_new_hash(pone_world* world, int n, ...) {
+    va_list list;
+
+    pone_hash* hv = (pone_hash*)pone_malloc(world, sizeof(pone_hash));
+    hv->refcnt = 1;
+    hv->type   = PONE_HASH;
+
+    hv->h = kh_init(str);
+
+    va_start(list, n);
+    // we can optimize in case of `{a => 3}`. we can omit mortalize.
+    for (int i=0; i<n; i+=2) {
+        pone_val* k = va_arg(list, pone_val*);
+        pone_val* v = va_arg(list, pone_val*);
+        pone_hash_put(world, (pone_val*)hv, k, v);
+    }
+    va_end(list);
+
+    return (pone_val*)hv;
+}
+
+void pone_hash_put(pone_world* world, pone_val* hv, pone_val* k, pone_val* v) {
+    assert(pone_type(hv) == PONE_HASH);
+    k = pone_str(world, k);
+    // TODO: check ret
+    int ret;
+    const char* ks=pone_strdup(world, pone_string_ptr(k), pone_string_len(k));
+    khint_t key = kh_put(str, ((pone_hash*)hv)->h, ks, &ret);
+    kh_val(((pone_hash*)hv)->h, key) = v;
+    pone_refcnt_inc(world, v);
+    ((pone_hash*)hv)->len++;
+}
+
+size_t pone_hash_elems(pone_val* val) {
+    assert(pone_type(val) == PONE_HASH);
+    return ((pone_hash*)val)->len;
+}
+
 pone_val* pone_ary_at_pos(pone_val* av, int i) {
     assert(pone_type(av) == PONE_ARRAY);
     pone_ary*a = (pone_ary*)av;
@@ -418,7 +494,7 @@ pone_val* pone_ary_at_pos(pone_val* av, int i) {
     }
 }
 
-int pone_ary_elems(pone_val* av) {
+size_t pone_ary_elems(pone_val* av) {
     assert(pone_type(av) == PONE_ARRAY);
     return ((pone_ary*)av)->len;
 }

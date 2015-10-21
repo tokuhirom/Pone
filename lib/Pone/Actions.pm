@@ -134,6 +134,25 @@ method value:sym<array>($/) {
     }
 }
 
+method value:sym<hash>($/) {
+    my $c = 'pone_mortalize(PONE_WORLD, pone_new_hash(PONE_WORLD, ';
+    if $/<hash-pair> {
+        $c ~= $/<hash-pair>.elems ~ "," ~ $/<hash-pair>».made.join(",");
+    } else {
+        $c ~= "0";
+    }
+    $c ~= '))';
+    $/.make: $c;
+}
+
+method hash-pair($/) {
+    $/.make: $/<hash-key>.made => $/<term>.made;
+}
+
+method hash-key($/) {
+    $/.make: $/<term> ?? $/<term>.made !! ~$/<bare-word>;
+}
+
 # XXX bad code
 method string:sym<sqstring>($m) {
     my @s;
