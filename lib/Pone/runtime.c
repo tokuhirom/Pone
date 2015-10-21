@@ -6,6 +6,8 @@
 #include <stdarg.h>
 #include "khash.h" /* PONE_INC */
 
+// TODO: NaN boxing
+
 typedef enum {
     PONE_UNDEF,
     PONE_INT,

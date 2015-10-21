@@ -4,11 +4,10 @@ unit class Pone;
 use Pone::Actions;
 use Pone::Grammar;
 
-my $actions = Pone::Actions.new();
-
 has $.cc = 'gcc';
 
-method compile(Str $code) {
+method compile(Str $code, Str :$filename="-") {
+    my $actions = Pone::Actions.new(:$filename);
     my $got = Pone::Grammar.parse($code, :$actions);
     if $got {
         return $got.made;

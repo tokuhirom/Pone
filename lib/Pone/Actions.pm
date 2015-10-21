@@ -3,19 +3,28 @@ unit class Pone::Actions;
 use Pone::Utils;
 
 has Set $.builtins = set(<print say dd abs elems>);
-
-# TODO: NaN boxing
+has $.filename = "-";
 
 # Language design:
 #
 #   String is immutable.
+
+# See HLL::Compiler
+sub lineof($/) {
+    my $n=1;
+    $/.orig.substr(0, $/.from).subst(/\n/, {$n++});
+    $n;
+}
 
 method TOP($/) {
     $/.make: $/<stmts>.made;
 }
 
 method stmts($/) {
-    $/.make: $/<stmt>».made.map({ "$_;" }).join("\n");
+    $/.make: $/<stmt>.map({
+        my $line = lineof($_);
+        qq!#line $line "$.filename"\n! ~ .made ~ ";\n"
+    }).join("\n");
 }
 
 method stmt:sym<term>($/) {
@@ -175,4 +184,5 @@ method sqstring-normal($/) {
 method sqstring-escape($/) {
     $/.make: ~$0;
 }
+
 
