@@ -1,0 +1,37 @@
+
+pone_val* pone_new_ary(pone_world* world, int n, ...) {
+    va_list list;
+
+    pone_ary* av = (pone_ary*)pone_malloc(world, sizeof(pone_ary));
+    av->refcnt = 1;
+    av->type   = PONE_ARRAY;
+
+    va_start(list, n);
+    av->a = (pone_val**)pone_malloc(world, sizeof(pone_ary)*n);
+    av->max = n;
+    av->len = n;
+    // we can optimize in case of `[1,2,3]`.
+    for (int i=0; i<n; ++i) {
+        pone_val* v = va_arg(list, pone_val*);
+        av->a[i] = v;
+        pone_refcnt_inc(world, v);
+    }
+    va_end(list);
+
+    return (pone_val*)av;
+}
+
+pone_val* pone_ary_at_pos(pone_val* av, int i) {
+    assert(pone_type(av) == PONE_ARRAY);
+    pone_ary*a = (pone_ary*)av;
+    if (a->len > i) {
+        return a->a[i];
+    } else {
+        return &pone_undef_val;
+    }
+}
+
+size_t pone_ary_elems(pone_val* av) {
+    assert(pone_type(av) == PONE_ARRAY);
+    return ((pone_ary*)av)->len;
+}

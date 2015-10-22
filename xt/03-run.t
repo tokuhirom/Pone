@@ -14,7 +14,7 @@ run {
     (my $objfile = $src) =~ s/\.c$/.o/;
 
     unlink $objfile;
-    system('gcc', '-g', '-std=c99', '-o', $objfile, $src);
+    system('gcc', '-Ilib/Pone/runtime/', '-g', '-std=c99', '-o', $objfile, $src);
     my ($out, $err, $exit) = capture {
         system("valgrind ./$objfile");
     };

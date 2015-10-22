@@ -28,10 +28,13 @@ method !slurp(Str $name) {
 }
 
 method wrap(Str $code) {
+    my $all = slurp('lib/Pone/runtime/pone_all.h');
+    my @runtimes;
+    for $all.match(/ '"' (\N+?) '"' /, :overlap) -> $m {
+        @runtimes.push: self!slurp("lib/Pone/runtime/" ~ ~($m[0]));
+    }
     [
-        self!slurp('lib/Pone/khash.h'),
-        self!slurp('lib/Pone/runtime.c'),
-        self!slurp('lib/Pone/runtime/builtin.c'),
+        |@runtimes,
         "\n",
         "// --------------- ^^^^ rutnime   ^^^^ -------------------",
         "// --------------- vvvv user code vvvv -------------------",
