@@ -1,4 +1,4 @@
-#include "../../lib/Pone/runtime.c"
+#include "all.h"
 
 int main(int argc, char** argv) {
     pone_world* world = pone_new_world();

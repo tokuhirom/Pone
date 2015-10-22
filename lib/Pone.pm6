@@ -31,6 +31,7 @@ method wrap(Str $code) {
     [
         self!slurp('lib/Pone/khash.h'),
         self!slurp('lib/Pone/runtime.c'),
+        self!slurp('lib/Pone/runtime/builtin.c'),
         "\n",
         "// --------------- ^^^^ rutnime   ^^^^ -------------------",
         "// --------------- vvvv user code vvvv -------------------",
@@ -99,6 +100,10 @@ There is integer literal.
 
 There is single quotation string literal
 
+=item C< { a => 3 }>
+
+hash literals.
+
 =head1 builtin functions
 
 =item C<elems>
@@ -115,13 +120,13 @@ print message with new line.
 
 =head1 TODO
 
-=item if stmt
-
 =item for stmt
 
 =item while stmt
 
-=item funcall
+=item user defined funciton
+
+=item getenv
 
 =item implement p5-ish functions
 

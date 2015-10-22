@@ -53,4 +53,5 @@ False
 --- input: t/c/assign.c
 --- stdout
 4963
+5555
 
