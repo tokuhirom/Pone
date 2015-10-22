@@ -248,10 +248,13 @@ pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
             return val;
         }
     }
+    case PONE_STRING:
+        break;
                    // TODO: NV
     }
 
     pone_die(world, "you can't call abs() for non-numeric value");
+    abort();
 }
 
 inline pone_t pone_type(pone_val* val) {
@@ -348,7 +351,7 @@ int pone_to_int(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_UNDEF:
         pone_die(world, "Use of uninitialized value as integer");
-        break;
+        abort();
     case PONE_INT:
         return pone_int_val(val);
     case PONE_STRING: {
@@ -443,6 +446,8 @@ size_t pone_elems(pone_world* world, pone_val* val) {
         return pone_ary_elems(val);
     case PONE_HASH:
         return pone_hash_elems(val);
+    case PONE_UNDEF:
+        return 1; // same as perl6
     }
     return 1;
 }

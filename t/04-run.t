@@ -162,3 +162,21 @@ say $x;
 --- expected
 1111
 
+===
+--- input
+say elems({a => 3});
+--- expected
+1
+
+===
+--- input
+say elems({a => 3, b => 4});
+--- expected
+1
+
+===
+--- input
+say elems({});
+--- expected
+0
+

@@ -3,17 +3,22 @@ unit class Pone;
 
 use Pone::Actions;
 use Pone::Grammar;
+use Pone::Compiler;
 
 has $.cc = 'gcc';
+has $.compiler = Pone::Compiler.new;
+
+my $aa = '( д) ﾟ ﾟ';
 
 method compile(Str $code, Str :$filename="-") {
     my $actions = Pone::Actions.new(:$filename);
     my $got = Pone::Grammar.parse($code, :$actions);
     if $got {
-        return $got.made;
+        return $.compiler.compile($filename, $got.made);
     } else {
         die "parse failed";
     }
+    CATCH { default { die "$aa oops... $_: $code in $filename {.backtrace.full}" } }
 }
 
 method !slurp(Str $name) {

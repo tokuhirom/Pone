@@ -1,8 +1,11 @@
+use v6;
+
+use Pone::Node;
+
 unit class Pone::Actions;
 
 use Pone::Utils;
 
-has Set $.builtins = set(<print say dd abs elems>);
 has $.filename = "-";
 
 # Language design:
@@ -21,40 +24,55 @@ method TOP($/) {
 }
 
 method stmts($/) {
-    $/.make: $/<stmt>.map({
-        my $line = lineof($_);
-        qq!#line $line "$.filename"\n! ~ .made ~ ";\n"
-    }).join("\n");
+    $/.make: Pone::Node::Stmts.new(
+        $/<stmt>.map({
+            my $node = $_.ast;
+            $node.lineno = lineof($_);
+            $node
+        })
+    );
 }
 
 method stmt:sym<term>($/) {
-    $/.make: $/<term>.made;
+    $/.make: $/<term>.ast;
 }
 
 method stmt:sym<if>($/) {
-    my $c = "if (pone_so({$/<term>.made}))\n{ $/<block>.made }";
+    my $if = Pone::Node::If.new([
+        $/<term>.ast, $/<block>.made,
+    ]);
+    my $cur = $if;
     if $/<elsif>:exists {
-        $c ~= $/<elsif>».made.join("\n");
+        for $/<elsif> {
+            my $elsif = .ast;
+            $cur.children.push: $elsif;
+            $cur = $elsif;
+        }
     }
     if $/<else>:exists {
-        $c ~= $/<else>.made;
+        $cur.children.push: $/<else>.ast;
     }
-    $/.make: $c;
+
+    $/.make: $if;
 }
 
 method elsif($/) {
-    $/.make: ' else if (pone_so(' ~ $/<term>.made ~ "))\n" ~ $/<block>.made;
+    $/.make: Pone::Node::If.new(
+        [ $/<term>.ast, $/<block>.ast ],
+    );
 }
 
 method else($/) {
-    $/.make: "else\n" ~ $/<block>.made;
+    $/.make: Pone::Node::If.new(
+        [Pone::Node::True.new(), $/<block>.made]
+    );
 }
 
 method block($/) {
-    $/.make: '{ pone_enter(PONE_WORLD);' ~ "\n" ~ $/<stmts>.made ~ "\n" ~ ' pone_leave(PONE_WORLD); }';
+    $/.make: Pone::Node::Block.new($/<stmts>.ast);
 }
 
-method term($/) { $/.make: $/<expr>.made }
+method term($/) { $/.make: $/<expr>.ast }
 
 # see integration/99problems-41-to-50.t in roast
 method expr($/) {
@@ -69,22 +87,26 @@ method expr($/) {
             my $r = @e.shift;
             given $op {
                 when '=' {
-                    $l = "pone_assign(PONE_WORLD, 0, $l,$r)";
+                    $l = Pone::Node::Assign.new([$l, $r]);
                 }
                 when '+' {
-                    $l = "pone_add(PONE_WORLD, $l,$r)";
+                    $l = Pone::Node::Add.new([$l, $r]);
                 }
                 when '-' {
-                    $l = "pone_subtract(PONE_WORLD, $l,$r)";
+                    $l = Pone::Node::Subtract.new([$l, $r]);
+                    # $l = "pone_subtract(PONE_WORLD, $l,$r)";
                 }
                 when '*' {
-                    $l = "pone_multiply(PONE_WORLD, $l,$r)";
+                    $l = Pone::Node::Multiply.new([$l, $r]);
+                    # $l = "pone_multiply(PONE_WORLD, $l,$r)";
                 }
                 when '/' {
-                    $l = "pone_divide(PONE_WORLD, $l,$r)";
+                    $l = Pone::Node::Divide.new([$l, $r]);
+                    # $l = "pone_divide(PONE_WORLD, $l,$r)";
                 }
                 when '%' {
-                    $l = "pone_mod(PONE_WORLD, $l,$r)";
+                    $l = Pone::Node::Mod.new([$l, $r]);
+                    # $l = "pone_mod(PONE_WORLD, $l,$r)";
                 }
                 default {
                     die "unknown operatar: $op";
@@ -98,12 +120,7 @@ method expr($/) {
 method infix-op($/) { $/.make: ~$/ }
 
 method !funcall($/) {
-    my $ident = ~$/<ident>;
-    if $!builtins{$ident} {
-        $/.make: "pone_builtin_" ~ $ident ~ "(PONE_WORLD, " ~ $/<args>.made ~ ")";
-    } else {
-        $/.make: "pone_user_func_" ~ $ident ~ "(PONE_WORLD, " ~ $/<args>.made ~ ")";
-    }
+    $/.make: Pone::Node::Funcall.new([Pone::Node::Ident.new(~$/<ident>), |$/<args>.made])
 }
 
 method stmt:sym<funcall>($/) {
@@ -115,7 +132,7 @@ method value:sym<funcall>($/) {
 }
 
 method args($/) {
-    $/.make: $/<term>».made.join(",");
+    $/.make: $/<term>».made;
 }
 
 method value:sym<string>($/) {
@@ -123,59 +140,51 @@ method value:sym<string>($/) {
 }
 
 method value:sym<decimal>($/) {
-    $/.make: "pone_mortalize(PONE_WORLD, pone_new_int(PONE_WORLD, " ~ ~$/ ~ "))";
+    $/.make: Pone::Node::Int.new($/.Str.Int);
 }
 
 method value:sym<paren>($/) {
-    $/.make: "(" ~ $/<term>.made ~ ")";
+    $/.make: $/<term>.ast;
 }
 
 method value:sym<True>($/) {
-    $/.make: "pone_true()";
+    $/.make: Pone::Node::True.new();
 }
 
 method value:sym<False>($/) {
-    $/.make: "pone_false()";
+    $/.make: Pone::Node::False.new();
 }
 
 method value:sym<array>($/) {
-    if $/<term> {
-        $/.make: 'pone_mortalize(PONE_WORLD, pone_new_ary(PONE_WORLD, ' ~ $/<term>.elems ~ "," ~ $/<term>».made.join(",") ~ '))';
-    } else {
-        $/.make: 'pone_mortalize(PONE_WORLD, pone_new_ary(PONE_WORLD, 0))';
-    }
+    $/.make: Pone::Node::Array.new($/<term>».ast);
 }
 
 method value:sym<hash>($/) {
-    my $c = 'pone_mortalize(PONE_WORLD, pone_new_hash(PONE_WORLD, ';
-    if $/<hash-pair> {
-        $c ~= $/<hash-pair>.elems ~ "," ~ $/<hash-pair>».made.join(",");
-    } else {
-        $c ~= "0";
-    }
-    $c ~= '))';
-    $/.make: $c;
+    $/.make: Pone::Node::Hash.new(
+        $/<hash-pair>».made
+    );
 }
 
 method value:sym<myvar>($/) {
-    $/.make: qq!"{~$/<var>}"!;
+    $/.make: Pone::Node::My.new($/<var>.ast);
 }
 
 method value:sym<var>($/) {
-    my $var = ~$/<var>;
-    $/.make: qq!pone_get_lex(PONE_WORLD, "$var")!;
+    $/.make: $/<var>.ast;
 }
 
 method hash-pair($/) {
-    $/.make: $/<hash-key>.made => $/<term>.made;
+    $/.make: Pone::Node::Pair.new(
+        [$/<hash-key>.made, $/<term>.made]
+    );
 }
 
 method hash-key($/) {
-    $/.make: $/<term> ?? $/<term>.made !! ~$/<bare-word>;
+    $/.make: $/<term> ?? $/<term>.ast !! Pone::Node::Str.new(~$/<bare-word>);
 }
 
 method var($/) {
-    $/.make: ~$/<ident>;
+    $/.make: Pone::Node::Var.new(~$/<ident>);
 }
 
 # XXX bad code
@@ -190,7 +199,7 @@ method string:sym<sqstring>($m) {
         }
     }
     my $s = @s.join("");
-    $m.make: qq!pone_new_str(PONE_WORLD, "{escape-c-str($s)}", {$s.encode.bytes})!;
+    $m.make: Pone::Node::Str.new($s);
 }
 
 method sqstring-normal($/) {
