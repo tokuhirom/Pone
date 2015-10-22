@@ -155,3 +155,10 @@ say 5963
 --- expected
 5963
 
+===
+--- input
+my $x = 1111;
+say $x;
+--- expected
+1111
+

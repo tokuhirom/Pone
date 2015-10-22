@@ -4,7 +4,7 @@ use v6;
 
 grammar Pone::Grammar {
     token TOP { :s ^ [ <stmts> || '' ] \s* $ }
-    token stmts {:s <stmt> [ ';' <stmt>? ]* }
+    token stmts {:s <stmt> [ ';' <stmt>? ]* ';'* }
 
     proto token stmt { * }
     token stmt:sym<if> {:s
@@ -16,22 +16,30 @@ grammar Pone::Grammar {
     token else {:s
         'else' <block>
     }
+
     token stmt:sym<term> { <term> }
-    token stmt:sym<funcall> { :s <ident> <args> }
+
+    # reserved words
+    token keyword {
+        [ my ] <!ww>
+    }
+
+    token stmt:sym<funcall> { :s <!keyword> <ident> <args> }
 
     rule block {:s
         '{' <stmts> '}'
     }
 
-    rule term { <expr(3)> }
+    rule term { <expr(4)> }
 
     # loosest to tightest
+    multi token infix-op(4) { '=' }
     multi token infix-op(3) { '+' | '-' }
     multi token infix-op(2) { '*' | '/' | '%' }
     multi token infix-op(1) { '**' }
 
     multi rule expr(0)      { <value> }
-    multi rule expr($pred)  { <expr($pred-1)> +% [ <infix-op($pred)> ] }
+    multi rule expr($pred)  {:s <expr($pred-1)> +% [ <infix-op($pred)> ] }
 
     proto rule value { <...> }
 
@@ -44,11 +52,13 @@ grammar Pone::Grammar {
     rule value:sym<paren> {:s '(' <term> ')' }
     rule value:sym<array> {:s '[' <term> [ ',' <term> ]* ','? ']' || '[' ']' }
     rule value:sym<hash> {:s '{' <hash-pair> [ ',' <hash-pair> ]* ','? '}' || '{' '}' }
+    rule value:sym<myvar> {:s 'my' <var> }
+    rule value:sym<var> { <var> }
     rule hash-pair {:s <hash-key> '=>' <term> }
     rule hash-key {:s <term> || <bare-word> }
     token bare-word { <[A..Z a..z 0..9]>+ }
 
-    rule var { \$ <ident> }
+    token var { \$ <ident> }
     token decimal { '0' || <[+ -]>? <[ 1..9 ]> <[ 0..9 ]>* }
     token ident { <[ A..Z a..z 0..9 ]> <[ A..Z a..z 0..9 ]>* }
     proto rule string { <...> }

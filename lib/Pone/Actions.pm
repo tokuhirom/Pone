@@ -68,6 +68,9 @@ method expr($/) {
             my $op = @ops.shift;
             my $r = @e.shift;
             given $op {
+                when '=' {
+                    $l = "pone_assign(PONE_WORLD, 0, $l,$r)";
+                }
                 when '+' {
                     $l = "pone_add(PONE_WORLD, $l,$r)";
                 }
@@ -154,12 +157,25 @@ method value:sym<hash>($/) {
     $/.make: $c;
 }
 
+method value:sym<myvar>($/) {
+    $/.make: qq!"{~$/<var>}"!;
+}
+
+method value:sym<var>($/) {
+    my $var = ~$/<var>;
+    $/.make: qq!pone_get_lex(PONE_WORLD, "$var")!;
+}
+
 method hash-pair($/) {
     $/.make: $/<hash-key>.made => $/<term>.made;
 }
 
 method hash-key($/) {
     $/.make: $/<term> ?? $/<term>.made !! ~$/<bare-word>;
+}
+
+method var($/) {
+    $/.make: ~$/<ident>;
 }
 
 # XXX bad code
