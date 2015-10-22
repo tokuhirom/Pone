@@ -25,6 +25,14 @@ method compile(Str $filename, Pone::Node $node) {
     self!compile($node);
 }
 
+method !so(Pone::Node $node) {
+    if $node ~~ Pone::Node::True {
+        "true";
+    } else {
+        "pone_so(" ~ self!compile($node) ~ ')';
+    }
+}
+
 method !compile(Pone::Node $node) {
     given $node {
     when Pone::Node::Stmts {
@@ -44,9 +52,7 @@ method !compile(Pone::Node $node) {
     }
     when Pone::Node::If {
         my ($cond, $block, $else) = $node.children;
-        my $s = "if (pone_so(";
-        $s ~= self!compile($cond);
-        $s ~= ')) {';
+        my $s = "if (" ~ self!so($cond) ~ ') {';
         $s ~= self!compile($block);
         $s ~= '}';
         if $else {
