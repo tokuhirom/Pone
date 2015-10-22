@@ -45,13 +45,22 @@ method !compile(Pone::Node $node) {
         }).join("\n");
     }
     when Pone::Node::Funcall {
-        my ($ident-node, @arg-nodes) = $node.children;
+        my ($ident-node, $args) = $node.children;
         my $ident = $ident-node.value;
-        my $arg = @arg-nodes.map({ self!compile($_) }).join(", ");
 
         my $prefix = $!builtins{$ident} ?? "pone_builtin" !! "pone_user_func";
-        sprintf('%s_%s(world, %s)',
-            $prefix, $ident, $arg);
+        my $s = $prefix;
+        $s ~= "_";
+        $s ~= $ident;
+        $s ~= '(world';
+        if $args {
+            $s ~= ", " ~ self!compile($args);
+        }
+        $s ~= ')';
+        $s;
+    }
+    when Pone::Node::Args {
+        .children.map({self!compile($_)}).join(',');
     }
     when Pone::Node::If {
         my ($cond, $block, $else) = $node.children;
@@ -105,8 +114,6 @@ method !compile(Pone::Node $node) {
         my @vars = gather {
             if .children[1] {
                 for (.children[1].children X 0..*) -> $k, $v {
-                    $k.perl.say;
-                    $v.perl.say;
                     take "pone_val* val$v";
                 }
             }

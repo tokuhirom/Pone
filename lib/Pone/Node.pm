@@ -21,7 +21,10 @@ class Pone::Node {
 class Pone::Node::Stmts    is Pone::Node { }
 class Pone::Node::If       is Pone::Node { }
 class Pone::Node::Block    is Pone::Node { }
+
 class Pone::Node::Funcall  is Pone::Node { }
+class Pone::Node::Args     is Pone::Node { }
+
 class Pone::Node::Add      is Pone::Node { }
 class Pone::Node::Subtract is Pone::Node { }
 class Pone::Node::Multiply is Pone::Node { }

@@ -4,7 +4,7 @@ use v6;
 
 grammar Pone::Grammar {
     token TOP { :s ^ [ <stmts> || '' ] \s* $ }
-    token stmts {:s <stmt> [ ';' <stmt> ]* ';'* }
+    token stmts { <stmt>* }
 
     proto token stmt { * }
     token stmt:sym<if> {:s
@@ -17,15 +17,20 @@ grammar Pone::Grammar {
         'else' <block>
     }
 
-    token stmt:sym<term> { <term> }
-
     # reserved words
     token keyword {
-        [ class | method | sub | my ] <!ww>
+        [ if | unless | while | until | do | class | method | sub | my ] <!ww>
     }
 
-    token stmt:sym<funcall> {:s <!keyword> <ident> <args> }
     token stmt:sym<sub> {:s 'sub' <name=ident> '(' <params>? ')' '{' <stmts> '}' }
+
+    token stmt:sym<normal-stmts> {
+        <normal-stmt> [ ';'+ <normal-stmt> ]* ';'*
+    }
+
+    proto token normal-stmt { * }
+    token normal-stmt:sym<term> { <term> }
+    token normal-stmt:sym<funcall> {:s <!keyword> <ident> <args> }
 
     token params {:s
         <term> [ ',' <term> ]*
@@ -50,7 +55,7 @@ grammar Pone::Grammar {
 
     rule value:sym<True> { <sym> }
     rule value:sym<False> { <sym> }
-    rule value:sym<funcall> { <ident> '(' <args>? ')' }
+    rule value:sym<funcall> { <!keyword> <ident> '(' <args>? ')' }
     rule args { <term> [ ',' <term> ]* }
     rule value:sym<decimal> { <decimal> }
     rule value:sym<string> { <string> }

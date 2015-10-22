@@ -182,8 +182,8 @@ say elems({});
 
 ===
 --- input
-sub x() { 3 }
-say x();
+sub x() { say 3 }
+x();
 --- expected
 3
 

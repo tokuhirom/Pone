@@ -33,8 +33,14 @@ method stmts($/) {
     );
 }
 
-method stmt:sym<term>($/) {
-    $/.make: $/<term>.ast;
+method stmt:sym<normal-stmts>($/) {
+    $/.make: Pone::Node::Stmts.new(
+        $/<normal-stmt>.map({
+            my $node = $_.ast;
+            $node.lineno = lineof($_);
+            $node
+        })
+    );
 }
 
 method stmt:sym<if>($/) {
@@ -120,10 +126,18 @@ method expr($/) {
 method infix-op($/) { $/.make: ~$/ }
 
 method !funcall($/) {
-    $/.make: Pone::Node::Funcall.new([Pone::Node::Ident.new(~$/<ident>), |$/<args>.made])
+    my @children = Pone::Node::Ident.new(~$/<ident>);
+    if $/<args> {
+        @children.push: |$/<args>.made;
+    }
+    $/.make: Pone::Node::Funcall.new(@children);
 }
 
-method stmt:sym<funcall>($/) {
+method normal-stmt:sym<term>($/) {
+    $/.make: $/<term>.made;
+}
+
+method normal-stmt:sym<funcall>($/) {
     self!funcall($/);
 }
 
@@ -148,7 +162,7 @@ method value:sym<funcall>($/) {
 }
 
 method args($/) {
-    $/.make: $/<term>».made;
+    $/.make: Pone::Node::Args.new($/<term>».made);
 }
 
 method value:sym<string>($/) {
