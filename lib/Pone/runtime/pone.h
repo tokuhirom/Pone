@@ -105,11 +105,13 @@ static pone_val pone_undef_val = { -1, PONE_UNDEF, 0 };
 pone_val* pone_new_hash(pone_world* world, int n, ...);
 void pone_hash_put(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
 size_t pone_hash_elems(pone_val* val);
+pone_val* pone_hash_free(pone_world* world, pone_val* val);
 
 // array.c
 pone_val* pone_new_ary(pone_world* world, int n, ...);
 size_t pone_ary_elems(pone_val* val);
 pone_val* pone_ary_at_pos(pone_val* val, int pos);
+void pone_ary_free(pone_world* world, pone_val* val);
 
 // str.c
 pone_val* pone_new_str(pone_world* world, const char*p, size_t len);

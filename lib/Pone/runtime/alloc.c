@@ -41,26 +41,12 @@ inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
         case PONE_STRING:
             pone_str_free(world, val);
             break;
-        case PONE_ARRAY: {
-            pone_ary* a=(pone_ary*)val;
-            size_t l = pone_ary_elems(val);
-            for (int i=0; i<l; ++i) {
-                pone_refcnt_dec(world, a->a[i]);
-            }
-            pone_free(world, a->a);
+        case PONE_ARRAY:
+            pone_ary_free(world, val);
             break;
-        }
-        case PONE_HASH: {
-            pone_hash* h=(pone_hash*)val;
-            const char* k;
-            pone_val* v;
-            kh_foreach(h->h, k, v, {
-                pone_free(world, (void*)k); // k is strdupped.
-                pone_refcnt_dec(world, v);
-            });
-            kh_destroy(str, h->h);
+        case PONE_HASH:
+            pone_hash_free(world, val);
             break;
-        }
         }
         pone_free(world, val);
     }

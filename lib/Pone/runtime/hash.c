@@ -23,6 +23,17 @@ pone_val* pone_new_hash(pone_world* world, int n, ...) {
     return (pone_val*)hv;
 }
 
+pone_val* pone_hash_free(pone_world* world, pone_val* val) {
+    pone_hash* h=(pone_hash*)val;
+    const char* k;
+    pone_val* v;
+    kh_foreach(h->h, k, v, {
+        pone_free(world, (void*)k); // k is strdupped.
+        pone_refcnt_dec(world, v);
+    });
+    kh_destroy(str, h->h);
+}
+
 void pone_hash_put(pone_world* world, pone_val* hv, pone_val* k, pone_val* v) {
     assert(pone_type(hv) == PONE_HASH);
     k = pone_str(world, k);
