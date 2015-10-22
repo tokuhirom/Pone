@@ -4,6 +4,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <assert.h>
 #include <stdbool.h>
@@ -11,6 +12,11 @@
 #include "khash.h" /* PONE_INC */
 
 // TODO: NaN boxing
+
+// string literal is constant
+#define PONE_FLAGS_STR_CONST 1
+// This object is immutable
+#define PONE_FLAGS_STR_FROZEN 2
 
 typedef enum {
     PONE_UNDEF,
@@ -24,7 +30,8 @@ typedef enum {
 
 #define PONE_HEAD \
     int refcnt; \
-    pone_t type;
+    pone_t type; \
+    uint8_t flags
 
 typedef struct {
     PONE_HEAD;
@@ -92,7 +99,7 @@ typedef struct {
     lex_entry* lex;
 } pone_world;
 
-static pone_val pone_undef_val = { -1, PONE_UNDEF };
+static pone_val pone_undef_val = { -1, PONE_UNDEF, 0 };
 
 // hash.c
 pone_val* pone_new_hash(pone_world* world, int n, ...);
@@ -106,6 +113,8 @@ pone_val* pone_ary_at_pos(pone_val* val, int pos);
 
 // str.c
 pone_val* pone_new_str(pone_world* world, const char*p, size_t len);
+pone_val* pone_new_str_const(pone_world* world, const char*p, size_t len);
+void pone_str_free(pone_world* world, pone_val* val);
 pone_val* pone_str(pone_world* world, pone_val* val);
 pone_val* pone_str_from_num(pone_world* world, double n);
 const char* pone_string_ptr(pone_val* val);

@@ -20,7 +20,7 @@ sub MAIN(:$o='pone_generated.c', Str :$e, Bool :$run=False) {
     if $run {
         $pone.run($code);
     } else {
-        my $c = $pone.compile($code);
+        my $c = $pone.wrap($pone.compile($code));
         open($o, :w).print($c);
         say "wrote $o";
     }

@@ -1,4 +1,4 @@
-
+// pone dup p.
 pone_val* pone_new_str(pone_world* world, const char*p, size_t len) {
     pone_string* pv = (pone_string*)pone_malloc(world, sizeof(pone_string));
     pv->refcnt = 1;
@@ -6,6 +6,23 @@ pone_val* pone_new_str(pone_world* world, const char*p, size_t len) {
     pv->p = pone_strdup(world, p, len);
     pv->len = len;
     return (pone_val*)pv;
+}
+
+// pone doesn't dup p.
+pone_val* pone_new_str_const(pone_world* world, const char*p, size_t len) {
+    pone_string* pv = (pone_string*)pone_malloc(world, sizeof(pone_string));
+    pv->flags |= PONE_FLAGS_STR_CONST | PONE_FLAGS_STR_FROZEN;
+    pv->refcnt = 1;
+    pv->type = PONE_STRING;
+    pv->p = p;
+    pv->len = len;
+    return (pone_val*)pv;
+}
+
+void pone_str_free(pone_world* world, pone_val* val) {
+    if (!(val->flags & PONE_FLAGS_STR_CONST)) {
+        pone_free(world, (char*)((pone_string*)val)->p);
+    }
 }
 
 pone_val* pone_str_from_int(pone_world* world, int i) {
@@ -29,7 +46,7 @@ pone_val* pone_str_from_num(pone_world* world, double n) {
 pone_val* pone_str(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_UNDEF:
-        return pone_mortalize(world, pone_new_str(world, "(undef)", strlen("(undef)")));
+        return pone_mortalize(world, pone_new_str_const(world, "(undef)", strlen("(undef)")));
     case PONE_INT:
         return pone_str_from_int(world, pone_int_val(val));
     case PONE_NUM:
@@ -38,9 +55,9 @@ pone_val* pone_str(pone_world* world, pone_val* val) {
         return val;
     case PONE_BOOL:
         if (pone_bool_val(val)) {
-            return pone_mortalize(world, pone_new_str(world, "True", strlen("True")));
+            return pone_mortalize(world, pone_new_str_const(world, "True", strlen("True")));
         } else {
-            return pone_mortalize(world, pone_new_str(world, "False", strlen("False")));
+            return pone_mortalize(world, pone_new_str_const(world, "False", strlen("False")));
         }
     default:
         abort();

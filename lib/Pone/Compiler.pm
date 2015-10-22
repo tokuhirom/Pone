@@ -128,7 +128,7 @@ method !compile(Pone::Node $node) {
     when Pone::Node::Str {
         # TODO: freeze string literals
         my $s = .value;
-        mortal(qq!pone_new_str(PONE_WORLD, "{escape-c-str($s)}", {$s.encode.bytes})!);
+        mortal(qq!pone_new_str_const(PONE_WORLD, "{escape-c-str($s)}", {$s.encode.bytes})!);
     }
     default {
         die "unknown node: {$node.WHAT.gist}";

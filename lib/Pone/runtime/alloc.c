@@ -39,7 +39,7 @@ inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
     if (val->refcnt == 0) {
         switch (pone_type(val)) {
         case PONE_STRING:
-            pone_free(world, (char*)((pone_string*)val)->p);
+            pone_str_free(world, val);
             break;
         case PONE_ARRAY: {
             pone_ary* a=(pone_ary*)val;
