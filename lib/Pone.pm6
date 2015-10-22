@@ -126,6 +126,10 @@ print message with new line.
 
 get environment variable
 
+=item C<time()>
+
+Get current time in sec.
+
 =head1 TODO
 
 =item for stmt

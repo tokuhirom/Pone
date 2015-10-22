@@ -7,7 +7,7 @@ unit class Pone::Compiler;
 use Pone::Utils;
 
 has $!filename;
-has Set $.builtins = set(<print say dd abs elems getenv>);
+has Set $.builtins = set(<print say dd abs elems getenv time>);
 has @!subs;
 
 sub mortal(Str $s) {
@@ -113,8 +113,8 @@ method !compile(Pone::Node $node) {
         my $name = .children[0].value;
         my @vars = gather {
             if .children[1] {
-                for (.children[1].children X 0..*) -> $k, $v {
-                    take "pone_val* val$v";
+                for 0..^(.children[1].children.elems) -> $i {
+                    take "pone_val* arg$i";
                 }
             }
         };
@@ -124,10 +124,20 @@ method !compile(Pone::Node $node) {
         $s ~= $name;
         $s ~= '(pone_world* world';
         if @vars {
+            $s ~= ',';
             $s ~= @vars.join(", ");
         }
         $s ~= ') {' ~ "\n";
+        $s ~= 'pone_enter(world);' ~ "\n";
+        # bind parameters to lexical variables
+        if @vars {
+            for 0..^(.children[1].children.elems) -> $i {
+                my $var = .children[1].children[$i];
+                $s ~= "pone_assign(world, 0, \"{$var.value}\", arg$i);\n";
+            }
+        }
         $s ~= self!compile(.children[2]);
+        $s ~= 'pone_leave(world);' ~ "\n";
         $s ~= "\}\n";
 
         @!subs.push: $s;

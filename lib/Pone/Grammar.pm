@@ -4,7 +4,7 @@ use v6;
 
 grammar Pone::Grammar {
     token TOP { :s ^ [ <stmts> || '' ] \s* $ }
-    token stmts { <stmt>* }
+    token stmts { [ <stmt> ||  ';' ]* }
 
     proto token stmt { * }
     token stmt:sym<if> {:s

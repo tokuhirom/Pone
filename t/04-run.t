@@ -187,3 +187,17 @@ x();
 --- expected
 3
 
+===
+--- input
+sub x($n) { say $n }
+x(3);
+--- expected
+3
+
+===
+--- input
+sub x($n, $m) { say $n-$m }
+x(4,9);
+--- expected
+-5
+

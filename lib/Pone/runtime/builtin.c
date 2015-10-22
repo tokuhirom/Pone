@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <time.h>
 
 pone_val*  pone_builtin_dd(pone_world* world, pone_val* val) {
     pone_dd(world, val);
@@ -38,6 +39,10 @@ pone_val* pone_builtin_say(pone_world* world, pone_val* val) {
 
 pone_val* pone_builtin_elems(pone_world* world, pone_val* val) {
     return pone_mortalize(world, pone_new_int(world, pone_elems(world, val)));
+}
+
+pone_val* pone_builtin_time(pone_world* world) {
+    return pone_mortalize(world, pone_new_int(world, time(NULL)));
 }
 
 pone_val* pone_builtin_getenv(pone_world* world, pone_val* key) {
