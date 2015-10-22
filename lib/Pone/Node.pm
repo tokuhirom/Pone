@@ -32,6 +32,9 @@ class Pone::Node::Array    is Pone::Node { }
 class Pone::Node::Hash     is Pone::Node { }
 class Pone::Node::Pair     is Pone::Node { }
 
+class Pone::Node::Sub      is Pone::Node { }
+class Pone::Node::Params   is Pone::Node { }
+
 class Pone::Node::True  is Pone::Node { }
 class Pone::Node::False is Pone::Node { }
 

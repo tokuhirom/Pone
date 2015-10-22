@@ -4,7 +4,7 @@ use v6;
 
 grammar Pone::Grammar {
     token TOP { :s ^ [ <stmts> || '' ] \s* $ }
-    token stmts {:s <stmt> [ ';' <stmt>? ]* ';'* }
+    token stmts {:s <stmt> [ ';' <stmt> ]* ';'* }
 
     proto token stmt { * }
     token stmt:sym<if> {:s
@@ -21,10 +21,15 @@ grammar Pone::Grammar {
 
     # reserved words
     token keyword {
-        [ my ] <!ww>
+        [ class | method | sub | my ] <!ww>
     }
 
-    token stmt:sym<funcall> { :s <!keyword> <ident> <args> }
+    token stmt:sym<funcall> {:s <!keyword> <ident> <args> }
+    token stmt:sym<sub> {:s 'sub' <name=ident> '(' <params>? ')' '{' <stmts> '}' }
+
+    token params {:s
+        <term> [ ',' <term> ]*
+    }
 
     rule block {:s
         '{' <stmts> '}'
@@ -45,7 +50,7 @@ grammar Pone::Grammar {
 
     rule value:sym<True> { <sym> }
     rule value:sym<False> { <sym> }
-    rule value:sym<funcall> { <ident> '(' <args> ')' }
+    rule value:sym<funcall> { <ident> '(' <args>? ')' }
     rule args { <term> [ ',' <term> ]* }
     rule value:sym<decimal> { <decimal> }
     rule value:sym<string> { <string> }

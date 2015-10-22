@@ -8,21 +8,24 @@ use Pone::Utils;
 
 has $!filename;
 has Set $.builtins = set(<print say dd abs elems getenv>);
+has @!subs;
 
 sub mortal(Str $s) {
-    "pone_mortalize(PONE_WORLD, $s)"
+    "pone_mortalize(world, $s)"
 }
 
 method !infix(Str $func, Pone::Node $node) {
-    sprintf('%s(PONE_WORLD, %s, %s)',
+    sprintf('%s(world, %s, %s)',
         $func,
         self!compile($node.children[0]),
         self!compile($node.children[1]));
 }
 
 method compile(Str $filename, Pone::Node $node) {
+    @!subs = ();
     $!filename = $filename;
-    self!compile($node);
+    my $code = self!compile($node);
+    return @!subs, $code;
 }
 
 method !so(Pone::Node $node) {
@@ -47,7 +50,7 @@ method !compile(Pone::Node $node) {
         my $arg = @arg-nodes.map({ self!compile($_) }).join(", ");
 
         my $prefix = $!builtins{$ident} ?? "pone_builtin" !! "pone_user_func";
-        sprintf('%s_%s(PONE_WORLD, %s)',
+        sprintf('%s_%s(world, %s)',
             $prefix, $ident, $arg);
     }
     when Pone::Node::If {
@@ -65,15 +68,15 @@ method !compile(Pone::Node $node) {
     when Pone::Node::Block {
         # TODO: split SAVETMPS and lex scope
         my $s = '{' ~ "\n";
-        $s ~= "pone_enter(PONE_WORLD);\n";
+        $s ~= "pone_enter(world);\n";
         $s ~= .children.map({self!compile($_)}).join("\n");
-        $s ~= "pone_leave(PONE_WORLD);\n";
+        $s ~= "pone_leave(world);\n";
         $s ~= "}\n";
         $s;
     }
 
     when Pone::Node::Array {
-        my $s = 'pone_new_ary(PONE_WORLD, ';
+        my $s = 'pone_new_ary(world, ';
         $s ~= .children.elems;
         if .children.elems {
             $s ~= ",";
@@ -84,7 +87,7 @@ method !compile(Pone::Node $node) {
     }
 
     when Pone::Node::Hash {
-        my $s = 'pone_new_hash(PONE_WORLD, ';
+        my $s = 'pone_new_hash(world, ';
         $s ~= .children.elems;
         if .children.elems {
             $s ~= ",";
@@ -97,8 +100,36 @@ method !compile(Pone::Node $node) {
         mortal($s);
     }
 
+    when Pone::Node::Sub {
+        my $name = .children[0].value;
+        my @vars = gather {
+            if .children[1] {
+                for (.children[1].children X 0..*) -> $k, $v {
+                    $k.perl.say;
+                    $v.perl.say;
+                    take "pone_val* val$v";
+                }
+            }
+        };
+        my $s = '';
+        $s ~= sprintf(qq!#line %d "%s"\n!, .lineno, $!filename);
+        $s ~= 'pone_val* pone_user_func_';
+        $s ~= $name;
+        $s ~= '(pone_world* world';
+        if @vars {
+            $s ~= @vars.join(", ");
+        }
+        $s ~= ') {' ~ "\n";
+        $s ~= self!compile(.children[2]);
+        $s ~= "\}\n";
+
+        @!subs.push: $s;
+
+        "/* <user func $name > */";
+    }
+
     when Pone::Node::Int {
-        "pone_mortalize(PONE_WORLD, pone_new_int(PONE_WORLD, " ~ .value ~ "))";
+        "pone_mortalize(world, pone_new_int(world, " ~ .value ~ "))";
     }
     when Pone::Node::Add {
         self!infix('pone_add', $_);
@@ -114,10 +145,10 @@ method !compile(Pone::Node $node) {
         if $var ~~ Pone::Node::My {
             $var = $var.children[0].value;
         }
-        "pone_assign(PONE_WORLD, 0, \"$var\", " ~ self!compile(.children[1]) ~ ")";
+        "pone_assign(world, 0, \"$var\", " ~ self!compile(.children[1]) ~ ")";
     }
     when Pone::Node::Var {
-        qq!pone_get_lex(PONE_WORLD, "{.value}")!;
+        qq!pone_get_lex(world, "{.value}")!;
     }
     when Pone::Node::True {
         "pone_true()";
@@ -128,7 +159,7 @@ method !compile(Pone::Node $node) {
     when Pone::Node::Str {
         # TODO: freeze string literals
         my $s = .value;
-        mortal(qq!pone_new_str_const(PONE_WORLD, "{escape-c-str($s)}", {$s.encode.bytes})!);
+        mortal(qq!pone_new_str_const(world, "{escape-c-str($s)}", {$s.encode.bytes})!);
     }
     default {
         die "unknown node: {$node.WHAT.gist}";

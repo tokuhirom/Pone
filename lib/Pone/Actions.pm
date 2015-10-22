@@ -127,6 +127,22 @@ method stmt:sym<funcall>($/) {
     self!funcall($/);
 }
 
+method stmt:sym<sub>($/) {
+    my $node = Pone::Node::Sub.new(
+        [$/<name>.ast, $/<params>.ast, $/<stmts>.ast]
+    );
+    $node.lineno = lineof($/);
+    $/.make: $node;
+}
+
+method params($/) {
+    $/.make: Pone::Node::Params.new($/<term>».ast);
+}
+
+method ident($/) {
+    $/.make: Pone::Node::Ident.new(~$/);
+}
+
 method value:sym<funcall>($/) {
     self!funcall($/);
 }

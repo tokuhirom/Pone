@@ -6,15 +6,37 @@ use Pone::Grammar;
 use Pone::Compiler;
 
 has $.cc = 'gcc';
-has $.compiler = Pone::Compiler.new;
 
 my $aa = '( д) ﾟ ﾟ';
 
 method compile(Str $code, Str :$filename="-") {
+    my $compiler = Pone::Compiler.new;
     my $actions = Pone::Actions.new(:$filename);
     my $got = Pone::Grammar.parse($code, :$actions);
     if $got {
-        return $.compiler.compile($filename, $got.made);
+        my ($subs, $code) = $compiler.compile($filename, $got.made);
+        my $all = slurp('lib/Pone/runtime/pone_all.h');
+        my @runtimes;
+        for $all.match(/ '"' (\N+?) '"' /, :overlap) -> $m {
+            @runtimes.push: self!slurp("lib/Pone/runtime/" ~ ~($m[0]));
+        }
+
+        return [
+            |@runtimes,
+            "\n",
+            "// --------------- ^^^^ rutnime       ^^^^ -------------------",
+            "// --------------- vvvv user code     vvvv -------------------",
+            "// --------------- vvvv functions     vvvv -------------------",
+            |$subs,
+            "// --------------- vvvv main function vvvv -------------------",
+            'int main(int argc, const char **argv) {',
+            '    pone_world* world = pone_new_world();',
+            '    pone_enter(world);',
+                $code,
+            '    pone_leave(world);',
+            '    pone_destroy_world(world);',
+            '}'
+        ].join("\n");
     } else {
         die "parse failed";
     }
@@ -25,27 +47,6 @@ method !slurp(Str $name) {
     my $src = slurp($name);
     $src ~~ s!^^ \N* '/* PONE_INC */' $$!!;
     qq!#line 1 "$name"\n! ~ $src;
-}
-
-method wrap(Str $code) {
-    my $all = slurp('lib/Pone/runtime/pone_all.h');
-    my @runtimes;
-    for $all.match(/ '"' (\N+?) '"' /, :overlap) -> $m {
-        @runtimes.push: self!slurp("lib/Pone/runtime/" ~ ~($m[0]));
-    }
-    [
-        |@runtimes,
-        "\n",
-        "// --------------- ^^^^ rutnime   ^^^^ -------------------",
-        "// --------------- vvvv user code vvvv -------------------",
-        'int main(int argc, const char **argv) {',
-        '    pone_world* PONE_WORLD = pone_new_world();',
-        '    pone_enter(PONE_WORLD);',
-            $code,
-        '    pone_leave(PONE_WORLD);',
-        '    pone_destroy_world(PONE_WORLD);',
-        '}'
-    ].join("\n");
 }
 
 method eval(Str $code) {
@@ -60,7 +61,7 @@ method !run(Str $code, :$capture) {
     my $c = self.compile($code); 
 
     my $tmpfile = 'pone_generated.c';
-    open($tmpfile, :w).print(self.wrap($c));
+    open($tmpfile, :w).print($c);
     my $objfile = 'pone_generated.out'; # XXX insecure
     try unlink $objfile;
     run $.cc, '-g', '-std=c99', '-o', $objfile, $tmpfile;
@@ -134,6 +135,8 @@ get environment variable
 =item user defined funciton
 
 =item implement p5-ish functions
+
+=item closure
 
 =head1 AUTHOR
 

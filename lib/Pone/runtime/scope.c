@@ -5,7 +5,7 @@ void pone_savetmps(pone_world* world) {
     if (world->savestack_max+1 < world->savestack_idx) {
         // grow it
         world->savestack_max *= 2;
-        size_t* ssp = realloc(world->savestack, sizeof(size_t)*world->savestack_max);
+        size_t* ssp = (size_t*)realloc(world->savestack, sizeof(size_t)*world->savestack_max);
         if (!ssp) {
             pone_die(world, "Cannot allocate memory");
         }
@@ -18,7 +18,7 @@ void pone_savetmps(pone_world* world) {
 
 void pone_push_scope(pone_world* world) {
     // create new lex scope
-    lex_entry* new_lex = pone_malloc(world, sizeof(lex_entry));
+    lex_entry* new_lex = (lex_entry*)pone_malloc(world, sizeof(lex_entry));
     new_lex->map = kh_init(str);
     new_lex->parent = world->lex;
     world->lex = new_lex;
@@ -65,7 +65,7 @@ void pone_leave(pone_world* world) {
 pone_val* pone_mortalize(pone_world* world, pone_val* val) {
     if (world->tmpstack_idx == world->tmpstack_max) {
         world->tmpstack_max *= 2;
-        pone_val** ssp = realloc(world->tmpstack, sizeof(pone_val*)*world->tmpstack_max);
+        pone_val** ssp = (pone_val**)realloc(world->tmpstack, sizeof(pone_val*)*world->tmpstack_max);
         if (!ssp) {
             pone_die(world, "Cannot allocate memory");
         }

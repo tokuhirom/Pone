@@ -180,3 +180,10 @@ say elems({});
 --- expected
 0
 
+===
+--- input
+sub x() { 3 }
+say x();
+--- expected
+3
+

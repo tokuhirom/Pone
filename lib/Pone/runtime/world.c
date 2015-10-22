@@ -2,28 +2,28 @@
 
 pone_world* pone_new_world() {
     // we can't use pone_malloc yet.
-    pone_world* world = malloc(sizeof(pone_world));
+    pone_world* world = (pone_world*)malloc(sizeof(pone_world));
     if (!world) {
         fprintf(stderr, "Cannot make world\n");
         exit(1);
     }
     memset(world, 0, sizeof(pone_world));
 
-    world->savestack = malloc(sizeof(size_t*) * 64);
+    world->savestack = (size_t*)malloc(sizeof(size_t*) * 64);
     if (!world->savestack) {
         fprintf(stderr, "Cannot make world\n");
         exit(1);
     }
     world->savestack_max = 64;
 
-    world->tmpstack = malloc(sizeof(size_t*) * 64);
+    world->tmpstack = (pone_val**)malloc(sizeof(pone_val*) * 64);
     if (!world->tmpstack) {
         fprintf(stderr, "Cannot make world\n");
         exit(1);
     }
     world->tmpstack_max = 64;
 
-    world->lex = malloc(sizeof(lex_entry));
+    world->lex = (lex_entry*)malloc(sizeof(lex_entry)*1);
     if (!world->lex) {
         fprintf(stderr, "Cannot make world\n");
         exit(1);
