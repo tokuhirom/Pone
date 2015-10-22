@@ -121,6 +121,10 @@ print message.
 
 print message with new line.
 
+=item C<getenv(Str)>
+
+get environment variable
+
 =head1 TODO
 
 =item for stmt
@@ -128,8 +132,6 @@ print message with new line.
 =item while stmt
 
 =item user defined funciton
-
-=item getenv
 
 =item implement p5-ish functions
 

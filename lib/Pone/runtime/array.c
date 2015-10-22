@@ -36,7 +36,7 @@ pone_val* pone_ary_at_pos(pone_val* av, int i) {
     if (a->len > i) {
         return a->a[i];
     } else {
-        return &pone_undef_val;
+        return pone_undef();
     }
 }
 

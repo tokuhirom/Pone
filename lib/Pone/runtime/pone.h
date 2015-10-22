@@ -41,7 +41,7 @@ KHASH_MAP_INIT_STR(str, pone_val*)
 
 typedef struct {
     PONE_HEAD;
-} pone_undef;
+} pone_undef_t;
 
 // integer value
 typedef struct {
@@ -99,7 +99,8 @@ typedef struct {
     lex_entry* lex;
 } pone_world;
 
-static pone_val pone_undef_val = { -1, PONE_UNDEF, 0 };
+// undef.c
+pone_val* pone_undef();
 
 // hash.c
 pone_val* pone_new_hash(pone_world* world, int n, ...);

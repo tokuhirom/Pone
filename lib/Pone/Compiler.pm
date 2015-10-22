@@ -7,7 +7,7 @@ unit class Pone::Compiler;
 use Pone::Utils;
 
 has $!filename;
-has Set $.builtins = set(<print say dd abs elems>);
+has Set $.builtins = set(<print say dd abs elems getenv>);
 
 sub mortal(Str $s) {
     "pone_mortalize(PONE_WORLD, $s)"
