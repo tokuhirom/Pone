@@ -1,6 +1,6 @@
 use v6;
 
-use Grammar::Tracer;
+# use Grammar::Tracer;
 
 # :s => :sigspace. needs spaces between tokens.
 
