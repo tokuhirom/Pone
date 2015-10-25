@@ -3,7 +3,8 @@
 int main(int argc, char** argv) {
     pone_world* world = pone_new_world();
 
-    pone_enter(world);
+    pone_savetmps(world);
+    pone_push_scope(world);
 
     pone_val* iv = pone_mortalize(world, pone_new_int(world, 4963));
     pone_builtin_say(world, iv);
@@ -32,7 +33,8 @@ int main(int argc, char** argv) {
     pone_builtin_say(world, nv);
 
     {
-        pone_enter(world);
+        pone_savetmps(world);
+        pone_push_scope(world);
 
         pone_val* av = pone_mortalize(world, pone_new_ary(world, 3,
             pone_mortalize(world, pone_new_int(world, 6)),
@@ -45,10 +47,12 @@ int main(int argc, char** argv) {
         pone_builtin_say(world, pone_ary_at_pos(av, 2));
         pone_builtin_say(world, pone_ary_at_pos(av, 3));
 
-        pone_leave(world);
+        pone_freetmps(world);
+        pone_pop_scope(world);
     }
 
-    pone_leave(world);
+    pone_freetmps(world);
+    pone_pop_scope(world);
 
     pone_destroy_world(world);
 }

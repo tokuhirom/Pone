@@ -130,8 +130,12 @@ bool pone_bool_val(pone_val* val);
 void pone_refcnt_dec(pone_world* world, pone_val* val);
 void pone_refcnt_inc(pone_world* world, pone_val* val);
 
-// scope
+// scope.c
 pone_val* pone_mortalize(pone_world* world, pone_val* val);
+void pone_push_scope(pone_world* world);
+void pone_pop_scope(pone_world* world);
+void pone_freetmps(pone_world* world);
+void pone_savetmps(pone_world* world);
 
 pone_val* pone_true();
 pone_val* pone_false();

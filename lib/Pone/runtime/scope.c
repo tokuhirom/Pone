@@ -1,3 +1,5 @@
+#include "pone.h" /* PONE_INC */
+
 void pone_savetmps(pone_world* world) {
     // save original tmpstack_floor
     world->savestack[world->savestack_idx] = world->tmpstack_floor;
@@ -22,11 +24,6 @@ void pone_push_scope(pone_world* world) {
     new_lex->map = kh_init(str);
     new_lex->parent = world->lex;
     world->lex = new_lex;
-}
-
-void pone_enter(pone_world* world) {
-    pone_savetmps(world);
-    pone_push_scope(world);
 }
 
 void pone_pop_scope(pone_world* world) {
@@ -55,11 +52,6 @@ void pone_freetmps(pone_world* world) {
 
     // pop tmpstack_floor
     --world->savestack_idx;
-}
-
-void pone_leave(pone_world* world) {
-    pone_freetmps(world);
-    pone_pop_scope(world);
 }
 
 pone_val* pone_mortalize(pone_world* world, pone_val* val) {

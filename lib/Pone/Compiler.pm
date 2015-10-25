@@ -108,9 +108,11 @@ method !compile(Pone::Node $node) {
     when Pone::Node::Block {
         # TODO: split SAVETMPS and lex scope
         my $s = '{' ~ "\n";
-        $s ~= "pone_enter(world);\n";
+        $s ~= "pone_savetmps(world);\n";
+        $s ~= "pone_push_scope(world);\n";
         $s ~= .children.map({self!compile($_)}).join("\n");
-        $s ~= "pone_leave(world);\n";
+        $s ~= "pone_freetmps(world);\n";
+        $s ~= "pone_pop_scope(world);\n";
         $s ~= "}\n";
         $s;
     }
@@ -159,7 +161,8 @@ method !compile(Pone::Node $node) {
             $s ~= @vars.join(", ");
         }
         $s ~= ') {' ~ "\n";
-        $s ~= 'pone_enter(world);' ~ "\n";
+        $s ~= "pone_savetmps(world);\n";
+        $s ~= "pone_push_scope(world);\n";
         # bind parameters to lexical variables
         if @vars {
             for 0..^(.children[1].children.elems) -> $i {
@@ -168,7 +171,8 @@ method !compile(Pone::Node $node) {
             }
         }
         $s ~= self!compile(inject-return(.children[2]));
-        $s ~= 'pone_leave(world);' ~ "\n";
+        $s ~= "pone_freetmps(world);\n";
+        $s ~= "pone_pop_scope(world);\n";
         $s ~= "\}\n";
 
         @!subs.push: $s;

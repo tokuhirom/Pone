@@ -31,9 +31,11 @@ method compile(Str $code, Str :$filename="-") {
             "// --------------- vvvv main function vvvv -------------------",
             'int main(int argc, const char **argv) {',
             '    pone_world* world = pone_new_world();',
-            '    pone_enter(world);',
+            "    pone_savetmps(world);",
+            "    pone_push_scope(world);",
                 $code,
-            '    pone_leave(world);',
+            '    pone_freetmps(world);',
+            '    pone_pop_scope(world);',
             '    pone_destroy_world(world);',
             '}'
         ].join("\n");
