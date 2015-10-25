@@ -39,7 +39,7 @@ void pone_dd(pone_world* world, pone_val* val) {
             printf(")\n");
             break;
         case PONE_INT:
-            printf("(int: %d)\n", pone_int_val(val));
+            printf("(int: refcnt:%d, %d)\n", val->refcnt, pone_int_val(val));
             break;
         case PONE_NIL:
             printf("(undef)\n");

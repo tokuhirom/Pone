@@ -24,7 +24,7 @@ pone_val* pone_new_ary(pone_world* world, int n, ...) {
 void pone_ary_free(pone_world* world, pone_val* val) {
     pone_ary* a=(pone_ary*)val;
     size_t l = pone_ary_elems(val);
-    for (int i=0; i<l; ++i) {
+    for (size_t i=0; i<l; ++i) {
         pone_refcnt_dec(world, a->a[i]);
     }
     pone_free(world, a->a);

@@ -48,6 +48,8 @@ method !infix(Str $func, Pone::Node $node) {
 }
 
 method compile(Str $filename, Pone::Node $node) {
+    my @*TMPS = 0;
+    my @*SCOPE = 0;
     @!subs = ();
     $!filename = $filename;
     my $code = self!compile($node);
@@ -108,11 +110,15 @@ method !compile(Pone::Node $node) {
     when Pone::Node::Block {
         # TODO: split SAVETMPS and lex scope
         my $s = '{' ~ "\n";
+        @*TMPS[*-1]++;
         $s ~= "pone_savetmps(world);\n";
+        @*SCOPE[*-1]++;
         $s ~= "pone_push_scope(world);\n";
         $s ~= .children.map({self!compile($_)}).join("\n");
-        $s ~= "pone_freetmps(world);\n";
+        @*SCOPE[*-1]++;
         $s ~= "pone_pop_scope(world);\n";
+        @*TMPS[*-1]++;
+        $s ~= "pone_freetmps(world);\n";
         $s ~= "}\n";
         $s;
     }
@@ -161,7 +167,9 @@ method !compile(Pone::Node $node) {
             $s ~= @vars.join(", ");
         }
         $s ~= ') {' ~ "\n";
+        @*TMPS.push(0);
         $s ~= "pone_savetmps(world);\n";
+        @*SCOPE.push(0);
         $s ~= "pone_push_scope(world);\n";
         # bind parameters to lexical variables
         if @vars {
@@ -171,8 +179,10 @@ method !compile(Pone::Node $node) {
             }
         }
         $s ~= self!compile(inject-return(.children[2]));
-        $s ~= "pone_freetmps(world);\n";
+        @*SCOPE.pop();
         $s ~= "pone_pop_scope(world);\n";
+        @*TMPS.pop();
+        $s ~= "pone_freetmps(world);\n";
         $s ~= "\}\n";
 
         @!subs.push: $s;
@@ -203,7 +213,17 @@ method !compile(Pone::Node $node) {
         qq!pone_get_lex(world, "{.value}")!;
     }
     when Pone::Node::Return {
-        qq!return ! ~ self!compile(.children[0]);
+        if @*TMPS.elems == 1 {
+            die "You can't return from outside of subroutine";
+        }
+        my $s = qq!do \{\n!;
+        $s ~= sprintf(qq!pone_val* RETVAL=%s;\n!,  self!compile(.children[0]));
+        $s ~= qq!pone_refcnt_inc(world, RETVAL);\n!;
+        $s ~= qq!pone_freetmps(world);\n! for 0..@*TMPS[*-1];
+        $s ~= qq!pone_pop_scope(world);\n! for 0..@*SCOPE[*-1];
+        $s ~= qq!return pone_mortalize(world, RETVAL);\n!;
+        $s ~= qq!\}while (0);\n!;
+        $s;
     }
     when Pone::Node::True {
         "pone_true()";
