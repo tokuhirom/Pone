@@ -1,10 +1,12 @@
 use v6;
 
-# use Grammar::Tracer;
+use Grammar::Tracer;
+
+# :s => :sigspace. needs spaces between tokens.
 
 grammar Pone::Grammar {
-    token TOP { :s ^ [ <stmts> || '' ] \s* $ }
-    token stmts { [ <stmt> ||  ';' ]* }
+    token TOP { ^ [ <stmts> || '' ] \s* $ }
+    token stmts {:s [ <stmt> ||  ';' ]* }
 
     proto token stmt { * }
     token stmt:sym<if> {:s
@@ -41,14 +43,15 @@ grammar Pone::Grammar {
         <term> [ ',' <term> ]*
     }
 
-    rule block {:s
-        '{' <stmts> '}'
+    token block {
+        \s* '{' \s* <stmts> \s* '}' \s*
     }
 
-    rule term { <expr(4)> }
+    rule term { <assign-expr> }
+
+    rule assign-expr { <expr(3)> [ '=' <expr(3)> ]? }
 
     # loosest to tightest
-    multi token infix-op(4) { '=' }
     multi token infix-op(3) { '+' | '-' }
     multi token infix-op(2) { '*' | '/' | '%' }
     multi token infix-op(1) { '**' }
@@ -64,13 +67,13 @@ grammar Pone::Grammar {
     rule args { <term> [ ',' <term> ]* }
     rule value:sym<decimal> { <decimal> }
     rule value:sym<string> { <string> }
-    rule value:sym<paren> {:s '(' <term> ')' }
-    rule value:sym<array> {:s '[' <term> [ ',' <term> ]* ','? ']' || '[' ']' }
-    rule value:sym<hash> {:s '{' <hash-pair> [ ',' <hash-pair> ]* ','? '}' || '{' '}' }
+    rule value:sym<paren> { '(' <term> ')' }
+    rule value:sym<array> { '[' <term> [ ',' <term> ]* ','? ']' || '[' ']' }
+    rule value:sym<hash> { '{' <hash-pair> [ ',' <hash-pair> ]* ','? '}' || '{' '}' }
     rule value:sym<myvar> {:s 'my' <var> }
     rule value:sym<var> { <var> }
-    rule hash-pair {:s <hash-key> '=>' <term> }
-    rule hash-key {:s <term> || <bare-word> }
+    rule hash-pair { <hash-key> '=>' <term> }
+    rule hash-key { <term> || <bare-word> }
     token bare-word { <[A..Z a..z 0..9]>+ }
 
     token var { \$ <ident> }

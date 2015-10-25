@@ -204,8 +204,16 @@ method !compile(Pone::Node $node) {
     }
     when Pone::Node::Assign {
         my $var = .children[0];
-        if $var ~~ Pone::Node::My {
-            $var = $var.children[0].value;
+        given $var {
+            when Pone::Node::My {
+                $var = $var.children[0].value;
+            }
+            when Pone::Node::Var {
+                $var = $var.value;
+            }
+            default {
+                die "unknown node on assignment";
+            }
         }
         "pone_assign(world, 0, \"$var\", " ~ self!compile(.children[1]) ~ ")";
     }

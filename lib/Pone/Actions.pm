@@ -82,7 +82,15 @@ method block($/) {
     $/.make: Pone::Node::Block.new($/<stmts>.ast);
 }
 
-method term($/) { $/.make: $/<expr>.ast }
+method term($/) { $/.make: $/<assign-expr>.ast }
+method assign-expr($/) {
+    my $l = $/<expr>[0].made;
+    if $/<expr>.elems == 2 {
+        $/.make: Pone::Node::Assign.new([$l, $/<expr>[1].made]);
+    } else {
+        $/.make: $l;
+    }
+}
 
 # see integration/99problems-41-to-50.t in roast
 method expr($/) {
@@ -96,9 +104,6 @@ method expr($/) {
             my $op = @ops.shift;
             my $r = @e.shift;
             given $op {
-                when '=' {
-                    $l = Pone::Node::Assign.new([$l, $r]);
-                }
                 when '+' {
                     $l = Pone::Node::Add.new([$l, $r]);
                 }

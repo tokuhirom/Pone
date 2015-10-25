@@ -227,3 +227,22 @@ sub x() { { 5 } } say x();
 --- expected
 5
 
+===
+--- input
+my $x=2;$x=$x+1; say $x
+--- expected
+3
+
+===
+--- input
+my $x = 2;
+{
+    my $x = 3;
+    $x = $x + 1;
+    say $x;
+}
+say $x;
+--- expected
+4
+2
+
