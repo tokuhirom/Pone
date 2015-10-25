@@ -202,10 +202,28 @@ x(4,9);
 -5
 
 ===
---- ONLY
 --- input
 sub x($n, $m) { return $n-$m }
 say x(4,9);
 --- expected
 -5
+
+===
+--- input
+sub x() { }
+say x();
+--- expected
+(undef)
+
+===
+--- input
+sub x() { 5 } say x();
+--- expected
+5
+
+===
+--- input
+sub x() { { 5 } } say x();
+--- expected
+5
 

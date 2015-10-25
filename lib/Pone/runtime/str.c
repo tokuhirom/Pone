@@ -45,7 +45,7 @@ pone_val* pone_str_from_num(pone_world* world, double n) {
  */
 pone_val* pone_str(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
-    case PONE_UNDEF:
+    case PONE_NIL:
         return pone_mortalize(world, pone_new_str_const(world, "(undef)", strlen("(undef)")));
     case PONE_INT:
         return pone_str_from_int(world, pone_int_val(val));

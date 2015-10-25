@@ -62,6 +62,10 @@ method stmt:sym<if>($/) {
     $/.make: $if;
 }
 
+method stmt:sym<block>($/) {
+    $/.make: $/<block>.made;
+}
+
 method elsif($/) {
     $/.make: Pone::Node::If.new(
         [ $/<term>.ast, $/<block>.ast ],

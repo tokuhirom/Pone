@@ -14,6 +14,32 @@ sub mortal(Str $s) {
     "pone_mortalize(world, $s)"
 }
 
+sub inject-return(Pone::Node::Stmts $stmts) {
+    if $stmts.children.elems > 0 {
+        my $node = $stmts.children[*-1];
+        if !$node.is-void {
+            $stmts.children[*-1] = Pone::Node::Return.new($node);
+        } else {
+            given $node {
+                when Pone::Node::Stmts {
+                    inject-return($node);
+                }
+                when Pone::Node::Block {
+                    inject-return($node.children[0]);
+                }
+            }
+        }
+    } else {
+        # no statements in sub body
+        $stmts.children.push(
+            Pone::Node::Return.new(
+                Pone::Node::Nil.new()
+            )
+        );
+    }
+    $stmts;
+}
+
 method !infix(Str $func, Pone::Node $node) {
     sprintf('%s(world, %s, %s)',
         $func,
@@ -40,8 +66,13 @@ method !compile(Pone::Node $node) {
     given $node {
     when Pone::Node::Stmts {
         $node.children.map({
-            sprintf(qq!#line %d "%s"\n%s;\n!,
-                .lineno, $!filename, self!compile($_))
+            my $s = '';
+            if .lineno {
+                $s ~= sprintf(qq!#line %d "%s"\n!,
+                    .lineno, $!filename);
+            }
+            $s ~= self!compile($_) ~ ";\n";
+            $s;
         }).join("\n");
     }
     when Pone::Node::Funcall {
@@ -136,7 +167,7 @@ method !compile(Pone::Node $node) {
                 $s ~= "pone_assign(world, 0, \"{$var.value}\", arg$i);\n";
             }
         }
-        $s ~= self!compile(.children[2]);
+        $s ~= self!compile(inject-return(.children[2]));
         $s ~= 'pone_leave(world);' ~ "\n";
         $s ~= "\}\n";
 
@@ -175,6 +206,9 @@ method !compile(Pone::Node $node) {
     }
     when Pone::Node::False {
         "pone_false()";
+    }
+    when Pone::Node::Nil {
+        "pone_nil()";
     }
     when Pone::Node::Str {
         # TODO: freeze string literals

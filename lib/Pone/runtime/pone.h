@@ -19,7 +19,7 @@
 #define PONE_FLAGS_STR_FROZEN 2
 
 typedef enum {
-    PONE_UNDEF,
+    PONE_NIL,
     PONE_INT,
     PONE_NUM,
     PONE_STRING,
@@ -41,7 +41,7 @@ KHASH_MAP_INIT_STR(str, pone_val*)
 
 typedef struct {
     PONE_HEAD;
-} pone_undef_t;
+} pone_nil_t;
 
 // integer value
 typedef struct {
@@ -99,8 +99,8 @@ typedef struct {
     lex_entry* lex;
 } pone_world;
 
-// undef.c
-pone_val* pone_undef();
+// nil.c
+pone_val* pone_nil();
 
 // hash.c
 pone_val* pone_new_hash(pone_world* world, int n, ...);

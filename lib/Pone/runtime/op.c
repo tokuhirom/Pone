@@ -41,7 +41,7 @@ void pone_dd(pone_world* world, pone_val* val) {
         case PONE_INT:
             printf("(int: %d)\n", pone_int_val(val));
             break;
-        case PONE_UNDEF:
+        case PONE_NIL:
             printf("(undef)\n");
             break;
         default:
@@ -75,7 +75,7 @@ void pone_die(pone_world* world, const char* str) {
 
 int pone_to_int(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
-    case PONE_UNDEF:
+    case PONE_NIL:
         pone_die(world, "Use of uninitialized value as integer");
         abort();
     case PONE_INT:
@@ -123,7 +123,7 @@ size_t pone_elems(pone_world* world, pone_val* val) {
         return pone_ary_elems(val);
     case PONE_HASH:
         return pone_hash_elems(val);
-    case PONE_UNDEF:
+    case PONE_NIL:
         return 1; // same as perl6
     }
     return 1;

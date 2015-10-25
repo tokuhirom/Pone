@@ -27,6 +27,9 @@ grammar Pone::Grammar {
     token stmt:sym<normal-stmts> {
         <normal-stmt> [ ';'+ <normal-stmt> ]* ';'*
     }
+    token stmt:sym<block> {
+        <block>
+    }
 
     proto token normal-stmt { * }
     token normal-stmt:sym<term> { <term> }

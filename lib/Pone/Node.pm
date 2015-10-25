@@ -14,6 +14,8 @@ class Pone::Node {
         @!children = @children;
     }
 
+    method is-void() { True }
+
     has @.children;
     has $.lineno is rw;
 }
@@ -25,24 +27,33 @@ class Pone::Node::Block    is Pone::Node { }
 class Pone::Node::Funcall  is Pone::Node { }
 class Pone::Node::Args     is Pone::Node { }
 
-class Pone::Node::Add      is Pone::Node { }
-class Pone::Node::Subtract is Pone::Node { }
-class Pone::Node::Multiply is Pone::Node { }
+class Pone::Node::Expr is Pone::Node {
+    method is-void() { False }
+}
+
+class Pone::Node::Add      is Pone::Node::Expr { }
+class Pone::Node::Subtract is Pone::Node::Expr { }
+class Pone::Node::Multiply is Pone::Node::Expr { }
 class Pone::Node::Assign   is Pone::Node { }
 class Pone::Node::My       is Pone::Node { }
 class Pone::Node::Return   is Pone::Node { }
 
-class Pone::Node::Array    is Pone::Node { }
-class Pone::Node::Hash     is Pone::Node { }
-class Pone::Node::Pair     is Pone::Node { }
+class Pone::Node::Term is Pone::Node {
+    method is-void() { False }
+}
+
+class Pone::Node::Array    is Pone::Node::Term { }
+class Pone::Node::Hash     is Pone::Node::Term { }
+class Pone::Node::Pair     is Pone::Node::Term { }
 
 class Pone::Node::Sub      is Pone::Node { }
 class Pone::Node::Params   is Pone::Node { }
 
-class Pone::Node::True  is Pone::Node { }
-class Pone::Node::False is Pone::Node { }
+class Pone::Node::Nil   is Pone::Node::Term { }
+class Pone::Node::True  is Pone::Node::Term { }
+class Pone::Node::False is Pone::Node::Term { }
 
-class Pone::Node::Value is Pone::Node {
+class Pone::Node::Value is Pone::Node::Term {
     has $.value is rw;
 
     multi method new(Int $value) {
