@@ -246,3 +246,9 @@ say $x;
 4
 2
 
+===
+--- input
+my $x = 2; sub y() { $x+1 } say y();
+--- expected
+3
+

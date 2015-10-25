@@ -24,7 +24,7 @@ grammar Pone::Grammar {
         [ return | if | unless | while | until | do | class | method | sub | my ] <!ww>
     }
 
-    token stmt:sym<sub> {:s 'sub' <name=ident> '(' <params>? ')' '{' <stmts> '}' }
+    token stmt:sym<sub> {:s 'sub' <!keyword> <name=ident> '(' <params>? ')' '{' <stmts> '}' }
 
     token stmt:sym<normal-stmts> {
         <normal-stmt> [ ';'+ <normal-stmt> ]* ';'*
@@ -35,7 +35,7 @@ grammar Pone::Grammar {
 
     proto token normal-stmt { * }
     token normal-stmt:sym<term> { <term> }
-    token normal-stmt:sym<funcall> {:s <!keyword> <ident> <args> }
+    token normal-stmt:sym<funcall> { <!keyword> <ident> \s+ <args> }
     # TODO: support `return 1,2,3`
     token normal-stmt:sym<return> {:s 'return' <term> }
 
