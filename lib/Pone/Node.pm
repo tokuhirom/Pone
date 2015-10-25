@@ -30,6 +30,7 @@ class Pone::Node::Subtract is Pone::Node { }
 class Pone::Node::Multiply is Pone::Node { }
 class Pone::Node::Assign   is Pone::Node { }
 class Pone::Node::My       is Pone::Node { }
+class Pone::Node::Return   is Pone::Node { }
 
 class Pone::Node::Array    is Pone::Node { }
 class Pone::Node::Hash     is Pone::Node { }

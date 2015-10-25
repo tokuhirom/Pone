@@ -201,3 +201,11 @@ x(4,9);
 --- expected
 -5
 
+===
+--- ONLY
+--- input
+sub x($n, $m) { return $n-$m }
+say x(4,9);
+--- expected
+-5
+

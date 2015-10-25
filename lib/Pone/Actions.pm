@@ -137,6 +137,10 @@ method normal-stmt:sym<term>($/) {
     $/.make: $/<term>.made;
 }
 
+method normal-stmt:sym<return>($/) {
+    $/.make: Pone::Node::Return.new([$/<term>.made]);
+}
+
 method normal-stmt:sym<funcall>($/) {
     self!funcall($/);
 }

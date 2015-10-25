@@ -167,6 +167,9 @@ method !compile(Pone::Node $node) {
     when Pone::Node::Var {
         qq!pone_get_lex(world, "{.value}")!;
     }
+    when Pone::Node::Return {
+        qq!return ! ~ self!compile(.children[0]);
+    }
     when Pone::Node::True {
         "pone_true()";
     }
