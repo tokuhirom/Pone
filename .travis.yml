@@ -7,5 +7,5 @@ install:
   - curl -L http://cpanmin.us/ | perl - Capture::Tiny Test::Base
 script:
   - perl6 -MPanda::Builder -e 'Panda::Builder.build($*CWD)'
-  - prove -lrv .
+  - PERLOPT="-Mlib=$HOME/perl5/lib/perl5/" prove -lrv .
 sudo: false
