@@ -49,21 +49,26 @@ grammar Pone::Grammar {
 
     rule term { <assign-expr> }
 
-    rule assign-expr { <expr(3)> [ '=' <expr(3)> ]? }
+    rule assign-expr {:s <expr(3)> [ '=' <expr(3)> ]? }
 
     # loosest to tightest
     multi token infix-op(3) { '+' | '-' }
     multi token infix-op(2) { '*' | '/' | '%' }
     multi token infix-op(1) { '**' }
 
-    multi rule expr(0)      { <value> }
+    multi rule expr(0)      { <call> }
     multi rule expr($pred)  {:s <expr($pred-1)> +% [ <infix-op($pred)> ] }
+
+    rule call {
+        <value> [ <paren-args>  ]?
+    }
 
     proto rule value { <...> }
 
     rule value:sym<True> { <sym> }
     rule value:sym<False> { <sym> }
     rule value:sym<funcall> { <!keyword> <ident> '(' <args>? ')' }
+    rule paren-args { '(' <args>? ')' }
     rule args { <term> [ ',' <term> ]* }
     rule value:sym<decimal> { <decimal> }
     rule value:sym<string> { <string> }
@@ -72,6 +77,7 @@ grammar Pone::Grammar {
     rule value:sym<hash> { '{' <hash-pair> [ ',' <hash-pair> ]* ','? '}' || '{' '}' }
     rule value:sym<myvar> {:s 'my' <var> }
     rule value:sym<var> { <var> }
+    rule value:sym<closure> { :s 'sub' '(' <params>? ')' '{' <stmts> '}' }
     rule hash-pair { <hash-key> '=>' <term> }
     rule hash-key { <term> || <bare-word> }
     token bare-word { <[A..Z a..z 0..9]>+ }

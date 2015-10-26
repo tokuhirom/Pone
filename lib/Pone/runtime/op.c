@@ -12,7 +12,7 @@ pone_val* pone_get_lex(pone_world* world, const char* key) {
     abort();
 }
 
-void pone_assign(pone_world* world, int up, const char* key, pone_val* val) {
+pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val) {
     pone_lex_t* lex = world->lex;
     for (int i=0; i<up; i++) {
         lex = lex->parent;
@@ -29,6 +29,8 @@ void pone_assign(pone_world* world, int up, const char* key, pone_val* val) {
         pone_refcnt_dec(world, kh_val(lex->map, k));
     }
     kh_val(lex->map, k) = val;
+
+    return val;
 }
 
 void pone_dd(pone_world* world, pone_val* val) {

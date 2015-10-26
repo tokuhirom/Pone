@@ -256,3 +256,15 @@ my $x = 2; sub y() { $x+1 } say y();
 --- expected
 3
 
+===
+--- input
+my $n = sub () { say 5 }; $n()
+--- expected
+5
+
+===
+--- input
+my $n = sub ($m) { say 5+$m }; $n(3)
+--- expected
+8
+

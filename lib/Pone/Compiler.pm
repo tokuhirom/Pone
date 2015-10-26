@@ -50,6 +50,7 @@ method !infix(Str $func, Pone::Node $node) {
 method compile(Str $filename, Pone::Node $node) {
     my @*TMPS = 0;
     my @*SCOPE = 0;
+    my $*ANONSUBNO = 0;
     @!subs = ();
     $!filename = $filename;
     my $code = self!compile($node);
@@ -78,27 +79,42 @@ method !compile(Pone::Node $node) {
         }).join("\n");
     }
     when Pone::Node::Funcall {
-        my ($ident-node, $args) = $node.children;
-        my $ident = $ident-node.value;
+        my ($func-node, $args) = $node.children;
 
-        if $!builtins{$ident} {
-            my $s = "pone_builtin_{$ident}\(world";
-            if $args {
-                $s ~= ", " ~ self!compile($args);
+        # builtin function call
+        if $func-node ~~ Pone::Node::Ident {
+            my $ident = $func-node.value;
+            if $!builtins{$ident} {
+                my $s = "pone_builtin_{$ident}\(world";
+                if $args {
+                    $s ~= ", " ~ self!compile($args);
+                }
+                $s ~= ')';
+                return $s;
             }
-            $s ~= ')';
-            $s;
-        } else {
-            my $s = qq!pone_code_call(world, pone_get_lex(world, "&{$ident}"), !;
-            if $args {
-                my $argcnt = $args.children.elems;
-                $s ~= "$argcnt, " ~ self!compile($args);
-            } else {
-                $s ~= "0";
-            }
-            $s ~= ")";
-            $s;
         }
+
+        my $funcname = do given $func-node {
+            when Pone::Node::Ident {
+                '&' ~ .value
+            }
+            when Pone::Node::Var {
+                .value
+            }
+            default {
+                die "invalid node for function call";
+            }
+        };
+
+        my $s = qq!pone_code_call(world, pone_get_lex(world, "{$funcname}"), !;
+        if $args && $args.children.elems > 0 {
+            my $argcnt = $args.children.elems;
+            $s ~= "$argcnt, " ~ self!compile($args);
+        } else {
+            $s ~= "0";
+        }
+        $s ~= ")";
+        $s;
     }
     when Pone::Node::Args {
         .children.map({self!compile($_)}).join(',');
@@ -157,7 +173,7 @@ method !compile(Pone::Node $node) {
     }
 
     when Pone::Node::Sub {
-        my $name = .children[0].value;
+        my $name = .name // 'anon_' ~ $*ANONSUBNO++;
         my $argcnt = .children[1] ?? .children[1].children.elems !! 0;
         my $s = '';
         $s ~= sprintf(qq!#line %d "%s"\n!, .lineno, $!filename);
@@ -188,7 +204,11 @@ method !compile(Pone::Node $node) {
 
         @!subs.push: $s;
 
-        qq!pone_assign(world, 0, "&{$name}", pone_mortalize(world, pone_code_new(world, pone_user_func_{$name})))!;
+        if .name {
+            qq!pone_assign(world, 0, "&{$name}", pone_mortalize(world, pone_code_new(world, pone_user_func_{$name})))!;
+        } else {
+            qq!pone_mortalize(world, pone_code_new(world, pone_user_func_{$name}))!;
+        }
     }
 
     when Pone::Node::Int {

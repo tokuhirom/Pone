@@ -94,8 +94,8 @@ method assign-expr($/) {
 
 # see integration/99problems-41-to-50.t in roast
 method expr($/) {
-    if $/<value> {
-        $/.make: $/<value>.made;
+    if $/<call> {
+        $/.make: $/<call>.made;
     } else {
         my @e = $/<expr>».made;
         my @ops = $/<infix-op>».made;
@@ -170,8 +170,22 @@ method ident($/) {
     $/.make: Pone::Node::Ident.new(~$/);
 }
 
+method call($/) {
+    if $/<paren-args> {
+        $/.make: Pone::Node::Funcall.new(
+            [$/<value>.made, $/<paren-args>.made]
+        );
+    } else {
+        $/.make: $/<value>.made;
+    }
+}
+
 method value:sym<funcall>($/) {
     self!funcall($/);
+}
+
+method paren-args($/) {
+    $/.make: $/<args>.made || Pone::Node::Args.new();
 }
 
 method args($/) {
@@ -216,6 +230,14 @@ method value:sym<var>($/) {
     $/.make: $/<var>.ast;
 }
 
+method value:sym<closure>($/) {
+    my $node = Pone::Node::Sub.new(
+        [Pone::Node::Nil.new, $/<params>.ast, $/<stmts>.ast]
+    );
+    $node.lineno = lineof($/);
+    $/.make: $node;
+}
+
 method hash-pair($/) {
     $/.make: Pone::Node::Pair.new(
         [$/<hash-key>.made, $/<term>.made]
@@ -227,7 +249,7 @@ method hash-key($/) {
 }
 
 method var($/) {
-    $/.make: Pone::Node::Var.new(~$/<ident>);
+    $/.make: Pone::Node::Var.new(~$/);
 }
 
 # XXX bad code

@@ -62,6 +62,31 @@ method eval(Str $code) {
     return $proc.out.slurp-rest, $proc.signal ?? sig-name($proc) !! Nil;
 }
 
+sub dump-ast($node, $level=0) is export {
+    my $attr = '';
+    if $node.^can('value') {
+        $attr = " {$node.value}";
+    }
+
+    say((' ' x $level) ~ $node.^name ~ $attr);
+    for $node.children {
+        if ($_) {
+            dump-ast($_, $level+1)
+        }
+    }
+}
+
+method dump-ast(Str $code, :$filename='-e') {
+    my $compiler = Pone::Compiler.new;
+    my $actions = Pone::Actions.new(:$filename);
+    my $got = Pone::Grammar.parse($code, :$actions);
+    if $got {
+        dump-ast($got.made, 0);
+    } else {
+        die "cannot parse";
+    }
+}
+
 method run(Str $code) {
     my $proc = self!run($code, :out($*OUT));
     if $proc.signal {

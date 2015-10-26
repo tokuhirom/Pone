@@ -3,7 +3,7 @@ use v6;
 
 use Pone;
 
-sub MAIN(*@sources, :$o='pone_generated.c', Str :$e='', Bool :$run=False) {
+sub MAIN(*@sources, :$o='pone_generated.c', Str :$e='', Bool :$run=False, Bool :$dump-ast) {
     my $code = do {
         if $e {
             $e;
@@ -16,7 +16,9 @@ sub MAIN(*@sources, :$o='pone_generated.c', Str :$e='', Bool :$run=False) {
 
     my $pone = Pone.new;
 
-    if $run {
+    if $dump-ast {
+        $pone.dump-ast($code);
+    } elsif $run {
         $pone.run($code);
     } else {
         my $c = $pone.compile($code);

@@ -1,5 +1,9 @@
 use v6;
 
+class Pone::Node::Nil { ... }
+class Pone::Node::Str { ... }
+class Pone::Node::Ident { ... }
+
 class Pone::Node {
     multi method new(@children) {
         self.bless(:@children);
@@ -46,7 +50,22 @@ class Pone::Node::Array    is Pone::Node::Term { }
 class Pone::Node::Hash     is Pone::Node::Term { }
 class Pone::Node::Pair     is Pone::Node::Term { }
 
-class Pone::Node::Sub      is Pone::Node { }
+class Pone::Node::Sub      is Pone::Node {
+    method has-name() { .name.defined }
+    method name() {
+        given self.children[0] {
+            when Pone::Node::Ident {
+                .value
+            }
+            when Pone::Node::Nil {
+                Nil;
+            }
+            default {
+                die 'unknown node in Sub node: ' ~ .^name;
+            }
+        }
+    }
+}
 class Pone::Node::Params   is Pone::Node { }
 
 class Pone::Node::Nil   is Pone::Node::Term { }
