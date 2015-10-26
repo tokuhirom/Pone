@@ -225,14 +225,8 @@ method !compile(Pone::Node $node) {
         if @*TMPS.elems == 1 {
             die "You can't return from outside of subroutine";
         }
-        my $s = qq!do \{\n!;
-        $s ~= sprintf(qq!pone_val* RETVAL=%s;\n!,  self!compile(.children[0]));
-        $s ~= qq!pone_refcnt_inc(world, RETVAL);\n!;
-        $s ~= qq!pone_freetmps(world);\n! for 0..@*TMPS[*-1];
-        $s ~= qq!pone_pop_scope(world);\n! for 0..@*SCOPE[*-1];
-        $s ~= qq!return pone_mortalize(world, RETVAL);\n!;
-        $s ~= qq!\}while (0);\n!;
-        $s;
+        sprintf(qq!return %s;\n!,
+            self!compile(.children[0]));
     }
     when Pone::Node::True {
         "pone_true()";
