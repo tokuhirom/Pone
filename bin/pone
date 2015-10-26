@@ -3,13 +3,14 @@ use v6;
 
 use Pone;
 
-sub MAIN(:$o='pone_generated.c', Str :$e, Bool :$run=False) {
+sub MAIN($sources, :$o='pone_generated.c', Str :$e='', Bool :$run=False) {
+    $sources.chomp;
     my $code = do {
-        if $e.defined {
+        if $e {
             $e;
-        } elsif @*ARGS.elems > 0 {
-            @*ARGS.perl.say;
-            open(@*ARGS[0], :r).slurp;
+        } elsif $sources.elems > 0 {
+            $sources.perl.say;
+            @$sources[0].IO.slurp;
         } else {
             $*IN.slurp-rest
         }
