@@ -55,3 +55,17 @@ False
 4963
 5555
 
+===
+--- input: t/c/func.c
+--- stdout
+102
+
+===
+--- input: t/c/func2.c
+--- stdout
+1
+
+===
+--- input: t/c/nop.c
+--- stdout
+

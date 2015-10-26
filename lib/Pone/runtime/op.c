@@ -44,6 +44,9 @@ void pone_dd(pone_world* world, pone_val* val) {
         case PONE_NIL:
             printf("(undef)\n");
             break;
+        case PONE_CODE:
+            printf("(code)\n");
+            break;
         default:
             abort();
     }
@@ -84,7 +87,10 @@ int pone_to_int(pone_world* world, pone_val* val) {
         char *end = (char*)pone_string_ptr(val) + pone_string_len(val);
         return strtol(pone_string_ptr(val), &end, 10);
     }
+    case PONE_CODE:
+        pone_die(world, "you can't convert CODE to integer");
     default:
+        pone_die(world, "you can't convert this type to integer");
         abort();
     }
 }
@@ -124,9 +130,32 @@ size_t pone_elems(pone_world* world, pone_val* val) {
     case PONE_HASH:
         return pone_hash_elems(val);
     case PONE_NIL:
+    case PONE_INT:
+    case PONE_NUM:
+    case PONE_BOOL:
+    case PONE_CODE:
         return 1; // same as perl6
     }
-    return 1;
 }
 
+const char* pone_what_str_c(pone_val* val) {
+    switch (pone_type(val)) {
+    case PONE_NIL:
+        return "Any";
+    case PONE_INT:
+        return "Int";
+    case PONE_NUM:
+        return "Num";
+    case PONE_STRING:
+        return "Str";
+    case PONE_ARRAY:
+        return "Array";
+    case PONE_BOOL:
+        return "Bool";
+    case PONE_HASH:
+        return "Hash";
+    case PONE_CODE:
+        return "Code";
+    }
+}
 

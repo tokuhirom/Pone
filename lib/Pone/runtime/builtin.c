@@ -16,13 +16,13 @@ pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
             return val;
         }
     }
-    case PONE_STRING:
-        break;
-                   // TODO: NV
+    case PONE_NUM: {
+        // TODO: NV
     }
-
-    pone_die(world, "you can't call abs() for non-numeric value");
-    abort();
+    default:
+        pone_die(world, "you can't call abs() for non-numeric value");
+        abort();
+    }
 }
 
 pone_val* pone_builtin_print(pone_world* world, pone_val* val) {

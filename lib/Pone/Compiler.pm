@@ -81,16 +81,24 @@ method !compile(Pone::Node $node) {
         my ($ident-node, $args) = $node.children;
         my $ident = $ident-node.value;
 
-        my $prefix = $!builtins{$ident} ?? "pone_builtin" !! "pone_user_func";
-        my $s = $prefix;
-        $s ~= "_";
-        $s ~= $ident;
-        $s ~= '(world';
-        if $args {
-            $s ~= ", " ~ self!compile($args);
+        if $!builtins{$ident} {
+            my $s = "pone_builtin_{$ident}\(world";
+            if $args {
+                $s ~= ", " ~ self!compile($args);
+            }
+            $s ~= ')';
+            $s;
+        } else {
+            my $s = qq!pone_code_call(world, pone_get_lex(world, "&{$ident}"), !;
+            if $args {
+                my $argcnt = $args.children.elems;
+                $s ~= "$argcnt, " ~ self!compile($args);
+            } else {
+                $s ~= "0";
+            }
+            $s ~= ")";
+            $s;
         }
-        $s ~= ')';
-        $s;
     }
     when Pone::Node::Args {
         .children.map({self!compile($_)}).join(',');
@@ -150,32 +158,24 @@ method !compile(Pone::Node $node) {
 
     when Pone::Node::Sub {
         my $name = .children[0].value;
-        my @vars = gather {
-            if .children[1] {
-                for 0..^(.children[1].children.elems) -> $i {
-                    take "pone_val* arg$i";
-                }
-            }
-        };
+        my $argcnt = .children[1] ?? .children[1].children.elems !! 0;
         my $s = '';
         $s ~= sprintf(qq!#line %d "%s"\n!, .lineno, $!filename);
         $s ~= 'pone_val* pone_user_func_';
         $s ~= $name;
-        $s ~= '(pone_world* world';
-        if @vars {
-            $s ~= ',';
-            $s ~= @vars.join(", ");
-        }
-        $s ~= ') {' ~ "\n";
+        $s ~= '(pone_world* world, int n, va_list args) {' ~ "\n";
+        $s ~= "assert(n==$argcnt);\n";
         @*TMPS.push(0);
         $s ~= "pone_savetmps(world);\n";
         @*SCOPE.push(0);
         $s ~= "pone_push_scope(world);\n";
         # bind parameters to lexical variables
-        if @vars {
-            for 0..^(.children[1].children.elems) -> $i {
-                my $var = .children[1].children[$i];
-                $s ~= "pone_assign(world, 0, \"{$var.value}\", arg$i);\n";
+        if $argcnt > 0 {
+            if .children[1] {
+                for 0..^(.children[1].children.elems) -> $i {
+                    my $var = .children[1].children[$i];
+                    $s ~= "pone_assign(world, 0, \"{$var.value}\", va_arg(args, pone_val*));\n";
+                }
             }
         }
         $s ~= self!compile(inject-return(.children[2]));
@@ -183,11 +183,12 @@ method !compile(Pone::Node $node) {
         $s ~= "pone_pop_scope(world);\n";
         @*TMPS.pop();
         $s ~= "pone_freetmps(world);\n";
+        $s ~= "    return pone_nil();\n";
         $s ~= "\}\n";
 
         @!subs.push: $s;
 
-        "/* <user func $name > */";
+        qq!pone_assign(world, 0, "&{$name}", pone_mortalize(world, pone_code_new(world, pone_user_func_{$name})))!;
     }
 
     when Pone::Node::Int {

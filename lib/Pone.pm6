@@ -5,7 +5,7 @@ use Pone::Actions;
 use Pone::Grammar;
 use Pone::Compiler;
 
-has $.cc = 'gcc';
+has $.cc = 'clang';
 
 my $aa = '( д) ﾟ ﾟ';
 
@@ -51,15 +51,25 @@ method !slurp(Str $name) {
     qq!#line 1 "$name"\n! ~ $src;
 }
 
+sub sig-name($proc) {
+    my %sigs = Signal.^enum_values;
+    my $sig = %sigs.invert.hash{$proc.signal};
+    $sig;
+}
+
 method eval(Str $code) {
-    self!run($code, :capture(True));
+    my $proc = self!run($code, :out(True));
+    return $proc.out.slurp-rest, $proc.signal ?? sig-name($proc) !! Nil;
 }
 
 method run(Str $code) {
-    self!run($code, :capture(False));
+    my $proc = self!run($code, :out($*OUT));
+    if $proc.signal {
+        $*ERR.say: "$aa SIGNAL received: {sig-name($proc)}";
+    }
 }
 
-method !run(Str $code, :$capture) {
+method !run(Str $code, :$out) {
     my $c = self.compile($code); 
 
     my $tmpfile = 'pone_generated.c';
@@ -70,11 +80,9 @@ method !run(Str $code, :$capture) {
     if so %*ENV<PONE_DEBUG> {
         say "----\n$c\n-----";
     }
-    if $capture {
-        qqx!./$objfile!;
-    } else {
-        run "./$objfile";
-    }
+
+    my $proc = run "./$objfile", :$out;
+    return $proc;
 }
 
 =begin pod

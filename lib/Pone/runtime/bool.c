@@ -1,7 +1,7 @@
 #include <stdbool.h>
 
-static pone_bool pone_true_val = { -1, PONE_BOOL, 0, true };
-static pone_bool pone_false_val = { -1, PONE_BOOL, 0, false };
+static pone_bool pone_true_val = { -1, PONE_BOOL, PONE_FLAGS_GLOBAL, true };
+static pone_bool pone_false_val = { -1, PONE_BOOL, PONE_FLAGS_GLOBAL, false };
 
 inline bool pone_bool_val(pone_val* val) {
     assert(pone_type(val) == PONE_BOOL);

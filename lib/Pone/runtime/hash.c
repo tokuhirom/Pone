@@ -23,7 +23,7 @@ pone_val* pone_new_hash(pone_world* world, int n, ...) {
     return (pone_val*)hv;
 }
 
-pone_val* pone_hash_free(pone_world* world, pone_val* val) {
+void pone_hash_free(pone_world* world, pone_val* val) {
     pone_hash* h=(pone_hash*)val;
     const char* k;
     pone_val* v;

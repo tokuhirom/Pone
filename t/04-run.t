@@ -12,7 +12,11 @@ my $pone = Pone.new;
 for blocks($=finish) {
     my $title = .input;
     $title ~~ s:g/\n/\\n/;
-    is $pone.eval(.input), .expected.chomp, $title;
+    subtest {
+        my ($out, $sig) = $pone.eval(.input);
+        is $out, .expected.chomp, $title;
+        ok !$sig.defined, 'no signals';
+    }, $title;
 }
 
 done-testing;

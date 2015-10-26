@@ -15,4 +15,5 @@
 #include "array.c"
 #include "bool.c"
 #include "nil.c"
+#include "code.c"
 
