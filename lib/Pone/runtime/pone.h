@@ -81,12 +81,11 @@ typedef struct {
     size_t len;
 } pone_hash;
 
-// TODO: rename to pone_lex_entry
-typedef struct lex_entry {
-    struct lex_entry* parent;
+typedef struct pone_lex_t {
+    struct pone_lex_t* parent;
     int refcnt;
     khash_t(str) *map;
-} lex_entry;
+} pone_lex_t;
 
 typedef struct pone_world {
     // save last tmpstack_floor
@@ -101,10 +100,10 @@ typedef struct pone_world {
     size_t tmpstack_max;
 
     // lexical value list
-    lex_entry* lex;
+    pone_lex_t* lex;
 
     // root lex entry in this world
-    lex_entry* orig_lex;
+    pone_lex_t* orig_lex;
 
     // parent context
     struct pone_world* parent;
@@ -115,14 +114,14 @@ typedef pone_val* (*pone_funcptr_t)(pone_world*, int n, va_list);
 typedef struct {
     PONE_HEAD;
     pone_funcptr_t func;
-    lex_entry* lex;
+    pone_lex_t* lex;
 } pone_code;
 
 // nil.c
 pone_val* pone_nil();
 
 // world.c
-pone_world* pone_new_world_from_world(pone_world* world, lex_entry* lex);
+pone_world* pone_new_world_from_world(pone_world* world, pone_lex_t* lex);
 
 // op.c
 void pone_dd(pone_world* world, pone_val* val);
@@ -167,9 +166,9 @@ void pone_push_scope(pone_world* world);
 void pone_pop_scope(pone_world* world);
 void pone_freetmps(pone_world* world);
 void pone_savetmps(pone_world* world);
-lex_entry* pone_lex_new(pone_world* world, lex_entry* parent);
-void pone_lex_refcnt_dec(pone_world* world, lex_entry* lex);
-void pone_lex_refcnt_inc(pone_world* world, lex_entry* lex);
+pone_lex_t* pone_lex_new(pone_world* world, pone_lex_t* parent);
+void pone_lex_refcnt_dec(pone_world* world, pone_lex_t* lex);
+void pone_lex_refcnt_inc(pone_world* world, pone_lex_t* lex);
 
 pone_val* pone_true();
 pone_val* pone_false();

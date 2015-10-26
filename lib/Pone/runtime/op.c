@@ -1,5 +1,5 @@
 pone_val* pone_get_lex(pone_world* world, const char* key) {
-    lex_entry* lex = world->lex;
+    pone_lex_t* lex = world->lex;
     while (lex != NULL) {
         khint_t kh = kh_get(str, lex->map, key);
         if (kh == kh_end(lex->map)) {
@@ -13,7 +13,7 @@ pone_val* pone_get_lex(pone_world* world, const char* key) {
 }
 
 void pone_assign(pone_world* world, int up, const char* key, pone_val* val) {
-    lex_entry* lex = world->lex;
+    pone_lex_t* lex = world->lex;
     for (int i=0; i<up; i++) {
         lex = lex->parent;
     }

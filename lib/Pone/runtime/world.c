@@ -28,7 +28,7 @@ pone_world* pone_new_world() {
     return world;
 }
 
-pone_world* pone_new_world_from_world(pone_world* world, lex_entry* lex) {
+pone_world* pone_new_world_from_world(pone_world* world, pone_lex_t* lex) {
 #ifdef TRACE_WORLD
     printf("pone_new_world_from_world: %X parent:%X tmpstack_idx:%X\n", world, world->parent, world->tmpstack_idx);
 #endif

@@ -18,8 +18,8 @@ void pone_savetmps(pone_world* world) {
     world->tmpstack_floor = world->tmpstack_idx;
 }
 
-lex_entry* pone_lex_new(pone_world* world, lex_entry* parent) {
-    lex_entry* lex = (lex_entry*)pone_malloc(world, sizeof(lex_entry));
+pone_lex_t* pone_lex_new(pone_world* world, pone_lex_t* parent) {
+    pone_lex_t* lex = (pone_lex_t*)pone_malloc(world, sizeof(pone_lex_t));
 #ifdef TRACE_LEX
     printf("pone_lex_new: %x lex:%x\n", world, lex);
 #endif
@@ -41,7 +41,7 @@ void pone_push_scope(pone_world* world) {
     world->lex = pone_lex_new(world, world->lex);
 }
 
-static void pone_lex_free(pone_world* world, lex_entry* lex) {
+static void pone_lex_free(pone_world* world, pone_lex_t* lex) {
 #ifdef TRACE_LEX
     printf("pone_lex_free: %x lex:%x\n", world, lex);
 #endif
@@ -59,7 +59,7 @@ static void pone_lex_free(pone_world* world, lex_entry* lex) {
     pone_free(world, lex);
 }
 
-void pone_lex_refcnt_dec(pone_world* world, lex_entry* lex) {
+void pone_lex_refcnt_dec(pone_world* world, pone_lex_t* lex) {
 #ifdef TRACE_LEX
     printf("pone_lex_refcnt_dec: %x lex:%x refcnt:%d\n", world, lex, lex->refcnt);
 #endif
@@ -70,7 +70,7 @@ void pone_lex_refcnt_dec(pone_world* world, lex_entry* lex) {
     }
 }
 
-inline void pone_lex_refcnt_inc(pone_world* world, lex_entry* lex) {
+inline void pone_lex_refcnt_inc(pone_world* world, pone_lex_t* lex) {
 #ifdef TRACE_LEX
     printf("pone_lex_refcnt_inc: %x lex:%x refcnt:%d\n", world, lex, lex->refcnt);
 #endif
@@ -81,7 +81,7 @@ void pone_pop_scope(pone_world* world) {
 #ifdef TRACE_SCOPE
     printf("pone_pop_scope: %x\n", world);
 #endif
-    lex_entry* parent = world->lex->parent;
+    pone_lex_t* parent = world->lex->parent;
     pone_lex_refcnt_dec(world, world->lex);
     world->lex = parent;
 }
