@@ -6,8 +6,10 @@ install:
   - ls -lah ~/
   - rakudobrew build-panda
   - panda --notests installdeps .
+  - curl -L http://cpanmin.us/ --local-lib=~/perl5 local::lib && eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
   - curl -L http://cpanmin.us/ | perl - Capture::Tiny Test::Base
 script:
   - perl6 -MPanda::Builder -e 'Panda::Builder.build($*CWD)'
-  - PERLOPT="-Mlib=$HOME/perl5/lib/perl5/" prove -lrv .
+  - PERL6LIB=$PWD/lib prove -e perl6-m -r t/
+  - PERL5LIB="$HOME/perl5/lib/perl5/" prove -lrv xt/
 sudo: false
