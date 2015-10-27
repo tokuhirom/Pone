@@ -7,6 +7,8 @@ use Test;
 use Test::Base;
 use Pone;
 
+plan 1*blocks();
+
 my $pone = Pone.new;
 
 for blocks($=finish) {
@@ -18,8 +20,6 @@ for blocks($=finish) {
         ok !$sig.defined, 'no signals';
     }, $title;
 }
-
-done-testing;
 
 =finish
 
