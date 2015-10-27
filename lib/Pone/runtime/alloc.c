@@ -17,6 +17,10 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
     return val;
 }
 
+void pone_obj_free(pone_world* world, void* p) {
+    free(p);
+}
+
 void pone_free(pone_world* world, void* p) {
     free(p);
 }
@@ -86,7 +90,7 @@ inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
 #ifdef TRACE_REFCNT
         memset(val, 0, sizeof(pone_val));
 #endif
-        pone_free(world, val);
+        pone_obj_free(world, val);
     }
 }
 

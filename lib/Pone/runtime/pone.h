@@ -20,16 +20,18 @@
 // This object is immutable
 #define PONE_FLAGS_STR_FROZEN 4
 
-typedef enum {
-    PONE_NIL,
-    PONE_INT,
-    PONE_NUM,
-    PONE_STRING,
-    PONE_ARRAY,
-    PONE_BOOL,
-    PONE_HASH,
-    PONE_CODE
-} pone_t;
+#define PONE_FREE 0
+#define PONE_NIL 1
+#define PONE_INT 2
+#define PONE_NUM 3
+#define PONE_STRING 4
+#define PONE_ARRAY 5
+#define PONE_BOOL 6
+#define PONE_HASH 7
+#define PONE_CODE 8
+#define PONE_LEX 9
+
+typedef uint8_t pone_t;
 
 #define PONE_HEAD \
     int refcnt; \
@@ -84,8 +86,8 @@ typedef struct {
 } pone_hash;
 
 typedef struct pone_lex_t {
+    PONE_HEAD;
     struct pone_lex_t* parent;
-    int refcnt;
     khash_t(str) *map;
 } pone_lex_t;
 
@@ -192,6 +194,7 @@ static inline int pone_refcnt(pone_val* val) { return val->as.basic.refcnt; }
 static inline pone_t pone_type(pone_val* val) { return val->as.basic.type; }
 static inline pone_t pone_flags(pone_val* val) { return val->as.basic.flags; }
 
+void pone_obj_free(pone_world* world, void* p);
 pone_t pone_type(pone_val* val);
 void* pone_malloc(pone_world* world, size_t size);
 pone_val* pone_obj_alloc(pone_world* world, pone_t type);

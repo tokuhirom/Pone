@@ -56,7 +56,7 @@ static void pone_lex_free(pone_world* world, pone_lex_t* lex) {
     if (lex->parent) {
         pone_lex_refcnt_dec(world, lex->parent);
     }
-    pone_free(world, lex);
+    pone_obj_free(world, lex);
 }
 
 void pone_lex_refcnt_dec(pone_world* world, pone_lex_t* lex) {
