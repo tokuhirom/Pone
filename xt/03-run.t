@@ -5,21 +5,23 @@ use Test::More;
 use Test::Base;
 use Capture::Tiny qw/capture/;
 
-plan tests => 2*blocks();
+plan tests => 1*blocks();
 
 run {
     my $block = shift;
     my ($src, $expected) = ($block->input, $block->stdout);
 
-    (my $objfile = $src) =~ s/\.c$/.o/;
+    subtest $src, sub {
+        (my $objfile = $src) =~ s/\.c$/.o/;
 
-    unlink $objfile;
-    system('gcc', '-Ilib/Pone/runtime/', '-g', '-std=c99', '-o', $objfile, $src);
-    my ($out, $err, $exit) = capture {
-        system("valgrind ./$objfile");
+        unlink $objfile;
+        system('gcc', '-Ilib/Pone/runtime/', '-g', '-std=c99', '-o', $objfile, $src);
+        my ($out, $err, $exit) = capture {
+            system("valgrind ./$objfile");
+        };
+        is $out, $expected, "stdout($src)";
+        like $err, qr/All heap blocks were freed/, 'valgrind';
     };
-    is $out, $expected, "stdout($src)";
-    like $err, qr/All heap blocks were freed/, 'valgrind';
 }
 
 __END__

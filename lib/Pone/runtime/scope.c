@@ -1,10 +1,7 @@
 #include "pone.h" /* PONE_INC */
 
 void pone_savetmps(pone_world* world) {
-    // save original tmpstack_floor
-    world->savestack[world->savestack_idx] = world->tmpstack_floor;
-    ++world->savestack_idx;
-    if (world->savestack_max+1 < world->savestack_idx) {
+    if (world->savestack_max==world->savestack_idx) {
         // grow it
         world->savestack_max *= 2;
         size_t* ssp = (size_t*)realloc(world->savestack, sizeof(size_t)*world->savestack_max);
@@ -14,16 +11,18 @@ void pone_savetmps(pone_world* world) {
         world->savestack = ssp;
     }
 
+    // save original tmpstack_floor
+    world->savestack[world->savestack_idx++] = world->tmpstack_floor;
+
     // save current tmpstack_idx
     world->tmpstack_floor = world->tmpstack_idx;
 }
 
 pone_lex_t* pone_lex_new(pone_world* world, pone_lex_t* parent) {
-    pone_lex_t* lex = (pone_lex_t*)pone_malloc(world, sizeof(pone_lex_t));
+    pone_lex_t* lex = (pone_lex_t*)pone_obj_alloc(world, PONE_NIL);
 #ifdef TRACE_LEX
     printf("pone_lex_new: %x lex:%x\n", world, lex);
 #endif
-    lex->refcnt = 1;
     lex->map = kh_init(str);
     lex->parent = parent;
     if (parent) {
@@ -56,7 +55,7 @@ static void pone_lex_free(pone_world* world, pone_lex_t* lex) {
     if (lex->parent) {
         pone_lex_refcnt_dec(world, lex->parent);
     }
-    pone_obj_free(world, lex);
+    pone_obj_free(world, (pone_val*)lex);
 }
 
 void pone_lex_refcnt_dec(pone_world* world, pone_lex_t* lex) {

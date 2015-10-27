@@ -30,13 +30,15 @@ method compile(Str $code, Str :$filename="-") {
             |$subs,
             "// --------------- vvvv main function vvvv -------------------",
             'int main(int argc, const char **argv) {',
-            '    pone_world* world = pone_new_world();',
+            '    pone_universe* universe = pone_universe_init();',
+            '    pone_world* world = pone_new_world(universe);',
             "    pone_savetmps(world);",
             "    pone_push_scope(world);",
                 $code,
             '    pone_freetmps(world);',
             '    pone_pop_scope(world);',
             '    pone_destroy_world(world);',
+            '    pone_universe_destroy(universe);',
             '}'
         ].join("\n");
     } else {

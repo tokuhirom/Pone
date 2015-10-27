@@ -10,15 +10,70 @@ void* pone_malloc(pone_world* world, size_t size) {
     return p;
 }
 
+pone_universe* pone_universe_init() {
+    pone_universe*universe = malloc(sizeof(pone_universe));
+    if (!universe) {
+        fprintf(stderr, "cannot allocate memory\n");
+        exit(1);
+    }
+    memset(universe, 0, sizeof(pone_universe));
+    universe->arena_last = universe->arena_head = malloc(sizeof(pone_arena));
+    if (!universe->arena_last) {
+        fprintf(stderr, "cannot allocate memory\n");
+        exit(1);
+    }
+    memset(universe->arena_last, 0, sizeof(pone_arena));
+    return universe;
+}
+
+void pone_universe_destroy(pone_universe* universe) {
+    pone_arena* a = universe->arena_head;
+    while (a) {
+        pone_arena* next = a->next;
+        free(a);
+        a = next;
+    }
+    free(universe);
+}
+
 pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
-    pone_val* val = (pone_val*)pone_malloc(world, sizeof(pone_val));
+    assert(world->universe);
+    pone_universe* universe = world->universe;
+    assert(world->universe->arena_last != NULL);
+    pone_val* val;
+
+    // check free-ed values
+    if (universe->freelist) {
+        // reuse it.
+        val = universe->freelist;
+        universe->freelist = universe->freelist->as.free.next;
+#ifndef NDEBUG
+        // clear val's memory for debugging
+        memset(val, 0, sizeof(pone_val));
+#endif
+    } else {
+        // there is no free-ed value.
+        // then, use value from arena.
+        if (universe->arena_last->idx == PONE_ARENA_SIZE) {
+            // arena doesn't have an empty slot
+            pone_arena* arena = pone_malloc(world, sizeof(pone_arena));
+            universe->arena_last->next = arena;
+            universe->arena_last = arena;
+            val = &(arena->values[arena->idx++]);
+        } else {
+            // use last arena entry
+            val = &(universe->arena_last->values[universe->arena_last->idx++]);
+        }
+    }
+
     val->as.basic.refcnt = 1;
-    val->as.basic.type = type;
+    val->as.basic.type   = type;
     return val;
 }
 
-void pone_obj_free(pone_world* world, void* p) {
-    free(p);
+void pone_obj_free(pone_world* world, pone_val* p) {
+    p->as.free.next = world->universe->freelist;
+    world->universe->freelist = p;
 }
 
 void pone_free(pone_world* world, void* p) {

@@ -20,22 +20,20 @@
 // This object is immutable
 #define PONE_FLAGS_STR_FROZEN 4
 
-#define PONE_FREE 0
-#define PONE_NIL 1
-#define PONE_INT 2
-#define PONE_NUM 3
-#define PONE_STRING 4
-#define PONE_ARRAY 5
-#define PONE_BOOL 6
-#define PONE_HASH 7
-#define PONE_CODE 8
-#define PONE_LEX 9
-
-typedef uint8_t pone_t;
+typedef enum {
+    PONE_NIL=1,
+    PONE_INT,
+    PONE_NUM,
+    PONE_STRING,
+    PONE_ARRAY,
+    PONE_BOOL,
+    PONE_HASH,
+    PONE_CODE
+} pone_t;
 
 #define PONE_HEAD \
-    int refcnt; \
     pone_t type; \
+    int refcnt; \
     uint8_t flags
 
 struct pone_val;
@@ -91,7 +89,25 @@ typedef struct pone_lex_t {
     khash_t(str) *map;
 } pone_lex_t;
 
+#ifndef PONE_ARENA_SIZE
+#define PONE_ARENA_SIZE 1024
+#endif
+
+struct pone_arena;
+
+// VM context
+typedef struct pone_universe {
+    struct pone_arena* arena_head;
+    struct pone_arena* arena_last;
+
+    // list of unused values.
+    struct pone_val* freelist;
+} pone_universe;
+
+// Calling context
 typedef struct pone_world {
+    pone_universe* universe;
+
     // save last tmpstack_floor
     size_t* savestack;
     size_t savestack_idx;
@@ -123,6 +139,11 @@ typedef struct {
 
 typedef struct pone_val {
     union {
+        // see http://loveruby.net/ja/rhg/book/gc.html
+        struct {
+            struct pone_val* next; // next free value
+        } free;
+
         pone_basic basic;
         pone_ary ary;
         pone_code code;
@@ -130,10 +151,18 @@ typedef struct pone_val {
     } as;
 } pone_val;
 
+typedef struct pone_arena {
+    struct pone_arena* next;
+    int idx;
+    struct pone_val values[PONE_ARENA_SIZE];
+} pone_arena;
+
+
 // nil.c
 pone_val* pone_nil();
 
 // world.c
+pone_world* pone_new_world(pone_universe* universe);
 pone_world* pone_new_world_from_world(pone_world* world, pone_lex_t* lex);
 
 // op.c
@@ -183,6 +212,11 @@ pone_lex_t* pone_lex_new(pone_world* world, pone_lex_t* parent);
 void pone_lex_refcnt_dec(pone_world* world, pone_lex_t* lex);
 void pone_lex_refcnt_inc(pone_world* world, pone_lex_t* lex);
 
+// alloc.c
+pone_universe* pone_universe_init();
+void pone_universe_destroy(pone_universe* universe);
+
+// bool.c
 pone_val* pone_true();
 pone_val* pone_false();
 
@@ -194,7 +228,7 @@ static inline int pone_refcnt(pone_val* val) { return val->as.basic.refcnt; }
 static inline pone_t pone_type(pone_val* val) { return val->as.basic.type; }
 static inline pone_t pone_flags(pone_val* val) { return val->as.basic.flags; }
 
-void pone_obj_free(pone_world* world, void* p);
+void pone_obj_free(pone_world* world, pone_val* p);
 pone_t pone_type(pone_val* val);
 void* pone_malloc(pone_world* world, size_t size);
 pone_val* pone_obj_alloc(pone_world* world, pone_t type);
