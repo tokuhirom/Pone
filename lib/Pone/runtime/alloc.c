@@ -54,6 +54,9 @@ void pone_universe_destroy(pone_universe* universe) {
         free(a);
         a = next;
     }
+    if (universe->errvar) {
+        pone_refcnt_dec(universe->errvar);
+    }
     free(universe->err_handlers);
     free(universe);
 }
