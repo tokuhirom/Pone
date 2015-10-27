@@ -1,3 +1,4 @@
+#include "pone.h" /* PONE_INC */
 
 pone_val* pone_new_ary(pone_world* world, int n, ...) {
     va_list list;

@@ -1,5 +1,8 @@
 all: bin/pone.moarvm
 
+CFLAGS=-std=c99
+OBJFILES=lib/Pone/runtime/alloc.o lib/Pone/runtime/array.o lib/Pone/runtime/bool.o lib/Pone/runtime/builtin.o lib/Pone/runtime/code.o lib/Pone/runtime/hash.o lib/Pone/runtime/int.o lib/Pone/runtime/nil.o lib/Pone/runtime/num.o lib/Pone/runtime/op.o lib/Pone/runtime/pone.o lib/Pone/runtime/scope.o lib/Pone/runtime/str.o lib/Pone/runtime/world.o
+
 test: lib/Pone.pm6.moarvm
 	perl t/01-c.t
 	perl xt/03-run.t
@@ -30,6 +33,9 @@ lib/Pone/Actions.pm.moarvm: lib/Pone/Actions.pm lib/Pone/Node.pm.moarvm
 
 lib/Pone/Grammar.pm.moarvm: lib/Pone/Grammar.pm
 	perl6-m -Ilib --target=mbc --output=lib/Pone/Grammar.pm.moarvm lib/Pone/Grammar.pm
+
+blib/libpone.a: $(OBJFILES)
+	ar rcs blib/libpone.a $(OBJFILES)
 
 .PHONY: clean
 

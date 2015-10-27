@@ -22,10 +22,8 @@ method compile(Str $code, Str :$filename="-") {
         }
 
         return [
-            |@runtimes,
+            '#include "pone.h"',
             "\n",
-            "// --------------- ^^^^ rutnime       ^^^^ -------------------",
-            "// --------------- vvvv user code     vvvv -------------------",
             "// --------------- vvvv functions     vvvv -------------------",
             |$subs,
             "// --------------- vvvv main function vvvv -------------------",
@@ -109,7 +107,7 @@ method !run(Str $code, :$out) {
     open($tmpfile, :w).print($c);
     my $objfile = 'pone_generated.out'; # XXX insecure
     try unlink $objfile;
-    run $.cc, '-g', '-D_POSIX_SOURCE', '-std=c99', '-o', $objfile, $tmpfile;
+    run $.cc, '-Ilib/Pone/runtime/', '-g', '-D_POSIX_SOURCE', '-std=c99', '-o', $objfile, $tmpfile, 'blib/libpone.a';
     if so %*ENV<PONE_DEBUG> {
         say "----\n$c\n-----";
     }

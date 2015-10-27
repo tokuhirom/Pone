@@ -1,3 +1,5 @@
+#include "pone.h" /* PONE_INC */
+
 pone_val* pone_new_num(pone_world* world, double n) {
     pone_num* nv = (pone_num*)pone_obj_alloc(world, PONE_NUM);
     nv->n = n;

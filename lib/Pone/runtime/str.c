@@ -1,3 +1,5 @@
+#include "pone.h" /* PONE_INC */
+
 // pone dup p.
 pone_val* pone_new_str(pone_world* world, const char*p, size_t len) {
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);

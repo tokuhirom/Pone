@@ -1,3 +1,4 @@
+#include "pone.h" /* PONE_INC */
 #include <stdbool.h>
 
 pone_bool pone_true_val = { PONE_BOOL, -1, PONE_FLAGS_GLOBAL, true };

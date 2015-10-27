@@ -1,3 +1,4 @@
+#include "pone.h" /* PONE_INC */
 
 // TODO: implement memory pool
 void* pone_malloc(pone_world* world, size_t size) {
@@ -55,7 +56,7 @@ void pone_universe_destroy(pone_universe* universe) {
         a = next;
     }
     if (universe->errvar) {
-        pone_refcnt_dec(universe->errvar);
+        // pone_refcnt_dec(universe->errvar);
     }
     free(universe->err_handlers);
     free(universe);

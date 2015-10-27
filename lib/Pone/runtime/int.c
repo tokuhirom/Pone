@@ -1,3 +1,4 @@
+#include "pone.h" /* PONE_INC */
 
 inline int pone_int_val(pone_val* val) {
     assert(pone_type(val) == PONE_INT);

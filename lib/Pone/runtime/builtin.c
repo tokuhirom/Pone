@@ -1,3 +1,4 @@
+#include "pone.h" /* PONE_INC */
 #include <stdlib.h>
 #include <time.h>
 #include <signal.h>

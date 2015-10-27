@@ -1,3 +1,4 @@
+#include "pone.h" /* PONE_INC */
 #include <setjmp.h>
 
 pone_val* pone_get_lex(pone_world* world, const char* key) {

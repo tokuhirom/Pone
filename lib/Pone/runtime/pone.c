@@ -1,3 +1,5 @@
+#include "pone.h" /* PONE_INC */
+
 #if defined(_WIN32) || defined(_WIN64)
 #include <fcntl.h>
 #endif
