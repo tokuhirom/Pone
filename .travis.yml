@@ -10,4 +10,3 @@ script:
   - perl6 -MPanda::Builder -e 'Panda::Builder.build($*CWD)'
   - PERL6LIB=$PWD/lib prove -e perl6-m -r t/
   - PERL5LIB="$HOME/perl5/lib/perl5/" prove -lrv xt/
-sudo: false
