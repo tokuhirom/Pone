@@ -1,4 +1,4 @@
-#include "pone_all.h"
+#include "pone.h"
 
 pone_val* pone_user_func_y(pone_world* world, int n, va_list args) {
     pone_savetmps(world);

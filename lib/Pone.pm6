@@ -15,11 +15,6 @@ method compile(Str $code, Str :$filename="-") {
     my $got = Pone::Grammar.parse($code, :$actions);
     if $got {
         my ($subs, $code) = $compiler.compile($filename, $got.made);
-        my $all = slurp('lib/Pone/runtime/pone_all.h');
-        my @runtimes;
-        for $all.match(/ '"' (\N+?) '"' /, :overlap) -> $m {
-            @runtimes.push: self!slurp("lib/Pone/runtime/" ~ ~($m[0]));
-        }
 
         return [
             '#include "pone.h"',

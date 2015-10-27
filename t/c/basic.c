@@ -1,4 +1,4 @@
-#include "pone_all.h"
+#include "pone.h"
 
 int main(int argc, char** argv) {
     pone_universe* universe = pone_universe_init();
