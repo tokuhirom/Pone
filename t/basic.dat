@@ -1,0 +1,245 @@
+===
+--- input: say(0)
+--- expected
+0
+
+===
+--- input: say(1)
+--- expected
+1
+
+===
+--- input: say('hello')
+--- expected
+hello
+
+===
+--- input: say(1+2)
+--- expected
+3
+
+===
+--- input: say(1-2)
+--- expected
+-1
+
+===
+--- input: say(1+2+3)
+--- expected
+6
+
+===
+--- input: say(1-2+3)
+--- expected
+2
+
+===
+--- input: say(5*2)
+--- expected
+10
+
+===
+--- input: say(abs(-1))
+--- expected
+1
+
+===
+--- input: say((2+3)*4)
+--- expected
+20
+
+===
+--- input: say(True)
+--- expected
+True
+
+===
+--- input: say(False)
+--- expected
+False
+
+===
+--- input: if True { say(3) }
+--- expected
+3
+
+===
+--- input: if False { say(3) }
+--- expected:
+
+===
+--- input: say(False)
+--- expected
+False
+
+===
+--- input
+if False {
+    say('not ok');
+} else {
+    say('ok');
+}
+--- expected
+ok
+
+===
+--- input
+if False {
+    say('not ok');
+} else {
+    say('ok');
+}
+--- expected
+ok
+
+===
+--- input
+if False {
+    say('not ok');
+} elsif True {
+    say('ok');
+} else {
+    say('not ok');
+}
+--- expected
+ok
+
+===
+--- input
+if False {
+    say('not ok');
+} elsif False  {
+    say('not ok');
+} else {
+    say('ok');
+}
+--- expected
+ok
+
+===
+--- input
+say(elems([]))
+--- expected
+0
+
+===
+--- input
+say(elems([1,2,3]))
+--- expected
+3
+
+===
+--- input
+say 5963
+--- expected
+5963
+
+===
+--- input
+my $x = 1111;
+say $x;
+--- expected
+1111
+
+===
+--- input
+say elems({a => 3});
+--- expected
+1
+
+===
+--- input
+say elems({a => 3, b => 4});
+--- expected
+1
+
+===
+--- input
+say elems({});
+--- expected
+0
+
+===
+--- input
+sub x() { say 3 }
+x();
+--- expected
+3
+
+===
+--- input
+sub x($n) { say $n }
+x(3);
+--- expected
+3
+
+===
+--- input
+sub x($n, $m) { say $n-$m }
+x(4,9);
+--- expected
+-5
+
+===
+--- input
+sub x($n, $m) { return $n-$m }
+say x(4,9);
+--- expected
+-5
+
+===
+--- input
+sub x() { }
+say x();
+--- expected
+(undef)
+
+===
+--- input
+sub x() { 5 } say x();
+--- expected
+5
+
+===
+--- input
+sub x() { { 5 } } say x();
+--- expected
+5
+
+===
+--- input
+my $x=2;$x=$x+1; say $x
+--- expected
+3
+
+===
+--- input
+my $x = 2;
+{
+    my $x = 3;
+    $x = $x + 1;
+    say $x;
+}
+say $x;
+--- expected
+4
+2
+
+===
+--- input
+my $x = 2; sub y() { $x+1 } say y();
+--- expected
+3
+
+===
+--- input
+my $n = sub () { say 5 }; $n()
+--- expected
+5
+
+===
+--- input
+my $n = sub ($m) { say 5+$m }; $n(3)
+--- expected
+8
+
