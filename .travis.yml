@@ -2,8 +2,7 @@ language: perl6
 perl6:
   - latest
 install:
-  - ls -lah .
-  - ls -lah ~/
+  - DEBIAN_FRONTEND=noninteractive sudo apt-get install -y valgrind
   - rakudobrew build-panda
   - panda --notests installdeps .
   - curl -L http://cpanmin.us/ | perl - Capture::Tiny Test::Base
