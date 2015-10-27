@@ -78,8 +78,16 @@ void pone_die_str(pone_world* world, const char* str) {
 
 void pone_die(pone_world* world, pone_val* val) {
     assert(val);
+
+    // save error information to $!
     world->universe->errvar = val;
-    longjmp(world->universe->err_handlers[world->universe->err_handler_idx], 1);
+    pone_refcnt_inc(world, val);
+
+    pone_universe* universe = world->universe;
+
+    // exit from this scope
+    pone_destroy_world(world);
+    longjmp(universe->err_handlers[universe->err_handler_idx], 1);
 }
 
 int pone_to_int(pone_world* world, pone_val* val) {
