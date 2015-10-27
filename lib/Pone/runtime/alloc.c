@@ -54,6 +54,7 @@ void pone_universe_destroy(pone_universe* universe) {
         free(a);
         a = next;
     }
+    free(universe->err_handlers);
     free(universe);
 }
 
