@@ -6,9 +6,25 @@ use v6;
 
 grammar Pone::Grammar {
     token TOP { ^ [ <stmts> || '' ] \s* $ }
-    token stmts {:s [ <stmt> ||  ';' ]* }
+    token stmts {
+        <stmt-ish>*
+    }
 
-    proto token stmt { * }
+    proto token stmt-ish {*}
+    token stmt-ish:sym<normal> {:s
+        <normal-stmt> <.terminator>? ';'*
+    }
+    token stmt-ish:sym<stmt> {:s
+        <stmt> <.terminator>? ';'*
+    }
+
+    token terminator {
+        ';'
+        || $
+        || <?before '}'>
+    }
+
+    proto token stmt {*}
     token stmt:sym<if> {:s
         'if' <term> <block> <elsif>* <else>?
     }
@@ -26,14 +42,11 @@ grammar Pone::Grammar {
 
     token stmt:sym<sub> {:s 'sub' <!keyword> <name=ident> '(' <params>? ')' '{' <stmts> '}' }
 
-    token stmt:sym<normal-stmts> {
-        <normal-stmt> [ ';'+ <normal-stmt> ]* ';'*
-    }
     token stmt:sym<block> {
         <block>
     }
 
-    proto token normal-stmt { * }
+    proto token normal-stmt {*}
     token normal-stmt:sym<funcall> { <!keyword> <ident> \s+ <args> }
     token normal-stmt:sym<term> { <term> }
     # TODO: support `return 1,2,3`

@@ -176,7 +176,11 @@ method !compile(Pone::Node $node) {
             $s ~= ",";
             $s ~= .children.map({
                 $_ ~~ Pone::Node::Pair or die "should not reach here";
-                self!compile(.children[0]) ~ "," ~ self!compile(.children[1])
+                my $key = .children[0];
+                if $key ~~ Pone::Node::Ident {
+                    $key = Pone::Node::Str.new($key.value);
+                }
+                self!compile($key) ~ "," ~ self!compile(.children[1])
             }).join(",");
         }
         $s ~= ")";

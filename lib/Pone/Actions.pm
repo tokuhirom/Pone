@@ -25,22 +25,21 @@ method TOP($/) {
 
 method stmts($/) {
     $/.make: Pone::Node::Stmts.new(
-        $/<stmt>.map({
+        $/<stmt-ish>.map({
             my $node = $_.ast;
+            $node // die "undefined node!";
             $node.lineno = lineof($_);
             $node
         })
     );
 }
 
-method stmt:sym<normal-stmts>($/) {
-    $/.make: Pone::Node::Stmts.new(
-        $/<normal-stmt>.map({
-            my $node = $_.ast;
-            $node.lineno = lineof($_);
-            $node
-        })
-    );
+method stmt-ish:sym<normal>($/) {
+    $/.make: $/<normal-stmt>.made;
+}
+
+method stmt-ish:sym<stmt>($/) {
+    $/.make: $/<stmt>.made;
 }
 
 method stmt:sym<if>($/) {
