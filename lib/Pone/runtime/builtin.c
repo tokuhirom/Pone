@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
+#include <signal.h>
+#include <unistd.h>
 
 pone_val*  pone_builtin_dd(pone_world* world, pone_val* val) {
     pone_dd(world, val);
@@ -54,3 +56,53 @@ pone_val* pone_builtin_getenv(pone_world* world, pone_val* key) {
         return pone_nil();
     }
 }
+
+pone_val* pone_builtin_sleep(pone_world* world, pone_val* vi) {
+    // TODO Time::HiRes
+    int i = pone_to_int(world, vi);
+    sleep(i);
+    return pone_nil();
+}
+
+int pone_signal_received;
+
+void pone_signal_handle(pone_world* world) {
+    if (pone_signal_received > 0) {
+        int sig = pone_signal_received;
+        pone_signal_received = 0;
+        pone_val* code = world->universe->signal_handlers[sig];
+        pone_code_call(world, code, 0);
+    }
+}
+
+static void sig_handler(int sig) {
+    pone_signal_received = sig;
+}
+
+pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* code) {
+    int sig = pone_to_int(world, sig_val);
+
+    if (pone_defined(code)) {
+        struct sigaction act = {
+            .sa_handler = sig_handler,
+            .sa_flags = 0,
+        };
+        sigemptyset(&act.sa_mask);
+
+        if (sigaction(sig, &act, NULL) == 0) {
+            printf("Set sig %d\n", sig);
+            pone_refcnt_inc(world, code);
+            world->universe->signal_handlers[sig] = code;
+        } else {
+            pone_die(world, "cannot set signal");
+        }
+    } else {
+        if (world->universe->signal_handlers[sig]) {
+            pone_refcnt_dec(world, world->universe->signal_handlers[sig]);
+        }
+        signal(sig, SIG_DFL);
+    }
+
+    return pone_nil();
+}
+

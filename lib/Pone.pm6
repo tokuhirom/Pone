@@ -106,7 +106,7 @@ method !run(Str $code, :$out) {
     open($tmpfile, :w).print($c);
     my $objfile = 'pone_generated.out'; # XXX insecure
     try unlink $objfile;
-    run $.cc, '-g', '-std=c99', '-o', $objfile, $tmpfile;
+    run $.cc, '-g', '-D_POSIX_SOURCE', '-std=c99', '-o', $objfile, $tmpfile;
     if so %*ENV<PONE_DEBUG> {
         say "----\n$c\n-----";
     }

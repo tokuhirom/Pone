@@ -1,6 +1,6 @@
 use v6;
 
-# use Grammar::Tracer;
+use Grammar::Tracer;
 
 # :s => :sigspace. needs spaces between tokens.
 
@@ -34,8 +34,8 @@ grammar Pone::Grammar {
     }
 
     proto token normal-stmt { * }
-    token normal-stmt:sym<term> { <term> }
     token normal-stmt:sym<funcall> { <!keyword> <ident> \s+ <args> }
+    token normal-stmt:sym<term> { <term> }
     # TODO: support `return 1,2,3`
     token normal-stmt:sym<return> {:s 'return' <term> }
 
@@ -78,6 +78,7 @@ grammar Pone::Grammar {
     rule value:sym<myvar> {:s 'my' <var> }
     rule value:sym<var> { <var> }
     rule value:sym<closure> { :s 'sub' '(' <params>? ')' '{' <stmts> '}' }
+    rule value:sym<ident> { <!keyword> <ident> }
     rule hash-pair { <hash-key> '=>' <term> }
     rule hash-key { <term> || <bare-word> }
     token bare-word { <[A..Z a..z 0..9]>+ }

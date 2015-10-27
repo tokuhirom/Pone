@@ -238,6 +238,10 @@ method value:sym<closure>($/) {
     $/.make: $node;
 }
 
+method value:sym<ident>($/) {
+    $/.make: $/<ident>.made;
+}
+
 method hash-pair($/) {
     $/.make: Pone::Node::Pair.new(
         [$/<hash-key>.made, $/<term>.made]

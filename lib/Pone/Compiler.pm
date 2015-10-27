@@ -7,7 +7,10 @@ unit class Pone::Compiler;
 use Pone::Utils;
 
 has $!filename;
-has Set $.builtins = set(<print say dd abs elems getenv time>);
+has Set $.builtins = set(<print say dd abs elems getenv time signal sleep>);
+has %.constants = (
+    SIGINT => 2, # SIGINT should be enum
+);
 has @!subs;
 
 sub mortal(Str $s) {
@@ -75,8 +78,16 @@ method !compile(Pone::Node $node) {
                     .lineno, $!filename);
             }
             $s ~= self!compile($_) ~ ";\n";
+            $s ~= "pone_signal_handle(world);\n";
             $s;
         }).join("\n");
+    }
+    when Pone::Node::Ident {
+        if %!constants{.value}:exists {
+            "pone_mortalize(world, pone_new_int(world, {%!constants{.value}}))";
+        } else {
+            die "Unknown variable '{.value}'";
+        }
     }
     when Pone::Node::Funcall {
         my ($func-node, $args) = $node.children;

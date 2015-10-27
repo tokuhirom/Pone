@@ -94,19 +94,11 @@ typedef struct pone_lex_t {
 #endif
 
 struct pone_arena;
-
-// VM context
-typedef struct pone_universe {
-    struct pone_arena* arena_head;
-    struct pone_arena* arena_last;
-
-    // list of unused values.
-    struct pone_val* freelist;
-} pone_universe;
+struct pone_universe;
 
 // Calling context
 typedef struct pone_world {
-    pone_universe* universe;
+    struct pone_universe* universe;
 
     // save last tmpstack_floor
     size_t* savestack;
@@ -150,6 +142,18 @@ typedef struct pone_val {
         pone_hash hash;
     } as;
 } pone_val;
+
+// VM context
+typedef struct pone_universe {
+    struct pone_arena* arena_head;
+    struct pone_arena* arena_last;
+
+    // list of unused values.
+    struct pone_val* freelist;
+
+    // signal handlers
+    struct pone_val *signal_handlers[32];
+} pone_universe;
 
 typedef struct pone_arena {
     struct pone_arena* next;
@@ -230,6 +234,7 @@ pone_val* pone_new_num(pone_world* world, double i);
 static inline int pone_refcnt(pone_val* val) { return val->as.basic.refcnt; }
 static inline pone_t pone_type(pone_val* val) { return val->as.basic.type; }
 static inline pone_t pone_flags(pone_val* val) { return val->as.basic.flags; }
+static inline bool pone_defined(pone_val* val) { return val->as.basic.type != PONE_NIL; }
 
 void pone_obj_free(pone_world* world, pone_val* p);
 pone_t pone_type(pone_val* val);
