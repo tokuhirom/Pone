@@ -26,7 +26,7 @@ for @blocks {
         open($tmpfile, :w).print($c);
         my $objfile = 'pone_generated.out'; # XXX insecure
         try unlink $objfile;
-        run $cc, '-g', '-D_POSIX_SOURCE', '-std=c99', '-o', $objfile, $tmpfile;
+        run $cc, '-g', '-Ilib/Pone/runtime', '-std=c99', '-o', $objfile, $tmpfile, 'blib/libpone.a';
         if so %*ENV<PONE_DEBUG> {
             say "----\n$c\n-----";
         }
