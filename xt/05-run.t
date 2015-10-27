@@ -31,7 +31,7 @@ for @blocks {
             say "----\n$c\n-----";
         }
 
-        my $proc = run 'valgrind', "./$objfile", :out, :err;
+        my $proc = run 'valgrind', '--leak-check=full', "./$objfile", :out, :err;
         my $out = $proc.out.slurp-rest;
         my $err = $proc.err.slurp-rest;
         is $out, .expected.chomp, $title;

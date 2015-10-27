@@ -19,7 +19,7 @@ run {
         unlink $objfile;
         system('clang', '-D_POSIX_SOURCE', '-Ilib/Pone/runtime/', '-g', '-std=c99', '-o', $objfile, $src);
         my ($out, $err, $exit) = capture {
-            system("valgrind ./$objfile");
+            system("valgrind --leak-check=full ./$objfile");
         };
         is $out, $expected, "stdout($src)";
         like $err, qr/All heap blocks were freed/, 'valgrind';
