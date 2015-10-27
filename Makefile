@@ -43,6 +43,7 @@ tags:
 	rm -f pone_generated.c
 	ctags -R .
 
+# yes. hardly copy and pasted. but... i will rewrite all cases after self-hosting.
 t/c/assign.o: t/c/assign.c blib/libpone.a
 	$(CC) $(CFLAGS) -I lib/Pone/runtime/ -o t/c/assign.o $< blib/libpone.a
 
