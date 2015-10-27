@@ -54,4 +54,3 @@ pone_val* pone_builtin_getenv(pone_world* world, pone_val* key) {
         return pone_nil();
     }
 }
-

@@ -1,6 +1,8 @@
 #include "khash.h"
 #include "pone.h"
 
+#include "pone.c"
+
 #include "world.c"
 #include "scope.c"
 #include "alloc.c"
