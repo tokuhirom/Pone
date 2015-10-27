@@ -35,9 +35,13 @@ grammar Pone::Grammar {
         'else' <block>
     }
 
+    token stmt:sym<try> {:s
+        'try' '{' <stmts> '}'
+    }
+
     # reserved words
     token keyword {
-        [ return | if | unless | while | until | do | class | method | sub | my ] <!ww>
+        [ try | return | if | unless | while | until | do | class | method | sub | my ] <!ww>
     }
 
     token stmt:sym<sub> {:s 'sub' <!keyword> <name=ident> '(' <params>? ')' '{' <stmts> '}' }
@@ -90,6 +94,7 @@ grammar Pone::Grammar {
     rule value:sym<hash> { '{' <hash-pair> [ ',' <hash-pair> ]* ','? '}' || '{' '}' }
     rule value:sym<myvar> {:s 'my' <var> }
     rule value:sym<var> { <var> }
+    rule value:sym<err> { '$!' }
     rule value:sym<closure> { :s 'sub' '(' <params>? ')' '{' <stmts> '}' }
     rule value:sym<ident> { <!keyword> <ident> }
     rule hash-pair { <hash-key> '=>' <term> }
@@ -98,7 +103,7 @@ grammar Pone::Grammar {
 
     token var { \$ <ident> }
     token decimal { '0' || <[+ -]>? <[ 1..9 ]> <[ 0..9 ]>* }
-    token ident { <[ A..Z a..z 0..9 ]> <[ A..Z a..z 0..9 ]>* }
+    token ident { <[ A..Z a..z 0..9 _ ]> <[ A..Z a..z 0..9 ]>* }
     proto rule string { <...> }
     rule string:sym<sqstring> { "'" ( <sqstring-normal> || <sqstring-escape> )+ "'" }
     token sqstring-normal { <-[ \' \\ ]>+ }

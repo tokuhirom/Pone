@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include <setjmp.h>
 #include "khash.h" /* PONE_INC */
 
 // TODO: NaN boxing
@@ -153,6 +154,13 @@ typedef struct pone_universe {
 
     // signal handlers
     struct pone_val *signal_handlers[32];
+
+    // $!($@ in perl5)
+    struct pone_val* errvar;
+
+    jmp_buf* err_handlers;
+    int err_handler_idx;
+    int err_handler_max;
 } pone_universe;
 
 typedef struct pone_arena {
@@ -171,6 +179,8 @@ pone_val* pone_nil();
 // world.c
 pone_world* pone_new_world(pone_universe* universe);
 pone_world* pone_new_world_from_world(pone_world* world, pone_lex_t* lex);
+pone_val* pone_try(pone_world* world, pone_val* code);
+pone_val* pone_errvar(pone_world* world);
 
 // op.c
 void pone_dd(pone_world* world, pone_val* val);
@@ -193,6 +203,7 @@ pone_val* pone_new_str(pone_world* world, const char*p, size_t len);
 pone_val* pone_new_str_const(pone_world* world, const char*p, size_t len);
 void pone_str_free(pone_world* world, pone_val* val);
 pone_val* pone_str(pone_world* world, pone_val* val);
+pone_val* pone_to_str(pone_universe* universe, pone_val* val);
 pone_val* pone_str_from_num(pone_world* world, double n);
 const char* pone_string_ptr(pone_val* val);
 size_t pone_string_len(pone_val* val);
@@ -222,6 +233,7 @@ void pone_lex_refcnt_inc(pone_world* world, pone_lex_t* lex);
 // alloc.c
 pone_universe* pone_universe_init();
 void pone_universe_destroy(pone_universe* universe);
+void pone_universe_default_err_handler(pone_universe* universe);
 
 // bool.c
 pone_val* pone_true();
@@ -241,7 +253,8 @@ pone_t pone_type(pone_val* val);
 void* pone_malloc(pone_world* world, size_t size);
 pone_val* pone_obj_alloc(pone_world* world, pone_t type);
 void pone_free(pone_world* world, void* p);
-void pone_die(pone_world* world, const char* str);
+void pone_die(pone_world* world, pone_val* msg);
+void pone_die_str(pone_world* world, const char* msg);
 
 #endif
 

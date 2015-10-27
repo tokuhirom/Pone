@@ -80,3 +80,28 @@ void pone_destroy_world(pone_world* world) {
     free(world);
 }
 
+pone_val* pone_try(pone_world* world, pone_val* code) {
+    if (world->universe->err_handler_idx == world->universe->err_handler_max) {
+        world->universe->err_handler_max *= 2;
+        world->universe->err_handlers = realloc(world->universe->err_handlers, sizeof(jmp_buf)*world->universe->err_handler_max);
+        if (!world->universe->err_handlers) {
+            fprintf(stderr, "can't alloc mem\n");
+            exit(1);
+        }
+    }
+
+    if (setjmp(world->universe->err_handlers[++world->universe->err_handler_idx])) {
+        return pone_nil();
+    } else {
+        pone_val* v = pone_code_call(world, code, 0);
+        world->universe->err_handler_idx--;
+        return v;
+    }
+}
+
+// get $!
+// $! is equivalent to $@ in Perl5
+pone_val* pone_errvar(pone_world* world) {
+    return world->universe->errvar;
+}
+

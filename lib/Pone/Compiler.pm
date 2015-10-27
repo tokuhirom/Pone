@@ -7,7 +7,7 @@ unit class Pone::Compiler;
 use Pone::Utils;
 
 has $!filename;
-has Set $.builtins = set(<print say dd abs elems getenv time signal sleep>);
+has Set $.builtins = set(<print say dd abs elems getenv time signal sleep die>);
 has %.constants = (
     SIGINT => 2, # SIGINT should be enum
 );
@@ -88,6 +88,19 @@ method !compile(Pone::Node $node) {
         } else {
             die "Unknown variable '{.value}'";
         }
+    }
+    when Pone::Node::Try {
+        my $sub = Pone::Node::Sub.new([
+            Pone::Node::Nil.new(), # name
+            Pone::Node::Params.new(),
+            .children[0]
+        ]);
+        $sub.lineno = .lineno;
+        my $body = self!compile($sub);
+        "pone_mortalize(world, pone_try(world, $body))"
+    }
+    when Pone::Node::ErrVar {
+        'pone_errvar(world)'
     }
     when Pone::Node::Funcall {
         my ($func-node, $args) = $node.children;

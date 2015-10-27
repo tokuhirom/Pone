@@ -243,3 +243,11 @@ my $n = sub ($m) { say 5+$m }; $n(3)
 --- expected
 8
 
+===
+--- input
+try { say 6; die 3; say 5; }; say 555; say $!
+--- expected
+6
+555
+3
+

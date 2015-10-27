@@ -27,6 +27,7 @@ class Pone::Node {
 class Pone::Node::Stmts    is Pone::Node { }
 class Pone::Node::If       is Pone::Node { }
 class Pone::Node::Block    is Pone::Node { }
+class Pone::Node::Try      is Pone::Node { }
 
 class Pone::Node::Funcall  is Pone::Node { }
 class Pone::Node::Args     is Pone::Node { }
@@ -68,9 +69,10 @@ class Pone::Node::Sub      is Pone::Node {
 }
 class Pone::Node::Params   is Pone::Node { }
 
-class Pone::Node::Nil   is Pone::Node::Term { }
-class Pone::Node::True  is Pone::Node::Term { }
-class Pone::Node::False is Pone::Node::Term { }
+class Pone::Node::Nil    is Pone::Node::Term { }
+class Pone::Node::True   is Pone::Node::Term { }
+class Pone::Node::False  is Pone::Node::Term { }
+class Pone::Node::ErrVar is Pone::Node::Term { }
 
 class Pone::Node::Value is Pone::Node::Term {
     has $.value is rw;

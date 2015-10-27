@@ -1,3 +1,5 @@
+#include <setjmp.h>
+
 pone_val* pone_get_lex(pone_world* world, const char* key) {
     pone_lex_t* lex = world->lex;
     while (lex != NULL) {
@@ -70,15 +72,20 @@ bool pone_so(pone_val* val) {
     }
 }
 
-void pone_die(pone_world* world, const char* str) {
-    fprintf(stderr, "%s\n", str);
-    exit(1);
+void pone_die_str(pone_world* world, const char* str) {
+    pone_die(world, pone_new_str_const(world, str, strlen(str)));
+}
+
+void pone_die(pone_world* world, pone_val* val) {
+    assert(val);
+    world->universe->errvar = val;
+    longjmp(world->universe->err_handlers[world->universe->err_handler_idx], 1);
 }
 
 int pone_to_int(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_NIL:
-        pone_die(world, "Use of uninitialized value as integer");
+        pone_die_str(world, "Use of uninitialized value as integer");
         abort();
     case PONE_INT:
         return pone_int_val(val);
@@ -87,9 +94,9 @@ int pone_to_int(pone_world* world, pone_val* val) {
         return strtol(pone_string_ptr(val), &end, 10);
     }
     case PONE_CODE:
-        pone_die(world, "you can't convert CODE to integer");
+        pone_die_str(world, "you can't convert CODE to integer");
     default:
-        pone_die(world, "you can't convert this type to integer");
+        pone_die_str(world, "you can't convert this type to integer");
         abort();
     }
 }

@@ -6,7 +6,7 @@ void pone_savetmps(pone_world* world) {
         world->savestack_max *= 2;
         size_t* ssp = (size_t*)realloc(world->savestack, sizeof(size_t)*world->savestack_max);
         if (!ssp) {
-            pone_die(world, "Cannot allocate memory");
+            pone_die_str(world, "Cannot allocate memory");
         }
         world->savestack = ssp;
     }
@@ -111,7 +111,7 @@ pone_val* pone_mortalize(pone_world* world, pone_val* val) {
         world->tmpstack_max *= 2;
         pone_val** ssp = (pone_val**)realloc(world->tmpstack, sizeof(pone_val*)*world->tmpstack_max);
         if (!ssp) {
-            pone_die(world, "Cannot allocate memory");
+            pone_die_str(world, "Cannot allocate memory");
         }
         world->tmpstack = ssp;
     }

@@ -22,7 +22,7 @@ pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
         // TODO: NV
     }
     default:
-        pone_die(world, "you can't call abs() for non-numeric value");
+        pone_die_str(world, "you can't call abs() for non-numeric value");
         abort();
     }
 }
@@ -94,7 +94,7 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
             pone_refcnt_inc(world, code);
             world->universe->signal_handlers[sig] = code;
         } else {
-            pone_die(world, "cannot set signal");
+            pone_die_str(world, "cannot set signal");
         }
     } else {
         if (world->universe->signal_handlers[sig]) {
@@ -103,6 +103,11 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
         signal(sig, SIG_DFL);
     }
 
+    return pone_nil();
+}
+
+pone_val* pone_builtin_die(pone_world* world, pone_val* msg) {
+    pone_die(world, msg);
     return pone_nil();
 }
 

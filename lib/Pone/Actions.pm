@@ -61,6 +61,12 @@ method stmt:sym<if>($/) {
     $/.make: $if;
 }
 
+method stmt:sym<try>($/) {
+    my $try = Pone::Node::Try.new($/<stmts>.made);
+    $try.lineno = lineof($/);
+    $/.make: $try;
+}
+
 method stmt:sym<block>($/) {
     $/.make: $/<block>.made;
 }
@@ -181,6 +187,10 @@ method call($/) {
 
 method value:sym<funcall>($/) {
     self!funcall($/);
+}
+
+method value:sym<err>($/) {
+    $/.make: Pone::Node::ErrVar.new();
 }
 
 method paren-args($/) {

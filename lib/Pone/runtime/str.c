@@ -39,6 +39,7 @@ pone_val* pone_str_from_num(pone_world* world, double n) {
 /**
  * @return (mortalized)
  */
+// TODO deprecate
 pone_val* pone_str(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_NIL:
@@ -55,6 +56,20 @@ pone_val* pone_str(pone_world* world, pone_val* val) {
         } else {
             return pone_mortalize(world, pone_new_str_const(world, "False", strlen("False")));
         }
+    default:
+        abort();
+    }
+}
+
+/**
+ * @return not mortalized
+ */
+pone_val* pone_to_str(pone_universe* universe, pone_val* val) {
+    switch (pone_type(val)) {
+    case PONE_NIL:
+        return pone_new_str_const(NULL, "(undef)", strlen("(undef)"));
+    case PONE_STRING:
+        return val;
     default:
         abort();
     }
