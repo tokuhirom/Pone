@@ -195,18 +195,18 @@ const char* pone_what_str_c(pone_val* val);
 pone_val* pone_new_hash(pone_world* world, int n, ...);
 void pone_hash_put(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
 size_t pone_hash_elems(pone_val* val);
-void pone_hash_free(pone_world* world, pone_val* val);
+void pone_hash_free(pone_universe* universe, pone_val* val);
 
 // array.c
 pone_val* pone_new_ary(pone_world* world, int n, ...);
 size_t pone_ary_elems(pone_val* val);
 pone_val* pone_ary_at_pos(pone_val* val, int pos);
-void pone_ary_free(pone_world* world, pone_val* val);
+void pone_ary_free(pone_universe* universe, pone_val* val);
 
 // str.c
 pone_val* pone_new_str(pone_world* world, const char*p, size_t len);
 pone_val* pone_new_str_const(pone_world* world, const char*p, size_t len);
-void pone_str_free(pone_world* world, pone_val* val);
+void pone_str_free(pone_universe* universe, pone_val* val);
 pone_val* pone_str(pone_world* world, pone_val* val);
 pone_val* pone_to_str(pone_universe* universe, pone_val* val);
 pone_val* pone_str_from_num(pone_world* world, double n);
@@ -217,14 +217,14 @@ const char* pone_strdup(pone_world* world, const char* src, size_t size);
 // code.c
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func);
 pone_val* pone_code_call(pone_world* world, pone_val* code, int n, ...);
-void pone_code_free(pone_world* world, pone_val* v);
+void pone_code_free(pone_universe* universe, pone_val* v);
 
 // SV ops
 int pone_int_val(pone_val* val);
 double pone_num_val(pone_val* val);
 bool pone_bool_val(pone_val* val);
-void pone_refcnt_dec(pone_world* world, pone_val* val);
-void pone_refcnt_inc(pone_world* world, pone_val* val);
+void pone_refcnt_dec(pone_universe* universe, pone_val* val);
+void pone_refcnt_inc(pone_universe* universe, pone_val* val);
 size_t pone_elems(pone_world* world, pone_val* val);
 int pone_to_int(pone_world* world, pone_val* val);
 
@@ -278,11 +278,11 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
 pone_val* pone_builtin_die(pone_world* world, pone_val* msg);
 void pone_signal_handle(pone_world* world);
 
-void pone_obj_free(pone_world* world, pone_val* p);
+void pone_obj_free(pone_universe* universe, pone_val* p);
 pone_t pone_type(pone_val* val);
 void* pone_malloc(pone_world* world, size_t size);
 pone_val* pone_obj_alloc(pone_world* world, pone_t type);
-void pone_free(pone_world* world, void* p);
+void pone_free(pone_universe* universe, void* p);
 void pone_die(pone_world* world, pone_val* msg);
 void pone_die_str(pone_world* world, const char* msg);
 

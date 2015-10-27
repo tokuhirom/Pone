@@ -48,14 +48,14 @@ static void pone_lex_free(pone_world* world, pone_lex_t* lex) {
         const char* k;
         pone_val* v;
         kh_foreach(lex->map, k, v, {
-            pone_refcnt_dec(world, v);
+            pone_refcnt_dec(world->universe, v);
         });
     }
     kh_destroy(str, lex->map);
     if (lex->parent) {
         pone_lex_refcnt_dec(world, lex->parent);
     }
-    pone_obj_free(world, (pone_val*)lex);
+    pone_obj_free(world->universe, (pone_val*)lex);
 }
 
 void pone_lex_refcnt_dec(pone_world* world, pone_lex_t* lex) {
@@ -92,7 +92,7 @@ void pone_freetmps(pone_world* world) {
 #endif
     // decrement refcnt for mortalized values
     while (world->tmpstack_idx > world->tmpstack_floor) {
-        pone_refcnt_dec(world, world->tmpstack[world->tmpstack_idx-1]);
+        pone_refcnt_dec(world->universe, world->tmpstack[world->tmpstack_idx-1]);
         --world->tmpstack_idx;
     }
 

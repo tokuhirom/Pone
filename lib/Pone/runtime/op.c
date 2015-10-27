@@ -21,7 +21,7 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
         lex = lex->parent;
     }
 
-    pone_refcnt_inc(world, val);
+    pone_refcnt_inc(world->universe, val);
     int ret;
     khint_t k = kh_put(str, lex->map, key, &ret);
     if (ret == -1) {
@@ -29,7 +29,7 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
         abort();
     }
     if (ret == 0) { // the key is present in the hash table
-        pone_refcnt_dec(world, kh_val(lex->map, k));
+        pone_refcnt_dec(world->universe, kh_val(lex->map, k));
     }
     kh_val(lex->map, k) = val;
 
@@ -80,11 +80,12 @@ void pone_die_str(pone_world* world, const char* str) {
 void pone_die(pone_world* world, pone_val* val) {
     assert(val);
 
-    // save error information to $!
-    world->universe->errvar = val;
-    pone_refcnt_inc(world, val);
-
     pone_universe* universe = world->universe;
+
+    // save error information to $!
+    universe->errvar = val;
+    pone_refcnt_inc(universe, val);
+
 
     // exit from this scope
     pone_destroy_world(world);

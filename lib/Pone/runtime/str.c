@@ -17,9 +17,9 @@ pone_val* pone_new_str_const(pone_world* world, const char*p, size_t len) {
     return (pone_val*)pv;
 }
 
-void pone_str_free(pone_world* world, pone_val* val) {
+void pone_str_free(pone_universe* universe, pone_val* val) {
     if (!(pone_flags(val) & PONE_FLAGS_STR_CONST)) {
-        pone_free(world, (char*)((pone_string*)val)->p);
+        pone_free(universe, (char*)((pone_string*)val)->p);
     }
 }
 

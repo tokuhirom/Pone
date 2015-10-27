@@ -56,7 +56,7 @@ void pone_universe_destroy(pone_universe* universe) {
         a = next;
     }
     if (universe->errvar) {
-        // pone_refcnt_dec(universe->errvar);
+        pone_refcnt_dec(universe, universe->errvar);
     }
     free(universe->err_handlers);
     free(universe);
@@ -97,12 +97,12 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
     return val;
 }
 
-void pone_obj_free(pone_world* world, pone_val* p) {
-    p->as.free.next = world->universe->freelist;
-    world->universe->freelist = p;
+void pone_obj_free(pone_universe* universe, pone_val* p) {
+    p->as.free.next = universe->freelist;
+    universe->freelist = p;
 }
 
-void pone_free(pone_world* world, void* p) {
+void pone_free(pone_universe* universe, void* p) {
     free(p);
 }
 
@@ -117,9 +117,9 @@ const char* pone_strdup(pone_world* world, const char* src, size_t size) {
     return p;
 }
 
-inline void pone_refcnt_inc(pone_world* world, pone_val* val) {
+inline void pone_refcnt_inc(pone_universe* universe, pone_val* val) {
 #ifdef TRACE_REFCNT
-    printf("pone_refcnt_inc: world:%X val:%X\n", world, val);
+    printf("pone_refcnt_inc: universe:%X val:%X\n", universe, val);
 #endif
     assert(val != NULL);
 
@@ -127,10 +127,9 @@ inline void pone_refcnt_inc(pone_world* world, pone_val* val) {
 }
 
 // decrement reference count
-inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
+inline void pone_refcnt_dec(pone_universe* universe, pone_val* val) {
 #ifdef TRACE_REFCNT
     printf("refcnt_dec: %X refcnt:%d type:%s\n", val, val->refcnt, pone_what_str_c(val));
-    pone_dd(world, val);
 #endif
 
     if (val->as.basic.flags & PONE_FLAGS_GLOBAL) {
@@ -140,7 +139,6 @@ inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
     assert(val != NULL);
 #ifndef NDEBUG
     if (val->as.basic.refcnt <= 0) { 
-        pone_dd(world, val);
         assert(val->as.basic.refcnt > 0);
     }
 #endif
@@ -150,16 +148,16 @@ inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
     if (val->as.basic.refcnt == 0) {
         switch (pone_type(val)) {
         case PONE_STRING:
-            pone_str_free(world, val);
+            pone_str_free(universe, val);
             break;
         case PONE_ARRAY:
-            pone_ary_free(world, val);
+            pone_ary_free(universe, val);
             break;
         case PONE_HASH:
-            pone_hash_free(world, val);
+            pone_hash_free(universe, val);
             break;
         case PONE_CODE:
-            pone_code_free(world, val);
+            pone_code_free(universe, val);
             break;
         case PONE_INT: // don't need to free heap
         case PONE_NUM:
@@ -171,7 +169,7 @@ inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
 #ifdef TRACE_REFCNT
         memset(val, 0, sizeof(pone_val));
 #endif
-        pone_obj_free(world, val);
+        pone_obj_free(universe, val);
     }
 }
 

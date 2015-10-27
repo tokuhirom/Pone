@@ -22,13 +22,13 @@ pone_val* pone_new_hash(pone_world* world, int n, ...) {
     return (pone_val*)hv;
 }
 
-void pone_hash_free(pone_world* world, pone_val* val) {
+void pone_hash_free(pone_universe* universe, pone_val* val) {
     pone_hash* h=(pone_hash*)val;
     const char* k;
     pone_val* v;
     kh_foreach(h->h, k, v, {
-        pone_free(world, (void*)k); // k is strdupped.
-        pone_refcnt_dec(world, v);
+        pone_free(universe, (void*)k); // k is strdupped.
+        pone_refcnt_dec(universe, v);
     });
     kh_destroy(str, h->h);
 }
@@ -41,7 +41,7 @@ void pone_hash_put(pone_world* world, pone_val* hv, pone_val* k, pone_val* v) {
     const char* ks=pone_strdup(world, pone_string_ptr(k), pone_string_len(k));
     khint_t key = kh_put(str, ((pone_hash*)hv)->h, ks, &ret);
     kh_val(((pone_hash*)hv)->h, key) = v;
-    pone_refcnt_inc(world, v);
+    pone_refcnt_inc(world->universe, v);
     ((pone_hash*)hv)->len++;
 }
 

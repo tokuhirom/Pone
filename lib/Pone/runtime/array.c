@@ -13,20 +13,20 @@ pone_val* pone_new_ary(pone_world* world, int n, ...) {
     for (int i=0; i<n; ++i) {
         pone_val* v = va_arg(list, pone_val*);
         av->a[i] = v;
-        pone_refcnt_inc(world, v);
+        pone_refcnt_inc(world->universe, v);
     }
     va_end(list);
 
     return (pone_val*)av;
 }
 
-void pone_ary_free(pone_world* world, pone_val* val) {
+void pone_ary_free(pone_universe* universe, pone_val* val) {
     pone_ary* a=(pone_ary*)val;
     size_t l = pone_ary_elems(val);
     for (size_t i=0; i<l; ++i) {
-        pone_refcnt_dec(world, a->a[i]);
+        pone_refcnt_dec(universe, a->a[i]);
     }
-    pone_free(world, a->a);
+    pone_free(universe, a->a);
 }
 
 pone_val* pone_ary_at_pos(pone_val* av, int i) {

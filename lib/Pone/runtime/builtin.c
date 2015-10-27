@@ -92,14 +92,14 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
 
         if (sigaction(sig, &act, NULL) == 0) {
             printf("Set sig %d\n", sig);
-            pone_refcnt_inc(world, code);
+            pone_refcnt_inc(world->universe, code);
             world->universe->signal_handlers[sig] = code;
         } else {
             pone_die_str(world, "cannot set signal");
         }
     } else {
         if (world->universe->signal_handlers[sig]) {
-            pone_refcnt_dec(world, world->universe->signal_handlers[sig]);
+            pone_refcnt_dec(world->universe, world->universe->signal_handlers[sig]);
         }
         signal(sig, SIG_DFL);
     }

@@ -1,6 +1,7 @@
-all: bin/pone.moarvm
+all: blib/libpone.a bin/pone.moarvm
 
-CFLAGS=-std=c99
+CFLAGS=-std=c99 -g
+
 OBJFILES=lib/Pone/runtime/alloc.o lib/Pone/runtime/array.o lib/Pone/runtime/bool.o lib/Pone/runtime/builtin.o lib/Pone/runtime/code.o lib/Pone/runtime/hash.o lib/Pone/runtime/int.o lib/Pone/runtime/nil.o lib/Pone/runtime/num.o lib/Pone/runtime/op.o lib/Pone/runtime/pone.o lib/Pone/runtime/scope.o lib/Pone/runtime/str.o lib/Pone/runtime/world.o
 
 test: lib/Pone.pm6.moarvm
@@ -11,7 +12,7 @@ test: lib/Pone.pm6.moarvm
 	perl6-m -Ilib xt/05-run.t
 
 clean:
-	rm -f */*.moarvm */*/*.moarvm
+	rm -f */*.moarvm */*/*.moarvm $(OBJFILES) blib/libpone.a
 
 bin/pone.moarvm: lib/Pone/Node.pm.moarvm lib/Pone/Compiler.pm.moarvm lib/Pone/Utils.pm.moarvm lib/Pone.pm6.moarvm
 	perl6-m -Ilib --target=mbc --output=bin/pone.moarvm bin/pone
@@ -37,5 +38,9 @@ lib/Pone/Grammar.pm.moarvm: lib/Pone/Grammar.pm
 blib/libpone.a: $(OBJFILES)
 	ar rcs blib/libpone.a $(OBJFILES)
 
-.PHONY: clean
+tags:
+	rm -f pone_generated.c
+	ctags -R .
+
+.PHONY: clean tags
 
