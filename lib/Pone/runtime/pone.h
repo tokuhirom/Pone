@@ -158,6 +158,9 @@ typedef struct pone_arena {
 } pone_arena;
 
 
+// pone.c
+void pone_init();
+
 // nil.c
 pone_val* pone_nil();
 
