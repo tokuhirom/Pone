@@ -84,7 +84,7 @@ method !compile(Pone::Node $node) {
     }
     when Pone::Node::Ident {
         if %!constants{.value}:exists {
-            "pone_mortalize(world, pone_new_int(world, {%!constants{.value}}))";
+            "pone_mortalize(world, pone_new_int(world->universe, {%!constants{.value}}))";
         } else {
             die "Unknown variable '{.value}'";
         }
@@ -172,7 +172,7 @@ method !compile(Pone::Node $node) {
     }
 
     when Pone::Node::Array {
-        my $s = 'pone_new_ary(world, ';
+        my $s = 'pone_new_ary(world->universe, ';
         $s ~= .children.elems;
         if .children.elems {
             $s ~= ",";
@@ -183,7 +183,7 @@ method !compile(Pone::Node $node) {
     }
 
     when Pone::Node::Hash {
-        my $s = 'pone_new_hash(world, ';
+        my $s = 'pone_new_hash(world->universe, ';
         $s ~= .children.elems;
         if .children.elems {
             $s ~= ",";
@@ -240,7 +240,7 @@ method !compile(Pone::Node $node) {
     }
 
     when Pone::Node::Int {
-        "pone_mortalize(world, pone_new_int(world, " ~ .value ~ "))";
+        "pone_mortalize(world, pone_new_int(world->universe, " ~ .value ~ "))";
     }
     when Pone::Node::Add {
         self!infix('pone_add', $_);
@@ -286,9 +286,8 @@ method !compile(Pone::Node $node) {
         "pone_nil()";
     }
     when Pone::Node::Str {
-        # TODO: freeze string literals
         my $s = .value;
-        mortal(qq!pone_new_str_const(world, "{escape-c-str($s)}", {$s.encode.bytes})!);
+        mortal(qq!pone_new_str_const(world->universe, "{escape-c-str($s)}", {$s.encode.bytes})!);
     }
     default {
         die "unknown node: {$node.WHAT.gist}";

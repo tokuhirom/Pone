@@ -19,7 +19,7 @@ void pone_savetmps(pone_world* world) {
 }
 
 pone_lex_t* pone_lex_new(pone_world* world, pone_lex_t* parent) {
-    pone_lex_t* lex = (pone_lex_t*)pone_obj_alloc(world, PONE_NIL);
+    pone_lex_t* lex = (pone_lex_t*)pone_obj_alloc(world->universe, PONE_NIL);
 #ifdef TRACE_LEX
     printf("pone_lex_new: %x lex:%x\n", world, lex);
 #endif

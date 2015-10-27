@@ -1,7 +1,6 @@
 #include "pone.h" /* PONE_INC */
 
-// TODO: implement memory pool
-void* pone_malloc(pone_world* world, size_t size) {
+void* pone_malloc(pone_universe* universe, size_t size) {
     void* p = malloc(size);
     if (!p) {
         fprintf(stderr, "Cannot allocate memory\n");
@@ -11,10 +10,9 @@ void* pone_malloc(pone_world* world, size_t size) {
     return p;
 }
 
-pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
-    assert(world->universe);
-    pone_universe* universe = world->universe;
-    assert(world->universe->arena_last != NULL);
+pone_val* pone_obj_alloc(pone_universe* universe, pone_t type) {
+    assert(universe);
+    assert(universe->arena_last != NULL);
     pone_val* val;
 
     // check free-ed values
@@ -31,7 +29,7 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
         // then, use value from arena.
         if (universe->arena_last->idx == PONE_ARENA_SIZE) {
             // arena doesn't have an empty slot
-            pone_arena* arena = pone_malloc(world, sizeof(pone_arena));
+            pone_arena* arena = pone_malloc(universe, sizeof(pone_arena));
             universe->arena_last->next = arena;
             universe->arena_last = arena;
             val = &(arena->values[arena->idx++]);
@@ -55,7 +53,7 @@ void pone_free(pone_universe* universe, void* p) {
     free(p);
 }
 
-const char* pone_strdup(pone_world* world, const char* src, size_t size) {
+const char* pone_strdup(pone_universe* universe, const char* src, size_t size) {
     char* p = (char*)malloc(size+1);
     if (!p) {
         fprintf(stderr, "Cannot allocate memory\n");

@@ -1,19 +1,19 @@
 #include "pone.h" /* PONE_INC */
 
-pone_val* pone_new_ary(pone_world* world, int n, ...) {
+pone_val* pone_new_ary(pone_universe* universe, int n, ...) {
     va_list list;
 
-    pone_ary* av = (pone_ary*)pone_obj_alloc(world, PONE_ARRAY);
+    pone_ary* av = (pone_ary*)pone_obj_alloc(universe, PONE_ARRAY);
 
     va_start(list, n);
-    av->a = (pone_val**)pone_malloc(world, sizeof(pone_ary)*n);
+    av->a = (pone_val**)pone_malloc(universe, sizeof(pone_ary)*n);
     av->max = n;
     av->len = n;
     // we can optimize in case of `[1,2,3]`.
     for (int i=0; i<n; ++i) {
         pone_val* v = va_arg(list, pone_val*);
         av->a[i] = v;
-        pone_refcnt_inc(world->universe, v);
+        pone_refcnt_inc(universe, v);
     }
     va_end(list);
 

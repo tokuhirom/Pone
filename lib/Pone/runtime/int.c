@@ -5,8 +5,8 @@ inline int pone_int_val(pone_val* val) {
     return ((pone_int*)val)->i;
 }
 
-pone_val* pone_new_int(pone_world* world, int i) {
-    pone_int* iv = (pone_int*)pone_obj_alloc(world, PONE_INT);
+pone_val* pone_new_int(pone_universe* universe, int i) {
+    pone_int* iv = (pone_int*)pone_obj_alloc(universe, PONE_INT);
     iv->i = i;
     return (pone_val*)iv;
 }

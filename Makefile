@@ -1,6 +1,6 @@
 all: blib/libpone.a bin/pone.moarvm
 
-CFLAGS=-std=c99 -g
+CFLAGS=-std=c99 -g -W -Werror
 
 OBJFILES=lib/Pone/runtime/alloc.o lib/Pone/runtime/array.o lib/Pone/runtime/bool.o lib/Pone/runtime/builtin.o lib/Pone/runtime/code.o lib/Pone/runtime/hash.o lib/Pone/runtime/int.o lib/Pone/runtime/nil.o lib/Pone/runtime/num.o lib/Pone/runtime/op.o lib/Pone/runtime/pone.o lib/Pone/runtime/scope.o lib/Pone/runtime/str.o lib/Pone/runtime/world.o lib/Pone/runtime/universe.o
 

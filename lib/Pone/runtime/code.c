@@ -3,7 +3,7 @@
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func) {
     world->lex->refcnt++;
 
-    pone_code* cv = (pone_code*)pone_obj_alloc(world, PONE_CODE);
+    pone_code* cv = (pone_code*)pone_obj_alloc(world->universe, PONE_CODE);
     cv->func = func;
     cv->lex = world->lex;
 

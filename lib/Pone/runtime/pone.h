@@ -24,6 +24,8 @@
 #define PONE_FLAGS_STR_CONST 2
 // This object is immutable
 #define PONE_FLAGS_STR_FROZEN 4
+// This string has copied buffer
+#define PONE_FLAGS_STR_COPY   8
 
 typedef enum {
     PONE_NIL=1,
@@ -78,8 +80,8 @@ typedef struct {
 typedef struct {
     PONE_HEAD;
     struct pone_val** a;
-    size_t max;
-    size_t len;
+    int max;
+    int len;
 } pone_ary;
 
 typedef struct {
@@ -192,27 +194,27 @@ void pone_dd(pone_world* world, pone_val* val);
 const char* pone_what_str_c(pone_val* val);
 
 // hash.c
-pone_val* pone_new_hash(pone_world* world, int n, ...);
-void pone_hash_put(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
+pone_val* pone_new_hash(pone_universe* universe, int n, ...);
+void pone_hash_put(pone_universe* universe, pone_val* hv, pone_val* k, pone_val* v);
 size_t pone_hash_elems(pone_val* val);
 void pone_hash_free(pone_universe* universe, pone_val* val);
 
 // array.c
-pone_val* pone_new_ary(pone_world* world, int n, ...);
+pone_val* pone_new_ary(pone_universe* universe, int n, ...);
 size_t pone_ary_elems(pone_val* val);
 pone_val* pone_ary_at_pos(pone_val* val, int pos);
 void pone_ary_free(pone_universe* universe, pone_val* val);
 
 // str.c
-pone_val* pone_new_str(pone_world* world, const char*p, size_t len);
-pone_val* pone_new_str_const(pone_world* world, const char*p, size_t len);
+pone_val* pone_new_str(pone_universe* universe, const char*p, size_t len);
+pone_val* pone_new_str_const(pone_universe* universe, const char*p, size_t len);
 void pone_str_free(pone_universe* universe, pone_val* val);
 pone_val* pone_str(pone_world* world, pone_val* val);
 pone_val* pone_to_str(pone_universe* universe, pone_val* val);
-pone_val* pone_str_from_num(pone_world* world, double n);
+pone_val* pone_str_from_num(pone_universe* universe, double n);
 const char* pone_string_ptr(pone_val* val);
 size_t pone_string_len(pone_val* val);
-const char* pone_strdup(pone_world* world, const char* src, size_t size);
+const char* pone_strdup(pone_universe* universe, const char* src, size_t size);
 
 // code.c
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func);
@@ -247,8 +249,8 @@ void pone_universe_default_err_handler(pone_universe* universe);
 pone_val* pone_true();
 pone_val* pone_false();
 
-pone_val* pone_new_int(pone_world* world, int i);
-pone_val* pone_new_num(pone_world* world, double i);
+pone_val* pone_new_int(pone_universe* universe, int i);
+pone_val* pone_new_num(pone_universe* universe, double i);
 
 // basic value operations
 static inline int pone_refcnt(pone_val* val) { return val->as.basic.refcnt; }
@@ -280,8 +282,8 @@ void pone_signal_handle(pone_world* world);
 
 void pone_obj_free(pone_universe* universe, pone_val* p);
 pone_t pone_type(pone_val* val);
-void* pone_malloc(pone_world* world, size_t size);
-pone_val* pone_obj_alloc(pone_world* world, pone_t type);
+void* pone_malloc(pone_universe* universe, size_t size);
+pone_val* pone_obj_alloc(pone_universe* universe, pone_t type);
 void pone_free(pone_universe* universe, void* p);
 void pone_die(pone_world* world, pone_val* msg);
 void pone_die_str(pone_world* world, const char* msg);

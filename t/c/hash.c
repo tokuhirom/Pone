@@ -11,11 +11,11 @@ int main(int argc, char** argv) {
         pone_savetmps(world);
         pone_push_scope(world);
 
-        pone_val* av = pone_mortalize(world, pone_new_hash(world, 4,
-            pone_mortalize(world, pone_new_int(world, 6)),
-            pone_mortalize(world, pone_new_int(world, 4)),
-            pone_mortalize(world, pone_new_int(world, 3)),
-            pone_mortalize(world, pone_new_int(world, 8))
+        pone_val* av = pone_mortalize(world, pone_new_hash(world->universe, 4,
+            pone_mortalize(world, pone_new_int(world->universe, 6)),
+            pone_mortalize(world, pone_new_int(world->universe, 4)),
+            pone_mortalize(world, pone_new_int(world->universe, 3)),
+            pone_mortalize(world, pone_new_int(world->universe, 8))
         ));
         pone_builtin_say(world, pone_builtin_elems(world, av));
 

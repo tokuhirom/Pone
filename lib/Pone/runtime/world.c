@@ -37,14 +37,14 @@ pone_world* pone_new_world_from_world(pone_world* world, pone_lex_t* lex) {
     printf("pone_new_world_from_world: %X parent:%X tmpstack_idx:%X\n", world, world->parent, world->tmpstack_idx);
 #endif
     // we can't use pone_malloc yet.
-    pone_world* new_world = (pone_world*)pone_malloc(world, sizeof(pone_world));
+    pone_world* new_world = (pone_world*)pone_malloc(world->universe, sizeof(pone_world));
     new_world->universe = world->universe;
     new_world->parent = world;
 
-    new_world->savestack = (size_t*)pone_malloc(world, sizeof(size_t*) * 64);
+    new_world->savestack = (size_t*)pone_malloc(world->universe, sizeof(size_t*) * 64);
     new_world->savestack_max = 64;
 
-    new_world->tmpstack = (pone_val**)pone_malloc(world, sizeof(pone_val*) * 64);
+    new_world->tmpstack = (pone_val**)pone_malloc(world->universe, sizeof(pone_val*) * 64);
     new_world->tmpstack_max = 64;
     new_world->tmpstack_idx = 0;
     new_world->tmpstack_floor = 0;

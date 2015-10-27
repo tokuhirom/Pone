@@ -3,7 +3,7 @@
 pone_val* pone_user_func_y(pone_world* world, int n, va_list args) {
     assert(n==0);
 
-    return pone_mortalize(world, pone_new_int(world, 1)); // we must not mortalize return value
+    return pone_mortalize(world, pone_new_int(world->universe, 1)); // we must not mortalize return value
 }
 
 int main(int argc, char** argv) {
