@@ -8,11 +8,11 @@ inline bool pone_bool_val(pone_val* val) {
     return ((pone_bool*)val)->b;
 }
 
-inline pone_val* pone_true() {
+pone_val* pone_true() {
     return (pone_val*)&pone_true_val;
 }
 
-inline pone_val* pone_false() {
+pone_val* pone_false() {
     return (pone_val*)&pone_false_val;
 }
 

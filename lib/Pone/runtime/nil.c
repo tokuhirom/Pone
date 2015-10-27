@@ -2,7 +2,7 @@
 
 static pone_val pone_nil_val = { -1, PONE_NIL, PONE_FLAGS_GLOBAL };
 
-inline pone_val* pone_nil() {
+pone_val* pone_nil() {
     return &pone_nil_val;
 }
 

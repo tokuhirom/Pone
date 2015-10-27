@@ -2,9 +2,7 @@
 pone_val* pone_new_ary(pone_world* world, int n, ...) {
     va_list list;
 
-    pone_ary* av = (pone_ary*)pone_malloc(world, sizeof(pone_ary));
-    av->refcnt = 1;
-    av->type   = PONE_ARRAY;
+    pone_ary* av = (pone_ary*)pone_obj_alloc(world, PONE_ARRAY);
 
     va_start(list, n);
     av->a = (pone_val**)pone_malloc(world, sizeof(pone_ary)*n);

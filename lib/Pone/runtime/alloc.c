@@ -10,6 +10,13 @@ void* pone_malloc(pone_world* world, size_t size) {
     return p;
 }
 
+pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
+    pone_val* val = (pone_val*)pone_malloc(world, sizeof(pone_val));
+    val->as.basic.refcnt = 1;
+    val->as.basic.type = type;
+    return val;
+}
+
 void pone_free(pone_world* world, void* p) {
     free(p);
 }
@@ -31,7 +38,7 @@ inline void pone_refcnt_inc(pone_world* world, pone_val* val) {
 #endif
     assert(val != NULL);
 
-    val->refcnt++;
+    val->as.basic.refcnt++;
 }
 
 // decrement reference count
@@ -41,21 +48,21 @@ inline void pone_refcnt_dec(pone_world* world, pone_val* val) {
     pone_dd(world, val);
 #endif
 
-    if (val->flags & PONE_FLAGS_GLOBAL) {
+    if (val->as.basic.flags & PONE_FLAGS_GLOBAL) {
         return;
     }
 
     assert(val != NULL);
 #ifndef NDEBUG
-    if (val->refcnt <= 0) { 
+    if (val->as.basic.refcnt <= 0) { 
         pone_dd(world, val);
-        assert(val->refcnt > 0);
+        assert(val->as.basic.refcnt > 0);
     }
 #endif
 
 
-    val->refcnt--;
-    if (val->refcnt == 0) {
+    val->as.basic.refcnt--;
+    if (val->as.basic.refcnt == 0) {
         switch (pone_type(val)) {
         case PONE_STRING:
             pone_str_free(world, val);

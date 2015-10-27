@@ -3,9 +3,7 @@
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func) {
     world->lex->refcnt++;
 
-    pone_code* cv = (pone_code*)pone_malloc(world, sizeof(pone_code));
-    cv->refcnt = 1;
-    cv->type = PONE_CODE;
+    pone_code* cv = (pone_code*)pone_obj_alloc(world, PONE_CODE);
     cv->func = func;
     cv->lex = world->lex;
 
@@ -18,14 +16,14 @@ void pone_code_free(pone_world* world, pone_val* v) {
 #ifdef TRACE_CODE
     printf("pone_code_free: %x code:%x\n", world, v);
 #endif
-    assert(v->type == PONE_CODE);
+    assert(pone_type(v) == PONE_CODE);
     pone_code* cv = (pone_code*)v;
 
     // pone_lex_refcnt_dec(world, cv->lex);
 }
 
 pone_val* pone_code_call(pone_world* world, pone_val* code, int n, ...) {
-    assert(code->type == PONE_CODE);
+    assert(pone_type(code) == PONE_CODE);
 
     pone_code* cv = (pone_code*)code;
     assert(cv->lex != NULL);

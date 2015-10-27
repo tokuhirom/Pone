@@ -36,15 +36,17 @@ typedef enum {
     pone_t type; \
     uint8_t flags
 
-typedef struct {
-    PONE_HEAD;
-} pone_val;
+struct pone_val;
 
-KHASH_MAP_INIT_STR(str, pone_val*)
+KHASH_MAP_INIT_STR(str, struct pone_val*)
 
 typedef struct {
     PONE_HEAD;
 } pone_nil_t;
+
+typedef struct {
+    PONE_HEAD;
+} pone_basic;
 
 // integer value
 typedef struct {
@@ -70,7 +72,7 @@ typedef struct {
 
 typedef struct {
     PONE_HEAD;
-    pone_val** a;
+    struct pone_val** a;
     size_t max;
     size_t len;
 } pone_ary;
@@ -94,7 +96,7 @@ typedef struct pone_world {
     size_t savestack_max;
 
     // mortals we've made
-    pone_val** tmpstack;
+    struct pone_val** tmpstack;
     size_t tmpstack_idx;
     size_t tmpstack_floor;
     size_t tmpstack_max;
@@ -109,13 +111,22 @@ typedef struct pone_world {
     struct pone_world* parent;
 } pone_world;
 
-typedef pone_val* (*pone_funcptr_t)(pone_world*, int n, va_list);
+typedef struct pone_val* (*pone_funcptr_t)(pone_world*, int n, va_list);
 
 typedef struct {
     PONE_HEAD;
     pone_funcptr_t func;
     pone_lex_t* lex;
 } pone_code;
+
+typedef struct pone_val {
+    union {
+        pone_basic basic;
+        pone_ary ary;
+        pone_code code;
+        pone_hash hash;
+    } as;
+} pone_val;
 
 // nil.c
 pone_val* pone_nil();
@@ -176,9 +187,14 @@ pone_val* pone_false();
 pone_val* pone_new_int(pone_world* world, int i);
 pone_val* pone_new_num(pone_world* world, double i);
 
+// basic value operations
+static inline int pone_refcnt(pone_val* val) { return val->as.basic.refcnt; }
+static inline pone_t pone_type(pone_val* val) { return val->as.basic.type; }
+static inline pone_t pone_flags(pone_val* val) { return val->as.basic.flags; }
 
 pone_t pone_type(pone_val* val);
 void* pone_malloc(pone_world* world, size_t size);
+pone_val* pone_obj_alloc(pone_world* world, pone_t type);
 void pone_free(pone_world* world, void* p);
 void pone_die(pone_world* world, const char* str);
 

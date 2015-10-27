@@ -41,7 +41,7 @@ void pone_dd(pone_world* world, pone_val* val) {
             printf(")\n");
             break;
         case PONE_INT:
-            printf("(int: refcnt:%d, %d)\n", val->refcnt, pone_int_val(val));
+            printf("(int: refcnt:%d, %d)\n", pone_refcnt(val), pone_int_val(val));
             break;
         case PONE_NIL:
             printf("(undef)\n");
@@ -54,9 +54,6 @@ void pone_dd(pone_world* world, pone_val* val) {
     }
 }
 
-inline pone_t pone_type(pone_val* val) {
-    return val->type;
-}
 
 bool pone_so(pone_val* val) {
     switch (pone_type(val)) {

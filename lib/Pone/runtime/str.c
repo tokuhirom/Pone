@@ -1,8 +1,6 @@
 // pone dup p.
 pone_val* pone_new_str(pone_world* world, const char*p, size_t len) {
-    pone_string* pv = (pone_string*)pone_malloc(world, sizeof(pone_string));
-    pv->refcnt = 1;
-    pv->type = PONE_STRING;
+    pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->p = pone_strdup(world, p, len);
     pv->len = len;
     return (pone_val*)pv;
@@ -10,17 +8,15 @@ pone_val* pone_new_str(pone_world* world, const char*p, size_t len) {
 
 // pone doesn't dup p.
 pone_val* pone_new_str_const(pone_world* world, const char*p, size_t len) {
-    pone_string* pv = (pone_string*)pone_malloc(world, sizeof(pone_string));
+    pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->flags |= PONE_FLAGS_STR_CONST | PONE_FLAGS_STR_FROZEN;
-    pv->refcnt = 1;
-    pv->type = PONE_STRING;
     pv->p = p;
     pv->len = len;
     return (pone_val*)pv;
 }
 
 void pone_str_free(pone_world* world, pone_val* val) {
-    if (!(val->flags & PONE_FLAGS_STR_CONST)) {
+    if (!(pone_flags(val) & PONE_FLAGS_STR_CONST)) {
         pone_free(world, (char*)((pone_string*)val)->p);
     }
 }

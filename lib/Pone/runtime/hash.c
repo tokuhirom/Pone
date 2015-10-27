@@ -5,10 +5,7 @@
 pone_val* pone_new_hash(pone_world* world, int n, ...) {
     va_list list;
 
-    pone_hash* hv = (pone_hash*)pone_malloc(world, sizeof(pone_hash));
-    hv->refcnt = 1;
-    hv->type   = PONE_HASH;
-
+    pone_hash* hv = (pone_hash*)pone_obj_alloc(world, PONE_HASH);
     hv->h = kh_init(str);
 
     va_start(list, n);
