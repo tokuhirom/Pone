@@ -1,17 +1,75 @@
+[![Build Status](https://travis-ci.org/tokuhirom/Pone.svg?branch=master)](https://travis-ci.org/tokuhirom/Pone)
+
 NAME
 ====
 
-Pone - blah blah blah
+Pone - Perl-ish minimal language
 
 SYNOPSIS
 ========
 
-    use Pone;
-
 DESCRIPTION
 ===========
 
-Pone is ...
+Pone is a demo software for Perl6' grammar. It has a Perl like syntax. This compiler compiles code into C.
+
+FEATURES
+========
+
+  * Reference counting GC
+
+for stability.
+
+LITERALS
+========
+
+  * `0`, `1`, `100`
+
+There is integer literal.
+
+  * `'hoge' `
+
+There is single quotation string literal
+
+  * `{ a =` 3 }>
+
+hash literals.
+
+builtin functions
+=================
+
+  * `elems`
+
+Count elements.
+
+  * `print(Str)`
+
+print message.
+
+  * `say(Str)`
+
+print message with new line.
+
+  * `getenv(Str)`
+
+get environment variable
+
+  * `time()`
+
+Get current time in sec.
+
+TODO
+====
+
+  * for stmt
+
+  * while stmt
+
+  * user defined funciton
+
+  * implement p5-ish functions
+
+  * closure
 
 AUTHOR
 ======

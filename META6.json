@@ -1,15 +1,20 @@
 {
   "name" : "Pone",
-  "source-url" : "",
+  "source-url" : "git://github.com/tokuhirom/Pone.git",
   "perl" : "v6",
   "build-depends" : [ ],
   "provides" : {
-    "Pone" : "lib/Pone.pm6"
+    "Pone::Node" : "lib/Pone/Node.pm",
+    "Pone" : "lib/Pone.pm6",
+    "Pone::Utils" : "lib/Pone/Utils.pm",
+    "Pone::Grammar" : "lib/Pone/Grammar.pm",
+    "Pone::Compiler" : "lib/Pone/Compiler.pm",
+    "Pone::Actions" : "lib/Pone/Actions.pm"
   },
   "depends" : [ ],
-  "description" : "blah blah blah",
+  "description" : "Perl-ish minimal language",
   "test-depends" : [
-      "Test::Base"
+    "Test::Base"
   ],
   "version" : "*",
   "authors" : [
