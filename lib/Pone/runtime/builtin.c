@@ -85,6 +85,7 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
     int sig = pone_to_int(world, sig_val);
 
     if (pone_defined(code)) {
+#ifndef _WIN32
         struct sigaction act = {
             .sa_handler = sig_handler,
             .sa_flags = 0,
@@ -98,6 +99,9 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
         } else {
             pone_die_str(world, "cannot set signal");
         }
+#else
+        pone_die_str(world, "not implemented on windows");
+#endif
     } else {
         if (world->universe->signal_handlers[sig]) {
             pone_refcnt_dec(world->universe, world->universe->signal_handlers[sig]);
