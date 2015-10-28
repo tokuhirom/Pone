@@ -13,7 +13,7 @@ test: lib/Pone.pm6.moarvm blib/libpone.a $(CTEST_OBJFILES)
 	perl6-m -Ilib xt/05-run.t
 
 clean:
-	rm -f */*.moarvm */*/*.moarvm $(OBJFILES) blib/libpone.a $(CTEST_OBJFILES)
+	rm -f */*.moarvm */*/*.moarvm $(OBJFILES) blib/libpone.a $(CTEST_OBJFILES) vgcore.* core.*
 
 bin/pone.moarvm: lib/Pone/Node.pm.moarvm lib/Pone/Compiler.pm.moarvm lib/Pone/Utils.pm.moarvm lib/Pone.pm6.moarvm
 	perl6-m -Ilib --target=mbc --output=bin/pone.moarvm bin/pone
