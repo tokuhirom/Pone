@@ -43,3 +43,20 @@ size_t pone_ary_elems(pone_val* av) {
     assert(pone_type(av) == PONE_ARRAY);
     return ((pone_ary*)av)->len;
 }
+
+// create new iterator
+pone_val* pone_ary_iter_new(pone_universe* universe, pone_val* val) {
+    pone_refcnt_inc(universe, val);
+
+    pone_ary_iter* iter = (pone_ary_iter*)pone_obj_alloc(universe, PONE_ARRAY_ITER);
+    iter->val = val;
+    iter->idx = 0;
+
+    return (pone_val*)iter;
+}
+
+pone_val* pone_ary_iter_free(pone_universe* universe, pone_val* val) {
+    assert(pone_type(val) == PONE_ARRAY_ITER);
+    pone_refcnt_dec(universe, val->as.ary_iter.val);
+}
+

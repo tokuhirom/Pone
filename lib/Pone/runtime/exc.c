@@ -1,0 +1,76 @@
+#include "pone.h"
+
+jmp_buf* pone_exc_handler_push(pone_world* world) {
+    if (world->universe->err_handler_idx == world->universe->err_handler_max) {
+        world->universe->err_handler_max *= 2;
+        world->universe->err_handlers = realloc(world->universe->err_handlers, sizeof(jmp_buf)*world->universe->err_handler_max);
+        if (!world->universe->err_handlers) {
+            fprintf(stderr, "can't alloc mem\n");
+            exit(1);
+        }
+
+        world->universe->err_handler_worlds = realloc(world->universe->err_handler_worlds, sizeof(pone_world*)*world->universe->err_handler_max);
+        if (!world->universe->err_handler_worlds) {
+            fprintf(stderr, "can't alloc mem\n");
+            exit(1);
+        }
+    }
+
+    world->universe->err_handler_worlds[world->universe->err_handler_idx+1] = world;
+    return &(world->universe->err_handlers[++world->universe->err_handler_idx]);
+}
+
+void pone_exc_handler_pop(pone_world* world) {
+    assert(world->universe);
+    assert(world->universe->err_handler_idx >= 0);
+    world->universe->err_handler_idx--;
+}
+
+void pone_die_str(pone_world* world, const char* str) {
+    pone_die(world, pone_new_str_const(world->universe, str, strlen(str)));
+}
+
+void pone_die(pone_world* world, pone_val* val) {
+    assert(val);
+
+    pone_universe* universe = world->universe;
+
+    if (universe->errvar) {
+        pone_refcnt_dec(universe, universe->errvar);
+    }
+
+    // save error information to $!
+    universe->errvar = val;
+    pone_refcnt_inc(universe, val);
+
+    pone_world* target_world = universe->err_handler_worlds[universe->err_handler_idx];
+
+    // exit from this scope
+    while (world != target_world) {
+        pone_world* parent = world->parent;
+        pone_destroy_world(world);
+        world = parent;
+    }
+
+    // jmp to exception handler
+    longjmp(universe->err_handlers[universe->err_handler_idx--], 1);
+}
+
+pone_val* pone_try(pone_world* world, pone_val* code) {
+    assert(pone_type(code) == PONE_CODE);
+
+    if (setjmp(*(pone_exc_handler_push(world)))) {
+        return pone_nil();
+    } else {
+        pone_val* v = pone_code_call(world, code, 0);
+        pone_exc_handler_pop(world);
+        return v;
+    }
+}
+
+// get $!
+// $! is equivalent to $@ in Perl5
+pone_val* pone_errvar(pone_world* world) {
+    return world->universe->errvar;
+}
+

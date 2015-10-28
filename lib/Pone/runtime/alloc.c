@@ -86,10 +86,10 @@ inline void pone_refcnt_dec(pone_universe* universe, pone_val* val) {
     assert(val != NULL);
 #ifndef NDEBUG
     if (val->as.basic.refcnt <= 0) { 
+        // pone_dd(universe, val);
         assert(val->as.basic.refcnt > 0);
     }
 #endif
-
 
     val->as.basic.refcnt--;
     if (val->as.basic.refcnt == 0) {
@@ -105,6 +105,9 @@ inline void pone_refcnt_dec(pone_universe* universe, pone_val* val) {
             break;
         case PONE_CODE:
             pone_code_free(universe, val);
+            break;
+        case PONE_ARRAY_ITER:
+            pone_ary_iter_free(universe, val);
             break;
         case PONE_INT: // don't need to free heap
         case PONE_NUM:

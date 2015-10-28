@@ -39,9 +39,14 @@ grammar Pone::Grammar {
         'try' '{' <stmts> '}'
     }
 
+    # for $a { ... }
+    token stmt:sym<for> {:s
+        'for' <term> '{' <stmts> '}'
+    }
+
     # reserved words
     token keyword {
-        [ try | return | if | unless | while | until | do | class | method | sub | my ] <!ww>
+        [ for | try | return | if | unless | while | until | do | class | method | sub | my ] <!ww>
     }
 
     token stmt:sym<sub> {:s 'sub' <!keyword> <name=ident> '(' <params>? ')' '{' <stmts> '}' }

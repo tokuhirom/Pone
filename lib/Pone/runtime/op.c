@@ -36,7 +36,7 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
     return val;
 }
 
-void pone_dd(pone_world* world, pone_val* val) {
+void pone_dd(pone_universe* universe, pone_val* val) {
     switch (pone_type(val)) {
         case PONE_STRING:
             printf("(string: ");
@@ -71,25 +71,6 @@ bool pone_so(pone_val* val) {
     default:
         return true;
     }
-}
-
-void pone_die_str(pone_world* world, const char* str) {
-    pone_die(world, pone_new_str_const(world->universe, str, strlen(str)));
-}
-
-void pone_die(pone_world* world, pone_val* val) {
-    assert(val);
-
-    pone_universe* universe = world->universe;
-
-    // save error information to $!
-    universe->errvar = val;
-    pone_refcnt_inc(universe, val);
-
-
-    // exit from this scope
-    pone_destroy_world(world);
-    longjmp(universe->err_handlers[universe->err_handler_idx], 1);
 }
 
 int pone_to_int(pone_world* world, pone_val* val) {

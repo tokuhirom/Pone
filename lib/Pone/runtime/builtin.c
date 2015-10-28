@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 pone_val*  pone_builtin_dd(pone_world* world, pone_val* val) {
-    pone_dd(world, val);
+    pone_dd(world->universe, val);
     return pone_nil();
 }
 

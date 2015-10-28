@@ -67,6 +67,12 @@ method stmt:sym<try>($/) {
     $/.make: $try;
 }
 
+method stmt:sym<for>($/) {
+    my $for = Pone::Node::For.new([$/<term>.made, $/<stmts>.made]);
+    $for.lineno = lineof($/);
+    $/.make: $for;
+}
+
 method stmt:sym<block>($/) {
     $/.make: $/<block>.made;
 }

@@ -99,6 +99,25 @@ method !compile(Pone::Node $node) {
         my $body = self!compile($sub);
         "pone_mortalize(world, pone_try(world, $body))"
     }
+    when Pone::Node::For {
+        my $obj = .children[0];
+        my $stmts = .children[1];
+        q:to/EOD/.subst(/'<%=' (.*?)  '%>'/, { EVAL $0 }, :global);
+        if (setjmp(*(pone_exc_handler_push(world)))) {
+            if (pone_type(world->universe->errvar) == PONE_CONTROL_BREAK) {
+                // finished.
+            } else {
+                pone_die(world, world->universe->errvar);
+            }
+        } else {
+            pone_val* iter = pone_mortalize(world, pone_iter_init(world, <%= self!compile($obj) %>));
+            while (true) {
+                pone_assign(world, 0, "$_", pone_iter_next(world, iter));
+                <%= self!compile($stmts) %>
+            }
+        }
+        EOD
+    }
     when Pone::Node::ErrVar {
         'pone_errvar(world)'
     }

@@ -251,3 +251,14 @@ try { say 6; die 3; say 5; }; say 555; say $!
 555
 3
 
+===
+--- input
+for [1,2,3] { say $_ }; for [4,5,6] { say $_ }
+--- expected
+1
+2
+3
+4
+5
+6
+

@@ -33,9 +33,11 @@ typedef enum {
     PONE_NUM,
     PONE_STRING,
     PONE_ARRAY,
+    PONE_ARRAY_ITER,
     PONE_BOOL,
     PONE_HASH,
-    PONE_CODE
+    PONE_CODE,
+    PONE_CONTROL_BREAK
 } pone_t;
 
 #define PONE_HEAD \
@@ -93,6 +95,12 @@ typedef struct {
     size_t len;
 } pone_hash;
 
+typedef struct {
+    PONE_HEAD;
+    struct pone_val* val;
+    int idx;
+} pone_ary_iter;
+
 typedef struct pone_lex_t {
     PONE_HEAD;
     struct pone_lex_t* parent;
@@ -148,6 +156,7 @@ typedef struct pone_val {
 
         pone_basic basic;
         pone_ary ary;
+        pone_ary_iter ary_iter;
         pone_code code;
         pone_hash hash;
         pone_string str;
@@ -169,8 +178,12 @@ typedef struct pone_universe {
     struct pone_val* errvar;
 
     jmp_buf* err_handlers;
+    pone_world** err_handler_worlds;
     int err_handler_idx;
     int err_handler_max;
+
+    // instance of CX::Break
+    struct pone_val* control_break;
 } pone_universe;
 
 typedef struct pone_arena {
@@ -193,8 +206,14 @@ void pone_destroy_world(pone_world* world);
 pone_val* pone_try(pone_world* world, pone_val* code);
 pone_val* pone_errvar(pone_world* world);
 
+// exc.c
+jmp_buf* pone_exc_handler_push(pone_world* world);
+void pone_exc_handler_pop(pone_world* world);
+void pone_die(pone_world* world, pone_val* msg);
+void pone_die_str(pone_world* world, const char* msg);
+
 // op.c
-void pone_dd(pone_world* world, pone_val* val);
+void pone_dd(pone_universe* universe, pone_val* val);
 const char* pone_what_str_c(pone_val* val);
 
 // hash.c
@@ -205,9 +224,12 @@ void pone_hash_free(pone_universe* universe, pone_val* val);
 
 // array.c
 pone_val* pone_new_ary(pone_universe* universe, int n, ...);
+pone_val* pone_ary_new_iter(pone_universe* universe, pone_val* val);
 size_t pone_ary_elems(pone_val* val);
 pone_val* pone_ary_at_pos(pone_val* val, int pos);
 void pone_ary_free(pone_universe* universe, pone_val* val);
+pone_val* pone_ary_iter_new(pone_universe* universe, pone_val* val);
+pone_val* pone_ary_iter_free(pone_universe* universe, pone_val* val);
 
 // str.c
 pone_val* pone_new_str(pone_universe* universe, const char*p, size_t len);
@@ -270,6 +292,10 @@ pone_val* pone_multiply(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_divide(pone_world* world, pone_val* v1, pone_val* v2);
 bool pone_so(pone_val* val);
 
+// iter.c
+pone_val* pone_iter_init(pone_world* world, pone_val* val);
+pone_val* pone_iter_next(pone_world* world, pone_val* iter);
+
 // builtin.c
 pone_val* pone_builtin_dd(pone_world* world, pone_val* val);
 pone_val* pone_builtin_abs(pone_world* world, pone_val* val);
@@ -288,8 +314,6 @@ pone_t pone_type(pone_val* val);
 void* pone_malloc(pone_universe* universe, size_t size);
 pone_val* pone_obj_alloc(pone_universe* universe, pone_t type);
 void pone_free(pone_universe* universe, void* p);
-void pone_die(pone_world* world, pone_val* msg);
-void pone_die_str(pone_world* world, const char* msg);
 
 #endif
 

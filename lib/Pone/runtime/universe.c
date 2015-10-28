@@ -31,6 +31,11 @@ pone_universe* pone_universe_init() {
         fprintf(stderr, "cannot allocate memory\n");
         exit(1);
     }
+    universe->err_handler_worlds = malloc(sizeof(pone_world*)*PONE_ERR_HANDLERS_INIT);
+    if (!universe->err_handler_worlds) {
+        fprintf(stderr, "cannot allocate memory\n");
+        exit(1);
+    }
     universe->err_handler_idx = 0;
     universe->err_handler_max = PONE_ERR_HANDLERS_INIT;
 
@@ -38,15 +43,17 @@ pone_universe* pone_universe_init() {
 }
 
 void pone_universe_destroy(pone_universe* universe) {
+    if (universe->errvar) {
+        pone_refcnt_dec(universe, universe->errvar);
+    }
+
     pone_arena* a = universe->arena_head;
     while (a) {
         pone_arena* next = a->next;
         free(a);
         a = next;
     }
-    if (universe->errvar) {
-        pone_refcnt_dec(universe, universe->errvar);
-    }
+    free(universe->err_handler_worlds);
     free(universe->err_handlers);
     free(universe);
 }
