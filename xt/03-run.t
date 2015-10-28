@@ -7,7 +7,11 @@ use Capture::Tiny qw/capture/;
 
 spec_file('t/c-case.dat');
 
-plan tests => 1*blocks();
+if ($^O eq 'MSWin32') {
+  plan skip_all => 'skip failing executable tests on windows';
+} else {
+  plan tests => 1*blocks();
+}
 
 run {
     my $block = shift;
