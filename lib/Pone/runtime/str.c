@@ -22,16 +22,16 @@ pone_val* pone_str_copy(pone_universe* universe, pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
     pone_string* pv = (pone_string*)pone_obj_alloc(universe, PONE_STRING);
     pv->flags |= PONE_FLAGS_STR_COPY | PONE_FLAGS_STR_FROZEN;
-    pv->p = pone_string_ptr(val);
-    pv->len = pone_string_len(val);
+    pv->val = val;
+    pone_refcnt_inc(universe, val);
+    pv->len = 0;
     return (pone_val*)pv;
 }
 
 void pone_str_free(pone_universe* universe, pone_val* val) {
-    if (
-        !(pone_flags(val) & PONE_FLAGS_STR_CONST)
-        && !(pone_flags(val) & PONE_FLAGS_STR_COPY)
-    ) {
+    if (pone_flags(val) & PONE_FLAGS_STR_COPY) {
+        pone_refcnt_dec(universe, val->as.str.val);
+    } else if (!(pone_flags(val) & PONE_FLAGS_STR_CONST)) {
         pone_free(universe, (char*)((pone_string*)val)->p);
     }
 }
@@ -77,11 +77,19 @@ pone_val* pone_to_str(pone_universe* universe, pone_val* val) {
 
 inline const char* pone_string_ptr(pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
-    return ((pone_string*)val)->p;
+    if (pone_flags(val) & PONE_FLAGS_STR_COPY) {
+        return pone_string_ptr(val->as.str.val);
+    } else {
+        return ((pone_string*)val)->p;
+    }
 }
 
 inline size_t pone_string_len(pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
-    return ((pone_string*)val)->len;
+    if (pone_flags(val) & PONE_FLAGS_STR_COPY) {
+        return pone_string_len(val->as.str.val);
+    } else {
+        return ((pone_string*)val)->len;
+    }
 }
 

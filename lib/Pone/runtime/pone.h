@@ -68,7 +68,10 @@ typedef struct {
 
 typedef struct {
     PONE_HEAD;
-    const char* p;
+    union {
+      const char* p;
+      struct pone_val* val;
+    };
     size_t len;
 } pone_string;
 
@@ -147,6 +150,7 @@ typedef struct pone_val {
         pone_ary ary;
         pone_code code;
         pone_hash hash;
+        pone_string str;
     } as;
 } pone_val;
 
