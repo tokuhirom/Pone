@@ -37,6 +37,7 @@ lib/Pone/Grammar.pm.moarvm: lib/Pone/Grammar.pm
 	perl6-m -Ilib --target=mbc --output=lib/Pone/Grammar.pm.moarvm lib/Pone/Grammar.pm
 
 blib/libpone.a: $(OBJFILES)
+	-mkdir blib
 	ar rcs blib/libpone.a $(OBJFILES)
 
 tags:
