@@ -40,10 +40,39 @@ blib/libpone.a: $(OBJFILES) lib/Pone/runtime/pone.h
 	-mkdir -p blib
 	ar rcs blib/libpone.a $(OBJFILES)
 
-lib/Pone/runtime/iter.o: lib/Pone/runtime/pone.h
+lib/Pone/runtime/alloc.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/array.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/bool.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/builtin.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/code.o: lib/Pone/runtime/pone.h
+
 lib/Pone/runtime/exc.o: lib/Pone/runtime/pone.h
-lib/Pone/runtime/universe.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/hash.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/int.o: lib/Pone/runtime/pone.h
+
 lib/Pone/runtime/iter.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/nil.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/num.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/op.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/pone.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/scope.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/str.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/universe.o: lib/Pone/runtime/pone.h
+
+lib/Pone/runtime/world.o: lib/Pone/runtime/pone.h
 
 tags:
 	rm -f pone_generated.c
