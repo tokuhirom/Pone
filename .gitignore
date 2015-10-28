@@ -1,5 +1,6 @@
 /blib/
-/src/*.o
+/lib/**/*.o
+/t/**/*.o
 /src/Makefile
 /.panda-work
 /a.out
@@ -8,3 +9,4 @@
 *.moarvm
 core.*
 vgcore.*
+tags
