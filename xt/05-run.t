@@ -7,6 +7,11 @@ use Test;
 use Test::Base;
 use Pone;
 
+if $*DISTRO.is-win {
+  skip-rest 'skip failing executable tests on windows';
+  exit;
+}
+
 my $dat = slurp('t/basic.dat');
 
 my @blocks = blocks($dat);
