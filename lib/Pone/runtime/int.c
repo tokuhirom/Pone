@@ -11,3 +11,15 @@ pone_val* pone_new_int(pone_universe* universe, int i) {
     return (pone_val*)iv;
 }
 
+// ++$i
+pone_val* pone_int_incr(pone_world* world, pone_val* i) {
+    if (pone_is_frozen(i)) {
+        // TODO should we use better interface?
+        // show line number
+        pone_dd(world->universe, i);
+        fprintf(stderr, "[ERROR] You can't modify an itenger literal");
+        exit(1);
+    }
+    ((pone_int*)i)->i++;
+}
+

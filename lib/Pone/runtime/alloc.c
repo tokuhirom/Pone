@@ -44,7 +44,7 @@ pone_val* pone_obj_alloc(pone_universe* universe, pone_t type) {
     return val;
 }
 
-void pone_obj_free(pone_universe* universe, pone_val* p) {
+void pone_val_free(pone_universe* universe, pone_val* p) {
     p->as.free.next = universe->freelist;
     universe->freelist = p;
 }
@@ -53,7 +53,7 @@ void pone_free(pone_universe* universe, void* p) {
     free(p);
 }
 
-const char* pone_strdup(pone_universe* universe, const char* src, size_t size) {
+char* pone_strdup(pone_universe* universe, const char* src, size_t size) {
     char* p = (char*)malloc(size+1);
     if (!p) {
         fprintf(stderr, "Cannot allocate memory\n");
@@ -106,8 +106,11 @@ inline void pone_refcnt_dec(pone_universe* universe, pone_val* val) {
         case PONE_CODE:
             pone_code_free(universe, val);
             break;
-        case PONE_ARRAY_ITER:
-            pone_ary_iter_free(universe, val);
+        case PONE_CLASS:
+            pone_class_free(universe, val);
+            break;
+        case PONE_OBJ:
+            pone_obj_free(universe, val);
             break;
         case PONE_INT: // don't need to free heap
         case PONE_NUM:
@@ -119,7 +122,7 @@ inline void pone_refcnt_dec(pone_universe* universe, pone_val* val) {
 #ifdef TRACE_REFCNT
         memset(val, 0, sizeof(pone_val));
 #endif
-        pone_obj_free(universe, val);
+        pone_val_free(universe, val);
     }
 }
 

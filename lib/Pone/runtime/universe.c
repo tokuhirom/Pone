@@ -5,7 +5,7 @@
 void pone_universe_default_err_handler(pone_universe* universe) {
     assert(universe->errvar);
     pone_val* str = pone_to_str(universe, universe->errvar);
-    fwrite("\n!!!!!!!!!orz!!!!!!!!!\n\n", 1, strlen("\n!!!!!!!!!orz!!!!!!!!!\n\n"), stderr);
+    fwrite("\n!!!!!!!!! ( Д ) ..._。..._。 !!!!!!!!!\n\n", 1, strlen("\n!!!!!!!!! ( Д ) ..._。..._。 !!!!!!!!!\n\n"), stderr);
     fwrite(pone_string_ptr(str), 1, pone_string_len(str), stderr);
     fwrite("\n\n", 1, strlen("\n\n"), stderr);
     exit(1);
@@ -39,6 +39,9 @@ pone_universe* pone_universe_init() {
     universe->err_handler_idx = 0;
     universe->err_handler_max = PONE_ERR_HANDLERS_INIT;
 
+    pone_ary_iter_init(universe);
+    assert(universe->class_ary_iter);
+
     return universe;
 }
 
@@ -46,6 +49,9 @@ void pone_universe_destroy(pone_universe* universe) {
     if (universe->errvar) {
         pone_refcnt_dec(universe, universe->errvar);
     }
+
+    assert(pone_refcnt(universe->class_ary_iter) == 1);
+    pone_refcnt_dec(universe, universe->class_ary_iter);
 
     pone_arena* a = universe->arena_head;
     while (a) {

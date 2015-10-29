@@ -11,14 +11,12 @@ pone_val* pone_iter_init(pone_world* world, pone_val* val) {
 
 pone_val* pone_iter_next(pone_world* world, pone_val* iter) {
     switch (pone_type(iter)) {
-    case PONE_ARRAY_ITER:
-        if (iter->as.ary_iter.idx < iter->as.ary_iter.val->as.ary.len) {
-            return iter->as.ary_iter.val->as.ary.a[iter->as.ary_iter.idx++];
-        } else {
-            pone_die(world, pone_obj_alloc(world->universe, PONE_CONTROL_BREAK));
-        }
+    case PONE_OBJ: {
+        pone_val* code = pone_find_method(world, iter, "ITER-NEXT");
+        return pone_code_call(world, code, 1, iter);
+    }
     default:
-        pone_die_str(world, "you iterate this type of value.");
+        pone_die_str(world, "you can't iterate non-iterable objects");
     }
 }
 

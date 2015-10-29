@@ -44,7 +44,7 @@ void pone_dd(pone_universe* universe, pone_val* val) {
             printf(")\n");
             break;
         case PONE_INT:
-            printf("(int: refcnt:%d, %d)\n", pone_refcnt(val), pone_int_val(val));
+            printf("(int: refcnt:%d, flags:%d %d)\n", pone_refcnt(val), pone_flags(val), pone_int_val(val));
             break;
         case PONE_NIL:
             printf("(undef)\n");
@@ -154,5 +154,9 @@ const char* pone_what_str_c(pone_val* val) {
     case PONE_CODE:
         return "Code";
     }
+}
+
+bool pone_is_frozen(pone_val* v) {
+    return pone_flags(v) & PONE_FLAGS_FROZEN;
 }
 

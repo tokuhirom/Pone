@@ -30,6 +30,7 @@ void pone_die_str(pone_world* world, const char* str) {
     pone_die(world, pone_new_str_const(world->universe, str, strlen(str)));
 }
 
+// TODO rename to pone_throw
 void pone_die(pone_world* world, pone_val* val) {
     assert(val);
 

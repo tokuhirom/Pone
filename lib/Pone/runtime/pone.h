@@ -19,13 +19,15 @@
 // TODO: NaN boxing
 
 // This variable is global var.
-#define PONE_FLAGS_GLOBAL 1
-// string literal is constant
-#define PONE_FLAGS_STR_CONST 2
+#define PONE_FLAGS_GLOBAL (1<<0)
 // This object is immutable
-#define PONE_FLAGS_STR_FROZEN 4
+#define PONE_FLAGS_FROZEN (1<<1)
+// string literal is constant
+#define PONE_FLAGS_STR_CONST (1<<5)
+// This object is immutable(deprecated)
+#define PONE_FLAGS_STR_FROZEN PONE_FLAGS_FROZEN
 // This string has copied buffer
-#define PONE_FLAGS_STR_COPY   8
+#define PONE_FLAGS_STR_COPY   (1<<7)
 
 typedef enum {
     PONE_NIL=1,
@@ -33,11 +35,12 @@ typedef enum {
     PONE_NUM,
     PONE_STRING,
     PONE_ARRAY,
-    PONE_ARRAY_ITER,
     PONE_BOOL,
     PONE_HASH,
     PONE_CODE,
-    PONE_CONTROL_BREAK
+    PONE_CONTROL_BREAK, // TODO make it normal object
+    PONE_OBJ,
+    PONE_CLASS
 } pone_t;
 
 #define PONE_HEAD \
@@ -97,9 +100,16 @@ typedef struct {
 
 typedef struct {
     PONE_HEAD;
-    struct pone_val* val;
-    int idx;
-} pone_ary_iter;
+    char* name;
+    khash_t(str) *methods;
+} pone_class;
+
+typedef struct {
+    PONE_HEAD;
+    struct pone_val* klass;
+    // instance variable
+    khash_t(str) *ivar;
+} pone_obj;
 
 typedef struct pone_lex_t {
     PONE_HEAD;
@@ -156,10 +166,11 @@ typedef struct pone_val {
 
         pone_basic basic;
         pone_ary ary;
-        pone_ary_iter ary_iter;
         pone_code code;
         pone_hash hash;
         pone_string str;
+        pone_obj obj;
+        pone_class klass;
     } as;
 } pone_val;
 
@@ -184,6 +195,7 @@ typedef struct pone_universe {
 
     // instance of CX::Break
     struct pone_val* control_break;
+    struct pone_val* class_ary_iter;
 } pone_universe;
 
 typedef struct pone_arena {
@@ -225,11 +237,13 @@ void pone_hash_free(pone_universe* universe, pone_val* val);
 // array.c
 pone_val* pone_new_ary(pone_universe* universe, int n, ...);
 pone_val* pone_ary_new_iter(pone_universe* universe, pone_val* val);
-size_t pone_ary_elems(pone_val* val);
+int pone_ary_elems(pone_val* val);
 pone_val* pone_ary_at_pos(pone_val* val, int pos);
 void pone_ary_free(pone_universe* universe, pone_val* val);
 pone_val* pone_ary_iter_new(pone_universe* universe, pone_val* val);
 pone_val* pone_ary_iter_free(pone_universe* universe, pone_val* val);
+void pone_ary_iter_init(pone_universe* universe);
+pone_val* pone_ary_at_pos(pone_val* ary, int n);
 
 // str.c
 pone_val* pone_new_str(pone_universe* universe, const char*p, size_t len);
@@ -239,21 +253,28 @@ pone_val* pone_to_str(pone_universe* universe, pone_val* val);
 pone_val* pone_str_from_num(pone_universe* universe, double n);
 const char* pone_string_ptr(pone_val* val);
 size_t pone_string_len(pone_val* val);
-const char* pone_strdup(pone_universe* universe, const char* src, size_t size);
+char* pone_strdup(pone_universe* universe, const char* src, size_t size);
 
 // code.c
+pone_val* pone_code_new_c(pone_universe* universe, pone_funcptr_t func);
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func);
 pone_val* pone_code_call(pone_world* world, pone_val* code, int n, ...);
+pone_val* pone_code_vcall(pone_world* world, pone_val* code, int n, va_list args);
 void pone_code_free(pone_universe* universe, pone_val* v);
 
-// SV ops
+// int.c
 int pone_int_val(pone_val* val);
+pone_val* pone_int_incr(pone_world* world, pone_val* i);
+pone_val* pone_new_int(pone_universe* universe, int i);
+
+// SV ops
 double pone_num_val(pone_val* val);
 bool pone_bool_val(pone_val* val);
 void pone_refcnt_dec(pone_universe* universe, pone_val* val);
 void pone_refcnt_inc(pone_universe* universe, pone_val* val);
 size_t pone_elems(pone_world* world, pone_val* val);
 int pone_to_int(pone_world* world, pone_val* val);
+bool pone_is_frozen(pone_val* v);
 
 // scope.c
 pone_val* pone_mortalize(pone_world* world, pone_val* val);
@@ -274,7 +295,6 @@ void pone_universe_default_err_handler(pone_universe* universe);
 pone_val* pone_true();
 pone_val* pone_false();
 
-pone_val* pone_new_int(pone_universe* universe, int i);
 pone_val* pone_new_num(pone_universe* universe, double i);
 
 // basic value operations
@@ -309,11 +329,24 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
 pone_val* pone_builtin_die(pone_world* world, pone_val* msg);
 void pone_signal_handle(pone_world* world);
 
-void pone_obj_free(pone_universe* universe, pone_val* p);
+void pone_val_free(pone_universe* universe, pone_val* p);
 pone_t pone_type(pone_val* val);
 void* pone_malloc(pone_universe* universe, size_t size);
 pone_val* pone_obj_alloc(pone_universe* universe, pone_t type);
 void pone_free(pone_universe* universe, void* p);
+
+// class.c
+pone_val* pone_class_new(pone_universe* universe, const char* name, size_t name_len);
+pone_val* pone_class_free(pone_universe* universe, pone_val* val);
+pone_val* pone_add_method(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_val* method);
+pone_val* pone_add_method_c(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_funcptr_t funcptr);
+pone_val* pone_find_method(pone_world* world, pone_val* klass, const char* name);
+
+// obj.c
+pone_val* pone_obj_new(pone_universe* universe, pone_val* klass);
+pone_val* pone_obj_free(pone_universe* universe, pone_val* val);
+void pone_obj_set_ivar(pone_universe* universe, pone_val* obj, const char* name, pone_val* val);
+pone_val* pone_obj_get_ivar(pone_universe* universe, pone_val* obj, const char* name);
 
 #endif
 
