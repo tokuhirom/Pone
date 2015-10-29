@@ -121,14 +121,18 @@ Pone - Perl-ish minimal language
 
 =head1 DESCRIPTION
 
-Pone is a demo software for Perl6' grammar. It has a Perl like syntax.
-This compiler compiles code into C.
+Pone is a demo software for Perl6' grammar. It has a Perl6 like syntax.
+This compiler compiles Perl6 subset to C.
 
 =head1 FEATURES
 
 =item Reference counting GC
 
 for stability.
+
+=item Optional Precise GC
+
+NYI
 
 =head1 LITERALS
 
@@ -166,17 +170,107 @@ get environment variable
 
 Get current time in sec.
 
-=head1 TODO
+=head1 Control statements
 
 =item for stmt
 
+    for [1,2,3] { say $_ }
+
 =item while stmt
 
-=item user defined funciton
+    my $i = 1;
+    while $i {
+        say $i;
+        $i = $i - 1;
+    }
 
-=item implement p5-ish functions
+=head1 TODO
 
-=item closure
+=item class syntax
+
+=item use statement
+
+=item range class
+
+=item range iterator
+
+=item range literal
+
+=item C<%> operator
+
+=item module system
+
+=item precise gc
+
+=item array at-pos operator
+
+    my $ary = [1,2,3];
+    say $ary[0];
+    $ary[99] = 5;
+    say $ary;
+
+=item hash at-pos operator
+
+    my $hash = { a => 3 };
+    say $hash<a>;
+    $hash<a> = 5;
+    say $hash<a>;
+
+=item smart match operator
+
+=item Str#elems method
+
+=item Str#uc method
+
+=item Str#lc method
+
+=item given-when statement
+
+=item file operation support
+
+=item slurp() method
+
+=item pair class
+
+=head1 MILESTONE
+
+=head2 Hello, world
+
+    say 'Hello, world'
+
+Done.
+
+=head2 Basic FizzBuzz support
+
+Following FizzBuzz forms should work.
+
+    for 1..100 -> $n {
+        given $n {
+            when $_ % 15 == 0 { say "FizzBuzz" }
+            when $_ %  3 == 0 { say "Fizz"     }
+            when $_ %  5 == 0 { say "Buzz"     }
+            default           { say $n         }
+        }
+    }
+
+    for 1..100 {
+        given $_ {
+            when $_ % 15 == 0 { say "FizzBuzz" }
+            when $_ %  3 == 0 { say "Fizz"     }
+            when $_ %  5 == 0 { say "Buzz"     }
+            default           { say $n         }
+        }
+    }
+
+=head2 Basic Regular Expression support
+
+Should we compile regular expression to C code?
+
+=head2 Basic grammar support
+
+=head2 Self hosting
+
+Is a dream...
 
 =head1 AUTHOR
 
