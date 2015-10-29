@@ -41,6 +41,8 @@ class Pone::Node::Expr is Pone::Node {
 class Pone::Node::Add      is Pone::Node::Expr { }
 class Pone::Node::Subtract is Pone::Node::Expr { }
 class Pone::Node::Multiply is Pone::Node::Expr { }
+class Pone::Node::Divide   is Pone::Node::Expr { }
+class Pone::Node::Mod      is Pone::Node::Expr { }
 class Pone::Node::Assign   is Pone::Node { }
 class Pone::Node::My       is Pone::Node { }
 class Pone::Node::Return   is Pone::Node { }

@@ -279,6 +279,12 @@ method !compile(Pone::Node $node) {
     when Pone::Node::Multiply {
         self!infix('pone_multiply', $_);
     }
+    when Pone::Node::Divide {
+        self!infix('pone_divide', $_);
+    }
+    when Pone::Node::Mod {
+        self!infix('pone_mod', $_);
+    }
     when Pone::Node::Assign {
         my $var = .children[0];
         given $var {

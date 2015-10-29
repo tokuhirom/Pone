@@ -311,6 +311,7 @@ pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_subtract(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_multiply(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_divide(pone_world* world, pone_val* v1, pone_val* v2);
+pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2);
 bool pone_so(pone_val* val);
 
 // iter.c
