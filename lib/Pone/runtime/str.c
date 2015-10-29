@@ -1,7 +1,7 @@
 #include "pone.h" /* PONE_INC */
 
 // pone dup p.
-pone_val* pone_new_str(pone_universe* universe, const char*p, size_t len) {
+pone_val* pone_str_new(pone_universe* universe, const char*p, size_t len) {
     pone_string* pv = (pone_string*)pone_obj_alloc(universe, PONE_STRING);
     pv->p = pone_strdup(universe, p, len);
     pv->len = len;
@@ -9,7 +9,7 @@ pone_val* pone_new_str(pone_universe* universe, const char*p, size_t len) {
 }
 
 // pone doesn't dup p.
-pone_val* pone_new_str_const(pone_universe* universe, const char*p, size_t len) {
+pone_val* pone_str_new_const(pone_universe* universe, const char*p, size_t len) {
     assert(universe);
     pone_string* pv = (pone_string*)pone_obj_alloc(universe, PONE_STRING);
     pv->flags |= PONE_FLAGS_STR_CONST | PONE_FLAGS_FROZEN;
@@ -40,16 +40,16 @@ pone_val* pone_str_from_int(pone_universe* universe, int i) {
     // INT_MAX=2147483647. "2147483647".elems = 10
     char buf[11+1];
     int size = snprintf(buf, 11+1, "%d", i);
-    return pone_new_str(universe, buf, size);
+    return pone_str_new(universe, buf, size);
 }
 
 pone_val* pone_str_from_num(pone_universe* universe, double n) {
     char buf[512+1];
     int size = snprintf(buf, 512+1, "%f", n);
-    return pone_new_str(universe, buf, size);
+    return pone_str_new(universe, buf, size);
 }
 
-// TODO: pone_new_str_const
+// TODO: pone_str_new_const
 
 /**
  * @return not mortalized
@@ -57,7 +57,7 @@ pone_val* pone_str_from_num(pone_universe* universe, double n) {
 pone_val* pone_to_str(pone_universe* universe, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_NIL:
-        return pone_new_str_const(universe, "(undef)", strlen("(undef)"));
+        return pone_str_new_const(universe, "(undef)", strlen("(undef)"));
     case PONE_INT:
         return pone_str_from_int(universe, pone_int_val(val));
     case PONE_STRING:
@@ -66,9 +66,9 @@ pone_val* pone_to_str(pone_universe* universe, pone_val* val) {
         return pone_str_from_num(universe, pone_num_val(val));
     case PONE_BOOL:
         if (pone_bool_val(val)) {
-            return pone_new_str_const(universe, "True", strlen("True"));
+            return pone_str_new_const(universe, "True", strlen("True"));
         } else {
-            return pone_new_str_const(universe, "False", strlen("False"));
+            return pone_str_new_const(universe, "False", strlen("False"));
         }
     default:
         abort();

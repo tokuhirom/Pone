@@ -15,12 +15,12 @@ pone_val* pone_user_func_y(pone_world* world, int n, va_list args) {
 
 int main(int argc, char** argv) {
     pone_universe* universe = pone_universe_init();
-    pone_world* world = pone_new_world(universe);
+    pone_world* world = pone_world_new(universe);
 
     pone_savetmps(world);
     pone_push_scope(world);
 
-    pone_assign(world, 0, "$x", pone_mortalize(world, pone_new_int(world->universe, 2)));
+    pone_assign(world, 0, "$x", pone_mortalize(world, pone_int_new(world->universe, 2)));
 
     pone_assign(world, 0, "&y", pone_mortalize(world, pone_code_new(world, pone_user_func_y)));
 
@@ -28,9 +28,9 @@ int main(int argc, char** argv) {
         pone_savetmps(world);
         pone_push_scope(world);
 
-        pone_assign(world, 0, "$x", pone_mortalize(world, pone_new_int(world->universe, 9)));
+        pone_assign(world, 0, "$x", pone_mortalize(world, pone_int_new(world->universe, 9)));
 
-        pone_builtin_say(world, pone_code_call(world, pone_get_lex(world, "&y"), 1, pone_mortalize(world, pone_new_int(world->universe, 100))));
+        pone_builtin_say(world, pone_code_call(world, pone_get_lex(world, "&y"), 1, pone_mortalize(world, pone_int_new(world->universe, 100))));
 
         pone_freetmps(world);
         pone_pop_scope(world);

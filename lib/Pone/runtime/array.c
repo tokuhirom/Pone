@@ -1,6 +1,6 @@
 #include "pone.h" /* PONE_INC */
 
-pone_val* pone_new_ary(pone_universe* universe, int n, ...) {
+pone_val* pone_ary_new(pone_universe* universe, int n, ...) {
     va_list list;
 
     pone_ary* av = (pone_ary*)pone_obj_alloc(universe, PONE_ARRAY);
@@ -47,7 +47,7 @@ int pone_ary_elems(pone_val* av) {
 // create new iterator
 pone_val* pone_ary_iter_new(pone_universe* universe, pone_val* val) {
     pone_val*iter = pone_obj_new(universe, universe->class_ary_iter);
-    pone_obj_set_ivar(universe, iter, "$!i", pone_new_int(universe, 0));
+    pone_obj_set_ivar(universe, iter, "$!i", pone_int_new(universe, 0));
     pone_obj_set_ivar(universe, iter, "$!val", val);
 
     return iter;

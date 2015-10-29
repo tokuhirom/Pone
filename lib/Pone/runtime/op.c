@@ -106,26 +106,26 @@ int pone_to_int(pone_world* world, pone_val* val) {
 pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2) {
     int i1 = pone_to_int(world, v1);
     int i2 = pone_to_int(world, v2);
-    return pone_mortalize(world, pone_new_int(world->universe, i1 + i2));
+    return pone_mortalize(world, pone_int_new(world->universe, i1 + i2));
 }
 
 // TODO: support NV
 pone_val* pone_subtract(pone_world* world, pone_val* v1, pone_val* v2) {
     int i1 = pone_to_int(world, v1);
     int i2 = pone_to_int(world, v2);
-    return pone_mortalize(world, pone_new_int(world->universe, i1 - i2));
+    return pone_mortalize(world, pone_int_new(world->universe, i1 - i2));
 }
 
 pone_val* pone_multiply(pone_world* world, pone_val* v1, pone_val* v2) {
     int i1 = pone_to_int(world, v1);
     int i2 = pone_to_int(world, v2);
-    return pone_mortalize(world, pone_new_int(world->universe, i1 * i2));
+    return pone_mortalize(world, pone_int_new(world->universe, i1 * i2));
 }
 
 pone_val* pone_divide(pone_world* world, pone_val* v1, pone_val* v2) {
     int i1 = pone_to_int(world, v1);
     int i2 = pone_to_int(world, v2);
-    return pone_mortalize(world, pone_new_int(world->universe, i1 / i2)); // TODO: We should upgrade value to NV
+    return pone_mortalize(world, pone_int_new(world->universe, i1 / i2)); // TODO: We should upgrade value to NV
 }
 
 size_t pone_elems(pone_world* world, pone_val* val) {

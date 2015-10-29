@@ -30,7 +30,7 @@ method compile(Str $code, Str :$filename="-") {
             '    if (setjmp(universe->err_handlers[0])) {',
             '        pone_universe_default_err_handler(universe);',
             '    }',
-            '    world = pone_new_world(universe);',
+            '    world = pone_world_new(universe);',
             "    pone_savetmps(world);",
             "    pone_push_scope(world);",
                 $code,

@@ -1,6 +1,6 @@
 #include "pone.h" /* PONE_INC */
 
-pone_world* pone_new_world(pone_universe* universe) {
+pone_world* pone_world_new(pone_universe* universe) {
     assert(universe);
 
     // we can't use pone_malloc yet.
@@ -32,9 +32,9 @@ pone_world* pone_new_world(pone_universe* universe) {
     return world;
 }
 
-pone_world* pone_new_world_from_world(pone_world* world, pone_lex_t* lex) {
+pone_world* pone_world_new_from_world(pone_world* world, pone_lex_t* lex) {
 #ifdef TRACE_WORLD
-    printf("pone_new_world_from_world: %X parent:%X tmpstack_idx:%X\n", world, world->parent, world->tmpstack_idx);
+    printf("pone_world_new_from_world: %X parent:%X tmpstack_idx:%X\n", world, world->parent, world->tmpstack_idx);
 #endif
     // we can't use pone_malloc yet.
     pone_world* new_world = (pone_world*)pone_malloc(world->universe, sizeof(pone_world));

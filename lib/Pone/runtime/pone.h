@@ -211,8 +211,8 @@ void pone_init();
 pone_val* pone_nil();
 
 // world.c
-pone_world* pone_new_world(pone_universe* universe);
-pone_world* pone_new_world_from_world(pone_world* world, pone_lex_t* lex);
+pone_world* pone_world_new(pone_universe* universe);
+pone_world* pone_world_new_from_world(pone_world* world, pone_lex_t* lex);
 void pone_destroy_world(pone_world* world);
 pone_val* pone_try(pone_world* world, pone_val* code);
 pone_val* pone_errvar(pone_world* world);
@@ -228,7 +228,7 @@ void pone_dd(pone_universe* universe, pone_val* val);
 const char* pone_what_str_c(pone_val* val);
 
 // hash.c
-pone_val* pone_new_hash(pone_universe* universe, int n, ...);
+pone_val* pone_hash_new(pone_universe* universe, int n, ...);
 void pone_hash_put_c(pone_universe* universe, pone_val* hv, const char* key, int key_len, pone_val* v);
 void pone_hash_put(pone_universe* universe, pone_val* hv, pone_val* k, pone_val* v);
 size_t pone_hash_elems(pone_val* val);
@@ -236,7 +236,7 @@ void pone_hash_free(pone_universe* universe, pone_val* val);
 pone_val* pone_hash_at_pos_c(pone_universe* universe, pone_val* hash, const char* name);
 
 // array.c
-pone_val* pone_new_ary(pone_universe* universe, int n, ...);
+pone_val* pone_ary_new(pone_universe* universe, int n, ...);
 pone_val* pone_ary_new_iter(pone_universe* universe, pone_val* val);
 int pone_ary_elems(pone_val* val);
 pone_val* pone_ary_at_pos(pone_val* val, int pos);
@@ -247,8 +247,8 @@ void pone_ary_iter_init(pone_universe* universe);
 pone_val* pone_ary_at_pos(pone_val* ary, int n);
 
 // str.c
-pone_val* pone_new_str(pone_universe* universe, const char*p, size_t len);
-pone_val* pone_new_str_const(pone_universe* universe, const char*p, size_t len);
+pone_val* pone_str_new(pone_universe* universe, const char*p, size_t len);
+pone_val* pone_str_new_const(pone_universe* universe, const char*p, size_t len);
 void pone_str_free(pone_universe* universe, pone_val* val);
 pone_val* pone_to_str(pone_universe* universe, pone_val* val);
 pone_val* pone_str_from_num(pone_universe* universe, double n);
@@ -266,7 +266,7 @@ void pone_code_free(pone_universe* universe, pone_val* v);
 // int.c
 int pone_int_val(pone_val* val);
 pone_val* pone_int_incr(pone_world* world, pone_val* i);
-pone_val* pone_new_int(pone_universe* universe, int i);
+pone_val* pone_int_new(pone_universe* universe, int i);
 
 // SV ops
 double pone_num_val(pone_val* val);
@@ -296,7 +296,7 @@ void pone_universe_default_err_handler(pone_universe* universe);
 pone_val* pone_true();
 pone_val* pone_false();
 
-pone_val* pone_new_num(pone_universe* universe, double i);
+pone_val* pone_num_new(pone_universe* universe, double i);
 
 // basic value operations
 static inline int pone_refcnt(pone_val* val) { return val->as.basic.refcnt; }

@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv) {
     pone_universe* universe = pone_universe_init();
-    pone_world* world = pone_new_world(universe);
+    pone_world* world = pone_world_new(universe);
 
     pone_savetmps(world);
     pone_push_scope(world);
@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
     assert(world->tmpstack_floor == 0);
     assert(world->tmpstack_idx == 0);
 
-    pone_mortalize(world, pone_new_int(world->universe, 6));
+    pone_mortalize(world, pone_int_new(world->universe, 6));
 
     {
         pone_savetmps(world);
@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
         assert(world->tmpstack_floor == 1);
         assert(world->tmpstack_idx == 1);
 
-        pone_mortalize(world, pone_new_int(world->universe, 6));
+        pone_mortalize(world, pone_int_new(world->universe, 6));
 
         assert(world->tmpstack_floor == 1);
         assert(world->tmpstack_idx == 2);
@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     }
 
     for (int i=0; i<1000; ++i) {
-        pone_mortalize(world, pone_new_int(world->universe, 6));
+        pone_mortalize(world, pone_int_new(world->universe, 6));
     }
 
     {
@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
         pone_push_scope(world);
 
         for (int i=0; i<1000; ++i) {
-            pone_mortalize(world, pone_new_int(world->universe, 6));
+            pone_mortalize(world, pone_int_new(world->universe, 6));
         }
 
         pone_freetmps(world);

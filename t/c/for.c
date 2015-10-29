@@ -10,7 +10,7 @@ int main(int argc, const char** argv) {
   if (setjmp(universe->err_handlers[0])) {
     pone_universe_default_err_handler(universe);
   }
-  world = pone_new_world(universe);
+  world = pone_world_new(universe);
   pone_savetmps(world);
   pone_push_scope(world);
   if (setjmp(*(pone_exc_handler_push(world)))) {
@@ -26,11 +26,11 @@ int main(int argc, const char** argv) {
             world,
             pone_mortalize(
                 world,
-                pone_new_ary(
+                pone_ary_new(
                     world->universe, 3,
-                    pone_mortalize(world, pone_new_int(world->universe, 1)),
-                    pone_mortalize(world, pone_new_int(world->universe, 2)),
-                    pone_mortalize(world, pone_new_int(world->universe, 3))))));
+                    pone_mortalize(world, pone_int_new(world->universe, 1)),
+                    pone_mortalize(world, pone_int_new(world->universe, 2)),
+                    pone_mortalize(world, pone_int_new(world->universe, 3))))));
     while (true) {
       pone_assign(world, 0, "$_", pone_iter_next(world, iter));
       pone_builtin_say(world, pone_get_lex(world, "$_"));

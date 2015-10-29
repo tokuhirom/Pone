@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv) {
     pone_universe* universe = pone_universe_init();
-    pone_world* world = pone_new_world(universe);
+    pone_world* world = pone_world_new(universe);
 
     pone_push_scope(world);
     assert(world->lex->refcnt == 1);

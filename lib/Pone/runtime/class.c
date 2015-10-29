@@ -16,8 +16,8 @@ pone_val* pone_init_class(pone_universe* universe) {
  */
 pone_val* pone_class_new(pone_universe* universe, const char* name, size_t name_len) {
     pone_val* obj = pone_obj_new(universe, universe->class_class);
-    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!name", pone_new_str(universe, name, name_len));
-    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!methods", pone_new_hash(universe, 0));
+    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!name", pone_str_new(universe, name, name_len));
+    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!methods", pone_hash_new(universe, 0));
 
     return (pone_val*)obj;
 }

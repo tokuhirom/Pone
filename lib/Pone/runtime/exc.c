@@ -27,7 +27,7 @@ void pone_exc_handler_pop(pone_world* world) {
 }
 
 void pone_die_str(pone_world* world, const char* str) {
-    pone_die(world, pone_new_str_const(world->universe, str, strlen(str)));
+    pone_die(world, pone_str_new_const(world->universe, str, strlen(str)));
 }
 
 // TODO rename to pone_throw

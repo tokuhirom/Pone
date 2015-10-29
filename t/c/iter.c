@@ -4,16 +4,16 @@ int main(int argc, char** argv) {
     pone_init();
 
     pone_universe* universe = pone_universe_init();
-    pone_world* world = pone_new_world(universe);
+    pone_world* world = pone_world_new(universe);
 
     pone_savetmps(world);
     pone_push_scope(world);
 
     {
-        pone_val* av = pone_mortalize(world, pone_new_ary(world->universe, 3,
-            pone_mortalize(world, pone_new_int(world->universe, 6)),
-            pone_mortalize(world, pone_new_int(world->universe, 4)),
-            pone_mortalize(world, pone_new_int(world->universe, 3))
+        pone_val* av = pone_mortalize(world, pone_ary_new(world->universe, 3,
+            pone_mortalize(world, pone_int_new(world->universe, 6)),
+            pone_mortalize(world, pone_int_new(world->universe, 4)),
+            pone_mortalize(world, pone_int_new(world->universe, 3))
         ));
 
         if (setjmp(*(pone_exc_handler_push(world)))) {

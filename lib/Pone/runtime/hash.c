@@ -4,7 +4,7 @@
 // TODO: push key
 // TODO: exists key
 
-pone_val* pone_new_hash(pone_universe* universe, int n, ...) {
+pone_val* pone_hash_new(pone_universe* universe, int n, ...) {
     va_list list;
 
     pone_hash* hv = (pone_hash*)pone_obj_alloc(universe, PONE_HASH);
