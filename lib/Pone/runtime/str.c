@@ -12,7 +12,7 @@ pone_val* pone_new_str(pone_universe* universe, const char*p, size_t len) {
 pone_val* pone_new_str_const(pone_universe* universe, const char*p, size_t len) {
     assert(universe);
     pone_string* pv = (pone_string*)pone_obj_alloc(universe, PONE_STRING);
-    pv->flags |= PONE_FLAGS_STR_CONST | PONE_FLAGS_STR_FROZEN;
+    pv->flags |= PONE_FLAGS_STR_CONST | PONE_FLAGS_FROZEN;
     pv->p = p;
     pv->len = len;
     return (pone_val*)pv;
@@ -21,7 +21,7 @@ pone_val* pone_new_str_const(pone_universe* universe, const char*p, size_t len) 
 pone_val* pone_str_copy(pone_universe* universe, pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
     pone_string* pv = (pone_string*)pone_obj_alloc(universe, PONE_STRING);
-    pv->flags |= PONE_FLAGS_STR_COPY | PONE_FLAGS_STR_FROZEN;
+    pv->flags |= PONE_FLAGS_STR_COPY | PONE_FLAGS_FROZEN;
     pv->val = val;
     pone_refcnt_inc(universe, val);
     pv->len = 0;

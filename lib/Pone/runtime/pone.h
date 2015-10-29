@@ -22,12 +22,15 @@
 #define PONE_FLAGS_GLOBAL (1<<0)
 // This object is immutable
 #define PONE_FLAGS_FROZEN (1<<1)
+// type specific flag 1
+#define PONE_FLAGS_TYPE_1 (1<<6)
+// type specific flag 2
+#define PONE_FLAGS_TYPE_2 (1<<7)
+
 // string literal is constant
-#define PONE_FLAGS_STR_CONST (1<<5)
-// This object is immutable(deprecated)
-#define PONE_FLAGS_STR_FROZEN PONE_FLAGS_FROZEN
+#define PONE_FLAGS_STR_CONST  PONE_FLAGS_TYPE_1
 // This string has copied buffer
-#define PONE_FLAGS_STR_COPY   (1<<7)
+#define PONE_FLAGS_STR_COPY   PONE_FLAGS_TYPE_2
 
 typedef enum {
     PONE_NIL=1,
