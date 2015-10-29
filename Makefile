@@ -1,6 +1,8 @@
 all: blib/libpone.a bin/pone.moarvm
 
 CFLAGS=-std=c99 -g -W -Werror
+# CFLAGS+= -DTRACE_REFCNT
+# CFLAGS+= -DTRACE_UNIVERSE
 
 OBJFILES= lib/Pone/runtime/obj.o lib/Pone/runtime/class.o lib/Pone/runtime/alloc.o lib/Pone/runtime/array.o lib/Pone/runtime/bool.o lib/Pone/runtime/builtin.o lib/Pone/runtime/code.o lib/Pone/runtime/hash.o lib/Pone/runtime/int.o lib/Pone/runtime/nil.o lib/Pone/runtime/num.o lib/Pone/runtime/op.o lib/Pone/runtime/pone.o lib/Pone/runtime/scope.o lib/Pone/runtime/str.o lib/Pone/runtime/world.o lib/Pone/runtime/universe.o lib/Pone/runtime/iter.o lib/Pone/runtime/exc.o
 CTEST_OBJFILES=t/c/assign.o t/c/basic.o t/c/enter.o t/c/func2.o t/c/func.o t/c/hash.o t/c/nop.o t/c/iter.o t/c/for.o

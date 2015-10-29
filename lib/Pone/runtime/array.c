@@ -44,16 +44,7 @@ int pone_ary_elems(pone_val* av) {
     return ((pone_ary*)av)->len;
 }
 
-// create new iterator
-pone_val* pone_ary_iter_new(pone_universe* universe, pone_val* val) {
-    pone_val*iter = pone_obj_new(universe, universe->class_ary_iter);
-    pone_obj_set_ivar(universe, iter, "$!i", pone_int_new(universe, 0));
-    pone_obj_set_ivar(universe, iter, "$!val", val);
-
-    return iter;
-}
-
-static pone_val* meth_iter_next(pone_world* world, int n, va_list args) {
+static pone_val* meth_pull_one(pone_world* world, int n, va_list args) {
     assert(n == 1);
 
     pone_val* obj = va_arg(args, pone_val*);
@@ -64,20 +55,46 @@ static pone_val* meth_iter_next(pone_world* world, int n, va_list args) {
 
     if (pone_int_val(i) != pone_ary_elems(ary)) {
         pone_val* val = pone_ary_at_pos(ary, pone_int_val(i));
+        pone_refcnt_inc(world->universe, val);
         pone_int_incr(world, i);
         return val;
     } else {
-        pone_die(world, world->universe->instance_control_break);
+        pone_refcnt_inc(world->universe, world->universe->instance_iteration_end);
+        return world->universe->instance_iteration_end;
     }
 }
 
-void pone_ary_iter_init(pone_universe* universe) {
-    assert(universe->class_ary_iter == NULL);
-
-    pone_val* klass = pone_class_new(universe, "Array::Iterator", strlen("Array::Iterator"));
-    pone_add_method_c(universe, klass, "ITER-NEXT", strlen("ITER-NEXT"), meth_iter_next);
-    assert(pone_type(klass) == PONE_OBJ);
-    universe->class_ary_iter = klass;
+static pone_val* meth_ary_elems(pone_world* world, int n, va_list args) {
+    assert(n == 1);
+    pone_val* obj = va_arg(args, pone_val*);
+    assert(pone_type(obj) == PONE_ARRAY);
+    return pone_int_new(world->universe, pone_ary_elems(obj));
 }
 
+// Array#iterator
+static pone_val* meth_ary_iterator(pone_world* world, int n, va_list args) {
+    assert(n == 1);
+
+    pone_val* self = va_arg(args, pone_val*);
+    assert(pone_type(self) == PONE_ARRAY);
+
+    // self!iterator-class.bless(i => 0, val => self)
+    pone_val* iterator_class = pone_obj_get_ivar(world->universe, pone_what(world->universe, self), "$!iterator-class");
+    pone_val* iter = pone_obj_new(world->universe, iterator_class);
+    pone_obj_set_ivar_noinc(world->universe, iter, "$!i", pone_int_new(world->universe, 0));
+    pone_obj_set_ivar(world->universe, iter, "$!val", self);
+    return iter;
+}
+
+void pone_ary_init(pone_universe* universe) {
+    assert(universe->class_ary == NULL);
+
+    pone_val* iter_class = pone_class_new(universe, "Array::Iterator", strlen("Array::Iterator"));
+    pone_add_method_c(universe, iter_class, "pull-one", strlen("pull-one"), meth_pull_one);
+
+    universe->class_ary = pone_class_new(universe, "Array", strlen("Array"));
+    pone_add_method_c(universe, universe->class_ary, "iterator", strlen("iterator"), meth_ary_iterator);
+    pone_obj_set_ivar_noinc(universe, universe->class_ary, "$!iterator-class", iter_class);
+
+}
 

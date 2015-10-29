@@ -112,16 +112,14 @@ method !compile(Pone::Node $node) {
         my $obj = .children[0];
         my $stmts = .children[1];
         q:to/EOD/.subst(/'<%=' (.*?)  '%>'/, { EVAL $0 }, :global);
-        if (setjmp(*(pone_exc_handler_push(world)))) {
-            if (world->universe->errvar == world->universe->instance_control_break) {
-                // finished.
-            } else {
-                pone_die(world, world->universe->errvar);
-            }
-        } else {
+        {
             pone_val* iter = pone_mortalize(world, pone_iter_init(world, <%= self!compile($obj) %>));
             while (true) {
-                pone_assign(world, 0, "$_", pone_iter_next(world, iter));
+                pone_val* next = pone_mortalize(world, pone_iter_next(world, iter));
+                if (next == world->universe->instance_iteration_end) {
+                    break;
+                }
+                pone_assign(world, 0, "$_", next);
                 <%= self!compile($stmts) %>
             }
         }

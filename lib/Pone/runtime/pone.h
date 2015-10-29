@@ -23,9 +23,11 @@
 // This object is immutable
 #define PONE_FLAGS_FROZEN (1<<1)
 // type specific flag 1
-#define PONE_FLAGS_TYPE_1 (1<<6)
+#define PONE_FLAGS_TYPE_1 (1<<5)
 // type specific flag 2
-#define PONE_FLAGS_TYPE_2 (1<<7)
+#define PONE_FLAGS_TYPE_2 (1<<6)
+// type specific flag 3
+#define PONE_FLAGS_TYPE_3 (1<<7)
 
 // string literal is constant
 #define PONE_FLAGS_STR_CONST  PONE_FLAGS_TYPE_1
@@ -156,6 +158,7 @@ typedef struct pone_val {
     union {
         // see http://loveruby.net/ja/rhg/book/gc.html
         struct {
+            uint64_t flags;
             struct pone_val* next; // next free value
         } free;
 
@@ -191,10 +194,11 @@ typedef struct pone_universe {
     struct pone_val* class_mu;
     // class of class
     struct pone_val* class_class;
-    // Array::Iterator
-    struct pone_val* class_ary_iter;
-    // CX::Break
-    struct pone_val* instance_control_break;
+    // Array
+    struct pone_val* class_ary;
+    // We use a sentinel value to mark the end of an iteration.
+    // This is "IterationEnd" in rakudo Perl6.
+    struct pone_val* instance_iteration_end;
 } pone_universe;
 
 typedef struct pone_arena {
@@ -237,13 +241,10 @@ pone_val* pone_hash_at_pos_c(pone_universe* universe, pone_val* hash, const char
 
 // array.c
 pone_val* pone_ary_new(pone_universe* universe, int n, ...);
-pone_val* pone_ary_new_iter(pone_universe* universe, pone_val* val);
 int pone_ary_elems(pone_val* val);
 pone_val* pone_ary_at_pos(pone_val* val, int pos);
 void pone_ary_free(pone_universe* universe, pone_val* val);
-pone_val* pone_ary_iter_new(pone_universe* universe, pone_val* val);
-pone_val* pone_ary_iter_free(pone_universe* universe, pone_val* val);
-void pone_ary_iter_init(pone_universe* universe);
+void pone_ary_init(pone_universe* universe);
 pone_val* pone_ary_at_pos(pone_val* ary, int n);
 
 // str.c
@@ -343,6 +344,8 @@ pone_val* pone_class_new(pone_universe* universe, const char* name, size_t name_
 void pone_add_method(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_val* method);
 void pone_add_method_c(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_funcptr_t funcptr);
 pone_val* pone_find_method(pone_world* world, pone_val* klass, const char* name);
+pone_val* pone_what(pone_universe* universe, pone_val* obj);
+pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...);
 
 // obj.c
 pone_val* pone_init_mu(pone_universe* universe);

@@ -20,10 +20,7 @@ pone_val* pone_obj_alloc(pone_universe* universe, pone_t type) {
         // reuse it.
         val = universe->freelist;
         universe->freelist = universe->freelist->as.free.next;
-#ifndef NDEBUG
-        // clear val's memory for debugging
-        memset(val, 0, sizeof(pone_val));
-#endif
+        val->as.basic.flags = 0;
     } else {
         // there is no free-ed value.
         // then, use value from arena.
@@ -41,10 +38,19 @@ pone_val* pone_obj_alloc(pone_universe* universe, pone_t type) {
 
     val->as.basic.refcnt = 1;
     val->as.basic.type   = type;
+
+#ifdef TRACE_REFCNT
+    printf("pone_obj_alloc: %x type:%s\n", val, pone_what_str_c(val));
+#endif
+
     return val;
 }
 
 void pone_val_free(pone_universe* universe, pone_val* p) {
+#ifndef NDEBUG
+    // clear val's memory for debugging
+    memset(p, 0, sizeof(pone_val));
+#endif
     p->as.free.next = universe->freelist;
     universe->freelist = p;
 }
@@ -76,7 +82,7 @@ inline void pone_refcnt_inc(pone_universe* universe, pone_val* val) {
 // decrement reference count
 inline void pone_refcnt_dec(pone_universe* universe, pone_val* val) {
 #ifdef TRACE_REFCNT
-    printf("refcnt_dec: %X refcnt:%d type:%s\n", val, val->refcnt, pone_what_str_c(val));
+    printf("refcnt_dec: %x refcnt:%d type:%s\n", val, pone_refcnt(val), pone_what_str_c(val));
 #endif
 
     if (val->as.basic.flags & PONE_FLAGS_GLOBAL) {
@@ -85,8 +91,10 @@ inline void pone_refcnt_dec(pone_universe* universe, pone_val* val) {
 
     assert(val != NULL);
 #ifndef NDEBUG
+    if (val->as.basic.type == 0) {
+        fprintf(stderr, "%x was already freed\n", val);
+    }
     if (val->as.basic.refcnt <= 0) { 
-        // pone_dd(universe, val);
         assert(val->as.basic.refcnt > 0);
     }
 #endif

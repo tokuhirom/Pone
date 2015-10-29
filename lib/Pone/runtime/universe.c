@@ -39,16 +39,26 @@ pone_universe* pone_universe_init() {
     universe->err_handler_idx = 0;
     universe->err_handler_max = PONE_ERR_HANDLERS_INIT;
 
+#ifdef TRACE_UNIVERSE
+    printf("initializing class mu\n");
+#endif
     universe->class_mu = pone_init_mu(universe);
 
+#ifdef TRACE_UNIVERSE
+    printf("initializing class Class\n");
+#endif
     universe->class_class = pone_init_class(universe);
 
-    pone_ary_iter_init(universe);
-    assert(universe->class_ary_iter);
+#ifdef TRACE_UNIVERSE
+    printf("initializing class Array\n");
+#endif
+    pone_ary_init(universe);
+    assert(universe->class_ary);
 
-    pone_val* control_break_class = pone_class_new(universe, "CX::Break", strlen("CX::Break"));
-    universe->instance_control_break = pone_obj_new(universe, control_break_class);
-    pone_refcnt_dec(universe, control_break_class);
+#ifdef TRACE_UNIVERSE
+    printf("initializing value IterationEnd\n");
+#endif
+    universe->instance_iteration_end = pone_obj_new(universe, universe->class_mu);
 
     return universe;
 }
@@ -58,8 +68,8 @@ void pone_universe_destroy(pone_universe* universe) {
         pone_refcnt_dec(universe, universe->errvar);
     }
 
-    pone_refcnt_dec(universe, universe->instance_control_break);
-    pone_refcnt_dec(universe, universe->class_ary_iter);
+    pone_refcnt_dec(universe, universe->instance_iteration_end);
+    pone_refcnt_dec(universe, universe->class_ary);
     pone_refcnt_dec(universe, universe->class_class);
     pone_refcnt_dec(universe, universe->class_mu);
 

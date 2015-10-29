@@ -13,30 +13,26 @@ int main(int argc, const char** argv) {
   world = pone_world_new(universe);
   pone_savetmps(world);
   pone_push_scope(world);
-  if (setjmp(*(pone_exc_handler_push(world)))) {
-    if (world->universe->errvar == world->universe->instance_control_break) {
-      // finished.
-    } else {
-      pone_die(world, world->universe->errvar);
+  pone_val* iter = pone_mortalize(
+      world,
+      pone_iter_init(
+          world,
+          pone_mortalize(
+              world,
+              pone_ary_new(
+                  world->universe, 3,
+                  pone_mortalize(world, pone_int_new(world->universe, 1)),
+                  pone_mortalize(world, pone_int_new(world->universe, 2)),
+                  pone_mortalize(world, pone_int_new(world->universe, 3))))));
+  while (true) {
+    pone_val* next = pone_mortalize(world, pone_iter_next(world, iter));
+    if (next == world->universe->instance_iteration_end) {
+      break;
     }
-  } else {
-    pone_val* iter = pone_mortalize(
-        world,
-        pone_iter_init(
-            world,
-            pone_mortalize(
-                world,
-                pone_ary_new(
-                    world->universe, 3,
-                    pone_mortalize(world, pone_int_new(world->universe, 1)),
-                    pone_mortalize(world, pone_int_new(world->universe, 2)),
-                    pone_mortalize(world, pone_int_new(world->universe, 3))))));
-    while (true) {
-      pone_assign(world, 0, "$_", pone_iter_next(world, iter));
-      pone_builtin_say(world, pone_get_lex(world, "$_"));
-      pone_signal_handle(world);
-    }
-  };
+    pone_assign(world, 0, "$_", pone_iter_next(world, iter));
+    pone_builtin_say(world, pone_get_lex(world, "$_"));
+    pone_signal_handle(world);
+  }
   pone_signal_handle(world);
 
   pone_freetmps(world);

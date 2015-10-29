@@ -36,6 +36,7 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
     return val;
 }
 
+// TODO we should implement .gist and .perl method for each class...
 void pone_dd(pone_universe* universe, pone_val* val) {
     switch (pone_type(val)) {
         case PONE_STRING:
@@ -61,6 +62,12 @@ void pone_dd(pone_universe* universe, pone_val* val) {
             });
             printf(")\n");
             break;
+        }
+        case PONE_ARRAY: {
+            printf("(array)");
+        }
+        case PONE_OBJ: {
+            printf("(obj)");
         }
         default:
             abort();
@@ -154,7 +161,7 @@ size_t pone_elems(pone_world* world, pone_val* val) {
 const char* pone_what_str_c(pone_val* val) {
     switch (pone_type(val)) {
     case PONE_NIL:
-        return "Any";
+        return "Any"; // remove this branch. pone_call_method(pone_what(), "name") should work.
     case PONE_INT:
         return "Int";
     case PONE_NUM:
@@ -169,7 +176,16 @@ const char* pone_what_str_c(pone_val* val) {
         return "Hash";
     case PONE_CODE:
         return "Code";
+    case PONE_OBJ: {
+        return "Obj"; // TODO return the class name!
     }
+    }
+    if (pone_type(val) == 0) {
+        fprintf(stderr, "[ERROR] You can't access free'd value: %x\n",
+                val);
+        abort();
+    }
+    abort();
 }
 
 bool pone_is_frozen(pone_val* v) {

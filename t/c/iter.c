@@ -16,18 +16,14 @@ int main(int argc, char** argv) {
             pone_mortalize(world, pone_int_new(world->universe, 3))
         ));
 
-        if (setjmp(*(pone_exc_handler_push(world)))) {
-            if (world->universe->errvar == world->universe->instance_control_break) {
-                fprintf(stderr, "end-of-iter\n");
-            } else {
-                pone_die(world, world->universe->errvar);
+        pone_val* iter = pone_mortalize(world, pone_iter_init(world, av));
+        while (true) {
+            pone_val* next = pone_mortalize(world, pone_iter_next(world, iter));
+            if (next == world->universe->instance_iteration_end) {
+                break;
             }
-        } else {
-            pone_val* iter = pone_mortalize(world, pone_iter_init(world, av));
-            while (true) {
-                pone_assign(world, 0, "$_", pone_mortalize(world, pone_iter_next(world, iter)));
-                pone_builtin_say(world, pone_get_lex(world, "$_"));
-            }
+            pone_assign(world, 0, "$_", next);
+            pone_builtin_say(world, pone_get_lex(world, "$_"));
         }
     }
 

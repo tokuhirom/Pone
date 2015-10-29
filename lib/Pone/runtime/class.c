@@ -11,6 +11,17 @@ pone_val* pone_init_class(pone_universe* universe) {
     return val;
 }
 
+pone_val* pone_what(pone_universe* universe, pone_val* obj) {
+    switch (pone_type(obj)) {
+    case PONE_OBJ:
+        return obj->as.obj.klass;
+    case PONE_ARRAY:
+        return universe->class_ary;
+    default: // TODO
+        abort();
+    }
+}
+
 /**
  * Create new instance of class
  */
@@ -38,16 +49,25 @@ void pone_add_method(pone_universe* universe, pone_val* klass, const char* name,
 }
 
 pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
-    assert(pone_type(obj) == PONE_OBJ);
-
-    pone_val* methods = pone_obj_get_ivar(world->universe, obj->as.obj.klass, "$!methods");
+    pone_val* klass = pone_what(world->universe, obj);
+    pone_val* methods = pone_obj_get_ivar(world->universe, klass, "$!methods");
     assert(methods);
-    pone_val* method = pone_hash_at_pos_c(world->universe, methods, name);
-    assert(method);
+    return pone_hash_at_pos_c(world->universe, methods, name);
+}
+
+// Usage: return pone_call_method(world, iter, "pull-one", 0);
+pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...) {
+    assert(obj);
+
+    va_list args;
+
+    pone_val* method = pone_find_method(world, obj, method_name);
     if (pone_defined(method)) {
-        return method;
+        va_start(args, n);
+        pone_val* retval = pone_code_vcall(world, method, n, args);
+        va_end(args);
+        return retval;
     } else {
-        // TODO better error message
         pone_die_str(world, "method not found");
     }
 }
