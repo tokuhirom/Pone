@@ -29,6 +29,7 @@ class Pone::Node::If       is Pone::Node { }
 class Pone::Node::Block    is Pone::Node { }
 class Pone::Node::Try      is Pone::Node { }
 class Pone::Node::For      is Pone::Node { }
+class Pone::Node::While    is Pone::Node { }
 
 class Pone::Node::Funcall  is Pone::Node { }
 class Pone::Node::Args     is Pone::Node { }

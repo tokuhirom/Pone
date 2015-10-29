@@ -39,6 +39,10 @@ grammar Pone::Grammar {
         'try' '{' <stmts> '}'
     }
 
+    token stmt:sym<while> {:s
+        'while' <term> '{' <stmts> '}'
+    }
+
     # for $a { ... }
     token stmt:sym<for> {:s
         'for' <term> '{' <stmts> '}'

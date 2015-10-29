@@ -99,6 +99,15 @@ method !compile(Pone::Node $node) {
         my $body = self!compile($sub);
         "pone_mortalize(world, pone_try(world, $body))"
     }
+    when Pone::Node::While {
+        my $term = .children[0];
+        my $stmts = .children[1];
+        q:to/EOD/.subst(/'<%=' (.*?)  '%>'/, { EVAL $0 }, :global);
+        while (pone_so(<%= self!compile($term) %>)) {
+            <%= self!compile($stmts) %>
+        }
+        EOD
+    }
     when Pone::Node::For {
         my $obj = .children[0];
         my $stmts = .children[1];

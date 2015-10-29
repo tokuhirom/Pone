@@ -262,3 +262,11 @@ for [1,2,3] { say $_ }; for [4,5,6] { say $_ }
 5
 6
 
+===
+--- input
+my $n = 3; while $n { say $n; $n = $n-1 }
+--- expected
+3
+2
+1
+
