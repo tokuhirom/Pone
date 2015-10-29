@@ -76,7 +76,7 @@ void pone_ary_iter_init(pone_universe* universe) {
 
     pone_val* klass = pone_class_new(universe, "Array::Iterator", strlen("Array::Iterator"));
     pone_add_method_c(universe, klass, "ITER-NEXT", strlen("ITER-NEXT"), meth_iter_next);
-    assert(pone_type(klass) == PONE_CLASS);
+    assert(pone_type(klass) == PONE_OBJ);
     universe->class_ary_iter = klass;
 }
 

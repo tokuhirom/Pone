@@ -33,16 +33,34 @@ void pone_hash_free(pone_universe* universe, pone_val* val) {
     kh_destroy(str, h->h);
 }
 
-void pone_hash_put(pone_universe* universe, pone_val* hv, pone_val* k, pone_val* v) {
+void pone_hash_put_c(pone_universe* universe, pone_val* hv, const char* key, int key_len, pone_val* v) {
     assert(pone_type(hv) == PONE_HASH);
-    k = pone_to_str(universe, k);
-    // TODO: check ret
     int ret;
-    const char* ks=pone_strdup(universe, pone_string_ptr(k), pone_string_len(k));
-    khint_t key = kh_put(str, ((pone_hash*)hv)->h, ks, &ret);
-    kh_val(((pone_hash*)hv)->h, key) = v;
+    const char* ks=pone_strdup(universe, key, key_len);
+    khint_t k = kh_put(str, ((pone_hash*)hv)->h, ks, &ret);
+    if (ret == -1) {
+        abort(); // TODO better error msg
+    }
+    kh_val(((pone_hash*)hv)->h, k) = v;
     pone_refcnt_inc(universe, v);
     ((pone_hash*)hv)->len++;
+}
+
+pone_val* pone_hash_at_pos_c(pone_universe* universe, pone_val* hash, const char* name) {
+    assert(pone_type(hash) == PONE_HASH);
+    assert(hash->as.hash.h);
+
+    khint_t k = kh_get(str, hash->as.hash.h, name);
+    if (k != kh_end(hash->as.hash.h)) {
+        return kh_val(hash->as.hash.h, k);
+    } else {
+        return pone_nil();
+    }
+}
+
+void pone_hash_put(pone_universe* universe, pone_val* hv, pone_val* k, pone_val* v) {
+    k = pone_to_str(universe, k);
+    pone_hash_put_c(universe, hv, pone_string_ptr(k), pone_string_len(k), v);
     pone_refcnt_dec(universe, k);
 }
 

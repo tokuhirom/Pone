@@ -39,6 +39,10 @@ pone_universe* pone_universe_init() {
     universe->err_handler_idx = 0;
     universe->err_handler_max = PONE_ERR_HANDLERS_INIT;
 
+    universe->class_mu = pone_init_mu(universe);
+
+    universe->class_class = pone_init_class(universe);
+
     pone_ary_iter_init(universe);
     assert(universe->class_ary_iter);
 
@@ -54,9 +58,10 @@ void pone_universe_destroy(pone_universe* universe) {
         pone_refcnt_dec(universe, universe->errvar);
     }
 
-    pone_refcnt_dec(universe, universe->class_ary_iter);
-
     pone_refcnt_dec(universe, universe->instance_control_break);
+    pone_refcnt_dec(universe, universe->class_ary_iter);
+    pone_refcnt_dec(universe, universe->class_class);
+    pone_refcnt_dec(universe, universe->class_mu);
 
     pone_arena* a = universe->arena_head;
     while (a) {

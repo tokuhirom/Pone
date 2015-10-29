@@ -106,9 +106,6 @@ inline void pone_refcnt_dec(pone_universe* universe, pone_val* val) {
         case PONE_CODE:
             pone_code_free(universe, val);
             break;
-        case PONE_CLASS:
-            pone_class_free(universe, val);
-            break;
         case PONE_OBJ:
             pone_obj_free(universe, val);
             break;

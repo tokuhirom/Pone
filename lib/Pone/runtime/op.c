@@ -52,6 +52,16 @@ void pone_dd(pone_universe* universe, pone_val* val) {
         case PONE_CODE:
             printf("(code)\n");
             break;
+        case PONE_HASH: {
+            printf("(hash ");
+            const char* k;
+            pone_val* v;
+            kh_foreach(val->as.hash.h, k, v, {
+                printf("%s, ", k);
+            });
+            printf(")\n");
+            break;
+        }
         default:
             abort();
     }

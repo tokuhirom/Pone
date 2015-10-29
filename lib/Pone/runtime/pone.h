@@ -41,8 +41,7 @@ typedef enum {
     PONE_BOOL,
     PONE_HASH,
     PONE_CODE,
-    PONE_OBJ,
-    PONE_CLASS
+    PONE_OBJ
 } pone_t;
 
 #define PONE_HEAD \
@@ -99,12 +98,6 @@ typedef struct {
     khash_t(str) *h;
     size_t len;
 } pone_hash;
-
-typedef struct {
-    PONE_HEAD;
-    char* name;
-    khash_t(str) *methods;
-} pone_class;
 
 typedef struct {
     PONE_HEAD;
@@ -172,7 +165,6 @@ typedef struct pone_val {
         pone_hash hash;
         pone_string str;
         pone_obj obj;
-        pone_class klass;
     } as;
 } pone_val;
 
@@ -195,6 +187,11 @@ typedef struct pone_universe {
     int err_handler_idx;
     int err_handler_max;
 
+    // 無("Mu")
+    struct pone_val* class_mu;
+    // class of class
+    struct pone_val* class_class;
+    // Array::Iterator
     struct pone_val* class_ary_iter;
     // CX::Break
     struct pone_val* instance_control_break;
@@ -232,9 +229,11 @@ const char* pone_what_str_c(pone_val* val);
 
 // hash.c
 pone_val* pone_new_hash(pone_universe* universe, int n, ...);
+void pone_hash_put_c(pone_universe* universe, pone_val* hv, const char* key, int key_len, pone_val* v);
 void pone_hash_put(pone_universe* universe, pone_val* hv, pone_val* k, pone_val* v);
 size_t pone_hash_elems(pone_val* val);
 void pone_hash_free(pone_universe* universe, pone_val* val);
+pone_val* pone_hash_at_pos_c(pone_universe* universe, pone_val* hash, const char* name);
 
 // array.c
 pone_val* pone_new_ary(pone_universe* universe, int n, ...);
@@ -338,16 +337,18 @@ pone_val* pone_obj_alloc(pone_universe* universe, pone_t type);
 void pone_free(pone_universe* universe, void* p);
 
 // class.c
+pone_val* pone_init_class(pone_universe* universe);
 pone_val* pone_class_new(pone_universe* universe, const char* name, size_t name_len);
-pone_val* pone_class_free(pone_universe* universe, pone_val* val);
-pone_val* pone_add_method(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_val* method);
-pone_val* pone_add_method_c(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_funcptr_t funcptr);
+void pone_add_method(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_val* method);
+void pone_add_method_c(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_funcptr_t funcptr);
 pone_val* pone_find_method(pone_world* world, pone_val* klass, const char* name);
 
 // obj.c
+pone_val* pone_init_mu(pone_universe* universe);
 pone_val* pone_obj_new(pone_universe* universe, pone_val* klass);
 pone_val* pone_obj_free(pone_universe* universe, pone_val* val);
 void pone_obj_set_ivar(pone_universe* universe, pone_val* obj, const char* name, pone_val* val);
+void pone_obj_set_ivar_noinc(pone_universe* universe, pone_val* obj, const char* name, pone_val* val);
 pone_val* pone_obj_get_ivar(pone_universe* universe, pone_val* obj, const char* name);
 
 #endif

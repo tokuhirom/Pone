@@ -1,8 +1,14 @@
 #include "pone.h" /* PONE_INC */
 
+pone_val* pone_init_mu(pone_universe* universe) {
+    pone_val* val = pone_obj_alloc(universe, PONE_OBJ);
+    val->as.obj.ivar = kh_init(str);
+    return val;
+}
+
 pone_val* pone_obj_new(pone_universe* universe, pone_val* klass) {
     assert(klass);
-    assert(pone_type(klass) == PONE_CLASS);
+    assert(pone_type(klass) == PONE_OBJ);
 
     pone_obj* obj = (pone_obj*)pone_obj_alloc(universe, PONE_OBJ);
     obj->klass = klass;
@@ -16,7 +22,9 @@ pone_val* pone_obj_new(pone_universe* universe, pone_val* klass) {
 pone_val* pone_obj_free(pone_universe* universe, pone_val* val) {
     assert(pone_type(val) == PONE_OBJ);
 
-    pone_refcnt_dec(universe, val->as.obj.klass);
+    if (val->as.obj.klass != NULL) {
+        pone_refcnt_dec(universe, val->as.obj.klass);
+    }
 
     // free instance variables
     const char* k;
@@ -29,8 +37,8 @@ pone_val* pone_obj_free(pone_universe* universe, pone_val* val) {
     kh_destroy(str, val->as.obj.ivar);
 }
 
-// set instance variable to the object
-void pone_obj_set_ivar(pone_universe* universe, pone_val* obj, const char* name, pone_val* val) {
+// set instance variable to the object without refinc++
+void pone_obj_set_ivar_noinc(pone_universe* universe, pone_val* obj, const char* name, pone_val* val) {
     assert(pone_type(obj) == PONE_OBJ);
 
     char *ks = pone_strdup(universe, name, strlen(name));
@@ -41,6 +49,12 @@ void pone_obj_set_ivar(pone_universe* universe, pone_val* obj, const char* name,
         abort();
     }
     kh_val(obj->as.obj.ivar, key) = val;
+}
+
+
+// set instance variable to the object
+void pone_obj_set_ivar(pone_universe* universe, pone_val* obj, const char* name, pone_val* val) {
+    pone_obj_set_ivar_noinc(universe, obj, name, val);
     pone_refcnt_inc(universe, val);
 }
 
