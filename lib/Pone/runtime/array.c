@@ -67,7 +67,7 @@ static pone_val* meth_iter_next(pone_world* world, int n, va_list args) {
         pone_int_incr(world, i);
         return val;
     } else {
-        pone_die(world, pone_obj_alloc(world->universe, PONE_CONTROL_BREAK));
+        pone_die(world, world->universe->instance_control_break);
     }
 }
 

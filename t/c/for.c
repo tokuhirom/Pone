@@ -14,7 +14,7 @@ int main(int argc, const char** argv) {
   pone_savetmps(world);
   pone_push_scope(world);
   if (setjmp(*(pone_exc_handler_push(world)))) {
-    if (pone_type(world->universe->errvar) == PONE_CONTROL_BREAK) {
+    if (world->universe->errvar == world->universe->instance_control_break) {
       // finished.
     } else {
       pone_die(world, world->universe->errvar);

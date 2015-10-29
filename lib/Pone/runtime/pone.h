@@ -41,7 +41,6 @@ typedef enum {
     PONE_BOOL,
     PONE_HASH,
     PONE_CODE,
-    PONE_CONTROL_BREAK, // TODO make it normal object
     PONE_OBJ,
     PONE_CLASS
 } pone_t;
@@ -196,9 +195,9 @@ typedef struct pone_universe {
     int err_handler_idx;
     int err_handler_max;
 
-    // instance of CX::Break
-    struct pone_val* control_break;
     struct pone_val* class_ary_iter;
+    // CX::Break
+    struct pone_val* instance_control_break;
 } pone_universe;
 
 typedef struct pone_arena {

@@ -113,7 +113,7 @@ method !compile(Pone::Node $node) {
         my $stmts = .children[1];
         q:to/EOD/.subst(/'<%=' (.*?)  '%>'/, { EVAL $0 }, :global);
         if (setjmp(*(pone_exc_handler_push(world)))) {
-            if (pone_type(world->universe->errvar) == PONE_CONTROL_BREAK) {
+            if (world->universe->errvar == world->universe->instance_control_break) {
                 // finished.
             } else {
                 pone_die(world, world->universe->errvar);

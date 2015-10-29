@@ -42,6 +42,10 @@ pone_universe* pone_universe_init() {
     pone_ary_iter_init(universe);
     assert(universe->class_ary_iter);
 
+    pone_val* control_break_class = pone_class_new(universe, "CX::Break", strlen("CX::Break"));
+    universe->instance_control_break = pone_obj_new(universe, control_break_class);
+    pone_refcnt_dec(universe, control_break_class);
+
     return universe;
 }
 
@@ -50,8 +54,9 @@ void pone_universe_destroy(pone_universe* universe) {
         pone_refcnt_dec(universe, universe->errvar);
     }
 
-    assert(pone_refcnt(universe->class_ary_iter) == 1);
     pone_refcnt_dec(universe, universe->class_ary_iter);
+
+    pone_refcnt_dec(universe, universe->instance_control_break);
 
     pone_arena* a = universe->arena_head;
     while (a) {

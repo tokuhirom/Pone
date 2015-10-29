@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
         ));
 
         if (setjmp(*(pone_exc_handler_push(world)))) {
-            if (pone_type(world->universe->errvar) == PONE_CONTROL_BREAK) {
+            if (world->universe->errvar == world->universe->instance_control_break) {
                 fprintf(stderr, "end-of-iter\n");
             } else {
                 pone_die(world, world->universe->errvar);
