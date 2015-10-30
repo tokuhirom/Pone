@@ -49,8 +49,6 @@ pone_val* pone_str_from_num(pone_universe* universe, double n) {
     return pone_str_new(universe, buf, size);
 }
 
-// TODO: pone_str_new_const
-
 /**
  * @return not mortalized
  */
