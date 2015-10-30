@@ -187,16 +187,6 @@ method ident($/) {
     $/.make: Pone::Node::Ident.new(~$/);
 }
 
-method call($/) {
-    if $/<paren-args> {
-        $/.make: Pone::Node::Funcall.new(
-            [$/<value>.made, $/<paren-args>.made]
-        );
-    } else {
-        $/.make: $/<value>.made;
-    }
-}
-
 method value:sym<funcall>($/) {
     self!funcall($/);
 }

@@ -96,7 +96,6 @@ grammar Pone::Grammar {
     rule postcircumfix:sym<at-pos> {
         '[' <term> ']'
     }
-    # removed paren-args
 
     proto rule value { <...> }
 
