@@ -93,6 +93,10 @@ grammar Pone::Grammar {
     rule postcircumfix:sym<call> {
         '(' <args>? ')'
     }
+    # TODO $x.$bar()
+    rule postcircumfix:sym<method> {
+        '.' <ident> '(' <args>? ')'
+    }
     rule postcircumfix:sym<at-pos> {
         '[' <term> ']'
     }

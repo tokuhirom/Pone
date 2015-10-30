@@ -214,6 +214,13 @@ method postcircumfix:sym<at-pos>($/) {
     $/.make: Pone::Node::AtPos.new([$/<term>.made]);
 }
 
+method postcircumfix:sym<method> {
+    $/.make: Pone::Node::MethodCall.new([
+        $/<ident>.made,
+        $/<args>.made || Pone::Node::Args.new()
+    ]);
+}
+
 method args($/) {
     $/.make: Pone::Node::Args.new($/<term>».made);
 }

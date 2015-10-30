@@ -34,6 +34,8 @@
 // This string has copied buffer
 #define PONE_FLAGS_STR_COPY   PONE_FLAGS_TYPE_2
 
+typedef double pone_num_t;
+
 typedef enum {
     PONE_NIL=1,
     PONE_INT,
@@ -71,7 +73,7 @@ typedef struct {
 
 typedef struct {
     PONE_HEAD;
-    double n; 
+    pone_num_t n; 
 } pone_num;
 
 typedef struct {

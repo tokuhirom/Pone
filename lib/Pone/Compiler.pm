@@ -171,6 +171,12 @@ method !compile(Pone::Node $node) {
         $s ~= ")";
         $s;
     }
+    when Pone::Node::MethodCall {
+        my $obj = self!compile(.children[0]);
+        my $ident = self!compile(.children[0]);
+        my $args = self!compile(.children[0]);
+        qq!pone_call_method(world, )!
+    }
     when Pone::Node::Args {
         .children.map({self!compile($_)}).join(',');
     }

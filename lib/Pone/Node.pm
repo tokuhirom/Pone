@@ -34,6 +34,7 @@ class Pone::Node::While    is Pone::Node { }
 class Pone::Node::Funcall  is Pone::Node { }
 class Pone::Node::Args     is Pone::Node { }
 class Pone::Node::AtPos    is Pone::Node { }
+class Pone::Node::MethodCall    is Pone::Node { }
 
 class Pone::Node::Expr is Pone::Node {
     method is-void() { False }
