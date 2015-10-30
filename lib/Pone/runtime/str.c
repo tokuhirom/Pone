@@ -73,19 +73,19 @@ pone_val* pone_to_str(pone_universe* universe, pone_val* val) {
     }
 }
 
-inline const char* pone_string_ptr(pone_val* val) {
+inline const char* pone_str_ptr(pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) {
-        return pone_string_ptr(val->as.str.val);
+        return pone_str_ptr(val->as.str.val);
     } else {
         return ((pone_string*)val)->p;
     }
 }
 
-inline size_t pone_string_len(pone_val* val) {
+inline size_t pone_str_len(pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) {
-        return pone_string_len(val->as.str.val);
+        return pone_str_len(val->as.str.val);
     } else {
         return ((pone_string*)val)->len;
     }

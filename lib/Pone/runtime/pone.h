@@ -253,8 +253,8 @@ pone_val* pone_str_new_const(pone_universe* universe, const char*p, size_t len);
 void pone_str_free(pone_universe* universe, pone_val* val);
 pone_val* pone_to_str(pone_universe* universe, pone_val* val);
 pone_val* pone_str_from_num(pone_universe* universe, double n);
-const char* pone_string_ptr(pone_val* val);
-size_t pone_string_len(pone_val* val);
+const char* pone_str_ptr(pone_val* val);
+size_t pone_str_len(pone_val* val);
 char* pone_strdup(pone_universe* universe, const char* src, size_t size);
 
 // code.c

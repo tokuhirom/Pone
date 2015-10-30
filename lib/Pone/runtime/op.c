@@ -41,7 +41,7 @@ void pone_dd(pone_universe* universe, pone_val* val) {
     switch (pone_type(val)) {
         case PONE_STRING:
             printf("(string: ");
-            fwrite(pone_string_ptr(val), 1, pone_string_len(val), stdout);
+            fwrite(pone_str_ptr(val), 1, pone_str_len(val), stdout);
             printf(")\n");
             break;
         case PONE_INT:
@@ -82,7 +82,7 @@ bool pone_so(pone_val* val) {
     case PONE_NUM:
         return pone_int_val(val) != 0;
     case PONE_STRING:
-        return pone_string_len(val) != 0;
+        return pone_str_len(val) != 0;
     case PONE_BOOL:
         return pone_bool_val(val);
     default:
@@ -98,8 +98,8 @@ int pone_to_int(pone_world* world, pone_val* val) {
     case PONE_INT:
         return pone_int_val(val);
     case PONE_STRING: {
-        char *end = (char*)pone_string_ptr(val) + pone_string_len(val);
-        return strtol(pone_string_ptr(val), &end, 10);
+        char *end = (char*)pone_str_ptr(val) + pone_str_len(val);
+        return strtol(pone_str_ptr(val), &end, 10);
     }
     case PONE_CODE:
         pone_die_str(world, "you can't convert CODE to integer");
@@ -144,7 +144,7 @@ pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2) {
 size_t pone_elems(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_STRING:
-        return pone_string_len(val);
+        return pone_str_len(val);
     case PONE_ARRAY:
         return pone_ary_elems(val);
     case PONE_HASH:
