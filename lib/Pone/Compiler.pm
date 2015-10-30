@@ -128,6 +128,11 @@ method !compile(Pone::Node $node) {
     when Pone::Node::ErrVar {
         'pone_errvar(world)'
     }
+    when Pone::Node::AtPos {
+        my $obj = self!compile(.children[0]);
+        my $pos = self!compile(.children[1]);
+        "pone_at_pos(world, $obj, $pos)";
+    }
     when Pone::Node::Funcall {
         my ($func-node, $args) = $node.children;
 

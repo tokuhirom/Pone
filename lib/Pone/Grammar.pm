@@ -82,19 +82,27 @@ grammar Pone::Grammar {
     multi token infix-op(2) { '*' | '/' | '%' }
     multi token infix-op(1) { '**' }
 
-    multi rule expr(0)      { <call> }
+    multi rule expr(0)      { <termish> }
     multi rule expr($pred)  {:s <expr($pred-1)> +% [ <infix-op($pred)> ] }
 
-    rule call {
-        <value> [ <paren-args>  ]?
+    rule termish {
+        <value> [ <postcircumfix> ]*
     }
+
+    proto rule postcircumfix {*}
+    rule postcircumfix:sym<call> {
+        '(' <args>? ')'
+    }
+    rule postcircumfix:sym<at-pos> {
+        '[' <term> ']'
+    }
+    # removed paren-args
 
     proto rule value { <...> }
 
     rule value:sym<True> { <sym> }
     rule value:sym<False> { <sym> }
     rule value:sym<funcall> { <!keyword> <ident> '(' <args>? ')' }
-    rule paren-args { '(' <args>? ')' }
     rule args { <term> [ ',' <term> ]* }
     rule value:sym<decimal> { <decimal> }
     rule value:sym<string> { <string> }

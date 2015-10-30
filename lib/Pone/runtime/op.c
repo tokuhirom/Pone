@@ -192,3 +192,12 @@ bool pone_is_frozen(pone_val* v) {
     return pone_flags(v) & PONE_FLAGS_FROZEN;
 }
 
+// Call AT-POS
+pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos) {
+    if (pone_type(obj) == PONE_ARRAY) { // specialization for performance
+        return pone_ary_at_pos(obj, pone_to_int(world, pos));
+    } else {
+        return pone_call_method(world, obj, "AT-POS", 2, obj, pos);
+    }
+}
+

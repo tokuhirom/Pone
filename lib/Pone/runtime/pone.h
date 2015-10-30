@@ -355,5 +355,8 @@ void pone_obj_set_ivar(pone_universe* universe, pone_val* obj, const char* name,
 void pone_obj_set_ivar_noinc(pone_universe* universe, pone_val* obj, const char* name, pone_val* val);
 pone_val* pone_obj_get_ivar(pone_universe* universe, pone_val* obj, const char* name);
 
+// op.c
+pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos);
+
 #endif
 

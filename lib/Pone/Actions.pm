@@ -111,8 +111,8 @@ method assign-expr($/) {
 
 # see integration/99problems-41-to-50.t in roast
 method expr($/) {
-    if $/<call> {
-        $/.make: $/<call>.made;
+    if $/<termish> {
+        $/.make: $/<termish>.made;
     } else {
         my @e = $/<expr>».made;
         my @ops = $/<infix-op>».made;
@@ -205,8 +205,23 @@ method value:sym<err>($/) {
     $/.make: Pone::Node::ErrVar.new();
 }
 
-method paren-args($/) {
-    $/.make: $/<args>.made || Pone::Node::Args.new();
+method termish($/) {
+    my $v = $/<value>.made;
+    for $/<postcircumfix>».made {
+        .children.unshift($v);
+        $v = $_;
+    }
+    $/.make: $v;
+}
+
+method postcircumfix:sym<call>($/) {
+    $/.make: Pone::Node::Funcall.new(
+        [$/<args>.made || Pone::Node::Args.new()]
+    );
+}
+
+method postcircumfix:sym<at-pos>($/) {
+    $/.make: Pone::Node::AtPos.new([$/<term>.made]);
 }
 
 method args($/) {
