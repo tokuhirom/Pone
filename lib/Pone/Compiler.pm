@@ -44,10 +44,10 @@ sub inject-return(Pone::Node::Stmts $stmts) {
 }
 
 method !infix(Str $func, Pone::Node $node) {
-    sprintf('%s(world, %s, %s)',
+    mortal(sprintf('%s(world, %s, %s)',
         $func,
         self!compile($node.children[0]),
-        self!compile($node.children[1]));
+        self!compile($node.children[1])));
 }
 
 method compile(Str $filename, Pone::Node $node) {
