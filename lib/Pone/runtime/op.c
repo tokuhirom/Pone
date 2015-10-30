@@ -64,12 +64,15 @@ void pone_dd(pone_universe* universe, pone_val* val) {
             break;
         }
         case PONE_ARRAY: {
-            printf("(array)");
+            printf("(array)\n");
+            break;
         }
         case PONE_OBJ: {
-            printf("(obj)");
+            printf("(obj)\n");
+            break;
         }
         default:
+            fprintf(stderr, "unknown type: %d\n", pone_type(val));
             abort();
     }
 }
