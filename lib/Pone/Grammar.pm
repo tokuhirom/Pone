@@ -12,7 +12,7 @@ grammar Pone::Grammar {
 
     proto token stmt-ish {*}
     token stmt-ish:sym<normal> {:s
-        <normal-stmt> <.terminator>? ';'*
+        <normal-stmt> <.terminator> ';'*
     }
     token stmt-ish:sym<stmt> {:s
         <stmt> <.terminator>? ';'*
