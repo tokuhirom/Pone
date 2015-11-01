@@ -292,3 +292,11 @@ my $a = [[5,9,6],2,3]; say $a[0][1]
 --- expected
 9
 
+===
+--- input
+my $a=[1,2,3]; say $a.pop(); say $a.pop(); say $a.pop()
+--- expected
+3
+2
+1
+

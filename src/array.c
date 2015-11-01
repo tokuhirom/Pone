@@ -161,6 +161,90 @@ static pone_val* meth_ary_append(pone_world* world, pone_val* self, int n, va_li
     return pone_nil();
 }
 
+/*
+
+=head2 C<Array#pop($val)>
+
+    my $a = [1,2,3];
+    say $a.pop(); # => 3
+
+Pop element from an array.
+
+=cut
+
+*/
+static pone_val* meth_ary_pop(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 0);
+
+    if (self->as.ary.len == 0) {
+        pone_die_str(world, "Cannot pop from an empty Array");
+    }
+
+    pone_val* retval = self->as.ary.a[self->as.ary.len-1];
+    self->as.ary.a[self->as.ary.len-1] = NULL;
+    self->as.ary.len--;
+
+    return retval;
+}
+
+/*
+
+=head2 C<Array#prepend($val)>
+
+    my $a = [1,2,3];
+    $a.prepend(0);
+    say $a.join(','); # => 0,1,2,3
+
+Prepend element to an array.
+
+NYI
+
+=cut
+
+*/
+
+/*
+
+=head2 C<Array#shift($val)>
+
+    my $a = [1,2,3];
+    say $a.shift(); # => 1
+
+Removes and returns the first item from the array. Fails for an empty arrays.
+
+NYI
+
+=cut
+
+*/
+
+/*
+
+=head2 C<Array#end()>
+
+Returns the index of the last element.
+
+NYI
+
+
+=cut
+
+*/
+
+/*
+
+=head2 C<Array#join($separator)>
+
+    say [1,2,3].join(','); # 1,2,3
+
+Treats the elements of the list as strings, interleaves them with $separator and concatenates everything into a single string.
+
+NYI
+
+=cut
+
+*/
+
 void pone_ary_init(pone_universe* universe) {
     assert(universe->class_ary == NULL);
 
@@ -171,6 +255,7 @@ void pone_ary_init(pone_universe* universe) {
     pone_add_method_c(universe, universe->class_ary, "iterator", strlen("iterator"), meth_ary_iterator);
     pone_add_method_c(universe, universe->class_ary, "elems", strlen("elems"), meth_ary_elems);
     pone_add_method_c(universe, universe->class_ary, "append", strlen("append"), meth_ary_append);
+    pone_add_method_c(universe, universe->class_ary, "pop", strlen("pop"), meth_ary_pop);
     pone_obj_set_ivar_noinc(universe, universe->class_ary, "$!iterator-class", iter_class);
 }
 
