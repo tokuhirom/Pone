@@ -34,6 +34,8 @@
 // This string has copied buffer
 #define PONE_FLAGS_STR_COPY   PONE_FLAGS_TYPE_2
 
+typedef double pone_num_t;
+
 typedef enum {
     PONE_NIL=1,
     PONE_INT,
@@ -71,7 +73,7 @@ typedef struct {
 
 typedef struct {
     PONE_HEAD;
-    double n; 
+    pone_num_t n; 
 } pone_num;
 
 typedef struct {
@@ -146,7 +148,7 @@ typedef struct pone_world {
     struct pone_world* parent;
 } pone_world;
 
-typedef struct pone_val* (*pone_funcptr_t)(pone_world*, int n, va_list);
+typedef struct pone_val* (*pone_funcptr_t)(pone_world*, struct pone_val*, int n, va_list);
 
 typedef struct {
     PONE_HEAD;
@@ -260,8 +262,8 @@ char* pone_strdup(pone_universe* universe, const char* src, size_t size);
 // code.c
 pone_val* pone_code_new_c(pone_universe* universe, pone_funcptr_t func);
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func);
-pone_val* pone_code_call(pone_world* world, pone_val* code, int n, ...);
-pone_val* pone_code_vcall(pone_world* world, pone_val* code, int n, va_list args);
+pone_val* pone_code_call(pone_world* world, pone_val* code, pone_val* self, int n, ...);
+pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int n, va_list args);
 void pone_code_free(pone_universe* universe, pone_val* v);
 
 // int.c

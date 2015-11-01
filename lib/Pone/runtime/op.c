@@ -64,12 +64,15 @@ void pone_dd(pone_universe* universe, pone_val* val) {
             break;
         }
         case PONE_ARRAY: {
-            printf("(array)");
+            printf("(array len:%d, max:%d)\n", val->as.ary.len, val->as.ary.max);
+            break;
         }
         case PONE_OBJ: {
-            printf("(obj)");
+            printf("(obj)\n");
+            break;
         }
         default:
+            fprintf(stderr, "unknown type: %d\n", pone_type(val));
             abort();
     }
 }
@@ -197,7 +200,7 @@ pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos) {
     if (pone_type(obj) == PONE_ARRAY) { // specialization for performance
         return pone_ary_at_pos(obj, pone_to_int(world, pos));
     } else {
-        return pone_call_method(world, obj, "AT-POS", 2, obj, pos);
+        return pone_call_method(world, obj, "AT-POS", 1, pos);
     }
 }
 

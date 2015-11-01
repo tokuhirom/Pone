@@ -1,6 +1,6 @@
 #include "pone.h"
 
-pone_val* pone_user_func_y(pone_world* world, int n, va_list args) {
+pone_val* pone_user_func_y(pone_world* world, pone_val* self, int n, va_list args) {
     pone_savetmps(world);
     pone_push_scope(world);
 
@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 
         pone_assign(world, 0, "$x", pone_mortalize(world, pone_int_new(world->universe, 9)));
 
-    pone_val* got = pone_code_call(world, pone_get_lex(world, "&y"), 1, pone_mortalize(world, pone_int_new(world->universe, 100)));
+    pone_val* got = pone_code_call(world, pone_get_lex(world, "&y"), pone_nil(), 1, pone_mortalize(world, pone_int_new(world->universe, 100)));
         pone_builtin_say(world, got);
 
         pone_freetmps(world);

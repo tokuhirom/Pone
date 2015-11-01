@@ -161,7 +161,7 @@ method !compile(Pone::Node $node) {
             }
         };
 
-        my $s = qq!pone_code_call(world, pone_get_lex(world, "{$funcname}"), !;
+        my $s = qq!pone_code_call(world, pone_get_lex(world, "{$funcname}"), pone_nil(), !;
         if $args && $args.children.elems > 0 {
             my $argcnt = $args.children.elems;
             $s ~= "$argcnt, " ~ self!compile($args);
@@ -170,6 +170,23 @@ method !compile(Pone::Node $node) {
         }
         $s ~= ")";
         $s;
+    }
+    when Pone::Node::MethodCall {
+        my $obj = self!compile(.children[0]);
+        my $ident = .children[1];
+        my $args = self!compile(.children[2]);
+        my $elems = .children[2].children.elems;
+
+        if $ident ~~ Pone::Node::Ident {
+            my $s = qq!pone_call_method(world, $obj, "{$ident.value}", {$elems}!;
+            if $elems > 0 {
+                $s ~= ", $args";
+            }
+            $s ~= ")";
+            $s;
+        } else {
+            die "NYI { $ident.WHAT.Str }"
+        }
     }
     when Pone::Node::Args {
         .children.map({self!compile($_)}).join(',');
@@ -238,7 +255,7 @@ method !compile(Pone::Node $node) {
         $s ~= sprintf(qq!#line %d "%s"\n!, .lineno, $!filename);
         $s ~= 'pone_val* pone_user_func_';
         $s ~= $name;
-        $s ~= '(pone_world* world, int n, va_list args) {' ~ "\n";
+        $s ~= '(pone_world* world, pone_val* self, int n, va_list args) {' ~ "\n";
         $s ~= "assert(n==$argcnt);\n";
         @*TMPS.push(0);
         $s ~= "pone_savetmps(world);\n";

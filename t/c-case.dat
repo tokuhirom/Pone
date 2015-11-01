@@ -43,3 +43,10 @@ False
 --- input: t/c/nop.c
 --- stdout
 
+===
+--- input: t/c/array_methods.c
+--- stdout
+1
+2
+102
+
