@@ -118,5 +118,10 @@ t/c/array_methods.o: t/c/array_methods.c blib/libpone.a lib/Pone/runtime/pone.h
 pone_generated.out: pone_generated.c blib/libpone.a
 	$(CC) $(CFLAGS) -Werror -I lib/Pone/runtime -o ./pone_generated.out  pone_generated.c blib/libpone.a
 
-.PHONY: clean tags
+docs: docs/Array.md
+
+docs/Array.md: lib/Pone/runtime/array.c
+	pod2markdown lib/Pone/runtime/array.c > docs/Array.md
+
+.PHONY: clean tags docs
 

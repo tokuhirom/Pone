@@ -170,6 +170,17 @@ get environment variable
 
 Get current time in sec.
 
+=head1 Bilt-in Types
+
+=head2 Array
+
+There is a literal form.
+
+    [1,2,3]
+
+=head3 methods
+
+
 =head1 Control statements
 
 =item for stmt

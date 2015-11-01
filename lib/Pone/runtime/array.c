@@ -66,7 +66,35 @@ static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list
     }
 }
 
-// Array#iterator
+/*
+
+=head1 NAME
+
+Array - Built-in Array class.
+
+=head1 LITERAL
+
+There is a literal to build an instance.
+
+    [1,2,3]
+
+=head1 METHODS
+
+=cut
+
+*/
+
+/*
+
+=head3 C<Array#iterator()>
+
+    my $iter = [1,2,3].iterator();
+
+Get new instance of an iterator.
+
+=cut
+
+*/
 static pone_val* meth_ary_iterator(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
 
@@ -80,14 +108,34 @@ static pone_val* meth_ary_iterator(pone_world* world, pone_val* self, int n, va_
     return iter;
 }
 
-// Array#elems
+/*
+
+=head2 C<Array#elems() --> Int>
+
+Get the number of elements.
+
+=cut
+
+*/
 static pone_val* meth_ary_elems(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
     assert(pone_type(self) == PONE_ARRAY);
     return pone_int_new(world->universe, pone_ary_elems(self));
 }
 
-// Array#push(val);
+/*
+
+=head2 C<Array#push($val)>
+
+    my $a = [1,2,3];
+    $a.push(4);
+    say $a.join(","); # => 1,2,3,4
+
+Push an element to array tail.
+
+=cut
+
+*/
 static pone_val* meth_ary_push(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 1);
 
