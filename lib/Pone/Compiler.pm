@@ -231,7 +231,7 @@ method !compile(Pone::Node $node) {
     }
 
     when Pone::Node::Hash {
-        my $s = 'pone_hash_new(world->universe, ';
+        my $s = 'pone_hash_puts(world, pone_hash_new(world->universe), ';
         $s ~= .children.elems*2;
         if .children.elems {
             $s ~= ",";

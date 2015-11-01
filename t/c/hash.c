@@ -11,7 +11,9 @@ int main(int argc, char** argv) {
         pone_savetmps(world);
         pone_push_scope(world);
 
-        pone_val* av = pone_mortalize(world, pone_hash_new(world->universe, 4,
+        pone_val* av = pone_mortalize(world, pone_hash_puts(
+            world,
+            pone_hash_new(world->universe), 4,
             pone_mortalize(world, pone_int_new(world->universe, 6)),
             pone_mortalize(world, pone_int_new(world->universe, 4)),
             pone_mortalize(world, pone_int_new(world->universe, 3)),

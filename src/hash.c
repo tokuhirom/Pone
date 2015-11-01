@@ -4,22 +4,25 @@
 // TODO: push key
 // TODO: exists key
 
-pone_val* pone_hash_new(pone_universe* universe, int n, ...) {
-    va_list list;
+pone_val* pone_hash_new(pone_universe* universe) {
+    pone_val* hv = pone_obj_alloc(universe, PONE_HASH);
+    hv->as.hash.h = kh_init(str);
+    return hv;
+}
 
-    pone_hash* hv = (pone_hash*)pone_obj_alloc(universe, PONE_HASH);
-    hv->h = kh_init(str);
+pone_val* pone_hash_puts(pone_world* world, pone_val* hash, int n, ...) {
+    va_list list;
 
     va_start(list, n);
     // we can optimize in case of `{a => 3}`. we can omit mortalize.
     for (int i=0; i<n; i+=2) {
         pone_val* k = va_arg(list, pone_val*);
         pone_val* v = va_arg(list, pone_val*);
-        pone_hash_put(universe, (pone_val*)hv, k, v);
+        pone_hash_put(world, hash, k, v);
     }
     va_end(list);
 
-    return (pone_val*)hv;
+    return hash; // return itself
 }
 
 void pone_hash_free(pone_universe* universe, pone_val* val) {
@@ -58,10 +61,10 @@ pone_val* pone_hash_at_pos_c(pone_universe* universe, pone_val* hash, const char
     }
 }
 
-void pone_hash_put(pone_universe* universe, pone_val* hv, pone_val* k, pone_val* v) {
-    k = pone_to_str(universe, k);
-    pone_hash_put_c(universe, hv, pone_str_ptr(k), pone_str_len(k), v);
-    pone_refcnt_dec(universe, k);
+void pone_hash_put(pone_world* world, pone_val* hv, pone_val* k, pone_val* v) {
+    k = pone_to_str(world->universe, k);
+    pone_hash_put_c(world->universe, hv, pone_str_ptr(k), pone_str_len(k), v);
+    pone_refcnt_dec(world->universe, k);
 }
 
 size_t pone_hash_elems(pone_val* val) {

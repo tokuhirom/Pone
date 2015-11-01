@@ -250,9 +250,10 @@ void pone_dd(pone_universe* universe, pone_val* val);
 const char* pone_what_str_c(pone_val* val);
 
 // hash.c
-pone_val* pone_hash_new(pone_universe* universe, int n, ...);
+pone_val* pone_hash_new(pone_universe* universe);
+pone_val* pone_hash_puts(pone_world* world, pone_val* hash, int n, ...);
 void pone_hash_put_c(pone_universe* universe, pone_val* hv, const char* key, int key_len, pone_val* v);
-void pone_hash_put(pone_universe* universe, pone_val* hv, pone_val* k, pone_val* v);
+void pone_hash_put(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
 size_t pone_hash_elems(pone_val* val);
 void pone_hash_free(pone_universe* universe, pone_val* val);
 pone_val* pone_hash_at_pos_c(pone_universe* universe, pone_val* hash, const char* name);
