@@ -123,7 +123,12 @@ grammar Pone::Grammar {
 
     token var { \$ <ident> }
     token decimal { '0' || <[+ -]>? <[ 1..9 ]> <[ 0..9 ]>* }
-    token ident { <[ A..Z a..z 0..9 _ ]> <[ A..Z a..z 0..9 ]>* }
+    token ident {
+        <[ A..Z a..z _ ]> [
+            '-'?  <[ A..Z a..z _ ]>+
+            || <[ A..Z a..z 0..9 _ ]>+
+        ]*
+    }
     proto rule string { <...> }
     rule string:sym<sqstring> { "'" ( <sqstring-normal> || <sqstring-escape> )+ "'" }
     token sqstring-normal { <-[ \' \\ ]>+ }

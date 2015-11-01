@@ -196,8 +196,20 @@ typedef struct pone_universe {
     struct pone_val* class_mu;
     // class of class
     struct pone_val* class_class;
-    // Array
+    // class of Int
+    struct pone_val* class_int;
+    // class of Num
+    struct pone_val* class_num;
+    // class of Str
+    struct pone_val* class_str;
+    // class of Array
     struct pone_val* class_ary;
+    // class of Bool
+    struct pone_val* class_bool;
+    // class of Hash
+    struct pone_val* class_hash;
+    // class of Code
+    struct pone_val* class_code;
     // We use a sentinel value to mark the end of an iteration.
     // This is "IterationEnd" in rakudo Perl6.
     struct pone_val* instance_iteration_end;
@@ -270,6 +282,7 @@ void pone_code_free(pone_universe* universe, pone_val* v);
 int pone_int_val(pone_val* val);
 pone_val* pone_int_incr(pone_world* world, pone_val* i);
 pone_val* pone_int_new(pone_universe* universe, int i);
+void pone_int_init(pone_universe* universe);
 
 // SV ops
 double pone_num_val(pone_val* val);

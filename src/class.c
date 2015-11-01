@@ -13,14 +13,24 @@ pone_val* pone_init_class(pone_universe* universe) {
 
 pone_val* pone_what(pone_universe* universe, pone_val* obj) {
     switch (pone_type(obj)) {
-    case PONE_OBJ:
-        return obj->as.obj.klass;
+    case PONE_NIL:
+        return universe->class_mu;
+    case PONE_INT:
+        return universe->class_int;
+    case PONE_NUM:
+        return universe->class_num;
+    case PONE_STRING:
+        return universe->class_str;
     case PONE_ARRAY:
         return universe->class_ary;
-    default: // TODO
-        fprintf(stderr, "built in class %s is not supported yet. tokuhirom--\n",
-                pone_what_str_c(obj));
-        abort();
+    case PONE_BOOL:
+        return universe->class_bool;
+    case PONE_HASH:
+        return universe->class_hash;
+    case PONE_CODE:
+        return universe->class_code;
+    case PONE_OBJ:
+        return obj->as.obj.klass;
     }
 }
 

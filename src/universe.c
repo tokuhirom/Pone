@@ -68,6 +68,8 @@ pone_universe* pone_universe_init() {
     pone_ary_init(universe);
     assert(universe->class_ary);
 
+    pone_int_init(universe);
+
 #ifdef TRACE_UNIVERSE
     printf("initializing value IterationEnd\n");
 #endif
@@ -82,6 +84,7 @@ void pone_universe_destroy(pone_universe* universe) {
     }
 
     pone_refcnt_dec(universe, universe->instance_iteration_end);
+    pone_refcnt_dec(universe, universe->class_int);
     pone_refcnt_dec(universe, universe->class_ary);
     pone_refcnt_dec(universe, universe->class_class);
     pone_refcnt_dec(universe, universe->class_mu);
