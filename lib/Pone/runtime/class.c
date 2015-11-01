@@ -18,6 +18,8 @@ pone_val* pone_what(pone_universe* universe, pone_val* obj) {
     case PONE_ARRAY:
         return universe->class_ary;
     default: // TODO
+        fprintf(stderr, "built in class %s is not supported yet. tokuhirom--\n",
+                pone_what_str_c(obj));
         abort();
     }
 }
@@ -59,12 +61,14 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
 pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...) {
     assert(obj);
 
-    va_list args;
-
     pone_val* method = pone_find_method(world, obj, method_name);
     if (pone_defined(method)) {
+        va_list args;
+
         va_start(args, n);
-        pone_val* retval = pone_code_vcall(world, method, n, args);
+
+        pone_val* retval = pone_code_vcall(world, method, obj, n, args);
+
         va_end(args);
         return retval;
     } else {

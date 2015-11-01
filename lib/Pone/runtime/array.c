@@ -6,7 +6,10 @@ pone_val* pone_ary_new(pone_universe* universe, int n, ...) {
     pone_ary* av = (pone_ary*)pone_obj_alloc(universe, PONE_ARRAY);
 
     va_start(list, n);
-    av->a = (pone_val**)pone_malloc(universe, sizeof(pone_ary)*n);
+    av->a = (pone_val**)pone_malloc(universe, sizeof(pone_val)*n);
+    if (!av->a) {
+        abort();
+    }
     av->max = n;
     av->len = n;
     // we can optimize in case of `[1,2,3]`.
@@ -44,13 +47,12 @@ int pone_ary_elems(pone_val* av) {
     return ((pone_ary*)av)->len;
 }
 
-static pone_val* meth_pull_one(pone_world* world, int n, va_list args) {
-    assert(n == 1);
+static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 0);
 
-    pone_val* obj = va_arg(args, pone_val*);
-    assert(pone_type(obj) == PONE_OBJ);
-    pone_val* ary = pone_obj_get_ivar(world->universe, obj, "$!val");
-    pone_val* i = pone_obj_get_ivar(world->universe, obj, "$!i");
+    assert(pone_type(self) == PONE_OBJ);
+    pone_val* ary = pone_obj_get_ivar(world->universe, self, "$!val");
+    pone_val* i = pone_obj_get_ivar(world->universe, self, "$!i");
     assert(pone_type(i) == PONE_INT);
 
     if (pone_int_val(i) != pone_ary_elems(ary)) {
@@ -64,18 +66,10 @@ static pone_val* meth_pull_one(pone_world* world, int n, va_list args) {
     }
 }
 
-static pone_val* meth_ary_elems(pone_world* world, int n, va_list args) {
-    assert(n == 1);
-    pone_val* obj = va_arg(args, pone_val*);
-    assert(pone_type(obj) == PONE_ARRAY);
-    return pone_int_new(world->universe, pone_ary_elems(obj));
-}
-
 // Array#iterator
-static pone_val* meth_ary_iterator(pone_world* world, int n, va_list args) {
-    assert(n == 1);
+static pone_val* meth_ary_iterator(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 0);
 
-    pone_val* self = va_arg(args, pone_val*);
     assert(pone_type(self) == PONE_ARRAY);
 
     // self!iterator-class.bless(i => 0, val => self)
@@ -86,6 +80,39 @@ static pone_val* meth_ary_iterator(pone_world* world, int n, va_list args) {
     return iter;
 }
 
+// Array#elems
+static pone_val* meth_ary_elems(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 0);
+    assert(pone_type(self) == PONE_ARRAY);
+    return pone_int_new(world->universe, pone_ary_elems(self));
+}
+
+// Array#push(val);
+static pone_val* meth_ary_push(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 1);
+
+    pone_val* val = va_arg(args, pone_val*);
+    assert(pone_type(self) == PONE_ARRAY);
+
+    if (self->as.ary.max == self->as.ary.len) {
+        if (self->as.ary.max > 0) {
+            self->as.ary.max *= 2;
+        } else {
+            self->as.ary.max = 1;
+        }
+        self->as.ary.a = realloc(self->as.ary.a, sizeof(pone_val) * self->as.ary.max);
+        if (!self->as.ary.a) {
+            fprintf(stderr, "cannot allocate memory for array\n");
+            abort();
+        }
+    }
+
+    self->as.ary.a[self->as.ary.len++] = val;
+    pone_refcnt_inc(world->universe, val);
+
+    return pone_nil();
+}
+
 void pone_ary_init(pone_universe* universe) {
     assert(universe->class_ary == NULL);
 
@@ -94,7 +121,8 @@ void pone_ary_init(pone_universe* universe) {
 
     universe->class_ary = pone_class_new(universe, "Array", strlen("Array"));
     pone_add_method_c(universe, universe->class_ary, "iterator", strlen("iterator"), meth_ary_iterator);
+    pone_add_method_c(universe, universe->class_ary, "elems", strlen("elems"), meth_ary_elems);
+    pone_add_method_c(universe, universe->class_ary, "push", strlen("push"), meth_ary_push);
     pone_obj_set_ivar_noinc(universe, universe->class_ary, "$!iterator-class", iter_class);
-
 }
 

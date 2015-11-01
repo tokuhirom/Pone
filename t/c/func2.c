@@ -1,6 +1,6 @@
 #include "pone.h"
 
-pone_val* pone_user_func_y(pone_world* world, int n, va_list args) {
+pone_val* pone_user_func_y(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n==0);
 
     return pone_mortalize(world, pone_int_new(world->universe, 1)); // we must not mortalize return value
@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 
     pone_assign(world, 0, "&y", pone_mortalize(world, pone_code_new(world, pone_user_func_y)));
 
-    pone_builtin_say(world, pone_code_call(world, pone_get_lex(world, "&y"), 0));
+    pone_builtin_say(world, pone_code_call(world, pone_get_lex(world, "&y"), pone_nil(), 0));
 
     pone_pop_scope(world);
     pone_freetmps(world);

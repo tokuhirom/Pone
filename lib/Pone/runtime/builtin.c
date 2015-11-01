@@ -73,7 +73,7 @@ void pone_signal_handle(pone_world* world) {
         int sig = pone_signal_received;
         pone_signal_received = 0;
         pone_val* code = world->universe->signal_handlers[sig];
-        pone_code_call(world, code, 0);
+        pone_code_call(world, code, pone_nil(), 0);
     }
 }
 

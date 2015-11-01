@@ -63,7 +63,7 @@ pone_val* pone_try(pone_world* world, pone_val* code) {
     if (setjmp(*(pone_exc_handler_push(world)))) {
         return pone_nil();
     } else {
-        pone_val* v = pone_code_call(world, code, 0);
+        pone_val* v = pone_code_call(world, code, pone_nil(), 0);
         pone_exc_handler_pop(world);
         return v;
     }

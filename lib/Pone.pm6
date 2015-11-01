@@ -232,6 +232,27 @@ Get current time in sec.
 
 =item pair class
 
+=head1 OPTIMIZATION IDEA
+
+=head2 Compile code to C(done)
+
+This is a basic idea of Pone.
+
+=head2 optimize simple for iteration(todo)
+
+    for 1..10 {
+        say $_;
+    }
+
+can compile to following code. it means, we can omit the cost to generate iterator.
+
+    for (int i=1; i<=10; ++i) {
+        pone_bulitin_say(world, pone_new_int(i));
+    }
+
+if it's realy small code, we can use 'loop unrolling' technique.
+(but normally, C compiler can do it)
+
 =head1 MILESTONE
 
 =head2 Hello, world
