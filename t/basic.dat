@@ -151,7 +151,7 @@ say elems({a => 3});
 --- input
 say elems({a => 3, b => 4});
 --- expected
-1
+2
 
 ===
 --- input

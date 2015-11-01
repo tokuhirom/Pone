@@ -279,6 +279,7 @@ pone_val* pone_code_new(pone_world* world, pone_funcptr_t func);
 pone_val* pone_code_call(pone_world* world, pone_val* code, pone_val* self, int n, ...);
 pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int n, va_list args);
 void pone_code_free(pone_universe* universe, pone_val* v);
+void pone_code_init(pone_universe* universe);
 
 // int.c
 int pone_int_val(pone_val* val);

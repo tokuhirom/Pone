@@ -68,4 +68,9 @@ pone_val* pone_code_call(pone_world* world, pone_val* code, pone_val* self, int 
     return retval;
 }
 
+void pone_code_init(pone_universe* universe) {
+    assert(universe->class_code == NULL);
+
+    universe->class_code = pone_class_new(universe, "Code", strlen("Code"));
+}
 
