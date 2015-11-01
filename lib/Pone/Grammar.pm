@@ -3,6 +3,7 @@ use v6;
 use Pone::Tracer;
 
 # :s => :sigspace. needs spaces between tokens.
+# Perl5's C<(?=[abc])> becomes C«<?[abc]> - A zero-width positive look-ahead assertion
 
 grammar Pone::Grammar {
     token TOP { ^ [ <stmts> || '' ] \s* $ }
@@ -50,7 +51,7 @@ grammar Pone::Grammar {
 
     # reserved words
     token keyword {
-        [ for | try | return | if | unless | while | until | do | class | method | sub | my ] <!ww>
+        [ q | qq | for | try | return | if | unless | while | until | do | class | method | sub | my ] <!ww>
     }
 
     token stmt:sym<sub> {:s 'sub' <!keyword> <name=ident> '(' <params>? ')' '{' <stmts> '}' }
@@ -128,17 +129,46 @@ grammar Pone::Grammar {
     }
     token decimal { '0' || <[+ -]>? <[ 1..9 ]> <[ 0..9 ]>* }
     token ident {
-        <[ A..Z a..z _ ]> [
-            '-'?  <[ A..Z a..z _ ]>+
-            || <[ A..Z a..z 0..9 _ ]>+
+        <!keyword> [
+            <[ A..Z a..z _ ]> [
+                '-'?  <[ A..Z a..z _ ]>+
+                || <[ A..Z a..z 0..9 _ ]>+
+            ]*
+        ]
+    }
+    proto rule string {*}
+    rule string:sym<sqstring> {
+        :my $*STOPPER;
+        [
+            {$*STOPPER="'";} "'" <sqstring> "'"
+            || "q" <sqopen-char> {
+                my $open = ~$/<sqopen-char>;
+                $*STOPPER = do given ~$/<sqopen-char> {
+                    when '(' { ')' }
+                    when '[' { ']' }
+                    when '{' { '}' }
+                    when '<' { '>' }
+                    default { $_ }
+                }
+            } <sqstring> <.stopper>
+        ]
+    }
+    rule sqopen-char {
+        <[ ~ @ \[ \( \< ! \{ ]>
+    }
+    token sqstring {
+        [
+            <!after=stopper> [
+                <q=sqstring-escape>
+                || <q=sqstring-normal>
+            ]
         ]*
     }
-    proto rule string { <...> }
-    rule string:sym<sqstring> {
-        "'" [ <q=sqstring-normal> || <q=sqstring-escape> ]+ "'"
+    method stopper() {
+        self.'!LITERAL'($*STOPPER)
     }
-    token sqstring-normal { <-[ \' \\ ]>+ }
-    token sqstring-escape { \\ ( \' ) }
+    token sqstring-normal { . }
+    token sqstring-escape { \\ ( . ) }
 }
 
 

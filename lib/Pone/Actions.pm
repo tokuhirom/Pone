@@ -294,6 +294,10 @@ method var($/) {
 }
 
 method string:sym<sqstring>($/) {
+    $/.make: $/<sqstring>.made;
+}
+
+method sqstring($/) {
     $/.make: Pone::Node::Str.new($/<q>».made.join(""));
 }
 

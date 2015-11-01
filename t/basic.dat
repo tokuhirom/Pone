@@ -345,3 +345,32 @@ say(0.2/10);
 2.000000
 0.020000
 
+===
+--- input
+say '';
+say 'hello';
+say q!hoge!;
+say q<hoge>;
+say q(hoge);
+say q[hoge];
+say q{hoge};
+say q@hoge@;
+say q~hoge~;
+--- expected
+
+hello
+hoge
+hoge
+hoge
+hoge
+hoge
+hoge
+hoge
+
+===
+--- SKIP
+--- input
+say q,hoge,;
+--- expected
+hoge
+
