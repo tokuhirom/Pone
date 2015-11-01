@@ -373,3 +373,9 @@ say q,hoge,;
 --- expected
 hoge
 
+===
+--- input
+say {a => 1, b => 2}.elems();
+--- expected
+2
+

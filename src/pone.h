@@ -253,6 +253,7 @@ void pone_hash_put(pone_universe* universe, pone_val* hv, pone_val* k, pone_val*
 size_t pone_hash_elems(pone_val* val);
 void pone_hash_free(pone_universe* universe, pone_val* val);
 pone_val* pone_hash_at_pos_c(pone_universe* universe, pone_val* hash, const char* name);
+void pone_hash_init(pone_universe* universe);
 
 // array.c
 pone_val* pone_ary_new(pone_universe* universe, int n, ...);

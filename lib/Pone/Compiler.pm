@@ -232,7 +232,7 @@ method !compile(Pone::Node $node) {
 
     when Pone::Node::Hash {
         my $s = 'pone_hash_new(world->universe, ';
-        $s ~= .children.elems;
+        $s ~= .children.elems*2;
         if .children.elems {
             $s ~= ",";
             $s ~= .children.map({

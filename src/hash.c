@@ -69,3 +69,24 @@ size_t pone_hash_elems(pone_val* val) {
     return ((pone_hash*)val)->len;
 }
 
+/*
+
+=head2 C<Hash#elems() --> Int>
+
+Get the number of elements.
+
+=cut
+
+*/
+static pone_val* meth_hash_elems(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 0);
+    return pone_int_new(world->universe, pone_hash_elems(self));
+}
+
+void pone_hash_init(pone_universe* universe) {
+    assert(universe->class_hash == NULL);
+
+    universe->class_hash = pone_class_new(universe, "Hash", strlen("Hash"));
+    pone_add_method_c(universe, universe->class_hash, "elems", strlen("elems"), meth_hash_elems);
+}
+
