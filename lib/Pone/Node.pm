@@ -87,6 +87,10 @@ class Pone::Node::Value is Pone::Node::Term {
         self.bless()!initialize($value);
     }
 
+    multi method new(Num $value) {
+        self.bless()!initialize($value);
+    }
+
     multi method new(Str $value) {
         self.bless()!initialize($value);
     }
@@ -97,6 +101,7 @@ class Pone::Node::Value is Pone::Node::Term {
     }
 }
 class Pone::Node::Int   is Pone::Node::Value { }
+class Pone::Node::Num   is Pone::Node::Value { }
 class Pone::Node::Str   is Pone::Node::Value { }
 class Pone::Node::Var   is Pone::Node::Value { }
 class Pone::Node::Ident is Pone::Node::Value { }

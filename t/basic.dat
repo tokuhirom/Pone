@@ -315,3 +315,33 @@ False
 False
 False
 
+===
+--- input
+say(0.1*10);
+--- expected
+1.000000
+
+===
+--- input
+say(3.14.floor());
+--- expected
+3
+
+===
+--- input
+say('a\'aa')
+--- expected
+a'aa
+
+===
+--- input
+say(0.2+0.1);
+say(0.2-0.1);
+say(0.2*10);
+say(0.2/10);
+--- expected
+0.300000
+0.100000
+2.000000
+0.020000
+

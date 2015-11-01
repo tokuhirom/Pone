@@ -112,30 +112,74 @@ int pone_to_int(pone_world* world, pone_val* val) {
     }
 }
 
-// TODO: support NV
-pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2) {
-    int i1 = pone_to_int(world, v1);
-    int i2 = pone_to_int(world, v2);
-    return pone_int_new(world->universe, i1 + i2);
+pone_num_t pone_to_num(pone_world* world, pone_val* val) {
+    switch (pone_type(val)) {
+    case PONE_NIL:
+        pone_die_str(world, "Use of uninitialized value as num");
+        abort();
+    case PONE_INT:
+        return pone_int_val(val);
+    case PONE_NUM:
+        return val->as.num.n;
+    case PONE_STRING: {
+        char *end = (char*)pone_str_ptr(val) + pone_str_len(val);
+        return strtod(pone_str_ptr(val), &end);
+    }
+    case PONE_CODE:
+        pone_die_str(world, "you can't convert CODE to num");
+        break;
+    default:
+        pone_die_str(world, "you can't convert this type to num");
+        abort();
+    }
 }
 
-// TODO: support NV
+pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2) {
+    if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
+        pone_num_t n1 = pone_to_num(world, v1);
+        pone_num_t n2 = pone_to_num(world, v2);
+        return pone_num_new(world->universe, n1 + n2);
+    } else {
+        int i1 = pone_to_int(world, v1);
+        int i2 = pone_to_int(world, v2);
+        return pone_int_new(world->universe, i1 + i2);
+    }
+}
+
 pone_val* pone_subtract(pone_world* world, pone_val* v1, pone_val* v2) {
-    int i1 = pone_to_int(world, v1);
-    int i2 = pone_to_int(world, v2);
-    return pone_int_new(world->universe, i1 - i2);
+    if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
+        pone_num_t n1 = pone_to_num(world, v1);
+        pone_num_t n2 = pone_to_num(world, v2);
+        return pone_num_new(world->universe, n1 - n2);
+    } else {
+        int i1 = pone_to_int(world, v1);
+        int i2 = pone_to_int(world, v2);
+        return pone_int_new(world->universe, i1 - i2);
+    }
 }
 
 pone_val* pone_multiply(pone_world* world, pone_val* v1, pone_val* v2) {
-    int i1 = pone_to_int(world, v1);
-    int i2 = pone_to_int(world, v2);
-    return pone_int_new(world->universe, i1 * i2);
+    if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
+        pone_num_t n1 = pone_to_num(world, v1);
+        pone_num_t n2 = pone_to_num(world, v2);
+        return pone_num_new(world->universe, n1 * n2);
+    } else {
+        int i1 = pone_to_int(world, v1);
+        int i2 = pone_to_int(world, v2);
+        return pone_int_new(world->universe, i1 * i2);
+    }
 }
 
 pone_val* pone_divide(pone_world* world, pone_val* v1, pone_val* v2) {
-    int i1 = pone_to_int(world, v1);
-    int i2 = pone_to_int(world, v2);
-    return pone_int_new(world->universe, i1 / i2); // TODO: We should upgrade value to NV
+    if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
+        pone_num_t n1 = pone_to_num(world, v1);
+        pone_num_t n2 = pone_to_num(world, v2);
+        return pone_num_new(world->universe, n1 / n2);
+    } else {
+        int i1 = pone_to_int(world, v1);
+        int i2 = pone_to_int(world, v2);
+        return pone_int_new(world->universe, i1 / i2);
+    }
 }
 
 pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2) {

@@ -290,6 +290,9 @@ method !compile(Pone::Node $node) {
     when Pone::Node::Int {
         "pone_mortalize(world, pone_int_new(world->universe, " ~ .value ~ "))";
     }
+    when Pone::Node::Num {
+        "pone_mortalize(world, pone_num_new(world->universe, " ~ .value ~ "))";
+    }
     when Pone::Node::Add {
         self!infix('pone_add', $_);
     }

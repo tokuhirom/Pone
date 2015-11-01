@@ -1,6 +1,6 @@
 all: blib/libpone.a bin/pone.moarvm
 
-CFLAGS=-std=c99 -g -W -Werror
+CFLAGS=-std=c99 -g -W -Werror -lm
 # CFLAGS+= -DTRACE_REFCNT
 # CFLAGS+= -DTRACE_UNIVERSE
 
@@ -32,11 +32,14 @@ lib/Pone/Node.pm.moarvm: lib/Pone/Node.pm
 lib/Pone/Utils.pm.moarvm: lib/Pone/Utils.pm
 	perl6-m -Ilib --target=mbc --output=lib/Pone/Utils.pm.moarvm lib/Pone/Utils.pm
 
-lib/Pone/Actions.pm.moarvm: lib/Pone/Actions.pm lib/Pone/Node.pm.moarvm
+lib/Pone/Actions.pm.moarvm: lib/Pone/Actions.pm lib/Pone/Node.pm.moarvm lib/Pone/Utils.pm.moarvm
 	perl6-m -Ilib --target=mbc --output=lib/Pone/Actions.pm.moarvm lib/Pone/Actions.pm
 
-lib/Pone/Grammar.pm.moarvm: lib/Pone/Grammar.pm
+lib/Pone/Grammar.pm.moarvm: lib/Pone/Grammar.pm lib/Pone/Tracer.pm.moarvm
 	perl6-m -Ilib --target=mbc --output=lib/Pone/Grammar.pm.moarvm lib/Pone/Grammar.pm
+
+lib/Pone/Tracer.pm.moarvm: lib/Pone/Tracer.pm
+	perl6-m -Ilib --target=mbc --output=lib/Pone/Tracer.pm.moarvm lib/Pone/Tracer.pm
 
 blib/libpone.a: $(OBJFILES) src/pone.h
 	-mkdir -p blib
@@ -118,10 +121,13 @@ t/c/array_methods.o: t/c/array_methods.c blib/libpone.a src/pone.h
 pone_generated.out: pone_generated.c blib/libpone.a
 	$(CC) $(CFLAGS) -Werror -I src -o ./pone_generated.out  pone_generated.c blib/libpone.a
 
-docs: docs/Array.md
+docs: docs/Array.md docs/Num.md
 
 docs/Array.md: src/array.c
 	pod2markdown src/array.c > docs/Array.md
+
+docs/Num.md: src/num.c
+	pod2markdown src/num.c > docs/Num.md
 
 .PHONY: clean tags docs
 

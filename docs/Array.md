@@ -35,8 +35,6 @@ append an element to array tail.
 
 Pop element from an array.
 
-NYI
-
 ## `Array#prepend($val)`
 
     my $a = [1,2,3];

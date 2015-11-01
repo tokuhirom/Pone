@@ -169,6 +169,7 @@ typedef struct pone_val {
         pone_code code;
         pone_hash hash;
         pone_string str;
+        pone_num num;
         pone_obj obj;
     } as;
 } pone_val;
@@ -291,6 +292,7 @@ void pone_refcnt_dec(pone_universe* universe, pone_val* val);
 void pone_refcnt_inc(pone_universe* universe, pone_val* val);
 size_t pone_elems(pone_world* world, pone_val* val);
 int pone_to_int(pone_world* world, pone_val* val);
+pone_num_t pone_to_num(pone_world* world, pone_val* val);
 bool pone_is_frozen(pone_val* v);
 
 // scope.c
@@ -312,7 +314,9 @@ void pone_universe_default_err_handler(pone_universe* universe);
 pone_val* pone_true();
 pone_val* pone_false();
 
+// num.c
 pone_val* pone_num_new(pone_universe* universe, double i);
+void pone_num_init(pone_universe* universe);
 
 // basic value operations
 static inline int pone_refcnt(pone_val* val) { return val->as.basic.refcnt; }

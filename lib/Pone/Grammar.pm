@@ -1,6 +1,6 @@
 use v6;
 
-# use Grammar::Tracer;
+use Pone::Tracer;
 
 # :s => :sigspace. needs spaces between tokens.
 
@@ -101,12 +101,13 @@ grammar Pone::Grammar {
         '[' <term> ']'
     }
 
-    proto rule value { <...> }
+    proto rule value {*}
 
     rule value:sym<True> { <sym> }
     rule value:sym<False> { <sym> }
     rule value:sym<funcall> { <!keyword> <ident> '(' <args>? ')' }
     rule args { <term> [ ',' <term> ]* }
+    rule value:sym<number> { <number> }
     rule value:sym<decimal> { <decimal> }
     rule value:sym<string> { <string> }
     rule value:sym<paren> { '(' <term> ')' }
@@ -122,6 +123,9 @@ grammar Pone::Grammar {
     token bare-word { <[A..Z a..z 0..9]>+ }
 
     token var { \$ <ident> }
+    token number {
+        <[+ -]>? [ '0' || <[ 1..9 ]> <[ 0..9 ]>* ] '.' <[ 0..9 ]>+
+    }
     token decimal { '0' || <[+ -]>? <[ 1..9 ]> <[ 0..9 ]>* }
     token ident {
         <[ A..Z a..z _ ]> [
@@ -130,7 +134,9 @@ grammar Pone::Grammar {
         ]*
     }
     proto rule string { <...> }
-    rule string:sym<sqstring> { "'" ( <sqstring-normal> || <sqstring-escape> )+ "'" }
+    rule string:sym<sqstring> {
+        "'" [ <q=sqstring-normal> || <q=sqstring-escape> ]+ "'"
+    }
     token sqstring-normal { <-[ \' \\ ]>+ }
     token sqstring-escape { \\ ( \' ) }
 }
