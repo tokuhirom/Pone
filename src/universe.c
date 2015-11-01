@@ -73,6 +73,7 @@ pone_universe* pone_universe_init() {
     pone_bool_init(universe);
     pone_hash_init(universe);
     pone_code_init(universe);
+    pone_range_init(universe);
 
 #ifdef TRACE_UNIVERSE
     printf("initializing value IterationEnd\n");
@@ -88,6 +89,7 @@ void pone_universe_destroy(pone_universe* universe) {
     }
 
     pone_refcnt_dec(universe, universe->instance_iteration_end);
+    pone_refcnt_dec(universe, universe->class_range);
     pone_refcnt_dec(universe, universe->class_code);
     pone_refcnt_dec(universe, universe->class_hash);
     pone_refcnt_dec(universe, universe->class_bool);

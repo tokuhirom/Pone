@@ -52,6 +52,7 @@ pone_val* pone_str_from_num(pone_universe* universe, double n) {
 /**
  * @return not mortalized
  */
+// TODO this method needs 'world'
 pone_val* pone_to_str(pone_universe* universe, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_NIL:
@@ -69,7 +70,7 @@ pone_val* pone_to_str(pone_universe* universe, pone_val* val) {
             return pone_str_new_const(universe, "False", strlen("False"));
         }
     default:
-        abort();
+        abort(); // TODO
     }
 }
 

@@ -101,9 +101,18 @@ method block($/) {
 
 method term($/) { $/.make: $/<assign-expr>.ast }
 method assign-expr($/) {
+    my $l = $/<nonchaining-binary>[0].made;
+    if $/<nonchaining-binary>.elems == 2 {
+        $/.make: Pone::Node::Assign.new([$l, $/<nonchaining-binary>[1].made]);
+    } else {
+        $/.make: $l;
+    }
+}
+
+method nonchaining-binary($/) {
     my $l = $/<expr>[0].made;
     if $/<expr>.elems == 2 {
-        $/.make: Pone::Node::Assign.new([$l, $/<expr>[1].made]);
+        $/.make: Pone::Node::Range.new([$l, $/<expr>[1].made]);
     } else {
         $/.make: $l;
     }

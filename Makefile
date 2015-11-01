@@ -4,7 +4,7 @@ CFLAGS=-std=c99 -g -W -Werror -lm
 # CFLAGS+= -DTRACE_REFCNT
 # CFLAGS+= -DTRACE_UNIVERSE
 
-OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/builtin.o src/code.o src/hash.o src/int.o src/nil.o src/num.o src/op.o src/pone.o src/scope.o src/str.o src/world.o src/universe.o src/iter.o src/exc.o
+OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/builtin.o src/code.o src/hash.o src/int.o src/nil.o src/num.o src/op.o src/pone.o src/scope.o src/str.o src/world.o src/universe.o src/iter.o src/exc.o src/range.o
 CTEST_OBJFILES=t/c/assign.o t/c/basic.o t/c/enter.o t/c/func2.o t/c/func.o t/c/hash.o t/c/nop.o t/c/iter.o t/c/for.o t/c/array_methods.o
 
 test: lib/Pone.pm6.moarvm blib/libpone.a $(CTEST_OBJFILES)
@@ -121,13 +121,16 @@ t/c/array_methods.o: t/c/array_methods.c blib/libpone.a src/pone.h
 pone_generated.out: pone_generated.c blib/libpone.a
 	$(CC) $(CFLAGS) -Werror -I src -o ./pone_generated.out  pone_generated.c blib/libpone.a
 
-docs: docs/Array.md docs/Num.md
+docs: docs/Array.md docs/Num.md docs/Range.md
 
 docs/Array.md: src/array.c
 	pod2markdown src/array.c > docs/Array.md
 
 docs/Num.md: src/num.c
 	pod2markdown src/num.c > docs/Num.md
+
+docs/Range.md: src/num.c
+	pod2markdown src/range.c > docs/Range.md
 
 .PHONY: clean tags docs
 

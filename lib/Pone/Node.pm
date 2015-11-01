@@ -48,6 +48,7 @@ class Pone::Node::Mod      is Pone::Node::Expr { }
 class Pone::Node::Assign   is Pone::Node { }
 class Pone::Node::My       is Pone::Node { }
 class Pone::Node::Return   is Pone::Node { }
+class Pone::Node::Range    is Pone::Node { }
 
 class Pone::Node::Term is Pone::Node {
     method is-void() { False }

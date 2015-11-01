@@ -76,12 +76,20 @@ grammar Pone::Grammar {
 
     rule term { <assign-expr> }
 
-    rule assign-expr {:s <expr(3)> [ '=' <expr(3)> ]? }
+    # Item Assignment Precedence
+    rule assign-expr {:s <nonchaining-binary> [ '=' <nonchaining-binary> ]? }
+
+    # 15. Nonchaining Binary Precedence(Structural infix)
+    rule nonchaining-binary {:s
+        <expr(3)> [
+            '..' <expr(3)>
+        ]?
+    }
 
     # loosest to tightest
-    multi token infix-op(3) { '+' | '-' }
-    multi token infix-op(2) { '*' | '/' | '%' }
-    multi token infix-op(1) { '**' }
+    multi token infix-op(3) { '+' | '-' } # 9. Additive Precedence
+    multi token infix-op(2) { '*' | '/' | '%' } # 8. Multiplicative Precedence
+    multi token infix-op(1) { '**' } # 6. Exponentiation Precedence
 
     multi rule expr(0)      { <termish> }
     multi rule expr($pred)  {:s <expr($pred-1)> +% [ <infix-op($pred)> ] }

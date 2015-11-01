@@ -323,6 +323,11 @@ method !compile(Pone::Node $node) {
         }
         "pone_assign(world, 0, \"$var\", " ~ self!compile(.children[1]) ~ ")";
     }
+    when Pone::Node::Range {
+        my $min = self!compile(.children[0]);
+        my $max = self!compile(.children[1]);
+        mortal("pone_range_new(world, $min, $max)");
+    }
     when Pone::Node::Var {
         qq!pone_get_lex(world, "{.value}")!;
     }

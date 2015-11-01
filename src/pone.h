@@ -170,6 +170,7 @@ typedef struct pone_val {
         pone_hash hash;
         pone_string str;
         pone_num num;
+        pone_int integer;
         pone_obj obj;
     } as;
 } pone_val;
@@ -211,6 +212,8 @@ typedef struct pone_universe {
     struct pone_val* class_hash;
     // class of Code
     struct pone_val* class_code;
+    // class of Range
+    struct pone_val* class_range;
     // We use a sentinel value to mark the end of an iteration.
     // This is "IterationEnd" in rakudo Perl6.
     struct pone_val* instance_iteration_end;
@@ -379,6 +382,10 @@ pone_val* pone_obj_get_ivar(pone_universe* universe, pone_val* obj, const char* 
 
 // op.c
 pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos);
+
+// range.c
+pone_val* pone_range_new(pone_world* world, pone_val* min, pone_val* max);
+void pone_range_init(pone_universe* universe);
 
 #endif
 
