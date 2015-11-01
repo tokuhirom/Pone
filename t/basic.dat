@@ -368,7 +368,6 @@ hoge
 hoge
 
 ===
---- SKIP
 --- input
 say q,hoge,;
 --- expected

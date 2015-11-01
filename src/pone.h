@@ -313,6 +313,7 @@ void pone_universe_default_err_handler(pone_universe* universe);
 // bool.c
 pone_val* pone_true();
 pone_val* pone_false();
+void pone_bool_init(pone_universe* universe);
 
 // num.c
 pone_val* pone_num_new(pone_universe* universe, double i);

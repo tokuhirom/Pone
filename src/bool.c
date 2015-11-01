@@ -17,3 +17,9 @@ inline pone_val* pone_false() {
     return (pone_val*)&pone_false_val;
 }
 
+void pone_bool_init(pone_universe* universe) {
+    assert(universe->class_bool == NULL);
+
+    universe->class_bool = pone_class_new(universe, "Bool", strlen("Bool"));
+}
+

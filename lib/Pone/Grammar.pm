@@ -154,7 +154,7 @@ grammar Pone::Grammar {
         ]
     }
     rule sqopen-char {
-        <[ ~ @ \[ \( \< ! \{ ]>
+        <[ ~ @ \[ \( \< ! \{ \, ]>
     }
     token sqstring {
         [
