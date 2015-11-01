@@ -125,18 +125,18 @@ static pone_val* meth_ary_elems(pone_world* world, pone_val* self, int n, va_lis
 
 /*
 
-=head2 C<Array#push($val)>
+=head2 C<Array#append($val)>
 
     my $a = [1,2,3];
-    $a.push(4);
+    $a.append(4);
     say $a.join(","); # => 1,2,3,4
 
-Push an element to array tail.
+append an element to array tail.
 
 =cut
 
 */
-static pone_val* meth_ary_push(pone_world* world, pone_val* self, int n, va_list args) {
+static pone_val* meth_ary_append(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 1);
 
     pone_val* val = va_arg(args, pone_val*);
@@ -170,7 +170,7 @@ void pone_ary_init(pone_universe* universe) {
     universe->class_ary = pone_class_new(universe, "Array", strlen("Array"));
     pone_add_method_c(universe, universe->class_ary, "iterator", strlen("iterator"), meth_ary_iterator);
     pone_add_method_c(universe, universe->class_ary, "elems", strlen("elems"), meth_ary_elems);
-    pone_add_method_c(universe, universe->class_ary, "push", strlen("push"), meth_ary_push);
+    pone_add_method_c(universe, universe->class_ary, "append", strlen("append"), meth_ary_append);
     pone_obj_set_ivar_noinc(universe, universe->class_ary, "$!iterator-class", iter_class);
 }
 

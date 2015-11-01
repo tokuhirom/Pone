@@ -23,21 +23,21 @@ int main(int argc, const char **argv) {
     pone_builtin_say(world, pone_call_method(world, ary, "elems", 0));
     pone_signal_handle(world);
 
-    // $ary.push(4649);
+    // $ary.append(4649);
     pone_val* v5963 = pone_mortalize(world, pone_int_new(world->universe, 5963));
     pone_call_method(world,
             ary,
-            "push", 1,
+            "append", 1,
             v5963
             );
 
     pone_builtin_say(world, pone_call_method(world, ary, "elems", 0));
 
     for (int i=0; i<100; ++i) {
-        // $ary.push(4649);
+        // $ary.append(4649);
         pone_call_method(world,
                 ary,
-                "push",
+                "append",
                 1,
                 pone_int_new(world->universe, 3)
                 );
