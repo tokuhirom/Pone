@@ -4,7 +4,7 @@ CFLAGS=-std=c99 -g -W -Werror
 # CFLAGS+= -DTRACE_REFCNT
 # CFLAGS+= -DTRACE_UNIVERSE
 
-OBJFILES= lib/Pone/runtime/obj.o lib/Pone/runtime/class.o lib/Pone/runtime/alloc.o lib/Pone/runtime/array.o lib/Pone/runtime/bool.o lib/Pone/runtime/builtin.o lib/Pone/runtime/code.o lib/Pone/runtime/hash.o lib/Pone/runtime/int.o lib/Pone/runtime/nil.o lib/Pone/runtime/num.o lib/Pone/runtime/op.o lib/Pone/runtime/pone.o lib/Pone/runtime/scope.o lib/Pone/runtime/str.o lib/Pone/runtime/world.o lib/Pone/runtime/universe.o lib/Pone/runtime/iter.o lib/Pone/runtime/exc.o
+OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/builtin.o src/code.o src/hash.o src/int.o src/nil.o src/num.o src/op.o src/pone.o src/scope.o src/str.o src/world.o src/universe.o src/iter.o src/exc.o
 CTEST_OBJFILES=t/c/assign.o t/c/basic.o t/c/enter.o t/c/func2.o t/c/func.o t/c/hash.o t/c/nop.o t/c/iter.o t/c/for.o t/c/array_methods.o
 
 test: lib/Pone.pm6.moarvm blib/libpone.a $(CTEST_OBJFILES)
@@ -38,47 +38,47 @@ lib/Pone/Actions.pm.moarvm: lib/Pone/Actions.pm lib/Pone/Node.pm.moarvm
 lib/Pone/Grammar.pm.moarvm: lib/Pone/Grammar.pm
 	perl6-m -Ilib --target=mbc --output=lib/Pone/Grammar.pm.moarvm lib/Pone/Grammar.pm
 
-blib/libpone.a: $(OBJFILES) lib/Pone/runtime/pone.h
+blib/libpone.a: $(OBJFILES) src/pone.h
 	-mkdir -p blib
 	ar rcs blib/libpone.a $(OBJFILES)
 
-lib/Pone/runtime/alloc.o: lib/Pone/runtime/pone.h
+src/alloc.o: src/pone.h
 
-lib/Pone/runtime/array.o: lib/Pone/runtime/pone.h
+src/array.o: src/pone.h
 
-lib/Pone/runtime/bool.o: lib/Pone/runtime/pone.h
+src/bool.o: src/pone.h
 
-lib/Pone/runtime/builtin.o: lib/Pone/runtime/pone.h
+src/builtin.o: src/pone.h
 
-lib/Pone/runtime/code.o: lib/Pone/runtime/pone.h
+src/code.o: src/pone.h
 
-lib/Pone/runtime/exc.o: lib/Pone/runtime/pone.h
+src/exc.o: src/pone.h
 
-lib/Pone/runtime/hash.o: lib/Pone/runtime/pone.h
+src/hash.o: src/pone.h
 
-lib/Pone/runtime/int.o: lib/Pone/runtime/pone.h
+src/int.o: src/pone.h
 
-lib/Pone/runtime/iter.o: lib/Pone/runtime/pone.h
+src/iter.o: src/pone.h
 
-lib/Pone/runtime/nil.o: lib/Pone/runtime/pone.h
+src/nil.o: src/pone.h
 
-lib/Pone/runtime/num.o: lib/Pone/runtime/pone.h
+src/num.o: src/pone.h
 
-lib/Pone/runtime/op.o: lib/Pone/runtime/pone.h
+src/op.o: src/pone.h
 
-lib/Pone/runtime/pone.o: lib/Pone/runtime/pone.h
+src/pone.o: src/pone.h
 
-lib/Pone/runtime/scope.o: lib/Pone/runtime/pone.h
+src/scope.o: src/pone.h
 
-lib/Pone/runtime/str.o: lib/Pone/runtime/pone.h
+src/str.o: src/pone.h
 
-lib/Pone/runtime/universe.o: lib/Pone/runtime/pone.h
+src/universe.o: src/pone.h
 
-lib/Pone/runtime/world.o: lib/Pone/runtime/pone.h
+src/world.o: src/pone.h
 
-lib/Pone/runtime/class.o: lib/Pone/runtime/pone.h
+src/class.o: src/pone.h
 
-lib/Pone/runtime/obj.o: lib/Pone/runtime/pone.h
+src/obj.o: src/pone.h
 
 tags:
 	rm -f pone_generated.c
@@ -86,42 +86,42 @@ tags:
 
 # yes. hardly copy and pasted. but... i will rewrite all cases after self-hosting.
 t/c/assign.o: t/c/assign.c blib/libpone.a
-	$(CC) $(CFLAGS) -I lib/Pone/runtime/ -o t/c/assign.o $< blib/libpone.a
+	$(CC) $(CFLAGS) -I src/ -o t/c/assign.o $< blib/libpone.a
 
 t/c/basic.o: t/c/basic.c blib/libpone.a
-	$(CC) $(CFLAGS) -I lib/Pone/runtime/ -o t/c/basic.o $< blib/libpone.a
+	$(CC) $(CFLAGS) -I src/ -o t/c/basic.o $< blib/libpone.a
 
 t/c/enter.o: t/c/enter.c blib/libpone.a
-	$(CC) $(CFLAGS) -I lib/Pone/runtime/ -o t/c/enter.o $< blib/libpone.a
+	$(CC) $(CFLAGS) -I src/ -o t/c/enter.o $< blib/libpone.a
 
 t/c/func2.o: t/c/func2.c blib/libpone.a
-	$(CC) $(CFLAGS) -I lib/Pone/runtime/ -o t/c/func2.o $< blib/libpone.a
+	$(CC) $(CFLAGS) -I src/ -o t/c/func2.o $< blib/libpone.a
 
 t/c/func.o: t/c/func.c blib/libpone.a
-	$(CC) $(CFLAGS) -I lib/Pone/runtime/ -o t/c/func.o $< blib/libpone.a
+	$(CC) $(CFLAGS) -I src/ -o t/c/func.o $< blib/libpone.a
 
 t/c/hash.o: t/c/hash.c blib/libpone.a
-	$(CC) $(CFLAGS) -I lib/Pone/runtime/ -o t/c/hash.o $< blib/libpone.a
+	$(CC) $(CFLAGS) -I src/ -o t/c/hash.o $< blib/libpone.a
 
 t/c/nop.o: t/c/nop.c blib/libpone.a
-	$(CC) $(CFLAGS) -I lib/Pone/runtime/ -o t/c/nop.o $< blib/libpone.a
+	$(CC) $(CFLAGS) -I src/ -o t/c/nop.o $< blib/libpone.a
 
-t/c/iter.o: t/c/iter.c blib/libpone.a lib/Pone/runtime/pone.h
-	$(CC) $(CFLAGS) -I lib/Pone/runtime/ -o t/c/iter.o $< blib/libpone.a
+t/c/iter.o: t/c/iter.c blib/libpone.a src/pone.h
+	$(CC) $(CFLAGS) -I src/ -o t/c/iter.o $< blib/libpone.a
 
-t/c/for.o: t/c/for.c blib/libpone.a lib/Pone/runtime/pone.h
-	$(CC) $(CFLAGS) -I lib/Pone/runtime/ -o t/c/for.o $< blib/libpone.a
+t/c/for.o: t/c/for.c blib/libpone.a src/pone.h
+	$(CC) $(CFLAGS) -I src/ -o t/c/for.o $< blib/libpone.a
 
-t/c/array_methods.o: t/c/array_methods.c blib/libpone.a lib/Pone/runtime/pone.h
-	$(CC) $(CFLAGS) -I lib/Pone/runtime/ -o t/c/array_methods.o $< blib/libpone.a
+t/c/array_methods.o: t/c/array_methods.c blib/libpone.a src/pone.h
+	$(CC) $(CFLAGS) -I src/ -o t/c/array_methods.o $< blib/libpone.a
 
 pone_generated.out: pone_generated.c blib/libpone.a
-	$(CC) $(CFLAGS) -Werror -I lib/Pone/runtime -o ./pone_generated.out  pone_generated.c blib/libpone.a
+	$(CC) $(CFLAGS) -Werror -I src -o ./pone_generated.out  pone_generated.c blib/libpone.a
 
 docs: docs/Array.md
 
-docs/Array.md: lib/Pone/runtime/array.c
-	pod2markdown lib/Pone/runtime/array.c > docs/Array.md
+docs/Array.md: src/array.c
+	pod2markdown src/array.c > docs/Array.md
 
 .PHONY: clean tags docs
 

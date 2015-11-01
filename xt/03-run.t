@@ -21,7 +21,7 @@ run {
         (my $objfile = $src) =~ s/\.c$/.o/;
 
         unlink $objfile;
-        system('clang', '-D_POSIX_SOURCE', '-Ilib/Pone/runtime/', '-g', '-std=c99', '-o', $objfile, $src, 'blib/libpone.a');
+        system('clang', '-D_POSIX_SOURCE', '-Isrc/', '-g', '-std=c99', '-o', $objfile, $src, 'blib/libpone.a');
         my ($out, $err, $exit) = capture {
             system("valgrind --leak-check=full ./$objfile");
         };
