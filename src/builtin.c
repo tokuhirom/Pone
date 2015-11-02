@@ -138,6 +138,7 @@ pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...) {
             while ((!done) && p < end) {
                 switch (*p) {
                 case 's': {
+                    // TODO %-10s
                     pone_val* v = va_arg(args, pone_val*);
                     pone_val* str = pone_stringify(world, v);
                     fwrite(pone_str_ptr(str), sizeof(char), pone_str_len(str), stdout);
