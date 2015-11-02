@@ -542,3 +542,10 @@ False
 True
 False
 
+===
+--- input
+say "ho\nge";
+--- expected
+ho
+ge
+

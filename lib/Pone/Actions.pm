@@ -129,7 +129,6 @@ method chaining-binary($/) {
             when 'lt' { Pone::Node::StrLT }
             when 'ge' { Pone::Node::StrGE }
             when 'gt' { Pone::Node::StrGT }
-            # TODO string comparision operators
             default { die "unknown operatar: '$op'"; }
         };
         $l = $klass.new([$l, $r]);
@@ -312,6 +311,25 @@ method hash-key($/) {
 
 method var($/) {
     $/.make: Pone::Node::Var.new(~$/);
+}
+
+method string:sym<dqstring>($/) {
+    $/.make: $/<dqstring>.made;
+}
+
+method dqstring($/) {
+    # TODO concat operators
+    $/.make: Pone::Node::Str.new($/<q>».made.join(""));
+}
+method dqstring-normal($/) {
+    $/.make: ~$/;
+}
+
+method dqstring-escape($/) {
+    $/.make: do given ~$0 {
+        when 'n' { "\n" }
+        default { $_ }
+    }
 }
 
 method string:sym<sqstring>($/) {

@@ -156,13 +156,29 @@ grammar Pone::Grammar {
         ]
     }
     proto rule string {*}
+    rule string:sym<dqstring> {
+        :my $*STOPPER;
+        [
+            {$*STOPPER='"';} '"' <dqstring> '"'
+            || "qq" <qopen-char> {
+                my $open = ~$/<qopen-char>;
+                $*STOPPER = do given ~$/<qopen-char> {
+                    when '(' { ')' }
+                    when '[' { ']' }
+                    when '{' { '}' }
+                    when '<' { '>' }
+                    default { $_ }
+                }
+            } <dqstring> <.stopper>
+        ]
+    }
     rule string:sym<sqstring> {
         :my $*STOPPER;
         [
             {$*STOPPER="'";} "'" <sqstring> "'"
-            || "q" <sqopen-char> {
-                my $open = ~$/<sqopen-char>;
-                $*STOPPER = do given ~$/<sqopen-char> {
+            || "q" <qopen-char> {
+                my $open = ~$/<qopen-char>;
+                $*STOPPER = do given ~$/<qopen-char> {
                     when '(' { ')' }
                     when '[' { ']' }
                     when '{' { '}' }
@@ -172,8 +188,8 @@ grammar Pone::Grammar {
             } <sqstring> <.stopper>
         ]
     }
-    rule sqopen-char {
-        <[ ~ @ \[ \( \< ! \{ \, ]>
+    rule qopen-char {
+        <[ ~ @ \[ \( \< ! \{ \, \" \' ]>
     }
     token sqstring {
         [
@@ -188,6 +204,17 @@ grammar Pone::Grammar {
     }
     token sqstring-normal { . }
     token sqstring-escape { \\ ( . ) }
+
+    token dqstring {
+        [
+            <!after=stopper> [
+                <q=dqstring-escape>
+                || <q=dqstring-normal>
+            ]
+        ]*
+    }
+    token dqstring-normal { . }
+    token dqstring-escape { \\ ( . ) }
 }
 
 
