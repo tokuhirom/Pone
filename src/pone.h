@@ -271,7 +271,7 @@ pone_val* pone_ary_at_pos(pone_val* ary, int n);
 pone_val* pone_str_new(pone_universe* universe, const char*p, size_t len);
 pone_val* pone_str_new_const(pone_universe* universe, const char*p, size_t len);
 void pone_str_free(pone_universe* universe, pone_val* val);
-pone_val* pone_stringify(pone_universe* universe, pone_val* val);
+pone_val* pone_stringify(pone_world* world, pone_val* val);
 pone_val* pone_str_from_num(pone_universe* universe, double n);
 const char* pone_str_ptr(pone_val* val);
 size_t pone_str_len(pone_val* val);
@@ -314,7 +314,7 @@ void pone_lex_refcnt_inc(pone_world* world, pone_lex_t* lex);
 // alloc.c
 pone_universe* pone_universe_init();
 void pone_universe_destroy(pone_universe* universe);
-void pone_universe_default_err_handler(pone_universe* universe);
+void pone_universe_default_err_handler(pone_world* world);
 
 // bool.c
 pone_val* pone_true();

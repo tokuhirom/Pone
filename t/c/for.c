@@ -7,10 +7,10 @@ int main(int argc, const char** argv) {
   pone_world* world;
   pone_init();
   universe = pone_universe_init();
-  if (setjmp(universe->err_handlers[0])) {
-    pone_universe_default_err_handler(universe);
-  }
   world = pone_world_new(universe);
+  if (setjmp(universe->err_handlers[0])) {
+    pone_universe_default_err_handler(world);
+  }
   pone_savetmps(world);
   pone_push_scope(world);
   pone_val* iter = pone_mortalize(

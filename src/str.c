@@ -52,8 +52,8 @@ pone_val* pone_str_from_num(pone_universe* universe, double n) {
 /**
  * @return not mortalized
  */
-// TODO this method needs 'world'
-pone_val* pone_stringify(pone_universe* universe, pone_val* val) {
+pone_val* pone_stringify(pone_world* world, pone_val* val) {
+    pone_universe* universe = world->universe;
     switch (pone_type(val)) {
     case PONE_NIL:
         return pone_str_new_const(universe, "(undef)", strlen("(undef)"));

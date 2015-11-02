@@ -29,7 +29,7 @@ pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
 }
 
 pone_val* pone_builtin_print(pone_world* world, pone_val* val) {
-    pone_val* str = pone_stringify(world->universe, val);
+    pone_val* str = pone_stringify(world, val);
     fwrite(pone_str_ptr(str), sizeof(char), pone_str_len(str), stdout);
     pone_refcnt_dec(world->universe, str);
     return pone_nil();
@@ -50,7 +50,7 @@ pone_val* pone_builtin_time(pone_world* world) {
 }
 
 pone_val* pone_builtin_getenv(pone_world* world, pone_val* key) {
-    pone_val* str = pone_mortalize(world, pone_stringify(world->universe, key));
+    pone_val* str = pone_mortalize(world, pone_stringify(world, key));
     const char* len = getenv(pone_str_ptr(str));
     if (len) {
         return pone_mortalize(world, pone_str_new(world->universe, len, strlen(len)));
