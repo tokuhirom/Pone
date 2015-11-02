@@ -93,7 +93,7 @@ bool pone_so(pone_val* val) {
     }
 }
 
-int pone_to_int(pone_world* world, pone_val* val) {
+int pone_intify(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_NIL:
         pone_die_str(world, "Use of uninitialized value as integer");
@@ -112,7 +112,7 @@ int pone_to_int(pone_world* world, pone_val* val) {
     }
 }
 
-pone_num_t pone_to_num(pone_world* world, pone_val* val) {
+pone_num_t pone_numify(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_NIL:
         pone_die_str(world, "Use of uninitialized value as num");
@@ -136,55 +136,55 @@ pone_num_t pone_to_num(pone_world* world, pone_val* val) {
 
 pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2) {
     if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
-        pone_num_t n1 = pone_to_num(world, v1);
-        pone_num_t n2 = pone_to_num(world, v2);
+        pone_num_t n1 = pone_numify(world, v1);
+        pone_num_t n2 = pone_numify(world, v2);
         return pone_num_new(world->universe, n1 + n2);
     } else {
-        int i1 = pone_to_int(world, v1);
-        int i2 = pone_to_int(world, v2);
+        int i1 = pone_intify(world, v1);
+        int i2 = pone_intify(world, v2);
         return pone_int_new(world->universe, i1 + i2);
     }
 }
 
 pone_val* pone_subtract(pone_world* world, pone_val* v1, pone_val* v2) {
     if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
-        pone_num_t n1 = pone_to_num(world, v1);
-        pone_num_t n2 = pone_to_num(world, v2);
+        pone_num_t n1 = pone_numify(world, v1);
+        pone_num_t n2 = pone_numify(world, v2);
         return pone_num_new(world->universe, n1 - n2);
     } else {
-        int i1 = pone_to_int(world, v1);
-        int i2 = pone_to_int(world, v2);
+        int i1 = pone_intify(world, v1);
+        int i2 = pone_intify(world, v2);
         return pone_int_new(world->universe, i1 - i2);
     }
 }
 
 pone_val* pone_multiply(pone_world* world, pone_val* v1, pone_val* v2) {
     if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
-        pone_num_t n1 = pone_to_num(world, v1);
-        pone_num_t n2 = pone_to_num(world, v2);
+        pone_num_t n1 = pone_numify(world, v1);
+        pone_num_t n2 = pone_numify(world, v2);
         return pone_num_new(world->universe, n1 * n2);
     } else {
-        int i1 = pone_to_int(world, v1);
-        int i2 = pone_to_int(world, v2);
+        int i1 = pone_intify(world, v1);
+        int i2 = pone_intify(world, v2);
         return pone_int_new(world->universe, i1 * i2);
     }
 }
 
 pone_val* pone_divide(pone_world* world, pone_val* v1, pone_val* v2) {
     if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
-        pone_num_t n1 = pone_to_num(world, v1);
-        pone_num_t n2 = pone_to_num(world, v2);
+        pone_num_t n1 = pone_numify(world, v1);
+        pone_num_t n2 = pone_numify(world, v2);
         return pone_num_new(world->universe, n1 / n2);
     } else {
-        int i1 = pone_to_int(world, v1);
-        int i2 = pone_to_int(world, v2);
+        int i1 = pone_intify(world, v1);
+        int i2 = pone_intify(world, v2);
         return pone_int_new(world->universe, i1 / i2);
     }
 }
 
 pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2) {
-    int i1 = pone_to_int(world, v1);
-    int i2 = pone_to_int(world, v2);
+    int i1 = pone_intify(world, v1);
+    int i2 = pone_intify(world, v2);
     return pone_int_new(world->universe, i1 % i2); // TODO: We should upgrade value to NV
 }
 
@@ -242,7 +242,7 @@ bool pone_is_frozen(pone_val* v) {
 // Call AT-POS
 pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos) {
     if (pone_type(obj) == PONE_ARRAY) { // specialization for performance
-        return pone_ary_at_pos(obj, pone_to_int(world, pos));
+        return pone_ary_at_pos(obj, pone_intify(world, pos));
     } else {
         return pone_call_method(world, obj, "AT-POS", 1, pos);
     }

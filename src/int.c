@@ -26,7 +26,7 @@ pone_val* pone_int_incr(pone_world* world, pone_val* i) {
 static pone_val* meth_int_is_prime(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n==0);
 
-    int num = pone_to_int(world, self);
+    int num = pone_intify(world, self);
 
     if (num <= 1) return pone_false();
     if (num == 2) return pone_true();

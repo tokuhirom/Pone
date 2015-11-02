@@ -29,7 +29,7 @@ pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
 }
 
 pone_val* pone_builtin_print(pone_world* world, pone_val* val) {
-    pone_val* str = pone_to_str(world->universe, val);
+    pone_val* str = pone_stringify(world->universe, val);
     fwrite(pone_str_ptr(str), sizeof(char), pone_str_len(str), stdout);
     pone_refcnt_dec(world->universe, str);
     return pone_nil();
@@ -50,7 +50,7 @@ pone_val* pone_builtin_time(pone_world* world) {
 }
 
 pone_val* pone_builtin_getenv(pone_world* world, pone_val* key) {
-    pone_val* str = pone_mortalize(world, pone_to_str(world->universe, key));
+    pone_val* str = pone_mortalize(world, pone_stringify(world->universe, key));
     const char* len = getenv(pone_str_ptr(str));
     if (len) {
         return pone_mortalize(world, pone_str_new(world->universe, len, strlen(len)));
@@ -61,7 +61,7 @@ pone_val* pone_builtin_getenv(pone_world* world, pone_val* key) {
 
 pone_val* pone_builtin_sleep(pone_world* world, pone_val* vi) {
     // TODO Time::HiRes
-    int i = pone_to_int(world, vi);
+    int i = pone_intify(world, vi);
     sleep(i);
     return pone_nil();
 }
@@ -82,7 +82,7 @@ static void sig_handler(int sig) {
 }
 
 pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* code) {
-    int sig = pone_to_int(world, sig_val);
+    int sig = pone_intify(world, sig_val);
 
     if (pone_defined(code)) {
 #ifndef _WIN32

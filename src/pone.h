@@ -271,7 +271,7 @@ pone_val* pone_ary_at_pos(pone_val* ary, int n);
 pone_val* pone_str_new(pone_universe* universe, const char*p, size_t len);
 pone_val* pone_str_new_const(pone_universe* universe, const char*p, size_t len);
 void pone_str_free(pone_universe* universe, pone_val* val);
-pone_val* pone_to_str(pone_universe* universe, pone_val* val);
+pone_val* pone_stringify(pone_universe* universe, pone_val* val);
 pone_val* pone_str_from_num(pone_universe* universe, double n);
 const char* pone_str_ptr(pone_val* val);
 size_t pone_str_len(pone_val* val);
@@ -297,8 +297,8 @@ bool pone_bool_val(pone_val* val);
 void pone_refcnt_dec(pone_universe* universe, pone_val* val);
 void pone_refcnt_inc(pone_universe* universe, pone_val* val);
 size_t pone_elems(pone_world* world, pone_val* val);
-int pone_to_int(pone_world* world, pone_val* val);
-pone_num_t pone_to_num(pone_world* world, pone_val* val);
+int pone_intify(pone_world* world, pone_val* val);
+pone_num_t pone_numify(pone_world* world, pone_val* val);
 bool pone_is_frozen(pone_val* v);
 
 // scope.c

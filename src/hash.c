@@ -62,7 +62,7 @@ pone_val* pone_hash_at_pos_c(pone_universe* universe, pone_val* hash, const char
 }
 
 void pone_hash_put(pone_world* world, pone_val* hv, pone_val* k, pone_val* v) {
-    k = pone_to_str(world->universe, k);
+    k = pone_stringify(world->universe, k);
     pone_hash_put_c(world->universe, hv, pone_str_ptr(k), pone_str_len(k), v);
     pone_refcnt_dec(world->universe, k);
 }

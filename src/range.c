@@ -59,7 +59,7 @@ static pone_val* meth_range_iterator(pone_world* world, pone_val* self, int n, v
     // self!iterator-class.bless(i => self.min, max => self.max)
     pone_val* iterator_class = pone_obj_get_ivar(world->universe, pone_what(world->universe, self), "$!iterator-class");
     pone_val* iter = pone_obj_new(world->universe, iterator_class);
-    pone_obj_set_ivar_noinc(world->universe, iter, "$!i", pone_int_new(world->universe, pone_to_int(world, min)));
+    pone_obj_set_ivar_noinc(world->universe, iter, "$!i", pone_int_new(world->universe, pone_intify(world, min)));
     pone_obj_set_ivar(world->universe, iter, "$!max", max);
     return iter;
 }
@@ -70,14 +70,14 @@ static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list
 
     pone_val* i_val = pone_obj_get_ivar(world->universe, self, "$!i");
     pone_val* max_val = pone_obj_get_ivar(world->universe, self, "$!max");
-    int i = pone_to_int(world, i_val);
-    int max = pone_to_int(world, max_val);
+    int i = pone_intify(world, i_val);
+    int max = pone_intify(world, max_val);
 
     if (i > max) {
         pone_refcnt_inc(world->universe, world->universe->instance_iteration_end);
         return world->universe->instance_iteration_end;
     } else {
-        pone_val* retval = pone_int_new(world->universe, pone_to_int(world, i_val));
+        pone_val* retval = pone_int_new(world->universe, pone_intify(world, i_val));
         pone_int_incr(world, i_val);
         return retval;
     }
