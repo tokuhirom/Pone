@@ -77,7 +77,15 @@ grammar Pone::Grammar {
     rule term { <assign-expr> }
 
     # Item Assignment Precedence
-    rule assign-expr {:s <nonchaining-binary> [ '=' <nonchaining-binary> ]? }
+    rule assign-expr {:s <chaining-binary> [ '=' <chaining-binary> ]? }
+
+    # 16.haining Binary Precedence
+    token chaining-binary-op {
+        '==' || '!=' || '<=' || '<' || '>=' || '>' || 'eq' || 'ne' || 'gt' || 'ge' || 'ge' || 'lt' || 'le' || 'before' || 'after' || 'eqv' || '===' || '=:=' || '~~'
+    }
+    rule chaining-binary {:s
+        <nonchaining-binary> +% [ <chaining-binary-op> ]
+    }
 
     # 15. Nonchaining Binary Precedence(Structural infix)
     rule nonchaining-binary {:s

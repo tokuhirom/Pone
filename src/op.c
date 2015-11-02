@@ -188,6 +188,18 @@ pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2) {
     return pone_int_new(world->universe, i1 % i2); // TODO: We should upgrade value to NV
 }
 
+bool pone_eq(pone_world* world, pone_val* v1, pone_val* v2) {
+    if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
+        pone_num_t n1 = pone_numify(world, v1);
+        pone_num_t n2 = pone_numify(world, v2);
+        return n1 == n2;
+    } else {
+        int i1 = pone_intify(world, v1);
+        int i2 = pone_intify(world, v2);
+        return i1 == i2;
+    }
+}
+
 size_t pone_elems(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_STRING:

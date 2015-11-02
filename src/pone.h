@@ -386,6 +386,7 @@ pone_val* pone_obj_get_ivar(pone_universe* universe, pone_val* obj, const char* 
 
 // op.c
 pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos);
+bool pone_eq(pone_world* world, pone_val* v1, pone_val* v2);
 
 // range.c
 pone_val* pone_range_new(pone_world* world, pone_val* min, pone_val* max);

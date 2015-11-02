@@ -101,12 +101,31 @@ method block($/) {
 
 method term($/) { $/.make: $/<assign-expr>.ast }
 method assign-expr($/) {
-    my $l = $/<nonchaining-binary>[0].made;
-    if $/<nonchaining-binary>.elems == 2 {
-        $/.make: Pone::Node::Assign.new([$l, $/<nonchaining-binary>[1].made]);
+    my $l = $/<chaining-binary>[0].made;
+    if $/<chaining-binary>.elems == 2 {
+        $/.make: Pone::Node::Assign.new([$l, $/<chaining-binary>[1].made]);
     } else {
         $/.make: $l;
     }
+}
+
+method chaining-binary($/) {
+    my @e = $/<nonchaining-binary>».made;
+    my @ops = $/<chaining-binary-op>».Str;
+    my $l = @e.shift;
+    while @e.elems {
+        my $op = @ops.shift;
+        my $r = @e.shift;
+        given $op {
+            when '==' {
+                $l = Pone::Node::Eq.new([$l, $r]);
+            }
+            default {
+                die "unknown operatar: '$op'";
+            }
+        }
+    }
+    $/.make: $l;
 }
 
 method nonchaining-binary($/) {

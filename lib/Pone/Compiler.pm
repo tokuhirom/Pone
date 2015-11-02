@@ -50,6 +50,17 @@ method !infix(Str $func, Pone::Node $node) {
         self!compile($node.children[1])));
 }
 
+method !cmp-infix(Str $func, Pone::Node $node) {
+    self!to-bool(sprintf('%s(world, %s, %s)',
+        $func,
+        self!compile($node.children[0]),
+        self!compile($node.children[1])));
+}
+
+method !to-bool(Str $code) {
+    "(($code) ? pone_true() : pone_false())"
+}
+
 method compile(Str $filename, Pone::Node $node) {
     my @*TMPS = 0;
     my @*SCOPE = 0;
@@ -307,6 +318,9 @@ method !compile(Pone::Node $node) {
     }
     when Pone::Node::Mod {
         self!infix('pone_mod', $_);
+    }
+    when Pone::Node::Eq {
+        self!cmp-infix('pone_eq', $_);
     }
     when Pone::Node::Assign {
         my $var = .children[0];
