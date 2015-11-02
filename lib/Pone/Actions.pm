@@ -116,30 +116,17 @@ method chaining-binary($/) {
     while @e.elems {
         my $op = @ops.shift;
         my $r = @e.shift;
-        given $op {
-            when '==' {
-                $l = Pone::Node::EQ.new([$l, $r]);
-            }
-            when '!=' {
-                $l = Pone::Node::NE.new([$l, $r]);
-            }
-            when '<=' {
-                $l = Pone::Node::LE.new([$l, $r]);
-            }
-            when '<' {
-                $l = Pone::Node::LT.new([$l, $r]);
-            }
-            when '>=' {
-                $l = Pone::Node::GE.new([$l, $r]);
-            }
-            when '>' {
-                $l = Pone::Node::GT.new([$l, $r]);
-            }
+        my $klass = do given $op {
+            when '==' { Pone::Node::EQ }
+            when '!=' { Pone::Node::NE }
+            when '<=' { Pone::Node::LE }
+            when '<'  { Pone::Node::LT }
+            when '>=' { Pone::Node::GE }
+            when '>'  { Pone::Node::GT }
             # TODO string comparision operators
-            default {
-                die "unknown operatar: '$op'";
-            }
-        }
+            default { die "unknown operatar: '$op'"; }
+        };
+        $l = $klass.new([$l, $r]);
     }
     $/.make: $l;
 }
