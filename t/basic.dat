@@ -400,3 +400,13 @@ say 1..10;
 --- expected
 1..10
 
+===
+--- input
+printf('%05d', 3);
+say '';
+printf('%.2f', 3.14);
+say '';
+--- expected
+00003
+3.14
+

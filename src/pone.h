@@ -359,6 +359,7 @@ pone_val* pone_builtin_sleep(pone_world* world, pone_val* vi);
 pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* code);
 pone_val* pone_builtin_die(pone_world* world, pone_val* msg);
 void pone_signal_handle(pone_world* world);
+pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...);
 
 void pone_val_free(pone_universe* universe, pone_val* p);
 pone_t pone_type(pone_val* val);

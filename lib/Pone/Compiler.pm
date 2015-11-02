@@ -7,7 +7,7 @@ unit class Pone::Compiler;
 use Pone::Utils;
 
 has $!filename;
-has Set $.builtins = set(<print say dd abs elems getenv time signal sleep die>);
+has Set $.builtins = set(<print say dd abs elems getenv time signal sleep die printf>);
 has %.constants = (
     SIGINT => 2, # SIGINT should be enum
 );

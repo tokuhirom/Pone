@@ -7,8 +7,7 @@ use Test;
 use Pone::Utils;
 
 is escape-c-str("hoge"), 'hoge';
-is escape-c-str("h'oge"), "h\\'oge";
-is escape-c-str("hおge"), 'h\u304Age';
+is escape-c-str(q!h"oge!), q!h\\"oge!;
 
 done-testing;
 

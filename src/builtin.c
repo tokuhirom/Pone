@@ -117,3 +117,92 @@ pone_val* pone_builtin_die(pone_world* world, pone_val* msg) {
     return pone_nil();
 }
 
+pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...) {
+    fmt = pone_stringify(world, fmt);
+
+#define PRINTF_BUFSIZ 256
+    char fmt_buf[PRINTF_BUFSIZ];
+    char dst_buf[PRINTF_BUFSIZ];
+
+    va_list args;
+    va_start(args, fmt);
+
+    const char* p = pone_str_ptr(fmt);
+    const char* end = p+pone_str_len(fmt);
+    while (p < end) {
+        switch (*p) {
+        case '%': {
+            const char* fmt_p = p;
+            bool done = false;
+            ++p;
+            while ((!done) && p < end) {
+                switch (*p) {
+                case 's': {
+                    pone_val* v = va_arg(args, pone_val*);
+                    pone_val* str = pone_stringify(world, v);
+                    fwrite(pone_str_ptr(str), sizeof(char), pone_str_len(str), stdout);
+                    pone_refcnt_dec(world->universe, str);
+                    done = true;
+                    break;
+                }
+                case 'd':
+                case 'f': {
+                    char fmt = *p;
+                    ++p;
+                    pone_val* v = va_arg(args, pone_val*);
+                    if (p - fmt_p > PRINTF_BUFSIZ-1) {
+                        pone_die_str(world, "[printf] format string too long");
+                    }
+
+                    memcpy(fmt_buf, fmt_p, p-fmt_p);
+                    fmt_buf[p-fmt_p] = '\0';
+
+                    int printed;
+                    switch (fmt) {
+                        case 'f': {
+                            pone_num_t n = pone_numify(world, v);
+                            printed = snprintf(dst_buf, PRINTF_BUFSIZ-1, fmt_buf, n);
+                            break;
+                        }
+                        case 'd': {
+                            int i = pone_intify(world, v);
+                            printed = snprintf(dst_buf, PRINTF_BUFSIZ-1, fmt_buf, i);
+                            break;
+                        }
+                        default:
+                            abort();
+                    }
+                    if (printed > PRINTF_BUFSIZ-1) {
+                        pone_die_str(world, "[printf] printf buffer overrun");
+                    }
+#undef PRINTF_BUFSIZ
+                    fwrite(dst_buf, sizeof(char), printed, stdout);
+                    done = true;
+                    break;
+                }
+                case '%': {
+                    putc('%', stdout);
+                    done = true;
+                    break;
+                }
+                default:
+                    ++p;
+                    break;
+                }
+            }
+            if (done) {
+                break;
+            }
+            pone_die_str(world, "invalid format for printf");
+        }
+        default:
+            putc(*p, stdout);
+            ++p;
+            break;
+        }
+    }
+
+    va_end(args);
+    return pone_nil();
+}
+
