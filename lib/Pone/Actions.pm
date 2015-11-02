@@ -117,12 +117,18 @@ method chaining-binary($/) {
         my $op = @ops.shift;
         my $r = @e.shift;
         my $klass = do given $op {
-            when '==' { Pone::Node::EQ }
-            when '!=' { Pone::Node::NE }
-            when '<=' { Pone::Node::LE }
-            when '<'  { Pone::Node::LT }
-            when '>=' { Pone::Node::GE }
-            when '>'  { Pone::Node::GT }
+            when '==' { Pone::Node::EQ    }
+            when '!=' { Pone::Node::NE    }
+            when '<=' { Pone::Node::LE    }
+            when '<'  { Pone::Node::LT    }
+            when '>=' { Pone::Node::GE    }
+            when '>'  { Pone::Node::GT    }
+            when 'eq' { Pone::Node::StrEQ }
+            when 'ne' { Pone::Node::StrNE }
+            when 'le' { Pone::Node::StrLE }
+            when 'lt' { Pone::Node::StrLT }
+            when 'ge' { Pone::Node::StrGE }
+            when 'gt' { Pone::Node::StrGT }
             # TODO string comparision operators
             default { die "unknown operatar: '$op'"; }
         };

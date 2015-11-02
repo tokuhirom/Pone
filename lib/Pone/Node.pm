@@ -55,6 +55,12 @@ class Pone::Node::LE       is Pone::Node { }
 class Pone::Node::LT       is Pone::Node { } # <
 class Pone::Node::GE       is Pone::Node { }
 class Pone::Node::GT       is Pone::Node { }
+class Pone::Node::StrEQ    is Pone::Node { }
+class Pone::Node::StrNE    is Pone::Node { }
+class Pone::Node::StrLE    is Pone::Node { }
+class Pone::Node::StrLT    is Pone::Node { }
+class Pone::Node::StrGE    is Pone::Node { }
+class Pone::Node::StrGT    is Pone::Node { }
 
 class Pone::Node::Term is Pone::Node {
     method is-void() { False }

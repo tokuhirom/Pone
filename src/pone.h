@@ -392,6 +392,12 @@ bool pone_le(pone_world* world, pone_val* v1, pone_val* v2);
 bool pone_lt(pone_world* world, pone_val* v1, pone_val* v2);
 bool pone_ge(pone_world* world, pone_val* v1, pone_val* v2);
 bool pone_gt(pone_world* world, pone_val* v1, pone_val* v2);
+bool pone_str_eq(pone_world* world, pone_val* v1, pone_val* v2);
+bool pone_str_ne(pone_world* world, pone_val* v1, pone_val* v2);
+bool pone_str_le(pone_world* world, pone_val* v1, pone_val* v2);
+bool pone_str_lt(pone_world* world, pone_val* v1, pone_val* v2);
+bool pone_str_ge(pone_world* world, pone_val* v1, pone_val* v2);
+bool pone_str_gt(pone_world* world, pone_val* v1, pone_val* v2);
 
 // range.c
 pone_val* pone_range_new(pone_world* world, pone_val* min, pone_val* max);

@@ -482,3 +482,63 @@ True
 True
 False
 
+===
+--- input
+say 'c' eq 'c';
+say 'c' eq 'd';
+say 'cc' eq 'c';
+--- expected
+True
+False
+False
+
+===
+--- input
+say 'c' ne 'c';
+say 'c' ne 'd';
+say 'cc' ne 'c';
+--- expected
+False
+True
+True
+
+===
+--- input
+say 'd' le 'c'; say 'c' le 'c'; say 'c' le 'd'; say 'cc' le 'c'; say 'c' le 'cc';
+--- expected
+False
+True
+True
+False
+True
+
+===
+--- input
+say 'd' lt 'c'; say 'c' lt 'c'; say 'c' lt 'd'; say 'cc' lt 'c'; say 'c' lt 'cc';
+--- expected
+False
+False
+True
+False
+True
+
+===
+--- input
+say 'd' ge 'c'; say 'c' ge 'c'; say 'c' ge 'd'; say 'cc' ge 'c'; say 'c' ge 'cc';
+--- expected
+True
+True
+False
+True
+False
+
+===
+--- input
+say 'd' gt 'c'; say 'c' gt 'c'; say 'c' gt 'd'; say 'cc' gt 'c'; say 'c' gt 'cc';
+--- expected
+True
+False
+False
+True
+False
+

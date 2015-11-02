@@ -325,6 +325,12 @@ method !compile(Pone::Node $node) {
     when Pone::Node::LT { self!cmp-infix('pone_lt', $_); } # <
     when Pone::Node::GE { self!cmp-infix('pone_ge', $_); }
     when Pone::Node::GT { self!cmp-infix('pone_gt', $_); }
+    when Pone::Node::StrEQ { self!cmp-infix('pone_str_eq', $_); }
+    when Pone::Node::StrNE { self!cmp-infix('pone_str_ne', $_); }
+    when Pone::Node::StrLE { self!cmp-infix('pone_str_le', $_); }
+    when Pone::Node::StrLT { self!cmp-infix('pone_str_lt', $_); }
+    when Pone::Node::StrGE { self!cmp-infix('pone_str_ge', $_); }
+    when Pone::Node::StrGT { self!cmp-infix('pone_str_gt', $_); }
     when Pone::Node::Assign {
         my $var = .children[0];
         given $var {
