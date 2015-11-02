@@ -319,6 +319,7 @@ method string:sym<dqstring>($/) {
 
 method dqstring($/) {
     # TODO concat operators
+    # "ho$ge" => "ho" ~ $ge
     $/.make: Pone::Node::Str.new($/<q>».made.join(""));
 }
 method dqstring-normal($/) {
