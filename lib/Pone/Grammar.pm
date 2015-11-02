@@ -81,7 +81,9 @@ grammar Pone::Grammar {
 
     # 16.haining Binary Precedence
     token chaining-binary-op {
-        '==' || '!=' || '<=' || '<' || '>=' || '>' || 'eq' || 'ne' || 'gt' || 'ge' || 'ge' || 'lt' || 'le' || 'before' || 'after' || 'eqv' || '===' || '=:=' || '~~'
+        '==' || '!=' || '<=' || '<' || '>=' || '>' ||
+        'eq' || 'ne' || 'gt' || 'ge' || 'ge' || 'lt' || 'le' ||
+        'before' || 'after' || 'eqv' || '===' || '=:=' || '~~' # TODO
     }
     rule chaining-binary {:s
         <nonchaining-binary> +% [ <chaining-binary-op> ]

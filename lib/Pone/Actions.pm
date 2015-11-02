@@ -165,28 +165,12 @@ method expr($/) {
             my $op = @ops.shift;
             my $r = @e.shift;
             given $op {
-                when '+' {
-                    $l = Pone::Node::Add.new([$l, $r]);
-                }
-                when '-' {
-                    $l = Pone::Node::Subtract.new([$l, $r]);
-                    # $l = "pone_subtract(PONE_WORLD, $l,$r)";
-                }
-                when '*' {
-                    $l = Pone::Node::Multiply.new([$l, $r]);
-                    # $l = "pone_multiply(PONE_WORLD, $l,$r)";
-                }
-                when '/' {
-                    $l = Pone::Node::Divide.new([$l, $r]);
-                    # $l = "pone_divide(PONE_WORLD, $l,$r)";
-                }
-                when '%' {
-                    $l = Pone::Node::Mod.new([$l, $r]);
-                    # $l = "pone_mod(PONE_WORLD, $l,$r)";
-                }
-                default {
-                    die "unknown operatar: $op";
-                }
+                when '+' { $l = Pone::Node::Add.new([$l, $r]); }
+                when '-' { $l = Pone::Node::Subtract.new([$l, $r]); }
+                when '*' { $l = Pone::Node::Multiply.new([$l, $r]); }
+                when '/' { $l = Pone::Node::Divide.new([$l, $r]); }
+                when '%' { $l = Pone::Node::Mod.new([$l, $r]); }
+                default { die "unknown operatar: $op"; }
             }
         }
         $/.make: $l;
