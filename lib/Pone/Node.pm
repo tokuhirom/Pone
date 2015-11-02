@@ -49,7 +49,12 @@ class Pone::Node::Assign   is Pone::Node { }
 class Pone::Node::My       is Pone::Node { }
 class Pone::Node::Return   is Pone::Node { }
 class Pone::Node::Range    is Pone::Node { }
-class Pone::Node::Eq       is Pone::Node { }
+class Pone::Node::EQ       is Pone::Node { }
+class Pone::Node::NE       is Pone::Node { }
+class Pone::Node::LE       is Pone::Node { }
+class Pone::Node::LT       is Pone::Node { } # <
+class Pone::Node::GE       is Pone::Node { }
+class Pone::Node::GT       is Pone::Node { }
 
 class Pone::Node::Term is Pone::Node {
     method is-void() { False }

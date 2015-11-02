@@ -426,3 +426,59 @@ False
 False
 False
 
+===
+--- input
+say 3!=3;
+say 3!=1;
+say 3.14!=3.14;
+say 6.14!=3.14;
+say 6.14!=3.14;
+say 3!=3.14;
+--- expected
+False
+True
+False
+True
+True
+True
+
+===
+--- input
+say 3<3;
+say 3<2;
+say 2<3;
+--- expected
+False
+False
+True
+
+===
+--- input
+say 3<=3;
+say 3<=2;
+say 2<=3;
+--- expected
+True
+False
+True
+
+===
+--- input
+say 3>3;
+say 3>2;
+say 2>3;
+--- expected
+False
+True
+False
+
+===
+--- input
+say 3>=3;
+say 3>=2;
+say 2>=3;
+--- expected
+True
+True
+False
+

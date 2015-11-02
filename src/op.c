@@ -188,17 +188,44 @@ pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2) {
     return pone_int_new(world->universe, i1 % i2); // TODO: We should upgrade value to NV
 }
 
+#define CMP_OP(op) \
+    do { \
+        if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) { \
+            pone_num_t n1 = pone_numify(world, v1); \
+            pone_num_t n2 = pone_numify(world, v2); \
+            return n1 op n2; \
+        } else { \
+            int i1 = pone_intify(world, v1); \
+            int i2 = pone_intify(world, v2); \
+            return i1 op i2; \
+        } \
+    } while (0)
+
 bool pone_eq(pone_world* world, pone_val* v1, pone_val* v2) {
-    if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
-        pone_num_t n1 = pone_numify(world, v1);
-        pone_num_t n2 = pone_numify(world, v2);
-        return n1 == n2;
-    } else {
-        int i1 = pone_intify(world, v1);
-        int i2 = pone_intify(world, v2);
-        return i1 == i2;
-    }
+    CMP_OP(==);
 }
+
+bool pone_ne(pone_world* world, pone_val* v1, pone_val* v2) {
+    CMP_OP(!=);
+}
+
+bool pone_le(pone_world* world, pone_val* v1, pone_val* v2) {
+    CMP_OP(<=);
+}
+
+bool pone_lt(pone_world* world, pone_val* v1, pone_val* v2) {
+    CMP_OP(<);
+}
+
+bool pone_ge(pone_world* world, pone_val* v1, pone_val* v2) {
+    CMP_OP(>=);
+}
+
+bool pone_gt(pone_world* world, pone_val* v1, pone_val* v2) {
+    CMP_OP(>);
+}
+
+#undef CMP_OP
 
 size_t pone_elems(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
