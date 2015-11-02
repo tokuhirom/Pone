@@ -197,8 +197,6 @@ There is a literal form.
 
 =head1 TODO
 
-=item Range#Str
-
 =item class syntax
 
 =item use statement

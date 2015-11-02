@@ -40,7 +40,7 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
 void pone_dd(pone_universe* universe, pone_val* val) {
     switch (pone_type(val)) {
         case PONE_STRING:
-            printf("(string: ");
+            printf("(string: len:%d, ", pone_str_len(val));
             fwrite(pone_str_ptr(val), 1, pone_str_len(val), stdout);
             printf(")\n");
             break;

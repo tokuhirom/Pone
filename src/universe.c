@@ -8,6 +8,7 @@
 
 void pone_universe_default_err_handler(pone_world* world) {
     pone_universe* universe = world->universe;
+    assert(universe);
     assert(universe->errvar);
     pone_val* str = pone_stringify(world, universe->errvar);
     fwrite("\n!!!!!!!!! ( Д ) ..._。..._。 !!!!!!!!!\n\n", 1, strlen("\n!!!!!!!!! ( Д ) ..._。..._。 !!!!!!!!!\n\n"), stderr);

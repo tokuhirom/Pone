@@ -37,6 +37,27 @@ static pone_val* meth_range_min(pone_world* world, pone_val* self, int n, va_lis
 
 /*
 
+=head2 C<Range#Str>
+
+Get a string notation of Range object.
+
+=cut
+
+ */
+static pone_val* meth_range_str(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 0);
+
+    pone_val* min = pone_obj_get_ivar(world->universe, self, "$!min");
+    pone_val* max = pone_obj_get_ivar(world->universe, self, "$!max");
+
+    pone_val* str = pone_stringify(world, min);
+    pone_str_append_c(world, str, "..", strlen(".."));
+    pone_str_append(world, str, max);
+    return str;
+}
+
+/*
+
 =head2 C<Range#max>
 
 =cut
@@ -93,5 +114,6 @@ void pone_range_init(pone_universe* universe) {
     pone_add_method_c(universe, universe->class_range, "iterator", strlen("iterator"), meth_range_iterator);
     pone_add_method_c(universe, universe->class_range, "min", strlen("min"), meth_range_min);
     pone_add_method_c(universe, universe->class_range, "max", strlen("max"), meth_range_max);
+    pone_add_method_c(universe, universe->class_range, "Str", strlen("Str"), meth_range_str);
     pone_obj_set_ivar_noinc(universe, universe->class_range, "$!iterator-class", iter_class);
 }

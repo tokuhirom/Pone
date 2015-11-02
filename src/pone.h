@@ -79,7 +79,7 @@ typedef struct {
 typedef struct {
     PONE_HEAD;
     union {
-      const char* p;
+      char* p;
       struct pone_val* val;
     };
     size_t len;
@@ -276,6 +276,8 @@ pone_val* pone_str_from_num(pone_universe* universe, double n);
 const char* pone_str_ptr(pone_val* val);
 size_t pone_str_len(pone_val* val);
 char* pone_strdup(pone_universe* universe, const char* src, size_t size);
+void pone_str_append_c(pone_world* world, pone_val* str, const char* s, int s_len);
+void pone_str_append(pone_world* world, pone_val* str, pone_val* s);
 
 // code.c
 pone_val* pone_code_new_c(pone_universe* universe, pone_funcptr_t func);
@@ -387,6 +389,14 @@ pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos);
 // range.c
 pone_val* pone_range_new(pone_world* world, pone_val* min, pone_val* max);
 void pone_range_init(pone_universe* universe);
+
+#define PONE_ALLOC_CHECK(v) \
+  do { \
+    if (!v) { \
+      fprintf(stderr, "Cannot allocate memory\n"); \
+      abort(); \
+    } \
+  } while (0)
 
 #endif
 
