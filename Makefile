@@ -1,6 +1,6 @@
 all: blib/libpone.a bin/pone.moarvm
 
-CFLAGS=-std=c99 -g -W -Werror -lm
+CFLAGS=-std=c99 -g -W -lm
 # CFLAGS+= -DTRACE_REFCNT
 # CFLAGS+= -DTRACE_UNIVERSE
 
