@@ -212,22 +212,23 @@ bool pone_gt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(>);  }
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
-#define CMP_OP(op) \
-    do { \
-        pone_val* s1 = pone_stringify(world, v1); \
-        pone_val* s2 = pone_stringify(world, v2); \
-        int l1 = pone_str_len(s1); \
-        int l2 = pone_str_len(s2); \
-        int n = memcmp(pone_str_ptr(s1), pone_str_ptr(s2), MIN(pone_str_len(s1), pone_str_len(s2))); \
-        if (n == 0) { \
-            if (l1 > l2) { \
-                n = 1; \
-            } else if (l1 < l2) { \
-                n = -1; \
-            } \
-        } \
-        return n op; \
-    } while (0)
+int pone_str_cmp(pone_world* world, pone_val* v1, pone_val* v2) {
+    pone_val* s1 = pone_stringify(world, v1);
+    pone_val* s2 = pone_stringify(world, v2);
+    int l1 = pone_str_len(s1);
+    int l2 = pone_str_len(s2);
+    int n = memcmp(pone_str_ptr(s1), pone_str_ptr(s2), MIN(pone_str_len(s1), pone_str_len(s2)));
+    if (n == 0) {
+        if (l1 > l2) {
+            n = 1;
+        } else if (l1 < l2) {
+            n = -1;
+        }
+    }
+    return n;
+}
+
+#define CMP_OP(op) return pone_str_cmp(world, v1, v2) op
 
 bool pone_str_eq(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(== 0); }
 bool pone_str_ne(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(!= 0); }
