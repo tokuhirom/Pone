@@ -10,11 +10,7 @@ COMPILER_OBJFILES=3rd/pvip/src/pvip_node.o 3rd/pvip/src/pvip_string.o src/compil
 CTEST_OBJFILES=t/c/assign.o t/c/basic.o t/c/enter.o t/c/func2.o t/c/func.o t/c/hash.o t/c/nop.o t/c/iter.o t/c/for.o t/c/array_methods.o
 
 test: lib/Pone.pm6.moarvm blib/libpone.a $(CTEST_OBJFILES)
-	perl t/01-c.t
-	perl -Ilib t/04-run.t
-	perl xt/03-run.t
-	perl6-m -Ilib t/02-utils.t
-	perl6-m -Ilib xt/05-run.t
+	prove -lrv t/ xt/
 
 clean:
 	rm -f */*.moarvm */*/*.moarvm $(RUNTIME_OBJFILES) blib/libpone.a $(CTEST_OBJFILES) vgcore.* core.* bin/pone
