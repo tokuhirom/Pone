@@ -102,8 +102,9 @@ static void pone_compiler_eval(const char* src, bool dump, bool compile_only) {
         pone_compile("-e", fp, node);
         fclose(fp);
 
+        system("clang -I src/ -g -lm -std=c99 -o pone_generated.out pone_generated.c blib/libpone.a");
+
         if (!compile_only) {
-            system("clang -I src/ -g -lm -std=c99 -o pone_generated.out pone_generated.c blib/libpone.a");
             system("./pone_generated.out");
         }
     }

@@ -9,6 +9,7 @@
 1
 
 ===
+--- LAST
 --- input: say('hello')
 --- expected
 hello

@@ -11,9 +11,9 @@ CTEST_OBJFILES=t/c/assign.o t/c/basic.o t/c/enter.o t/c/func2.o t/c/func.o t/c/h
 
 test: lib/Pone.pm6.moarvm blib/libpone.a $(CTEST_OBJFILES)
 	perl t/01-c.t
+	perl -Ilib t/04-run.t
 	perl xt/03-run.t
 	perl6-m -Ilib t/02-utils.t
-	perl -Ilib t/04-run.t
 	perl6-m -Ilib xt/05-run.t
 
 clean:
