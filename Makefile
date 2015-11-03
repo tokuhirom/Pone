@@ -1,21 +1,23 @@
-all: blib/libpone.a bin/pone.moarvm
+all: blib/libpone.a bin/pone.moarvm bin/pone
 
-CFLAGS=-std=c99 -g -W -lm
+CFLAGS=-std=c99 -g -W -lm -I 3rd/pvip/src/ -DCC=$(CC)
+LDFLAGS=-lm
 # CFLAGS+= -DTRACE_REFCNT
 # CFLAGS+= -DTRACE_UNIVERSE
 
-OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/builtin.o src/code.o src/hash.o src/int.o src/nil.o src/num.o src/op.o src/pone.o src/scope.o src/str.o src/world.o src/universe.o src/iter.o src/exc.o src/range.o
+RUNTIME_OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/builtin.o src/code.o src/hash.o src/int.o src/nil.o src/num.o src/op.o src/pone.o src/scope.o src/str.o src/world.o src/universe.o src/iter.o src/exc.o src/range.o
+COMPILER_OBJFILES=3rd/pvip/src/pvip_node.o 3rd/pvip/src/pvip_string.o src/compiler/main.o 3rd/pvip/src/gen.pvip.y.o  3rd/pvip/src/gen.node.c
 CTEST_OBJFILES=t/c/assign.o t/c/basic.o t/c/enter.o t/c/func2.o t/c/func.o t/c/hash.o t/c/nop.o t/c/iter.o t/c/for.o t/c/array_methods.o
 
 test: lib/Pone.pm6.moarvm blib/libpone.a $(CTEST_OBJFILES)
 	perl t/01-c.t
 	perl xt/03-run.t
 	perl6-m -Ilib t/02-utils.t
-	perl6-m -Ilib t/04-run.t
+	perl -Ilib t/04-run.t
 	perl6-m -Ilib xt/05-run.t
 
 clean:
-	rm -f */*.moarvm */*/*.moarvm $(OBJFILES) blib/libpone.a $(CTEST_OBJFILES) vgcore.* core.*
+	rm -f */*.moarvm */*/*.moarvm $(RUNTIME_OBJFILES) blib/libpone.a $(CTEST_OBJFILES) vgcore.* core.* bin/pone
 
 bin/pone.moarvm: lib/Pone/Node.pm.moarvm lib/Pone/Compiler.pm.moarvm lib/Pone/Utils.pm.moarvm lib/Pone.pm6.moarvm
 	perl6-m -Ilib --target=mbc --output=bin/pone.moarvm bin/pone
@@ -41,9 +43,24 @@ lib/Pone/Grammar.pm.moarvm: lib/Pone/Grammar.pm lib/Pone/Tracer.pm.moarvm
 lib/Pone/Tracer.pm.moarvm: lib/Pone/Tracer.pm
 	perl6-m -Ilib --target=mbc --output=lib/Pone/Tracer.pm.moarvm lib/Pone/Tracer.pm
 
-blib/libpone.a: $(OBJFILES) src/pone.h
+blib/libpone.a: $(RUNTIME_OBJFILES) src/pone.h
 	-mkdir -p blib
-	ar rcs blib/libpone.a $(OBJFILES)
+	ar rcs blib/libpone.a $(RUNTIME_OBJFILES)
+
+bin/pone: $(COMPILER_OBJFILES)
+	$(CC) $(CFLAGS) -o bin/pone $(COMPILER_OBJFILES)
+
+3rd/pvip/src/pvip_node.o: 3rd/pvip/src/pvip_node.c
+
+3rd/pvip/src/pvip_node.c:
+	git submodule init
+	git submodule update
+
+3rd/pvip/src/gen.node.c:
+	cd 3rd/pvip && make src/gen.node.c
+
+3rd/pvip/src/gen.pvip.y.c:
+	cd 3rd/pvip && make src/gen.pvip.y.c
 
 src/alloc.o: src/pone.h
 

@@ -1,27 +1,25 @@
-#!/usr/bin/env perl6 -Ilib
-use v6;
-
-use lib 'lib';
-
-use Test;
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use Test::More;
 use Test::Base;
-use Pone;
+use POSIX;
+use Capture::Tiny qw/capture/;
 
-my $dat = slurp('t/basic.dat');
+spec_file('t/basic.dat');
 
-my @blocks = blocks($dat);
+plan tests => 1*blocks();
 
-plan 1*@blocks;
+run {
+    my $block = shift;
+    my ($src, $expected) = ($block->input, $block->expected);
 
-my $pone = Pone.new;
-
-for @blocks {
-    my $title = .input;
-    $title ~~ s:g/\n/\\n/;
-    subtest {
-        my ($out, $sig) = $pone.eval(.input);
-        is $out, .expected.chomp, $title;
-        ok !$sig.defined, 'no signals';
-    }, $title;
+    subtest $src, sub {
+        my ($out, $err, $exit) = capture {
+            system("./bin/pone", "-e", "$src");
+        };
+        is $out, $expected, "stdout($src)";
+        ok WIFEXITED($exit), 'exited';
+    };
 }
 

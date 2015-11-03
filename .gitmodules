@@ -1,0 +1,3 @@
+[submodule "3rd/pvip"]
+	path = 3rd/pvip
+	url = git@github.com:tokuhirom/pvip.git
