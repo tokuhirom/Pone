@@ -142,7 +142,6 @@ say $x;
 1111
 
 ===
---- LAST
 --- input
 say elems({a => 3});
 --- expected
@@ -175,6 +174,7 @@ x(3);
 3
 
 ===
+--- LAST
 --- input
 sub x($n, $m) { say $n-$m }
 x(4,9);

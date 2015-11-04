@@ -1,7 +1,9 @@
 all: blib/libpone.a bin/pone
 
-CFLAGS=-std=c99 -g -W -I 3rd/pvip/src/ -DCC=$(CC)
+CFLAGS=-std=c99 -g -W -I 3rd/pvip/src/ -DCC=$(CC) -Isrc/
 LDFLAGS=-lm
+LIBPONE=blib/libpone.a
+LIBPVIP=3rd/pvip/libpvip.a
 # CFLAGS+= -DTRACE_REFCNT
 # CFLAGS+= -DTRACE_UNIVERSE
 
@@ -14,25 +16,24 @@ test: blib/libpone.a $(CTEST_OBJFILES)
 
 clean:
 	rm -f $(RUNTIME_OBJFILES) blib/libpone.a $(CTEST_OBJFILES) vgcore.* core.* bin/pone
+	cd 3rd/pvip/ && make clean
 
 blib/libpone.a: $(RUNTIME_OBJFILES) src/pone.h
 	-mkdir -p blib
 	ar rcs blib/libpone.a $(RUNTIME_OBJFILES)
 
-bin/pone: $(COMPILER_OBJFILES)
-	$(CC) $(CFLAGS) -o bin/pone $(COMPILER_OBJFILES)
+bin/pone: $(COMPILER_OBJFILES) $(LIBPVIP) $(LIBPONE)
+	$(CC) $(CFLAGS) -lm -o bin/pone $(COMPILER_OBJFILES) $(LIBPONE) $(LIBPVIP)
 
 3rd/pvip/src/pvip_node.o: 3rd/pvip/src/pvip_node.c
 
 3rd/pvip/src/pvip_node.c:
 	git submodule init
 	git submodule update
+	make
 
-3rd/pvip/src/gen.node.c:
-	cd 3rd/pvip && make src/gen.node.c
-
-3rd/pvip/src/gen.pvip.y.c:
-	cd 3rd/pvip && make src/gen.pvip.y.c
+$(LIBPVIP): 3rd/pvip/src/pvip.h 3rd/pvip/src/pvip_private.h
+	cd 3rd/pvip && make
 
 src/alloc.o: src/pone.h
 
