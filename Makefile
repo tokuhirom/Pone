@@ -32,7 +32,7 @@ bin/pone: $(COMPILER_OBJFILES) $(LIBPVIP) $(LIBPONE)
 	git submodule update
 	make
 
-$(LIBPVIP): 3rd/pvip/src/pvip.h 3rd/pvip/src/pvip_private.h
+$(LIBPVIP): 3rd/pvip/src/pvip.h 3rd/pvip/src/pvip_private.h 3rd/pvip/src/pvip.y
 	cd 3rd/pvip && make
 
 src/alloc.o: src/pone.h

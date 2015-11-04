@@ -174,7 +174,6 @@ x(3);
 3
 
 ===
---- LAST
 --- input
 sub x($n, $m) { say $n-$m }
 x(4,9);
@@ -197,13 +196,7 @@ say x();
 
 ===
 --- input
-sub x() { 5 } say x();
---- expected
-5
-
-===
---- input
-sub x() { { 5 } } say x();
+sub x() { 5 }; say x();
 --- expected
 5
 
@@ -245,6 +238,7 @@ my $n = sub ($m) { say 5+$m }; $n(3)
 8
 
 ===
+--- LAST
 --- input
 try { say 6; die 3; say 5; }; say 555; say $!
 --- expected

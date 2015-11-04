@@ -18,7 +18,16 @@ run {
         my ($out, $err, $exit) = capture {
             system("./bin/pone", "-e", "$src");
         };
-        is $out, $expected, "stdout($src)";
+        is($out, $expected, "stdout($src)") or do {
+            system("./bin/pone", "-e", $src, "-d");
+
+            if ($ENV{DEBUG}) {
+                diag "writing pone_generated.pone: $src";
+                open my $fh, '>', 'pone_generated.pone' or die $!; # for deubgging
+                print {$fh} $src;
+                close $fh;
+            }
+        };
         ok WIFEXITED($exit), 'exited';
     };
 }

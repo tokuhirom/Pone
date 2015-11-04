@@ -21,6 +21,8 @@ typedef struct pone_compile_ctx {
     PVIPString** subs;
     int sub_idx;
     const char* filename;
+    bool want_return;
+    int anon_sub_no;
 } pone_compile_ctx;
 
 void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
@@ -36,7 +38,12 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             for (int i=0; i<node->children.size; ++i) {
                 PVIPNode* child = node->children.nodes[i];
                 LINE(child);
-                COMPILE(child);
+                if (ctx->want_return && i==node->children.size-1) {
+                    PRINTF("return ");
+                    COMPILE(child);
+                } else {
+                    COMPILE(child);
+                }
                 PRINTF(";\n");
             }
             break;
@@ -81,7 +88,10 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF("pone_false()");
             break;
         case PVIP_NODE_FUNCALL: {
-            assert(node->children.nodes[0]->type == PVIP_NODE_IDENT);
+            assert(
+                    node->children.nodes[0]->type == PVIP_NODE_IDENT
+                    || node->children.nodes[0]->type == PVIP_NODE_VARIABLE
+                    );
             const char* name = PVIP_string_c_str(node->children.nodes[0]->pv);
             if (
                     strcmp(name, "print")==0
@@ -98,7 +108,9 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                     ) {
                 PRINTF("pone_builtin_%s(world", name);
             } else {
-                PRINTF("pone_code_call(world, pone_get_lex(world, \"&%s\"), pone_nil(), %d", name, node->children.nodes[1]->children.size);
+                PRINTF("pone_code_call(world, pone_get_lex(world, \"%s%s\"), pone_nil(), %d",
+                        node->children.nodes[0]->type == PVIP_NODE_IDENT ? "&" : "",
+                        name, node->children.nodes[1]->children.size);
             }
             if (node->children.nodes[1]->children.size > 0) {
                 PRINTF(",");
@@ -201,19 +213,31 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF(")");
             MORTAL_END;
             break;
+        case PVIP_NODE_RETURN: {
+            PRINTF("return ");
+            COMPILE(node->children.nodes[0]);
+            PRINTF(";\n");
+            break;
+        }
+        case PVIP_NODE_SPECIAL_VARIABLE_EXCEPTIONS: { // $!
+            PRINTF("pone_errvar(world)");
+            break;
+        }
         case PVIP_NODE_BLOCK: {
             PRINTF("{\n");
+            PRINTF("  pone_savetmps(world);\n");
+            PRINTF("  pone_push_scope(world);\n");
             if (node->children.size > 0) {
                 COMPILE(node->children.nodes[0]);
             }
+            PRINTF("  pone_pop_scope(world);\n");
+            PRINTF("  pone_freetmps(world);\n");
             PRINTF("}\n");
             break;
         }
-        case PVIP_NODE_FUNC: {
-            // (func (ident "x") (params) (nop) (block (statements (funcall (ident "say") (args (int 3))))))
-            // (func (ident "x") (params (param (nop) (variable "$n") (nop) (int 0))) (nop) (block (statements (funcall (ident "say") (args (variable "$n"))))))
-            PVIPNode* name = node->children.nodes[0];
-            int argcnt = node->children.nodes[1]->children.size;
+        case PVIP_NODE_TRY: {
+            ctx->anon_sub_no++;
+
 #define SAVE_BUF \
         PVIPString* orig_buf = ctx->buf; \
         ctx->subs = realloc(ctx->subs, sizeof(PVIPString*)*(ctx->sub_idx+1)); \
@@ -224,13 +248,14 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
 
             SAVE_BUF;
 
-            PRINTF("pone_val* pone_user_func_");
-            WRITE_PV(name->pv);
-            PRINTF("(pone_world* world, pone_val* self, int n, va_list args) {\n");
+            PRINTF("pone_val* pone_try_%d(", ctx->anon_sub_no);
+            PRINTF("pone_world* world, pone_val* self, int n, va_list args) {\n");
             PRINTF("  pone_savetmps(world);\n");
             PRINTF("  pone_push_scope(world);\n");
-            COMPILE(node->children.nodes[1]);
-            COMPILE(node->children.nodes[3]);
+            bool orig_want_return = ctx->want_return;
+            ctx->want_return = true;
+            COMPILE(node->children.nodes[0]);
+            ctx->want_return = orig_want_return;
             PRINTF("  pone_pop_scope(world);\n");
             PRINTF("  pone_freetmps(world);\n");
             PRINTF("  return pone_nil();\n");
@@ -238,8 +263,49 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
 
             RESTORE_BUF;
 
+            PRINTF("pone_mortalize(world, pone_try(world, pone_mortalize(world, pone_code_new(world, pone_try_%d))))",
+                    ctx->anon_sub_no);
+
+            break;
+        }
+        case PVIP_NODE_FUNC: {
+            // (func (ident "x") (params) (nop) (block (statements (funcall (ident "say") (args (int 3))))))
+            // (func (ident "x") (params (param (nop) (variable "$n") (nop) (int 0))) (nop) (block (statements (funcall (ident "say") (args (variable "$n"))))))
+            PVIPNode* name = node->children.nodes[0];
+            int argcnt = node->children.nodes[1]->children.size;
+
+            bool is_anon = false;
             if (name->type == PVIP_NODE_NOP) {
-                abort(); // NYI
+                is_anon = true;
+                ctx->anon_sub_no++;
+            }
+
+            SAVE_BUF;
+
+            PRINTF("pone_val* pone_user_func_");
+            if (is_anon) {
+                PRINTF("anon_%d", ctx->anon_sub_no);
+            } else {
+                WRITE_PV(name->pv);
+            }
+            PRINTF("(pone_world* world, pone_val* self, int n, va_list args) {\n");
+            PRINTF("  pone_savetmps(world);\n");
+            PRINTF("  pone_push_scope(world);\n");
+            COMPILE(node->children.nodes[1]);
+            bool orig_want_return = ctx->want_return;
+            ctx->want_return = true;
+            COMPILE(node->children.nodes[3]);
+            ctx->want_return = orig_want_return;
+            PRINTF("  pone_pop_scope(world);\n");
+            PRINTF("  pone_freetmps(world);\n");
+            PRINTF("  return pone_nil();\n");
+            PRINTF("}\n");
+
+            RESTORE_BUF;
+
+            if (is_anon) {
+                PRINTF("pone_mortalize(world, pone_code_new(world, pone_user_func_anon_%d))",
+                        ctx->anon_sub_no);
             } else {
                 PRINTF("pone_assign(world, 0, \"&%s\", pone_mortalize(world, pone_code_new(world, pone_user_func_%s)))",
                         PVIP_string_c_str(name->pv),
@@ -293,9 +359,12 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
         }
         case PVIP_NODE_PARAM: {
             // (param (nop) (variable "$n") (nop) (int 0))
-            PRINTF("pone_assign(world, 0, \"");
-            WRITE_PV(node->children.nodes[1]->pv);
-            PRINTF("\", va_arg(args, pone_val*));\n");
+            // (param (nop) (list) (nop) (int 0))
+            if (node->children.nodes[1]->type == PVIP_NODE_VARIABLE) {
+                PRINTF("pone_assign(world, 0, \"");
+                WRITE_PV(node->children.nodes[1]->pv);
+                PRINTF("\", va_arg(args, pone_val*));\n");
+            }
             break;
         }
         case PVIP_NODE_PARAMS: {
@@ -388,6 +457,55 @@ static void pone_compiler_eval(const char* src, bool dump, bool compile_only) {
     pvip_free(pvip);
 }
 
+static void pone_compile_file(const char* filename, bool dump, bool compile_only) {
+    pvip_t* pvip = pvip_new();
+    pone_compile_ctx ctx;
+    memset(&ctx, 0, sizeof(pone_compile_ctx));
+    ctx.buf = PVIP_string_new();
+    ctx.filename = filename;
+
+    FILE* fp = fopen(filename, "r");
+    if (!fp) {
+        fprintf(stderr, "Cannot open %s", filename);
+        abort();
+    }
+    PVIPString *error;
+    PVIPNode *node = PVIP_parse_fp(pvip, fp, false, &error);
+    if (!node) {
+        PVIP_string_say(error);
+        PVIP_string_destroy(error);
+        printf("ABORT\n");
+        exit(1);
+    }
+
+    if (dump) {
+        PVIP_node_dump_sexp(node);
+    } else {
+        FILE* fp = fopen("pone_generated.c", "w");
+        if (!fp) {
+            perror("Cannot open pone_generated.c");
+            exit(EXIT_FAILURE);
+        }
+        pone_compile(&ctx, fp, node);
+        fclose(fp);
+
+        system("clang -I src/ -g -lm -std=c99 -o pone_generated.out pone_generated.c blib/libpone.a");
+
+        if (!compile_only) {
+            system("./pone_generated.out");
+        }
+    }
+
+    for (int i=0; i<ctx.sub_idx; ++i) {
+        PVIP_string_destroy(ctx.subs[i]);
+    }
+    if (ctx.subs) {
+        free(ctx.subs);
+    }
+    PVIP_string_destroy(ctx.buf);
+    pvip_free(pvip);
+}
+
 int main(int argc, char** argv) {
     // TODO use portable getopt
     int opt;
@@ -415,6 +533,7 @@ int main(int argc, char** argv) {
         pone_compiler_eval(eval, dump, compile_only);
     } else if (optind < argc) {
         const char* fname = argv[optind];
+        pone_compile_file(fname, dump, compile_only);
     } else {
         printf("REPL mode is not implemented yet\n");
         abort();
