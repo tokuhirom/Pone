@@ -1,6 +1,6 @@
-all: blib/libpone.a bin/pone.moarvm bin/pone
+all: blib/libpone.a bin/pone
 
-CFLAGS=-std=c99 -g -W -lm -I 3rd/pvip/src/ -DCC=$(CC)
+CFLAGS=-std=c99 -g -W -I 3rd/pvip/src/ -DCC=$(CC)
 LDFLAGS=-lm
 # CFLAGS+= -DTRACE_REFCNT
 # CFLAGS+= -DTRACE_UNIVERSE
@@ -9,35 +9,11 @@ RUNTIME_OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/b
 COMPILER_OBJFILES=3rd/pvip/src/pvip_node.o 3rd/pvip/src/pvip_string.o src/compiler/main.o 3rd/pvip/src/gen.pvip.y.o  3rd/pvip/src/gen.node.c
 CTEST_OBJFILES=t/c/assign.o t/c/basic.o t/c/enter.o t/c/func2.o t/c/func.o t/c/hash.o t/c/nop.o t/c/iter.o t/c/for.o t/c/array_methods.o
 
-test: lib/Pone.pm6.moarvm blib/libpone.a $(CTEST_OBJFILES)
+test: blib/libpone.a $(CTEST_OBJFILES)
 	prove -lrv t/ xt/
 
 clean:
-	rm -f */*.moarvm */*/*.moarvm $(RUNTIME_OBJFILES) blib/libpone.a $(CTEST_OBJFILES) vgcore.* core.* bin/pone
-
-bin/pone.moarvm: lib/Pone/Node.pm.moarvm lib/Pone/Compiler.pm.moarvm lib/Pone/Utils.pm.moarvm lib/Pone.pm6.moarvm
-	perl6-m -Ilib --target=mbc --output=bin/pone.moarvm bin/pone
-
-lib/Pone.pm6.moarvm: lib/Pone/Node.pm.moarvm lib/Pone/Compiler.pm.moarvm lib/Pone/Utils.pm.moarvm lib/Pone.pm6 lib/Pone/Actions.pm.moarvm lib/Pone/Grammar.pm.moarvm
-	perl6-m -Ilib --target=mbc --output=lib/Pone.pm6.moarvm lib/Pone.pm6
-
-lib/Pone/Compiler.pm.moarvm: lib/Pone/Node.pm.moarvm lib/Pone/Compiler.pm lib/Pone/Utils.pm.moarvm
-	perl6-m -Ilib --target=mbc --output=lib/Pone/Compiler.pm.moarvm lib/Pone/Compiler.pm
-
-lib/Pone/Node.pm.moarvm: lib/Pone/Node.pm
-	perl6-m -Ilib --target=mbc --output=lib/Pone/Node.pm.moarvm lib/Pone/Node.pm
-
-lib/Pone/Utils.pm.moarvm: lib/Pone/Utils.pm
-	perl6-m -Ilib --target=mbc --output=lib/Pone/Utils.pm.moarvm lib/Pone/Utils.pm
-
-lib/Pone/Actions.pm.moarvm: lib/Pone/Actions.pm lib/Pone/Node.pm.moarvm lib/Pone/Utils.pm.moarvm
-	perl6-m -Ilib --target=mbc --output=lib/Pone/Actions.pm.moarvm lib/Pone/Actions.pm
-
-lib/Pone/Grammar.pm.moarvm: lib/Pone/Grammar.pm lib/Pone/Tracer.pm.moarvm
-	perl6-m -Ilib --target=mbc --output=lib/Pone/Grammar.pm.moarvm lib/Pone/Grammar.pm
-
-lib/Pone/Tracer.pm.moarvm: lib/Pone/Tracer.pm
-	perl6-m -Ilib --target=mbc --output=lib/Pone/Tracer.pm.moarvm lib/Pone/Tracer.pm
+	rm -f $(RUNTIME_OBJFILES) blib/libpone.a $(CTEST_OBJFILES) vgcore.* core.* bin/pone
 
 blib/libpone.a: $(RUNTIME_OBJFILES) src/pone.h
 	-mkdir -p blib
@@ -102,34 +78,34 @@ tags:
 
 # yes. hardly copy and pasted. but... i will rewrite all cases after self-hosting.
 t/c/assign.o: t/c/assign.c blib/libpone.a
-	$(CC) $(CFLAGS) -I src/ -o t/c/assign.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/assign.o $< blib/libpone.a
 
 t/c/basic.o: t/c/basic.c blib/libpone.a
-	$(CC) $(CFLAGS) -I src/ -o t/c/basic.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/basic.o $< blib/libpone.a
 
 t/c/enter.o: t/c/enter.c blib/libpone.a
-	$(CC) $(CFLAGS) -I src/ -o t/c/enter.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/enter.o $< blib/libpone.a
 
 t/c/func2.o: t/c/func2.c blib/libpone.a
-	$(CC) $(CFLAGS) -I src/ -o t/c/func2.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/func2.o $< blib/libpone.a
 
 t/c/func.o: t/c/func.c blib/libpone.a
-	$(CC) $(CFLAGS) -I src/ -o t/c/func.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/func.o $< blib/libpone.a
 
 t/c/hash.o: t/c/hash.c blib/libpone.a
-	$(CC) $(CFLAGS) -I src/ -o t/c/hash.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/hash.o $< blib/libpone.a
 
 t/c/nop.o: t/c/nop.c blib/libpone.a
-	$(CC) $(CFLAGS) -I src/ -o t/c/nop.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/nop.o $< blib/libpone.a
 
 t/c/iter.o: t/c/iter.c blib/libpone.a src/pone.h
-	$(CC) $(CFLAGS) -I src/ -o t/c/iter.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/iter.o $< blib/libpone.a
 
 t/c/for.o: t/c/for.c blib/libpone.a src/pone.h
-	$(CC) $(CFLAGS) -I src/ -o t/c/for.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/for.o $< blib/libpone.a
 
 t/c/array_methods.o: t/c/array_methods.c blib/libpone.a src/pone.h
-	$(CC) $(CFLAGS) -I src/ -o t/c/array_methods.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/array_methods.o $< blib/libpone.a
 
 pone_generated.out: pone_generated.c blib/libpone.a
 	$(CC) $(CFLAGS) -Werror -I src -o ./pone_generated.out  pone_generated.c blib/libpone.a

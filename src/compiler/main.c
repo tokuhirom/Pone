@@ -18,18 +18,55 @@ static void usage() {
 
 void _pone_compile(const char* fname, FILE* fp, PVIPNode* node) {
 #define PRINTF(fmt, ...) fprintf(fp, (fmt), ##__VA_ARGS__)
+#define WRITE_PV(s) fwrite(s->buf, 1, s->len, fp)
+#define LINE(node) PRINTF("#line %d \"%s\"\n", (node)->line_number, fname);
 #define COMPILE(node) _pone_compile(fname, fp, node)
+#define MORTAL_START PRINTF("pone_mortalize(world,")
+#define MORTAL_END PRINTF(")")
     switch (node->type) {
         case PVIP_NODE_STATEMENTS:
             for (int i=0; i<node->children.size; ++i) {
                 PVIPNode* child = node->children.nodes[i];
-                PRINTF("#line %d \"%s\"\n", node->line_number, fname);
+                LINE(child);
                 COMPILE(child);
                 PRINTF(";\n");
             }
             break;
         case PVIP_NODE_INT:
+            MORTAL_START;
             PRINTF("pone_int_new(world->universe, %ld)", node->iv);
+            MORTAL_END;
+            break;
+        case PVIP_NODE_STRING:
+            PRINTF("pone_str_new_const(world->universe, \"%s\", %ld)", node->pv->buf, node->pv->len);
+            break;
+#define INFIX(func) do { PRINTF("%s(world, ", func); COMPILE(node->children.nodes[0]);  PRINTF(","); COMPILE(node->children.nodes[1]); PRINTF(")"); } while (0)
+        case PVIP_NODE_ADD:
+            INFIX("pone_add");
+            break;
+        case PVIP_NODE_SUB:
+            INFIX("pone_subtract");
+            break;
+        case PVIP_NODE_MUL:
+            INFIX("pone_multiply");
+            break;
+        case PVIP_NODE_DIV:
+            INFIX("pone_divide");
+            break;
+        case PVIP_NODE_MOD:
+            INFIX("pone_mod");
+            break;
+#undef INFIX
+        case PVIP_NODE_UNARY_MINUS: // Negative numeric context operator.
+            PRINTF("pone_subtract(world, pone_int_new(world->universe, 0),");
+            COMPILE(node->children.nodes[0]);
+            PRINTF(")");
+            break;
+        case PVIP_NODE_TRUE:
+            PRINTF("pone_true()");
+            break;
+        case PVIP_NODE_FALSE:
+            PRINTF("pone_false()");
             break;
         case PVIP_NODE_FUNCALL:
             assert(node->children.nodes[0]->type == PVIP_NODE_IDENT);
@@ -37,6 +74,72 @@ void _pone_compile(const char* fname, FILE* fp, PVIPNode* node) {
             COMPILE(node->children.nodes[1]);
             PRINTF(")");
             break;
+        case PVIP_NODE_IF:
+            // (statements (if (int 1) (statements (int 4))))
+            PRINTF("if (pone_so(");
+            COMPILE(node->children.nodes[0]);
+            PRINTF(")) {\n");
+            COMPILE(node->children.nodes[1]);
+            PRINTF("}\n");
+            for (int i=2; i<node->children.size; ++i) {
+                COMPILE(node->children.nodes[i]);
+            }
+            break;
+        case PVIP_NODE_ELSIF:
+            PRINTF(" else if (pone_so(");
+            COMPILE(node->children.nodes[0]);
+            PRINTF(")) {\n");
+            COMPILE(node->children.nodes[1]);
+            PRINTF("}\n");
+            break;
+        case PVIP_NODE_ELSE:
+            PRINTF(" else {\n");
+            for (int i=0; i<node->children.size; ++i) {
+                LINE(node->children.nodes[i]);
+                COMPILE(node->children.nodes[i]);
+                PRINTF(";\n");
+            }
+            PRINTF("}\n");
+            break;
+        case PVIP_NODE_ARRAY:
+            MORTAL_START;
+            PRINTF("pone_ary_new(world->universe, %d",
+                    node->children.size);
+            for (int i=0; i<node->children.size; ++i) {
+                PRINTF(",");
+                COMPILE(node->children.nodes[i]);
+            }
+            PRINTF(")");
+            MORTAL_END;
+            break;
+        case PVIP_NODE_LIST_ASSIGNMENT: {
+            PVIPNode* varnode = node->children.nodes[0];
+            PVIPString *var;
+            switch (varnode->type) {
+            case PVIP_NODE_MY:
+                var = varnode->children.nodes[1]->pv;
+                break;
+            case PVIP_NODE_VARIABLE:
+                var = varnode->pv;
+                break;
+            default:
+                fprintf(stderr, "invalid node at lhs at line %d\n",
+                        node->line_number);
+                abort();
+            }
+            PRINTF("pone_assign(world, 0, \"");
+            WRITE_PV(var);
+            PRINTF("\", ");
+            COMPILE(node->children.nodes[1]);
+            PRINTF(")");
+            break;
+        }
+        case PVIP_NODE_VARIABLE: {
+            PRINTF("pone_get_lex(world, \"");
+            WRITE_PV(node->pv);
+            PRINTF("\")");
+            break;
+        }
         case PVIP_NODE_ARGS:
             for (int i=0; i<node->children.size; ++i) {
                 PVIPNode* child = node->children.nodes[i];
@@ -47,7 +150,7 @@ void _pone_compile(const char* fname, FILE* fp, PVIPNode* node) {
             }
             break;
         default:
-            fprintf(stderr, "unsupported node\n");
+            fprintf(stderr, "unsupported node '%s'\n", PVIP_node_name(node->type));
             abort();
     }
 #undef PRINTF
