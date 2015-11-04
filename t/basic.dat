@@ -135,7 +135,6 @@ say 5963
 5963
 
 ===
---- LAST
 --- input
 my $x = 1111;
 say $x;
@@ -143,6 +142,7 @@ say $x;
 1111
 
 ===
+--- LAST
 --- input
 say elems({a => 3});
 --- expected

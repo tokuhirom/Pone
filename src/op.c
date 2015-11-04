@@ -58,7 +58,7 @@ void pone_dd(pone_universe* universe, pone_val* val) {
             const char* k;
             pone_val* v;
             kh_foreach(val->as.hash.h, k, v, {
-                printf("%s, ", k);
+                printf("key:%s, ", k);
             });
             printf(")\n");
             break;

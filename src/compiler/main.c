@@ -38,7 +38,11 @@ void _pone_compile(const char* fname, FILE* fp, PVIPNode* node) {
             MORTAL_END;
             break;
         case PVIP_NODE_STRING:
-            PRINTF("pone_str_new_const(world->universe, \"%s\", %ld)", node->pv->buf, node->pv->len);
+            MORTAL_START;
+            PRINTF("pone_str_new_const(world->universe, \"");
+            WRITE_PV(node->pv);
+            PRINTF("\", %ld)", node->pv->len);
+            MORTAL_END;
             break;
 #define INFIX(func) do { PRINTF("%s(world, ", func); COMPILE(node->children.nodes[0]);  PRINTF(","); COMPILE(node->children.nodes[1]); PRINTF(")"); } while (0)
         case PVIP_NODE_ADD:
@@ -149,6 +153,23 @@ void _pone_compile(const char* fname, FILE* fp, PVIPNode* node) {
                 }
             }
             break;
+        case PVIP_NODE_HASH:
+            // (statements (hash (pair (ident "a") (int 3))))
+            PRINTF("pone_hash_puts(world, pone_hash_new(world->universe), %d", node->children.size*2);
+            for (int i=0; i<node->children.size; ++i) {
+                PRINTF(",");
+
+                PVIPNode* child = node->children.nodes[i];
+                if (child->children.nodes[0]->type == PVIP_NODE_IDENT) {
+                    WRITE_PV(child->children.nodes[0]->pv);
+                } else {
+                    COMPILE(child->children.nodes[0]);
+                }
+                PRINTF(",");
+                COMPILE(child->children.nodes[1]);
+            }
+            PRINTF(")");
+            break;
         default:
             fprintf(stderr, "unsupported node '%s'\n", PVIP_node_name(node->type));
             abort();
@@ -185,8 +206,10 @@ void pone_compile(const char* fname, FILE* fp, PVIPNode* node) {
 
 
 static void pone_compiler_eval(const char* src, bool dump, bool compile_only) {
+    pvip_t* pvip = pvip_new();
+
     PVIPString *error;
-    PVIPNode *node = PVIP_parse_string(src, strlen(src), false, &error);
+    PVIPNode *node = PVIP_parse_string(pvip, src, strlen(src), false, &error);
     if (!node) {
         PVIP_string_say(error);
         PVIP_string_destroy(error);
@@ -212,7 +235,7 @@ static void pone_compiler_eval(const char* src, bool dump, bool compile_only) {
         }
     }
 
-    PVIP_node_destroy(node);
+    pvip_free(pvip);
 }
 
 int main(int argc, char** argv) {
