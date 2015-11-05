@@ -7,7 +7,7 @@ LIBPVIP=3rd/pvip/libpvip.a
 # CFLAGS+= -DTRACE_REFCNT
 # CFLAGS+= -DTRACE_UNIVERSE
 
-RUNTIME_OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/builtin.o src/code.o src/hash.o src/int.o src/nil.o src/num.o src/op.o src/pone.o src/scope.o src/str.o src/world.o src/universe.o src/iter.o src/exc.o src/range.o
+RUNTIME_OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/builtin.o src/code.o src/hash.o src/int.o src/nil.o src/num.o src/op.o src/pone.o src/scope.o src/str.o src/world.o src/universe.o src/iter.o src/exc.o src/range.o src/mu.o
 COMPILER_OBJFILES=src/compiler/main.o 3rd/linenoise/linenoise.o
 CTEST_OBJFILES=t/c/assign.o t/c/basic.o t/c/enter.o t/c/func2.o t/c/func.o t/c/hash.o t/c/nop.o t/c/iter.o t/c/for.o t/c/array_methods.o
 
@@ -117,7 +117,7 @@ t/c/array_methods.o: t/c/array_methods.c blib/libpone.a src/pone.h
 pone_generated.out: pone_generated.c blib/libpone.a
 	$(CC) $(CFLAGS) -Werror -I src -o ./pone_generated.out  pone_generated.c blib/libpone.a
 
-docs: docs/Array.md docs/Num.md docs/Range.md
+docs: docs/Array.md docs/Num.md docs/Range.md docs/Mu.md
 
 docs/Array.md: src/array.c
 	pod2markdown src/array.c > docs/Array.md
@@ -127,6 +127,9 @@ docs/Num.md: src/num.c
 
 docs/Range.md: src/num.c
 	pod2markdown src/range.c > docs/Range.md
+
+docs/Mu.md: src/mu.c
+	pod2markdown src/mu.c > docs/Mu.md
 
 .PHONY: clean tags docs
 
