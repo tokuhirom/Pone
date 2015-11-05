@@ -217,6 +217,8 @@ typedef struct pone_universe {
     struct pone_val* class_hash;
     // class of Code
     struct pone_val* class_code;
+    // class of Nil
+    struct pone_val* class_nil;
     // class of Range
     struct pone_val* class_range;
     // We use a sentinel value to mark the end of an iteration.
@@ -236,6 +238,7 @@ void pone_init();
 
 // nil.c
 pone_val* pone_nil();
+void pone_nil_init(pone_universe* universe);
 
 // world.c
 pone_world* pone_world_new(pone_universe* universe);
@@ -249,6 +252,7 @@ jmp_buf* pone_exc_handler_push(pone_world* world);
 void pone_exc_handler_pop(pone_world* world);
 void pone_throw(pone_world* world, pone_val* msg);
 void pone_throw_str(pone_world* world, const char* fmt, ...);
+void pone_warn_str(pone_world* world, const char* fmt, ...);
 
 // op.c
 void pone_dd(pone_universe* universe, pone_val* val);

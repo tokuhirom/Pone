@@ -61,6 +61,14 @@ void pone_throw(pone_world* world, pone_val* val) {
     longjmp(universe->err_handlers[universe->err_handler_idx--], 1);
 }
 
+void pone_warn_str(pone_world* world, const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
+    fprintf(stderr, "\n"); // TODO: show line number
+}
+
 pone_val* pone_try(pone_world* world, pone_val* code) {
     assert(pone_type(code) == PONE_CODE);
 

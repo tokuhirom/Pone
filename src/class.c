@@ -14,7 +14,7 @@ pone_val* pone_init_class(pone_universe* universe) {
 pone_val* pone_what(pone_universe* universe, pone_val* obj) {
     switch (pone_type(obj)) {
     case PONE_NIL:
-        return universe->class_mu;
+        return universe->class_nil;
     case PONE_INT:
         return universe->class_int;
     case PONE_NUM:

@@ -106,9 +106,6 @@ bool pone_so(pone_val* val) {
 
 int pone_intify(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
-    case PONE_NIL:
-        pone_throw_str(world, "Use of uninitialized value as integer");
-        abort();
     case PONE_INT:
         return pone_int_val(val);
     case PONE_STRING: {
