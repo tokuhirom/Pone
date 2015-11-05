@@ -601,3 +601,20 @@ q<3>.Int.say
 --- expected
 3
 
+===
+--- input
+(3.14 + 4.14).say
+--- expected
+7.280000
+
+===
+--- input
+(3.14 + 3).say
+--- expected
+6.140000
+
+===
+--- input
+"3.14".Num.say
+--- expected
+3.140000

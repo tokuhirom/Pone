@@ -55,6 +55,10 @@ static pone_val* meth_int_accepts(pone_world* world, pone_val* self, int n, va_l
     return b ? pone_true() : pone_false();
 }
 
+static pone_val* meth_int_num(pone_world* world, pone_val* self, int n, va_list args) {
+    return pone_num_new(world->universe, pone_int_val(self));
+}
+
 void pone_int_init(pone_universe* universe) {
     assert(universe->class_int == NULL);
 
@@ -63,6 +67,7 @@ void pone_int_init(pone_universe* universe) {
     pone_add_method_c(universe, universe->class_int, "is-prime", strlen("is-prime"), meth_int_is_prime);
     pone_add_method_c(universe, universe->class_int, "Str", strlen("Str"), meth_int_str);
     pone_add_method_c(universe, universe->class_int, "Int", strlen("Int"), meth_int_int);
+    pone_add_method_c(universe, universe->class_int, "Num", strlen("Num"), meth_int_num);
     pone_add_method_c(universe, universe->class_int, "ACCEPTS", strlen("ACCEPTS"), meth_int_accepts);
 
     pone_class_compose(universe, universe->class_int);

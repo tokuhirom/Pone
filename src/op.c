@@ -105,35 +105,13 @@ bool pone_so(pone_val* val) {
 }
 
 int pone_intify(pone_world* world, pone_val* val) {
-    switch (pone_type(val)) {
-    case PONE_CODE:
-        pone_throw_str(world, "you can't convert CODE to integer");
-    }
-
     pone_val* v = pone_call_method(world, val, "Int", 0);
     return pone_int_val(v);
 }
 
 pone_num_t pone_numify(pone_world* world, pone_val* val) {
-    switch (pone_type(val)) {
-    case PONE_NIL:
-        pone_throw_str(world, "Use of uninitialized value as num");
-        abort();
-    case PONE_INT:
-        return pone_int_val(val);
-    case PONE_NUM:
-        return val->as.num.n;
-    case PONE_STRING: {
-        char *end = (char*)pone_str_ptr(val) + pone_str_len(val);
-        return strtod(pone_str_ptr(val), &end);
-    }
-    case PONE_CODE:
-        pone_throw_str(world, "you can't convert CODE to num");
-        break;
-    default:
-        pone_throw_str(world, "you can't convert this type to num");
-        abort();
-    }
+    pone_val* v = pone_call_method(world, val, "Num", 0);
+    return pone_num_val(v);
 }
 
 bool pone_smart_match(pone_world* world, pone_val* v1, pone_val* v2) {

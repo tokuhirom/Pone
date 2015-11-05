@@ -47,6 +47,10 @@ static pone_val* meth_num_str(pone_world* world, pone_val* self, int n, va_list 
     return pone_str_from_num(world->universe, pone_num_val(self));
 }
 
+static pone_val* meth_num_num(pone_world* world, pone_val* self, int n, va_list args) {
+    return pone_num_new(world->universe, pone_num_val(self));
+}
+
 void pone_num_init(pone_universe* universe) {
     assert(universe->class_num == NULL);
 
@@ -54,6 +58,7 @@ void pone_num_init(pone_universe* universe) {
     pone_class_push_parent(universe, universe->class_num, universe->class_cool);
     pone_add_method_c(universe, universe->class_num, "floor", strlen("floor"), meth_num_floor);
     pone_add_method_c(universe, universe->class_num, "Str", strlen("Str"), meth_num_str);
+    pone_add_method_c(universe, universe->class_num, "Num", strlen("Num"), meth_num_num);
     pone_class_compose(universe, universe->class_num);
 }
 

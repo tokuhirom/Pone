@@ -148,6 +148,11 @@ static pone_val* meth_str_int(pone_world* world, pone_val* self, int n, va_list 
     return pone_int_new(world->universe, strtol(pone_str_ptr(self), &end, 10));
 }
 
+static pone_val* meth_str_num(pone_world* world, pone_val* self, int n, va_list args) {
+    char *end = (char*)pone_str_ptr(self) + pone_str_len(self);
+    return pone_num_new(world->universe, strtod(pone_str_ptr(self), &end));
+}
+
 void pone_str_init(pone_universe* universe) {
     assert(universe->class_str == NULL);
 
@@ -155,6 +160,7 @@ void pone_str_init(pone_universe* universe) {
     pone_class_push_parent(universe, universe->class_str, universe->class_cool);
     pone_add_method_c(universe, universe->class_str, "Str", strlen("Str"), meth_str_str);
     pone_add_method_c(universe, universe->class_str, "Int", strlen("Int"), meth_str_int);
+    pone_add_method_c(universe, universe->class_str, "Num", strlen("Num"), meth_str_num);
     pone_class_compose(universe, universe->class_str);
 }
 
