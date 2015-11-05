@@ -123,6 +123,26 @@ static pone_val* meth_ary_elems(pone_world* world, pone_val* self, int n, va_lis
     return pone_int_new(world->universe, pone_ary_elems(self));
 }
 
+void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
+    assert(pone_type(self) == PONE_ARRAY);
+
+    if (self->as.ary.max == self->as.ary.len) {
+        if (self->as.ary.max > 0) {
+            self->as.ary.max *= 2;
+        } else {
+            self->as.ary.max = 1;
+        }
+        self->as.ary.a = realloc(self->as.ary.a, sizeof(pone_val) * self->as.ary.max);
+        if (!self->as.ary.a) {
+            fprintf(stderr, "cannot allocate memory for array\n");
+            abort();
+        }
+    }
+
+    self->as.ary.a[self->as.ary.len++] = val;
+    pone_refcnt_inc(universe, val);
+}
+
 /*
 
 =head2 C<Array#append($val)>
@@ -140,23 +160,7 @@ static pone_val* meth_ary_append(pone_world* world, pone_val* self, int n, va_li
     assert(n == 1);
 
     pone_val* val = va_arg(args, pone_val*);
-    assert(pone_type(self) == PONE_ARRAY);
-
-    if (self->as.ary.max == self->as.ary.len) {
-        if (self->as.ary.max > 0) {
-            self->as.ary.max *= 2;
-        } else {
-            self->as.ary.max = 1;
-        }
-        self->as.ary.a = realloc(self->as.ary.a, sizeof(pone_val) * self->as.ary.max);
-        if (!self->as.ary.a) {
-            fprintf(stderr, "cannot allocate memory for array\n");
-            abort();
-        }
-    }
-
-    self->as.ary.a[self->as.ary.len++] = val;
-    pone_refcnt_inc(world->universe, val);
+    pone_ary_append(world->universe, self, val);
 
     return pone_nil();
 }

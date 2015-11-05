@@ -41,17 +41,25 @@ pone_val* pone_class_new(pone_universe* universe, const char* name, size_t name_
     pone_val* obj = pone_obj_new(universe, universe->class_class);
     pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!name", pone_str_new(universe, name, name_len));
     pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!methods", pone_hash_new(universe));
+    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "@!parents", pone_ary_new(universe, 0));
 
     return (pone_val*)obj;
 }
 
+void pone_class_push_parent(pone_universe* universe, pone_val* obj, pone_val* klass) {
+    pone_val* parents = pone_obj_get_ivar(universe, obj, "@!parents");
+    pone_ary_append(universe, parents, klass);
+}
+
 void pone_add_method_c(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_funcptr_t funcptr) {
+    assert(klass);
     pone_val* code = pone_code_new_c(universe, funcptr);
     pone_add_method(universe, klass, name, name_len, code);
     pone_refcnt_dec(universe, code);
 }
 
 void pone_add_method(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_val* method) {
+    assert(klass);
     assert(pone_type(klass) == PONE_OBJ);
     assert(pone_type(method) == PONE_CODE);
 
@@ -60,11 +68,30 @@ void pone_add_method(pone_universe* universe, pone_val* klass, const char* name,
     pone_hash_put_c(universe, methods, name, name_len, method);
 }
 
-pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
-    pone_val* klass = pone_what(world->universe, obj);
+static pone_val* _find_method(pone_world* world, pone_val* klass, const char* name) {
+    assert(klass);
     pone_val* methods = pone_obj_get_ivar(world->universe, klass, "$!methods");
     assert(methods);
-    return pone_hash_at_pos_c(world->universe, methods, name);
+    pone_val* method = pone_hash_at_pos_c(world->universe, methods, name);
+    if (pone_defined(method)) {
+        return method;
+    } else {
+        pone_val* parents = pone_obj_get_ivar(world->universe, klass, "@!parents");
+        assert(pone_type(parents) == PONE_ARRAY);
+        int l = pone_ary_elems(parents);
+        for (int i=0; i<l; ++i) {
+            method = _find_method(world, pone_ary_at_pos(parents, i), name);
+            if (pone_defined(method)) {
+                return method;
+            }
+        }
+        return pone_nil();
+    }
+}
+
+pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
+    pone_val* klass = pone_what(world->universe, obj);
+    return _find_method(world, klass, name);
 }
 
 // Usage: return pone_call_method(world, iter, "pull-one", 0);

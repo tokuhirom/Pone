@@ -266,6 +266,7 @@ pone_val* pone_ary_at_pos(pone_val* val, int pos);
 void pone_ary_free(pone_universe* universe, pone_val* val);
 void pone_ary_init(pone_universe* universe);
 pone_val* pone_ary_at_pos(pone_val* ary, int n);
+void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val);
 
 // str.c
 pone_val* pone_str_new(pone_universe* universe, const char*p, size_t len);
@@ -373,6 +374,7 @@ void pone_free(pone_universe* universe, void* p);
 // class.c
 pone_val* pone_init_class(pone_universe* universe);
 pone_val* pone_class_new(pone_universe* universe, const char* name, size_t name_len);
+void pone_class_push_parent(pone_universe* universe, pone_val* obj, pone_val* klass);
 void pone_add_method(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_val* method);
 void pone_add_method_c(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_funcptr_t funcptr);
 pone_val* pone_find_method(pone_world* world, pone_val* klass, const char* name);

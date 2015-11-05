@@ -68,7 +68,14 @@ void pone_dd(pone_universe* universe, pone_val* val) {
             break;
         }
         case PONE_OBJ: {
-            printf("(obj)\n");
+            printf("(obj ");
+            const char* k;
+            pone_val* v;
+            kh_foreach(val->as.obj.ivar, k, v, {
+                printf("key:%s, ", k);
+                pone_dd(universe, v);
+            });
+            printf(")\n");
             break;
         }
         default:

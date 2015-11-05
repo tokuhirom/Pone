@@ -230,9 +230,13 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             COMPILE(node->children.nodes[0]);
             PRINTF(", \"");
             WRITE_PV(node->children.nodes[1]->pv);
-            PRINTF("\", %d", node->children.nodes[2]->children.size);
-            for (int i=0; i<node->children.nodes[2]->children.size; ++i) {
-                COMPILE(node->children.nodes[2]->children.nodes[i]);
+            if (node->children.size > 2) {
+                PRINTF("\", %d", node->children.nodes[2]->children.size);
+                for (int i=0; i<node->children.nodes[2]->children.size; ++i) {
+                    COMPILE(node->children.nodes[2]->children.nodes[i]);
+                }
+            } else {
+                PRINTF("\", 0");
             }
             PRINTF(")");
             break;

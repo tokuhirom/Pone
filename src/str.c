@@ -159,19 +159,9 @@ void pone_str_append(pone_world* world, pone_val* str, pone_val* s) {
     pone_refcnt_dec(world->universe, s);
 }
 
-static pone_val* meth_str_say(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n==0);
-
-    pone_val* s = pone_mortalize(world, pone_stringify(world, self));
-    pone_builtin_say(world, s);
-    return pone_nil();
-}
-
 void pone_str_init(pone_universe* universe) {
     assert(universe->class_str == NULL);
 
     universe->class_str = pone_class_new(universe, "Str", strlen("Str"));
-    // TODO move to Mu
-    pone_add_method_c(universe, universe->class_str, "say", strlen("say"), meth_str_say);
 }
 

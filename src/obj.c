@@ -1,9 +1,23 @@
 #include "pone.h" /* PONE_INC */
 
+static pone_val* meth_mu_say(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n==0);
+
+    pone_val* s = pone_mortalize(world, pone_stringify(world, self));
+    pone_builtin_say(world, s);
+    return pone_nil();
+}
+
 pone_val* pone_init_mu(pone_universe* universe) {
-    pone_val* val = pone_obj_alloc(universe, PONE_OBJ);
-    val->as.obj.ivar = kh_init(str);
-    return val;
+    pone_val* obj = pone_obj_alloc(universe, PONE_OBJ);
+    obj->as.obj.ivar = kh_init(str);
+    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!name", pone_str_new_const(universe, "Mu", strlen("Mu")));
+    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!methods", pone_hash_new(universe));
+    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "@!parents", pone_ary_new(universe, 0));
+
+    pone_add_method_c(universe, obj, "say", strlen("say"), meth_mu_say);
+
+    return obj;
 }
 
 pone_val* pone_obj_new(pone_universe* universe, pone_val* klass) {
