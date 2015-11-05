@@ -41,7 +41,7 @@ static inline void push_vars_stack(pone_compile_ctx* ctx) {
 }
 
 static inline void pop_vars_stack(pone_compile_ctx* ctx) {
-    ctx->vars_idx--;
+    kh_destroy(str, ctx->vars_stack[--ctx->vars_idx]);
 }
 
 static inline void def_lex(pone_compile_ctx* ctx, const char* name) {
@@ -605,9 +605,6 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
     }
     if (ctx.subs) {
         free(ctx.subs);
-    }
-    for (int i=0; i<=ctx.vars_idx; ++i) {
-        kh_destroy(str, ctx.vars_stack[i]);
     }
     free(ctx.vars_stack);
     PVIP_string_destroy(ctx.buf);
