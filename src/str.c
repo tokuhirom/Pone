@@ -18,6 +18,23 @@ pone_val* pone_str_new_const(pone_universe* universe, const char*p, size_t len) 
     return (pone_val*)pv;
 }
 
+pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2) {
+    pone_val* s1 = pone_stringify(world, v1);
+    pone_val* s2 = pone_stringify(world, v2);
+
+    pone_string* pv = (pone_string*)pone_obj_alloc(world->universe, PONE_STRING);
+    pv->len = pone_str_len(s1)+pone_str_len(s2);
+    pv->p = pone_malloc(world->universe, pv->len);
+    memcpy(pv->p, pone_str_ptr(s1), pone_str_len(s1));
+    memcpy(pv->p+pone_str_len(s1), pone_str_ptr(s2), pone_str_len(s2));
+
+    pone_refcnt_dec(world->universe, s1);
+    pone_refcnt_dec(world->universe, s2);
+
+    return (pone_val*)pv;
+}
+
+
 pone_val* pone_str_copy(pone_universe* universe, pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
     pone_string* pv = (pone_string*)pone_obj_alloc(universe, PONE_STRING);

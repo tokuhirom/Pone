@@ -1,47 +1,38 @@
-#!/usr/bin/env perl6 -Ilib
-use v6;
-
-use lib 'lib';
-
-use Test;
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use Test::More;
 use Test::Base;
-use Pone;
+use POSIX;
+use Capture::Tiny qw/capture/;
 
-if $*DISTRO.is-win {
-  skip-rest 'skip failing executable tests on windows';
-  exit;
-}
+plan skip_all => 'valgrind is not available on windows' if $^O eq 'MSWin32';
 
-my $dat = slurp('t/basic.dat');
+spec_file('t/basic.dat');
 
-my @blocks = blocks($dat);
-my $cc = 'clang';
+plan tests => 1*blocks();
 
-plan 1*@blocks;
+run {
+    my $block = shift;
+    my ($src, $expected) = ($block->input, $block->expected);
 
-my $pone = Pone.new;
-
-for @blocks {
-    my $title = .input;
-    $title ~~ s:g/\n/\\n/;
-    subtest {
-        my $c = $pone.compile(.input); 
-
-        my $tmpfile = 'pone_generated.c';
-        open($tmpfile, :w).print($c);
-        my $objfile = 'pone_generated.out'; # XXX insecure
-        try unlink $objfile;
-        run $cc, '-lm', '-g', '-Isrc', '-std=c99', '-o', $objfile, $tmpfile, 'blib/libpone.a';
-        if so %*ENV<PONE_DEBUG> {
-            say "----\n$c\n-----";
+    subtest $src, sub {
+        {
+            my ($out, $err, $exit) = capture {
+                system("./bin/pone", "-c", "-e", "$src");
+            };
+            ok WIFEXITED($exit), 'exited';
+            is WEXITSTATUS($exit), 0, 'exited by 0';
         }
 
-        my $proc = run 'valgrind', '--leak-check=full', "./$objfile", :out, :err;
-        my $out = $proc.out.slurp-rest;
-        my $err = $proc.err.slurp-rest;
-        is $out, .expected.chomp, $title;
-        ok !$proc.signal, 'no signals';
-        like $err, rx/'All heap blocks were freed'/, 'valgrind';
-    }, $title;
+        {
+            my ($out, $err, $exit) = capture {
+                system("valgrind", "--leak-check=full", "./pone_generated.out");
+            };
+            is $out, $expected;
+            ok WIFEXITED($exit), 'exited';
+            like $err, qr/All heap blocks were freed/, 'valgrind';
+        }
+    };
 }
 

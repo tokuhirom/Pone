@@ -196,13 +196,7 @@ say x();
 
 ===
 --- input
-sub x() { 5 } say x();
---- expected
-5
-
-===
---- input
-sub x() { { 5 } } say x();
+sub x() { 5 }; say x();
 --- expected
 5
 
@@ -347,19 +341,17 @@ say(0.2/10);
 
 ===
 --- input
-say '';
 say 'hello';
+say '';
 say q!hoge!;
 say q<hoge>;
-say q(hoge);
 say q[hoge];
 say q{hoge};
 say q@hoge@;
 say q~hoge~;
 --- expected
-
 hello
-hoge
+
 hoge
 hoge
 hoge
@@ -548,4 +540,10 @@ say "ho\nge";
 --- expected
 ho
 ge
+
+===
+--- input
+my $ge=3; say "ho$ge"
+--- expected
+ho3
 
