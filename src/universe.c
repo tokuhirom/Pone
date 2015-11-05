@@ -82,6 +82,7 @@ pone_universe* pone_universe_init() {
     pone_code_init(universe);
     assert(universe->class_range == NULL);
     pone_range_init(universe);
+    pone_sock_init(universe);
 
 #ifdef TRACE_UNIVERSE
     printf("initializing value IterationEnd\n");
@@ -101,6 +102,7 @@ pone_universe* pone_universe_init() {
     } while(0)
 
     PUT("Nil", pone_nil());
+    PUT("IO::Socket::INET", universe->class_io_socket_inet);
 
 #undef PUT
 
@@ -115,6 +117,7 @@ void pone_universe_destroy(pone_universe* universe) {
     }
 
     pone_refcnt_dec(universe, universe->instance_iteration_end);
+    pone_refcnt_dec(universe, universe->class_io_socket_inet);
     pone_refcnt_dec(universe, universe->class_range);
     pone_refcnt_dec(universe, universe->class_code);
     pone_refcnt_dec(universe, universe->class_hash);

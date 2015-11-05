@@ -250,6 +250,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             if (node->children.size > 2) {
                 PRINTF("\", %d", node->children.nodes[2]->children.size);
                 for (int i=0; i<node->children.nodes[2]->children.size; ++i) {
+                    PRINTF(",");
                     COMPILE(node->children.nodes[2]->children.nodes[i]);
                 }
             } else {
