@@ -49,6 +49,18 @@ void pone_hash_put_c(pone_universe* universe, pone_val* hv, const char* key, int
     ((pone_hash*)hv)->len++;
 }
 
+bool pone_hash_exists_c(pone_universe* universe, pone_val* hash, const char* name) {
+    assert(pone_type(hash) == PONE_HASH);
+    assert(hash->as.hash.h);
+
+    khint_t k = kh_get(str, hash->as.hash.h, name);
+    if (k != kh_end(hash->as.hash.h)) {
+        return true;
+    } else {
+        return false; 
+    }
+}
+
 pone_val* pone_hash_at_pos_c(pone_universe* universe, pone_val* hash, const char* name) {
     assert(pone_type(hash) == PONE_HASH);
     assert(hash->as.hash.h);
@@ -91,5 +103,6 @@ void pone_hash_init(pone_universe* universe) {
 
     universe->class_hash = pone_class_new(universe, "Hash", strlen("Hash"));
     pone_add_method_c(universe, universe->class_hash, "elems", strlen("elems"), meth_hash_elems);
+    pone_class_compose(universe, universe->class_hash);
 }
 

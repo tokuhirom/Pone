@@ -72,5 +72,6 @@ void pone_code_init(pone_universe* universe) {
     assert(universe->class_code == NULL);
 
     universe->class_code = pone_class_new(universe, "Code", strlen("Code"));
+    pone_class_compose(universe, universe->class_code);
 }
 

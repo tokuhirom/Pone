@@ -54,5 +54,6 @@ void pone_num_init(pone_universe* universe) {
     pone_class_push_parent(universe, universe->class_num, universe->class_cool);
     pone_add_method_c(universe, universe->class_num, "floor", strlen("floor"), meth_num_floor);
     pone_add_method_c(universe, universe->class_num, "Str", strlen("Str"), meth_num_str);
+    pone_class_compose(universe, universe->class_num);
 }
 

@@ -267,6 +267,7 @@ size_t pone_hash_elems(pone_val* val);
 void pone_hash_free(pone_universe* universe, pone_val* val);
 pone_val* pone_hash_at_pos_c(pone_universe* universe, pone_val* hash, const char* name);
 void pone_hash_init(pone_universe* universe);
+bool pone_hash_exists_c(pone_universe* universe, pone_val* hash, const char* name);
 
 // array.c
 pone_val* pone_ary_new(pone_universe* universe, int n, ...);
@@ -397,6 +398,7 @@ void pone_add_method_c(pone_universe* universe, pone_val* klass, const char* nam
 pone_val* pone_find_method(pone_world* world, pone_val* klass, const char* name);
 pone_val* pone_what(pone_universe* universe, pone_val* obj);
 pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...);
+void pone_class_compose(pone_universe* universe, pone_val* klass);
 
 // obj.c
 pone_val* pone_init_mu(pone_universe* universe);

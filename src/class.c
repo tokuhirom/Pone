@@ -68,30 +68,44 @@ void pone_add_method(pone_universe* universe, pone_val* klass, const char* name,
     pone_hash_put_c(universe, methods, name, name_len, method);
 }
 
-static pone_val* _find_method(pone_world* world, pone_val* klass, const char* name) {
-    assert(klass);
-    pone_val* methods = pone_obj_get_ivar(world->universe, klass, "$!methods");
-    assert(methods);
-    pone_val* method = pone_hash_at_pos_c(world->universe, methods, name);
-    if (pone_defined(method)) {
-        return method;
-    } else {
-        pone_val* parents = pone_obj_get_ivar(world->universe, klass, "@!parents");
-        assert(pone_type(parents) == PONE_ARRAY);
-        int l = pone_ary_elems(parents);
-        for (int i=0; i<l; ++i) {
-            method = _find_method(world, pone_ary_at_pos(parents, i), name);
-            if (pone_defined(method)) {
-                return method;
-            }
+static void _compose(pone_universe* universe, pone_val* target_methods, pone_val* klass) {
+    pone_val* methods = pone_obj_get_ivar(universe, klass, "$!methods");
+
+    const char* k;
+    pone_val* v;
+    kh_foreach(methods->as.hash.h, k, v, {
+        assert(v);
+        if (!pone_hash_exists_c(universe, target_methods, k)) {
+            pone_hash_put_c(universe, target_methods, k, strlen(k), v);
         }
-        return pone_nil();
+    });
+
+    pone_val* parents = pone_obj_get_ivar(universe, klass, "@!parents");
+    assert(pone_type(parents) == PONE_ARRAY);
+    int l = pone_ary_elems(parents);
+    for (int i=0; i<l; ++i) {
+        _compose(universe, target_methods, pone_ary_at_pos(parents, i));
     }
+}
+
+// .^compose
+void pone_class_compose(pone_universe* universe, pone_val* klass) {
+    pone_val* methods = pone_obj_get_ivar(universe, klass, "$!methods");
+    _compose(universe, methods, klass);
 }
 
 pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
     pone_val* klass = pone_what(world->universe, obj);
-    return _find_method(world, klass, name);
+    assert(klass);
+    pone_val* methods = pone_obj_get_ivar(world->universe, klass, "$!methods");
+    assert(methods);
+    pone_val* method = pone_hash_at_pos_c(world->universe, methods, name);
+    assert(method);
+    if (pone_defined(method)) {
+        return method;
+    } else {
+        return pone_nil();
+    }
 }
 
 // Usage: return pone_call_method(world, iter, "pull-one", 0);

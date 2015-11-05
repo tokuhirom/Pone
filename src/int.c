@@ -59,5 +59,7 @@ void pone_int_init(pone_universe* universe) {
     pone_add_method_c(universe, universe->class_int, "is-prime", strlen("is-prime"), meth_int_is_prime);
     pone_add_method_c(universe, universe->class_int, "Str", strlen("Str"), meth_int_str);
     pone_add_method_c(universe, universe->class_int, "ACCEPTS", strlen("ACCEPTS"), meth_int_accepts);
+
+    pone_class_compose(universe, universe->class_int);
 }
 

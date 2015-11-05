@@ -18,5 +18,6 @@ void pone_nil_init(pone_universe* universe) {
     universe->class_nil = pone_class_new(universe, "Nil", strlen("Nil"));
     pone_class_push_parent(universe, universe->class_nil, universe->class_cool);
     pone_add_method_c(universe, universe->class_nil, "Int", strlen("Int"), meth_nil_int);
+    pone_class_compose(universe, universe->class_nil);
 }
 

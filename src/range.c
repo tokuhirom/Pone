@@ -116,4 +116,6 @@ void pone_range_init(pone_universe* universe) {
     pone_add_method_c(universe, universe->class_range, "max", strlen("max"), meth_range_max);
     pone_add_method_c(universe, universe->class_range, "Str", strlen("Str"), meth_range_str);
     pone_obj_set_ivar_noinc(universe, universe->class_range, "$!iterator-class", iter_class);
+
+    pone_class_compose(universe, universe->class_range);
 }

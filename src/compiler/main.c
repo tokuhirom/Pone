@@ -649,7 +649,10 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
     system("clang -I src/ -g -lm -std=c99 -o pone_generated.out pone_generated.c blib/libpone.a");
 
     if (!compile_only) {
-        system("./pone_generated.out");
+        int r = system("./pone_generated.out");
+        if (WIFSIGNALED(r)) {
+            fprintf(stderr, "signal received: %d\n", WTERMSIG(r));
+        }
     }
 }
 

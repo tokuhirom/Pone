@@ -276,5 +276,7 @@ void pone_ary_init(pone_universe* universe) {
     pone_add_method_c(universe, universe->class_ary, "pop", strlen("pop"), meth_ary_pop);
     pone_add_method_c(universe, universe->class_ary, "Str", strlen("Str"), meth_ary_str);
     pone_obj_set_ivar_noinc(universe, universe->class_ary, "$!iterator-class", iter_class);
+
+    pone_class_compose(universe, universe->class_ary);
 }
 

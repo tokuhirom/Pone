@@ -149,5 +149,6 @@ void pone_str_init(pone_universe* universe) {
     universe->class_str = pone_class_new(universe, "Str", strlen("Str"));
     pone_class_push_parent(universe, universe->class_str, universe->class_cool);
     pone_add_method_c(universe, universe->class_str, "Str", strlen("Str"), meth_str_str);
+    pone_class_compose(universe, universe->class_str);
 }
 
