@@ -296,6 +296,8 @@ void pone_str_append_c(pone_world* world, pone_val* str, const char* s, int s_le
 void pone_str_append(pone_world* world, pone_val* str, pone_val* s);
 void pone_str_init(pone_universe* universe);
 pone_val* pone_str_new_vprintf(pone_universe* universe, const char* fmt, va_list args);
+bool pone_str_contains_null(pone_universe* universe, pone_val* val);
+pone_val* pone_str_c_str(pone_world* world, pone_val* val);
 
 // code.c
 pone_val* pone_code_new_c(pone_universe* universe, pone_funcptr_t func);
@@ -369,6 +371,7 @@ pone_val* pone_iter_init(pone_world* world, pone_val* val);
 pone_val* pone_iter_next(pone_world* world, pone_val* iter);
 
 // builtin.c
+pone_val* pone_builtin_slurp(pone_world* world, pone_val* val);
 pone_val* pone_builtin_dd(pone_world* world, pone_val* val);
 pone_val* pone_builtin_abs(pone_world* world, pone_val* val);
 pone_val* pone_builtin_print(pone_world* world, pone_val* val);

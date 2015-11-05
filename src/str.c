@@ -113,6 +113,20 @@ inline size_t pone_str_len(pone_val* val) {
     }
 }
 
+bool pone_str_contains_null(pone_universe* universe, pone_val* val) {
+    assert(pone_type(val) == PONE_STRING);
+    return memchr(pone_str_ptr(val), 0, pone_str_len(val)) != NULL;
+}
+
+pone_val* pone_str_c_str(pone_world* world, pone_val* val) {
+    assert(pone_type(val) == PONE_STRING);
+    if (pone_str_contains_null(world->universe, val)) {
+        pone_throw_str(world, "You can't convert string to c-string. Since it contains \\0.");
+    }
+
+    return pone_str_concat(world, val, pone_str_new(world->universe, "\0", 1));
+}
+
 void pone_str_append_c(pone_world* world, pone_val* val, const char* s, int s_len) {
     pone_universe* universe = world->universe;
 

@@ -317,6 +317,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                     || strcmp(name, "sleep")==0
                     || strcmp(name, "die")==0
                     || strcmp(name, "printf")==0
+                    || strcmp(name, "slurp")==0
                     ) {
                 PRINTF("pone_builtin_%s(world", name);
             } else {

@@ -189,10 +189,14 @@ say x(4,9);
 
 ===
 --- input
+say 1;
 sub x() { }
 say x();
+say 2;
 --- expected
-Nil
+1
+
+2
 
 ===
 --- input
@@ -624,4 +628,10 @@ q<3>.Int.say
 Nil.gist.say
 --- expected
 Nil
+
+===
+--- input
+say slurp("t/dat/hello.txt")
+--- expected
+hello
 

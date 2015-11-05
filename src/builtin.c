@@ -3,8 +3,37 @@
 #include <time.h>
 #include <signal.h>
 #include <unistd.h>
+#include <errno.h>
 
-pone_val*  pone_builtin_dd(pone_world* world, pone_val* val) {
+pone_val* pone_builtin_slurp(pone_world* world, pone_val* val) {
+    if (pone_str_contains_null(world->universe, val)) {
+        pone_throw_str(world, "You can't slurp file. Because file name contains \\0.");
+    }
+
+    pone_val* str = pone_mortalize(world, pone_str_c_str(world, val));
+    FILE *fp = fopen(pone_str_ptr(str), "r");
+    if (!fp) {
+        pone_throw_str(world, "Cannot open '%s': %s", pone_str_ptr(str), strerror(errno));
+    }
+
+    pone_val* retval = pone_str_new(world->universe, "", 0);
+
+    char buf[512];
+    while (!feof(fp)) {
+        size_t n = fread(buf, 1, 512, fp);
+        if (n == 0) {
+            fclose(fp);
+            pone_throw_str(world, "Cannot read file '%s': %s", pone_str_ptr(str), strerror(errno));
+        }
+        pone_str_append_c(world, retval, buf, n);
+    }
+
+    fclose(fp);
+
+    return retval;
+}
+
+pone_val* pone_builtin_dd(pone_world* world, pone_val* val) {
     pone_dd(world->universe, val);
     return pone_nil();
 }
