@@ -403,6 +403,12 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF(")");
             break;
         }
+        case PVIP_NODE_IDENT: {
+            PRINTF("pone_get_lex(world, \"");
+            WRITE_PV(node->pv);
+            PRINTF("\")");
+            break;
+        }
         case PVIP_NODE_VARIABLE: {
             PRINTF("pone_get_lex(world, \"");
             WRITE_PV(node->pv);

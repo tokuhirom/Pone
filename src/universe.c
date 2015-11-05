@@ -88,10 +88,28 @@ pone_universe* pone_universe_init() {
 #endif
     universe->instance_iteration_end = pone_obj_new(universe, universe->class_mu);
 
+    universe->globals = kh_init(str);
+
+#define PUT(key, val) \
+    do { \
+        int ret; \
+        khint_t k = kh_put(str, universe->globals, key, &ret); \
+        if (ret == -1) { \
+            abort();  \
+        } \
+        kh_val(universe->globals, k) = val; \
+    } while(0)
+
+    PUT("Nil", pone_nil());
+
+#undef PUT
+
     return universe;
 }
 
 void pone_universe_destroy(pone_universe* universe) {
+    kh_destroy(str, universe->globals);
+
     if (universe->errvar) {
         pone_refcnt_dec(universe, universe->errvar);
     }

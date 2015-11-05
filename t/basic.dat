@@ -618,3 +618,10 @@ q<3>.Int.say
 "3.14".Num.say
 --- expected
 3.140000
+
+===
+--- input
+Nil.gist.say
+--- expected
+Nil
+

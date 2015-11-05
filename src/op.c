@@ -11,8 +11,15 @@ pone_val* pone_get_lex(pone_world* world, const char* key) {
         }
         return kh_val(lex->map, kh);
     }
-    fprintf(stderr, "unknown lexical variable: %s\n", key);
-    abort();
+
+    {
+        khint_t k = kh_get(str, world->universe->globals, key);
+        if (k != kh_end(world->universe->globals)) {
+            return kh_val(world->universe->globals, k);
+        }
+    }
+
+    pone_throw_str(world, "Unknown lexical variable: %s", key);
 }
 
 pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val) {

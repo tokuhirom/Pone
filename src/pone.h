@@ -224,6 +224,8 @@ typedef struct pone_universe {
     // We use a sentinel value to mark the end of an iteration.
     // This is "IterationEnd" in rakudo Perl6.
     struct pone_val* instance_iteration_end;
+
+    khash_t(str) *globals;
 } pone_universe;
 
 typedef struct pone_arena {
