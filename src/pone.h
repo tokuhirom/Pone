@@ -242,8 +242,8 @@ pone_val* pone_errvar(pone_world* world);
 // exc.c
 jmp_buf* pone_exc_handler_push(pone_world* world);
 void pone_exc_handler_pop(pone_world* world);
-void pone_die(pone_world* world, pone_val* msg);
-void pone_die_str(pone_world* world, const char* fmt, ...);
+void pone_throw(pone_world* world, pone_val* msg);
+void pone_throw_str(pone_world* world, const char* fmt, ...);
 
 // op.c
 void pone_dd(pone_universe* universe, pone_val* val);

@@ -16,7 +16,7 @@ static pone\_val\* meth\_num\_floor(pone\_world\* world, pone\_val\* self, int n
 
     double num = self->as.num.n;
     if (num > INT_MAX) {
-        pone_die_str(world, "integer overflow");
+        pone_throw_str(world, "integer overflow");
     }
     return pone_int_new(world->universe, (int)floor(num));
 }

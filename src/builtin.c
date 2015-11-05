@@ -23,7 +23,7 @@ pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
         // TODO: NV
     }
     default:
-        pone_die_str(world, "you can't call abs() for non-numeric value");
+        pone_throw_str(world, "you can't call abs() for non-numeric value");
         abort();
     }
 }
@@ -97,10 +97,10 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
             pone_refcnt_inc(world->universe, code);
             world->universe->signal_handlers[sig] = code;
         } else {
-            pone_die_str(world, "cannot set signal");
+            pone_throw_str(world, "cannot set signal");
         }
 #else
-        pone_die_str(world, "not implemented on windows");
+        pone_throw_str(world, "not implemented on windows");
 #endif
     } else {
         if (world->universe->signal_handlers[sig]) {
@@ -113,7 +113,7 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
 }
 
 pone_val* pone_builtin_die(pone_world* world, pone_val* msg) {
-    pone_die(world, msg);
+    pone_throw(world, msg);
     return pone_nil();
 }
 
@@ -152,7 +152,7 @@ pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...) {
                     ++p;
                     pone_val* v = va_arg(args, pone_val*);
                     if (p - fmt_p > PRINTF_BUFSIZ-1) {
-                        pone_die_str(world, "[printf] format string too long");
+                        pone_throw_str(world, "[printf] format string too long");
                     }
 
                     memcpy(fmt_buf, fmt_p, p-fmt_p);
@@ -174,7 +174,7 @@ pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...) {
                             abort();
                     }
                     if (printed > PRINTF_BUFSIZ-1) {
-                        pone_die_str(world, "[printf] printf buffer overrun");
+                        pone_throw_str(world, "[printf] printf buffer overrun");
                     }
 #undef PRINTF_BUFSIZ
                     fwrite(dst_buf, sizeof(char), printed, stdout);
@@ -194,7 +194,7 @@ pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...) {
             if (done) {
                 break;
             }
-            pone_die_str(world, "invalid format for printf");
+            pone_throw_str(world, "invalid format for printf");
         }
         default:
             putc(*p, stdout);

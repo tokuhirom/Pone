@@ -177,7 +177,7 @@ static pone_val* meth_ary_pop(pone_world* world, pone_val* self, int n, va_list 
     assert(n == 0);
 
     if (self->as.ary.len == 0) {
-        pone_die_str(world, "Cannot pop from an empty Array");
+        pone_throw_str(world, "Cannot pop from an empty Array");
     }
 
     pone_val* retval = self->as.ary.a[self->as.ary.len-1];

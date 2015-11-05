@@ -96,7 +96,7 @@ bool pone_so(pone_val* val) {
 int pone_intify(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_NIL:
-        pone_die_str(world, "Use of uninitialized value as integer");
+        pone_throw_str(world, "Use of uninitialized value as integer");
         abort();
     case PONE_INT:
         return pone_int_val(val);
@@ -105,9 +105,9 @@ int pone_intify(pone_world* world, pone_val* val) {
         return strtol(pone_str_ptr(val), &end, 10);
     }
     case PONE_CODE:
-        pone_die_str(world, "you can't convert CODE to integer");
+        pone_throw_str(world, "you can't convert CODE to integer");
     default:
-        pone_die_str(world, "you can't convert this type to integer");
+        pone_throw_str(world, "you can't convert this type to integer");
         abort();
     }
 }
@@ -115,7 +115,7 @@ int pone_intify(pone_world* world, pone_val* val) {
 pone_num_t pone_numify(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_NIL:
-        pone_die_str(world, "Use of uninitialized value as num");
+        pone_throw_str(world, "Use of uninitialized value as num");
         abort();
     case PONE_INT:
         return pone_int_val(val);
@@ -126,10 +126,10 @@ pone_num_t pone_numify(pone_world* world, pone_val* val) {
         return strtod(pone_str_ptr(val), &end);
     }
     case PONE_CODE:
-        pone_die_str(world, "you can't convert CODE to num");
+        pone_throw_str(world, "you can't convert CODE to num");
         break;
     default:
-        pone_die_str(world, "you can't convert this type to num");
+        pone_throw_str(world, "you can't convert this type to num");
         abort();
     }
 }

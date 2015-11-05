@@ -144,7 +144,7 @@ void pone_str_append_c(pone_world* world, pone_val* val, const char* s, int s_le
         // refcnt-- for source val
         pone_refcnt_dec(universe, val->as.str.val);
     } else if (pone_flags(val) & PONE_FLAGS_STR_CONST) {
-        pone_die_str(world, "You can't modify immutable string");
+        pone_throw_str(world, "You can't modify immutable string");
     }
 
     val->as.str.p = realloc(val->as.str.p, val->as.str.len + s_len);
