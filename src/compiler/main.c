@@ -1,12 +1,13 @@
-#define _POSIX_C_SOURCE 199506L
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
 #include "pvip.h"
 #include "pone.h"
+#include "linenoise.h"
 
 #ifndef CC
 #define CC cc
@@ -682,8 +683,36 @@ int main(int argc, char** argv) {
             pone_compile_node(node, filename, compile_only);
         }
     } else {
-        printf("REPL mode is not implemented yet\n");
-        abort();
+        linenoiseSetMultiLine(1);
+
+        char* history_file = strdup(getenv("HOME"));
+        if (!history_file) {
+            fprintf(stderr, "[pone] cannot allocate memory\n");
+            abort();
+        }
+        history_file = realloc(history_file, strlen(history_file) + strlen("/.pone_history.txt")+1);
+        if (!history_file) {
+            fprintf(stderr, "[pone] cannot allocate memory\n");
+            abort();
+        }
+        strcpy(history_file+strlen(history_file), "/.pone_history.txt");
+
+        const char* line;
+        while((line = linenoise("pone> ")) != NULL) {
+            PVIPString *error;
+            PVIPNode *node = PVIP_parse_string(pvip, line, strlen(line), false, &error);
+            if (!node) {
+                PVIP_string_say(error);
+                PVIP_string_destroy(error);
+                printf("ABORT\n");
+                exit(1);
+            }
+
+            pone_compile_node(node, "-e", false);
+
+            linenoiseHistoryAdd(line);
+            linenoiseHistorySave(history_file);
+        }
     }
     pvip_free(pvip);
 }
