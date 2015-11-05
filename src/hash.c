@@ -84,6 +84,21 @@ size_t pone_hash_elems(pone_val* val) {
     return ((pone_hash*)val)->len;
 }
 
+pone_val* pone_hash_keys(pone_world* world, pone_val* val) {
+    assert(pone_type(val) == PONE_HASH);
+
+    pone_hash* h=(pone_hash*)val;
+
+    pone_val* retval = pone_ary_new(world->universe, 0);
+
+    const char* k;
+    pone_val* v;
+    kh_foreach(h->h, k, v, {
+        pone_ary_append(world->universe, retval, pone_str_new(world->universe, k, strlen(k)));
+    });
+    return retval;
+}
+
 /*
 
 =head2 C<Hash#elems() --> Int>

@@ -127,3 +127,14 @@ pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_
     }
 }
 
+pone_val* pone_call_meta_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...) {
+    if (strcmp(method_name, "methods") == 0) {
+        // .^methods
+        pone_val* klass = pone_what(world->universe, obj);
+        pone_val* methods = pone_obj_get_ivar(world->universe, klass, "$!methods");
+        return pone_hash_keys(world, methods);
+    } else {
+        pone_throw_str(world, "Meta method '%s' not found for invocant of class '%s'", method_name, pone_what_str_c(obj));
+    }
+}
+

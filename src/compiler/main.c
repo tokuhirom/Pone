@@ -224,6 +224,22 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             }
             PRINTF(")");
             break;
+        case PVIP_NODE_META_METHOD_CALL:
+            // (meta_method_call (string "3.14") (ident "methods") (nop))
+            PRINTF("pone_call_meta_method(world, ");
+            COMPILE(node->children.nodes[0]);
+            PRINTF(", \"");
+            WRITE_PV(node->children.nodes[1]->pv);
+            if (node->children.size > 2) {
+                PRINTF("\", %d", node->children.nodes[2]->children.size);
+                for (int i=0; i<node->children.nodes[2]->children.size; ++i) {
+                    COMPILE(node->children.nodes[2]->children.nodes[i]);
+                }
+            } else {
+                PRINTF("\", 0");
+            }
+            PRINTF(")");
+            break;
         case PVIP_NODE_METHODCALL:
             // (methodcall (variable "$a") (ident "pop") (args))
             // (atpos (variable "$a") (int 0))
