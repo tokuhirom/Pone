@@ -265,7 +265,6 @@ my $n = 3; while $n { say $n; $n = $n-1 }
 1
 
 ===
---- LAST
 --- input
 say 10/2;
 say 10/3;
@@ -342,19 +341,17 @@ say(0.2/10);
 
 ===
 --- input
-say '';
 say 'hello';
+say '';
 say q!hoge!;
 say q<hoge>;
-say q(hoge);
 say q[hoge];
 say q{hoge};
 say q@hoge@;
 say q~hoge~;
 --- expected
-
 hello
-hoge
+
 hoge
 hoge
 hoge
