@@ -683,6 +683,7 @@ int main(int argc, char** argv) {
             pone_compile_node(node, filename, compile_only);
         }
     } else {
+        // REPL mode
         linenoiseSetMultiLine(1);
 
         char* history_file = strdup(getenv("HOME"));
