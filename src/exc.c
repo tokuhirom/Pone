@@ -26,8 +26,12 @@ void pone_exc_handler_pop(pone_world* world) {
     world->universe->err_handler_idx--;
 }
 
-void pone_die_str(pone_world* world, const char* str) {
-    pone_die(world, pone_str_new_const(world->universe, str, strlen(str)));
+void pone_die_str(pone_world* world, const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    pone_val* v = pone_mortalize(world, pone_str_new_vprintf(world->universe, fmt, args));
+    va_end(args);
+    pone_die(world, v);
 }
 
 // TODO rename to pone_throw

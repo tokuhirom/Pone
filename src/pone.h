@@ -243,7 +243,7 @@ pone_val* pone_errvar(pone_world* world);
 jmp_buf* pone_exc_handler_push(pone_world* world);
 void pone_exc_handler_pop(pone_world* world);
 void pone_die(pone_world* world, pone_val* msg);
-void pone_die_str(pone_world* world, const char* msg);
+void pone_die_str(pone_world* world, const char* fmt, ...);
 
 // op.c
 void pone_dd(pone_universe* universe, pone_val* val);
@@ -278,6 +278,8 @@ size_t pone_str_len(pone_val* val);
 char* pone_strdup(pone_universe* universe, const char* src, size_t size);
 void pone_str_append_c(pone_world* world, pone_val* str, const char* s, int s_len);
 void pone_str_append(pone_world* world, pone_val* str, pone_val* s);
+void pone_str_init(pone_universe* universe);
+pone_val* pone_str_new_vprintf(pone_universe* universe, const char* fmt, va_list args);
 
 // code.c
 pone_val* pone_code_new_c(pone_universe* universe, pone_funcptr_t func);

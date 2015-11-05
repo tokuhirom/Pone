@@ -208,6 +208,21 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             COMPILE(node->children.nodes[1]);
             PRINTF(")");
             break;
+        case PVIP_NODE_IT_METHODCALL:
+            // (it_methodcall (ident "say"))
+            PRINTF("pone_call_method(world, pone_get_lex(world, \"$_\"), \"");
+            WRITE_PV(node->children.nodes[0]->pv);
+            PRINTF("\"");
+            if (node->children.size > 1) {
+                PRINTF(", %d", node->children.nodes[1]->children.size);
+                for (int i=0; i<node->children.nodes[1]->children.size; ++i) {
+                    COMPILE(node->children.nodes[1]->children.nodes[i]);
+                }
+            } else {
+                PRINTF(", 0");
+            }
+            PRINTF(")");
+            break;
         case PVIP_NODE_METHODCALL:
             // (methodcall (variable "$a") (ident "pop") (args))
             // (atpos (variable "$a") (int 0))

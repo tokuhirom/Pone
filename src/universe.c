@@ -71,6 +71,7 @@ pone_universe* pone_universe_init() {
     assert(universe->class_ary);
 
     pone_int_init(universe);
+    pone_str_init(universe);
     pone_num_init(universe);
     pone_bool_init(universe);
     pone_hash_init(universe);
@@ -98,6 +99,7 @@ void pone_universe_destroy(pone_universe* universe) {
     pone_refcnt_dec(universe, universe->class_num);
     pone_refcnt_dec(universe, universe->class_int);
     pone_refcnt_dec(universe, universe->class_ary);
+    pone_refcnt_dec(universe, universe->class_str);
     pone_refcnt_dec(universe, universe->class_class);
     pone_refcnt_dec(universe, universe->class_mu);
 

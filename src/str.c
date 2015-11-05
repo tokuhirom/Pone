@@ -18,6 +18,28 @@ pone_val* pone_str_new_const(pone_universe* universe, const char*p, size_t len) 
     return (pone_val*)pv;
 }
 
+pone_val* pone_str_new_vprintf(pone_universe* universe, const char* fmt, va_list args) {
+    assert(universe);
+
+    va_list copied;
+    va_copy(copied, args);
+
+    int size = vsnprintf(NULL, 0, fmt, args);
+    if (size < 0) {
+        abort();
+    }
+    char* p = pone_malloc(universe, size+1);
+    size = vsnprintf(p, size+1, fmt, copied);
+    if (size < 0) {
+        abort();
+    }
+
+    pone_string* pv = (pone_string*)pone_obj_alloc(universe, PONE_STRING);
+    pv->p = p;
+    pv->len = size;
+    return (pone_val*)pv;
+}
+
 pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2) {
     pone_val* s1 = pone_stringify(world, v1);
     pone_val* s2 = pone_stringify(world, v2);
@@ -135,5 +157,21 @@ void pone_str_append(pone_world* world, pone_val* str, pone_val* s) {
     s = pone_stringify(world, s);
     pone_str_append_c(world, str, pone_str_ptr(s), pone_str_len(s));
     pone_refcnt_dec(world->universe, s);
+}
+
+static pone_val* meth_str_say(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n==0);
+
+    pone_val* s = pone_mortalize(world, pone_stringify(world, self));
+    pone_builtin_say(world, s);
+    return pone_nil();
+}
+
+void pone_str_init(pone_universe* universe) {
+    assert(universe->class_str == NULL);
+
+    universe->class_str = pone_class_new(universe, "Str", strlen("Str"));
+    // TODO move to Mu
+    pone_add_method_c(universe, universe->class_str, "say", strlen("say"), meth_str_say);
 }
 
