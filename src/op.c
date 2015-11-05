@@ -106,19 +106,12 @@ bool pone_so(pone_val* val) {
 
 int pone_intify(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
-    case PONE_INT:
-        return pone_int_val(val);
-    case PONE_STRING: {
-        char *end = (char*)pone_str_ptr(val) + pone_str_len(val);
-        return strtol(pone_str_ptr(val), &end, 10);
-    }
     case PONE_CODE:
         pone_throw_str(world, "you can't convert CODE to integer");
     }
 
     pone_val* v = pone_call_method(world, val, "Int", 0);
-    assert(pone_type(v) == PONE_INT);
-    return v->as.integer.i;
+    return pone_int_val(v);
 }
 
 pone_num_t pone_numify(pone_world* world, pone_val* val) {

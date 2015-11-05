@@ -123,7 +123,7 @@ pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_
         va_end(args);
         return retval;
     } else {
-        pone_throw_str(world, "method '%s' does not found in %s", method_name, pone_what_str_c(obj));
+        pone_throw_str(world, "Method '%s' not found for invocant of class '%s'", method_name, pone_what_str_c(obj));
     }
 }
 

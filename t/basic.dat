@@ -583,3 +583,21 @@ False
 True
 True
 
+===
+--- input
+q<3>.Int.say
+--- expected
+3
+
+===
+--- input
+(+q<3>).say
+--- expected
+3
+
+===
+--- input
+(+q<3>).Int.say
+--- expected
+3
+

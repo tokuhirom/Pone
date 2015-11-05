@@ -143,12 +143,18 @@ static pone_val* meth_str_str(pone_world* world, pone_val* self, int n, va_list 
     return pone_str_copy(world->universe, self);
 }
 
+static pone_val* meth_str_int(pone_world* world, pone_val* self, int n, va_list args) {
+    char *end = (char*)pone_str_ptr(self) + pone_str_len(self);
+    return pone_int_new(world->universe, strtol(pone_str_ptr(self), &end, 10));
+}
+
 void pone_str_init(pone_universe* universe) {
     assert(universe->class_str == NULL);
 
     universe->class_str = pone_class_new(universe, "Str", strlen("Str"));
     pone_class_push_parent(universe, universe->class_str, universe->class_cool);
     pone_add_method_c(universe, universe->class_str, "Str", strlen("Str"), meth_str_str);
+    pone_add_method_c(universe, universe->class_str, "Int", strlen("Int"), meth_str_int);
     pone_class_compose(universe, universe->class_str);
 }
 

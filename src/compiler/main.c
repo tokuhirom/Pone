@@ -271,6 +271,11 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             COMPILE(node->children.nodes[0]);
             PRINTF(")");
             break;
+        case PVIP_NODE_UNARY_PLUS: // Negative numeric context operator.
+            PRINTF("pone_add(world, pone_int_new(world->universe, 0),");
+            COMPILE(node->children.nodes[0]);
+            PRINTF(")");
+            break;
         case PVIP_NODE_TRUE:
             PRINTF("pone_true()");
             break;
