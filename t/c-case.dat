@@ -21,7 +21,7 @@ False
 6
 4
 3
-(undef)
+Nil
 
 ===
 --- input: t/c/assign.c

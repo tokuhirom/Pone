@@ -204,6 +204,10 @@ typedef struct pone_universe {
     struct pone_val* class_num;
     // class of Str
     struct pone_val* class_str;
+    // class of Cool
+    struct pone_val* class_cool;
+    // class of Any
+    struct pone_val* class_any;
     // class of Array
     struct pone_val* class_ary;
     // class of Bool
@@ -291,6 +295,7 @@ void pone_code_free(pone_universe* universe, pone_val* v);
 void pone_code_init(pone_universe* universe);
 
 // int.c
+pone_val* pone_str_from_int(pone_universe* universe, int i);
 int pone_int_val(pone_val* val);
 pone_val* pone_int_incr(pone_world* world, pone_val* i);
 pone_val* pone_int_new(pone_universe* universe, int i);
@@ -370,6 +375,12 @@ pone_t pone_type(pone_val* val);
 void* pone_malloc(pone_universe* universe, size_t size);
 pone_val* pone_obj_alloc(pone_universe* universe, pone_t type);
 void pone_free(pone_universe* universe, void* p);
+
+// cool.c
+pone_val* pone_init_cool(pone_universe* universe);
+
+// any.c
+pone_val* pone_init_any(pone_universe* universe);
 
 // class.c
 pone_val* pone_init_class(pone_universe* universe);

@@ -48,8 +48,7 @@ Returns a string representation of the invocant, intended to be machine readable
 */
 static pone_val* meth_mu_str(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n==0);
-
-    return pone_stringify(world, self);
+    return pone_str_new_const(world->universe, "Nil", strlen("Nil"));
 }
 
 pone_val* pone_init_mu(pone_universe* universe) {

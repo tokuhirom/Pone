@@ -64,6 +64,9 @@ pone_universe* pone_universe_init() {
 #endif
     universe->class_class = pone_init_class(universe);
 
+    universe->class_any = pone_init_any(universe);
+    universe->class_cool = pone_init_cool(universe);
+
 #ifdef TRACE_UNIVERSE
     printf("initializing class Array\n");
 #endif
@@ -76,6 +79,7 @@ pone_universe* pone_universe_init() {
     pone_bool_init(universe);
     pone_hash_init(universe);
     pone_code_init(universe);
+    assert(universe->class_range == NULL);
     pone_range_init(universe);
 
 #ifdef TRACE_UNIVERSE
@@ -98,8 +102,10 @@ void pone_universe_destroy(pone_universe* universe) {
     pone_refcnt_dec(universe, universe->class_bool);
     pone_refcnt_dec(universe, universe->class_num);
     pone_refcnt_dec(universe, universe->class_int);
-    pone_refcnt_dec(universe, universe->class_ary);
     pone_refcnt_dec(universe, universe->class_str);
+    pone_refcnt_dec(universe, universe->class_ary);
+    pone_refcnt_dec(universe, universe->class_any);
+    pone_refcnt_dec(universe, universe->class_cool);
     pone_refcnt_dec(universe, universe->class_class);
     pone_refcnt_dec(universe, universe->class_mu);
 

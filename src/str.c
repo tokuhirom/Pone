@@ -95,19 +95,11 @@ pone_val* pone_stringify(pone_world* world, pone_val* val) {
     pone_universe* universe = world->universe;
     switch (pone_type(val)) {
     case PONE_NIL:
-        return pone_str_new_const(universe, "(undef)", strlen("(undef)"));
-    case PONE_INT:
-        return pone_str_from_int(universe, pone_int_val(val));
     case PONE_STRING:
-        return pone_str_copy(universe, val);
+    case PONE_INT:
     case PONE_NUM:
-        return pone_str_from_num(universe, pone_num_val(val));
     case PONE_BOOL:
-        if (pone_bool_val(val)) {
-            return pone_str_new_const(universe, "True", strlen("True"));
-        } else {
-            return pone_str_new_const(universe, "False", strlen("False"));
-        }
+    case PONE_ARRAY:
     case PONE_OBJ:
         return pone_call_method(world, val, "Str", 0);
     default:
@@ -159,9 +151,15 @@ void pone_str_append(pone_world* world, pone_val* str, pone_val* s) {
     pone_refcnt_dec(world->universe, s);
 }
 
+static pone_val* meth_str_str(pone_world* world, pone_val* self, int n, va_list args) {
+    return pone_str_copy(world->universe, self);
+}
+
 void pone_str_init(pone_universe* universe) {
     assert(universe->class_str == NULL);
 
     universe->class_str = pone_class_new(universe, "Str", strlen("Str"));
+    pone_class_push_parent(universe, universe->class_str, universe->class_cool);
+    pone_add_method_c(universe, universe->class_str, "Str", strlen("Str"), meth_str_str);
 }
 

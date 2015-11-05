@@ -39,10 +39,16 @@ static pone_val* meth_int_is_prime(pone_world* world, pone_val* self, int n, va_
     return pone_true();
 }
 
+static pone_val* meth_int_str(pone_world* world, pone_val* self, int n, va_list args) {
+    return pone_str_from_int(world->universe, pone_int_val(self));
+}
+
 void pone_int_init(pone_universe* universe) {
     assert(universe->class_int == NULL);
 
     universe->class_int = pone_class_new(universe, "Int", strlen("Int"));
+    pone_class_push_parent(universe, universe->class_int, universe->class_cool);
     pone_add_method_c(universe, universe->class_int, "is-prime", strlen("is-prime"), meth_int_is_prime);
+    pone_add_method_c(universe, universe->class_int, "Str", strlen("Str"), meth_int_str);
 }
 

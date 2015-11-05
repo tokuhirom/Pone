@@ -346,6 +346,17 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF(")");
             MORTAL_END;
             break;
+        case PVIP_NODE_LIST:
+            MORTAL_START;
+            PRINTF("pone_ary_new(world->universe, %d",
+                    node->children.size);
+            for (int i=0; i<node->children.size; ++i) {
+                PRINTF(",");
+                COMPILE(node->children.nodes[i]);
+            }
+            PRINTF(")");
+            MORTAL_END;
+            break;
         case PVIP_NODE_LIST_ASSIGNMENT: {
             PVIPNode* varnode = node->children.nodes[0];
             PVIPString *var;

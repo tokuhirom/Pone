@@ -249,6 +249,19 @@ NYI
 
 */
 
+static pone_val* meth_ary_str(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 0);
+
+    pone_val* v = pone_str_new(world->universe, "", 0);
+    pone_str_append_c(world, v, "(", 1);
+    for (int i=0; i<pone_ary_elems(self); ++i) {
+        pone_str_append(world, v, pone_ary_at_pos(self, i));
+        pone_str_append_c(world, v, " ", 1);
+    }
+    pone_str_append_c(world, v, ")", 1);
+    return v;
+}
+
 void pone_ary_init(pone_universe* universe) {
     assert(universe->class_ary == NULL);
 
@@ -256,10 +269,12 @@ void pone_ary_init(pone_universe* universe) {
     pone_add_method_c(universe, iter_class, "pull-one", strlen("pull-one"), meth_pull_one);
 
     universe->class_ary = pone_class_new(universe, "Array", strlen("Array"));
+    pone_class_push_parent(universe, universe->class_ary, universe->class_any);
     pone_add_method_c(universe, universe->class_ary, "iterator", strlen("iterator"), meth_ary_iterator);
     pone_add_method_c(universe, universe->class_ary, "elems", strlen("elems"), meth_ary_elems);
     pone_add_method_c(universe, universe->class_ary, "append", strlen("append"), meth_ary_append);
     pone_add_method_c(universe, universe->class_ary, "pop", strlen("pop"), meth_ary_pop);
+    pone_add_method_c(universe, universe->class_ary, "Str", strlen("Str"), meth_ary_str);
     pone_obj_set_ivar_noinc(universe, universe->class_ary, "$!iterator-class", iter_class);
 }
 

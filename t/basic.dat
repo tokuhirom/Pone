@@ -192,7 +192,7 @@ say x(4,9);
 sub x() { }
 say x();
 --- expected
-(undef)
+Nil
 
 ===
 --- input
@@ -546,4 +546,26 @@ ge
 my $ge=3; say "ho$ge"
 --- expected
 ho3
+
+===
+--- input
+say <a b c>[1]
+--- expected
+b
+
+===
+--- input
+<a b c>.say;
+3.14.say;
+1.say;
+True.say;
+False.say;
+q<a>.say;
+--- expected
+(a b c )
+3.140000
+1
+True
+False
+a
 
