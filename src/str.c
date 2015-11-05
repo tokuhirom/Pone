@@ -92,19 +92,7 @@ pone_val* pone_str_from_num(pone_universe* universe, double n) {
  * @return not mortalized
  */
 pone_val* pone_stringify(pone_world* world, pone_val* val) {
-    pone_universe* universe = world->universe;
-    switch (pone_type(val)) {
-    case PONE_NIL:
-    case PONE_STRING:
-    case PONE_INT:
-    case PONE_NUM:
-    case PONE_BOOL:
-    case PONE_ARRAY:
-    case PONE_OBJ:
-        return pone_call_method(world, val, "Str", 0);
-    default:
-        abort(); // TODO
-    }
+    return pone_call_method(world, val, "Str", 0);
 }
 
 inline const char* pone_str_ptr(pone_val* val) {

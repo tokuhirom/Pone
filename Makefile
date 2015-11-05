@@ -115,7 +115,7 @@ t/c/array_methods.o: t/c/array_methods.c blib/libpone.a src/pone.h
 	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/array_methods.o $< blib/libpone.a
 
 pone_generated.out: pone_generated.c blib/libpone.a
-	$(CC) $(CFLAGS) -Werror -I src -o ./pone_generated.out  pone_generated.c blib/libpone.a
+	$(CC) $(LDFLAGS) $(CFLAGS) -Werror -I src -o ./pone_generated.out  pone_generated.c blib/libpone.a
 
 docs: docs/Array.md docs/Num.md docs/Range.md docs/Mu.md
 

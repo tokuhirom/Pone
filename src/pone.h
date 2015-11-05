@@ -172,6 +172,7 @@ typedef struct pone_val {
         pone_num num;
         pone_int integer;
         pone_obj obj;
+        pone_bool boolean;
     } as;
 } pone_val;
 
@@ -351,6 +352,7 @@ pone_val* pone_divide(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2);
 bool pone_so(pone_val* val);
+bool pone_smart_match(pone_world* world, pone_val* v1, pone_val* v2);
 
 // iter.c
 pone_val* pone_iter_init(pone_world* world, pone_val* val);

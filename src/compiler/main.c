@@ -194,6 +194,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 CMP(PVIP_NODE_STRLT, "pone_str_lt")
                 CMP(PVIP_NODE_STRGT, "pone_str_gt")
                 CMP(PVIP_NODE_STRGE, "pone_str_ge")
+                CMP(PVIP_NODE_SMART_MATCH, "pone_smart_match")
                 default:
                     fprintf(stderr, "unsupported chain node '%s'\n", PVIP_node_name(node->children.nodes[1]->type));
                     abort();

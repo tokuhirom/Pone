@@ -569,3 +569,17 @@ True
 False
 a
 
+===
+--- input
+say 3 ~~ 3;
+say 3 ~~ 2;
+say 3.14 ~~ 3;
+say "3" ~~ 3;
+say "3.0" ~~ 3;
+--- expected
+True
+False
+False
+True
+True
+

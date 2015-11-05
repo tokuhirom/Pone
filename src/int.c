@@ -16,8 +16,7 @@ pone_val* pone_int_incr(pone_world* world, pone_val* i) {
     if (pone_is_frozen(i)) {
         // TODO should we use better interface?
         // show line number
-        pone_dd(world->universe, i);
-        fprintf(stderr, "[ERROR] You can't modify an itenger literal");
+        fprintf(stderr, "[ERROR] You can't modify an itenger literal: %d", i);
         exit(1);
     }
     ((pone_int*)i)->i++;
@@ -43,6 +42,15 @@ static pone_val* meth_int_str(pone_world* world, pone_val* self, int n, va_list 
     return pone_str_from_int(world->universe, pone_int_val(self));
 }
 
+static pone_val* meth_int_accepts(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 1);
+
+    pone_val* rhs = va_arg(args, pone_val*);
+    bool b = pone_eq(world, self, rhs);
+
+    return b ? pone_true() : pone_false();
+}
+
 void pone_int_init(pone_universe* universe) {
     assert(universe->class_int == NULL);
 
@@ -50,5 +58,6 @@ void pone_int_init(pone_universe* universe) {
     pone_class_push_parent(universe, universe->class_int, universe->class_cool);
     pone_add_method_c(universe, universe->class_int, "is-prime", strlen("is-prime"), meth_int_is_prime);
     pone_add_method_c(universe, universe->class_int, "Str", strlen("Str"), meth_int_str);
+    pone_add_method_c(universe, universe->class_int, "ACCEPTS", strlen("ACCEPTS"), meth_int_accepts);
 }
 

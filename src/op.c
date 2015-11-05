@@ -67,6 +67,10 @@ void pone_dd(pone_universe* universe, pone_val* val) {
             printf("(array len:%d, max:%d)\n", val->as.ary.len, val->as.ary.max);
             break;
         }
+        case PONE_BOOL: {
+            printf("(bool %s)\n", val->as.boolean.b ? "true" : "false");
+            break;
+        }
         case PONE_OBJ: {
             printf("(obj ");
             const char* k;
@@ -113,10 +117,11 @@ int pone_intify(pone_world* world, pone_val* val) {
     }
     case PONE_CODE:
         pone_throw_str(world, "you can't convert CODE to integer");
-    default:
-        pone_throw_str(world, "you can't convert this type to integer");
-        abort();
     }
+
+    pone_val* v = pone_call_method(world, val, "Int", 0);
+    assert(pone_type(v) == PONE_INT);
+    return v->as.integer.i;
 }
 
 pone_num_t pone_numify(pone_world* world, pone_val* val) {
@@ -139,6 +144,10 @@ pone_num_t pone_numify(pone_world* world, pone_val* val) {
         pone_throw_str(world, "you can't convert this type to num");
         abort();
     }
+}
+
+bool pone_smart_match(pone_world* world, pone_val* v1, pone_val* v2) {
+    return pone_so(pone_call_method(world, v2, "ACCEPTS", 1, v1));
 }
 
 pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2) {
