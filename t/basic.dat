@@ -238,7 +238,6 @@ my $n = sub ($m) { say 5+$m }; $n(3)
 8
 
 ===
---- LAST
 --- input
 try { say 6; die 3; say 5; }; say 555; say $!
 --- expected
@@ -266,6 +265,7 @@ my $n = 3; while $n { say $n; $n = $n-1 }
 1
 
 ===
+--- LAST
 --- input
 say 10/2;
 say 10/3;
