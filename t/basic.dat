@@ -541,3 +541,9 @@ say "ho\nge";
 ho
 ge
 
+===
+--- input
+my $ge=3; say "ho$ge"
+--- expected
+ho3
+

@@ -143,7 +143,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF("\", %ld)", node->pv->len);
             MORTAL_END;
             break;
-#define INFIX(func) do { PRINTF("%s(world, ", func); COMPILE(node->children.nodes[0]);  PRINTF(","); COMPILE(node->children.nodes[1]); PRINTF(")"); } while (0)
+#define INFIX(func) do { MORTAL_START; PRINTF("%s(world, ", func); COMPILE(node->children.nodes[0]);  PRINTF(","); COMPILE(node->children.nodes[1]); PRINTF(")"); MORTAL_END; } while (0)
         case PVIP_NODE_ADD:
             INFIX("pone_add");
             break;
@@ -158,6 +158,9 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             break;
         case PVIP_NODE_MOD:
             INFIX("pone_mod");
+            break;
+        case PVIP_NODE_STRING_CONCAT:
+            INFIX("pone_str_concat");
             break;
 #undef INFIX
         case PVIP_NODE_CHAIN:
