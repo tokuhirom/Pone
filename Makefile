@@ -1,15 +1,15 @@
 all: blib/libpone.a bin/pone
 
-CFLAGS=-D_POSIX_C_SOURCE=200809L -std=c99 -g -W -I 3rd/linenoise/ -I 3rd/pvip/src/ -DCC=$(CC) -Isrc/ -fPIC
+CFLAGS=-D_POSIX_C_SOURCE=200809L -std=c99 -g -W -I 3rd/pvip/src/qre/ -I 3rd/linenoise/ -I 3rd/pvip/src/ -DCC=$(CC) -Isrc/ -fPIC
 LDFLAGS=-lm
 LIBPONE=blib/libpone.a
 LIBPVIP=3rd/pvip/libpvip.a
 # CFLAGS+= -DTRACE_REFCNT
 # CFLAGS+= -DTRACE_UNIVERSE
 
-RUNTIME_OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/builtin.o src/code.o src/hash.o src/int.o src/nil.o src/num.o src/op.o src/pone.o src/scope.o src/str.o src/world.o src/universe.o src/iter.o src/exc.o src/range.o src/mu.o src/any.o src/cool.o src/socket.o
+RUNTIME_OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/builtin.o src/code.o src/hash.o src/int.o src/nil.o src/num.o src/op.o src/pone.o src/scope.o src/str.o src/world.o src/universe.o src/iter.o src/exc.o src/range.o src/mu.o src/any.o src/cool.o src/socket.o src/re.o
 COMPILER_OBJFILES=src/compiler/main.o 3rd/linenoise/linenoise.o
-CTEST_OBJFILES=t/c/assign.o t/c/basic.o t/c/enter.o t/c/func2.o t/c/func.o t/c/hash.o t/c/nop.o t/c/iter.o t/c/for.o t/c/array_methods.o
+CTEST_OBJFILES=t/c/re.o t/c/assign.o t/c/basic.o t/c/enter.o t/c/func2.o t/c/func.o t/c/hash.o t/c/nop.o t/c/iter.o t/c/for.o t/c/array_methods.o
 
 test: blib/libpone.a $(CTEST_OBJFILES)
 	prove -lrv t/ xt/
@@ -38,7 +38,7 @@ bin/pone: $(COMPILER_OBJFILES) $(LIBPVIP) $(LIBPONE)
 	git submodule init
 	git submodule update
 
-$(LIBPVIP): 3rd/pvip/src/pvip.h 3rd/pvip/src/pvip_private.h 3rd/pvip/src/pvip.y 3rd/pvip/src/pvip_string.o
+$(LIBPVIP): 3rd/pvip/src/pvip.h 3rd/pvip/src/pvip_private.h 3rd/pvip/src/pvip.y 3rd/pvip/src/pvip_string.o 3rd/pvip/src/qre/qre.c
 	cd 3rd/pvip && make
 
 src/alloc.o: src/pone.h
@@ -113,6 +113,9 @@ t/c/for.o: t/c/for.c blib/libpone.a src/pone.h
 
 t/c/array_methods.o: t/c/array_methods.c blib/libpone.a src/pone.h
 	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/array_methods.o $< blib/libpone.a
+
+t/c/re.o: t/c/re.c blib/libpone.a src/pone.h
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/re.o $< blib/libpone.a
 
 pone_generated.out: pone_generated.c blib/libpone.a
 	$(CC) $(LDFLAGS) $(CFLAGS) -Werror -I src -o ./pone_generated.out  pone_generated.c blib/libpone.a

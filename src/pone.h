@@ -224,6 +224,10 @@ typedef struct pone_universe {
     // We use a sentinel value to mark the end of an iteration.
     // This is "IterationEnd" in rakudo Perl6.
     struct pone_val* instance_iteration_end;
+    // class of Regex
+    struct pone_val* class_regex;
+    // class of Match
+    struct pone_val* class_match;
     // class of IO::Socket::INET
     struct pone_val* class_io_socket_inet;
 
@@ -438,6 +442,11 @@ void pone_range_init(pone_universe* universe);
 
 // socket.c
 void pone_sock_init(pone_universe* universe);
+
+// re.c
+pone_val* pone_regex_new(pone_universe* universe, pone_funcptr_t func);
+void pone_regex_init(pone_universe* universe);
+pone_val* pone_match_new(pone_universe* universe, int from, int to);
 
 #define PONE_ALLOC_CHECK(v) \
   do { \
