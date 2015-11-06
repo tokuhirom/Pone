@@ -4,6 +4,7 @@ CFLAGS=-D_POSIX_C_SOURCE=200809L -std=c99 -g -W -I 3rd/pvip/src/qre/ -I 3rd/line
 LDFLAGS=-lm
 LIBPONE=blib/libpone.a
 LIBPVIP=3rd/pvip/libpvip.a
+LIBROCKRE=3rd/rockre/librockre.a
 # CFLAGS+= -DTRACE_REFCNT
 # CFLAGS+= -DTRACE_UNIVERSE
 
@@ -20,10 +21,10 @@ clean:
 
 blib/libpone.a: $(RUNTIME_OBJFILES) src/pone.h
 	-mkdir -p blib
-	ar rcs blib/libpone.a $(RUNTIME_OBJFILES)
+	ar rcs blib/libpone.a $(RUNTIME_OBJFILES) $(LIBROCKRE)
 
-bin/pone: $(COMPILER_OBJFILES) $(LIBPVIP) $(LIBPONE)
-	$(CC) $(CFLAGS) -lm -o bin/pone $(COMPILER_OBJFILES) $(LIBPONE) $(LIBPVIP)
+bin/pone: $(COMPILER_OBJFILES) $(LIBPVIP) $(LIBPONE) $(LIBROCKRE)
+	$(CC) $(CFLAGS) -lm -o bin/pone $(COMPILER_OBJFILES) $(LIBPONE) $(LIBPVIP) $(LIBROCKRE)
 
 3rd/pvip/src/pvip_node.o: 3rd/pvip/src/pvip_node.c
 
@@ -31,6 +32,13 @@ bin/pone: $(COMPILER_OBJFILES) $(LIBPVIP) $(LIBPONE)
 	git submodule init
 	git submodule update
 	make
+
+$(LIBROCKRE): 3rd/rockre/src/api.cc
+	cd 3rd/rockre/ && cmake . && make
+
+3rd/rockre/src/api.cc:
+	git submodule init
+	git submodule update
 
 3rd/linenoise/linenoise.o: 3rd/linenoise/linenoise.c 3rd/linenoise/linenoise.h
 

@@ -121,6 +121,7 @@ void pone_universe_destroy(pone_universe* universe) {
 
     pone_refcnt_dec(universe, universe->instance_iteration_end);
     pone_refcnt_dec(universe, universe->class_io_socket_inet);
+    pone_refcnt_dec(universe, universe->class_match);
     pone_refcnt_dec(universe, universe->class_regex);
     pone_refcnt_dec(universe, universe->class_range);
     pone_refcnt_dec(universe, universe->class_code);
