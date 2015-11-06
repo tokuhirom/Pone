@@ -43,10 +43,10 @@ int main(int argc, char** argv) {
             pone_mortalize(world, pone_int_new(world->universe, 3))
         ));
         pone_builtin_say(world, pone_builtin_elems(world, av));
+        pone_builtin_say(world, pone_ary_at_pos(av, 3));
         pone_builtin_say(world, pone_ary_at_pos(av, 0));
         pone_builtin_say(world, pone_ary_at_pos(av, 1));
         pone_builtin_say(world, pone_ary_at_pos(av, 2));
-        pone_builtin_say(world, pone_ary_at_pos(av, 3));
 
         pone_freetmps(world);
         pone_pop_scope(world);
