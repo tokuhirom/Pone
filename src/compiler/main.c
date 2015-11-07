@@ -232,11 +232,11 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 CMP(PVIP_NODE_STRGT, "pone_str_gt")
                 CMP(PVIP_NODE_STRGE, "pone_str_ge")
                 case PVIP_NODE_SMART_MATCH:
-                    PRINTF("pone_smart_match(world,");
+                    PRINTF("pone_mortalize(world, pone_smart_match(world,");
                     COMPILE(node->children.nodes[0]);
                     PRINTF(",");
                     COMPILE(node->children.nodes[1]->children.nodes[0]);
-                    PRINTF(")");
+                    PRINTF("))");
                     break;
                 default:
                     fprintf(stderr, "unsupported chain node '%s'\n", PVIP_node_name(node->children.nodes[1]->type));

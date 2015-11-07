@@ -23,8 +23,10 @@ static pone_val* meth_regex_accepts(pone_world* world, pone_val* self, int n, va
         for (int i=1; i<region->num_regs; ++i) {
             pone_match_push(world, match, region->beg[i], region->end[i]);
         }
+        rockre_region_destroy(world->universe->rockre, region);
         return match;
     } else {
+        rockre_region_destroy(world->universe->rockre, region);
         return pone_nil();
     }
 }
@@ -83,7 +85,7 @@ static pone_val* match_str(pone_world* world,  pone_val* self, int n, int indent
         pone_str_appendf(world, buf, "%d ", n);
     }
     pone_str_append_c(world, buf, "｢", strlen("｢"));
-    pone_str_append(world, buf, pone_str_new(world->universe, pone_str_ptr(orig) + from, to - from));
+    pone_str_append_c(world, buf, pone_str_ptr(orig) + from, to - from);
     pone_str_append_c(world, buf, "｣\n", strlen("｣\n"));
     for (pone_int_t i=0; i<pone_ary_elems(list); ++i) {
         pone_val* match = pone_ary_at_pos(list, i);
