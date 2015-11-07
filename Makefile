@@ -15,6 +15,8 @@ CTEST_OBJFILES=t/c/re.o t/c/assign.o t/c/basic.o t/c/enter.o t/c/func2.o t/c/fun
 test: blib/libpone.a $(CTEST_OBJFILES)
 	prove -lrv t/ xt/
 
+rtest: $(CTEST_OBJFILES)
+
 clean:
 	rm -f $(RUNTIME_OBJFILES) blib/libpone.a $(CTEST_OBJFILES) vgcore.* core.* bin/pone
 	cd 3rd/pvip/ && make clean
@@ -93,34 +95,34 @@ tags:
 
 # yes. hardly copy and pasted. but... i will rewrite all cases after self-hosting.
 t/c/assign.o: t/c/assign.c blib/libpone.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/assign.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/assign.o $< blib/libpone.a $(LIBROCKRE)
 
 t/c/basic.o: t/c/basic.c blib/libpone.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/basic.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/basic.o $< blib/libpone.a $(LIBROCKRE)
 
 t/c/enter.o: t/c/enter.c blib/libpone.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/enter.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/enter.o $< blib/libpone.a $(LIBROCKRE)
 
 t/c/func2.o: t/c/func2.c blib/libpone.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/func2.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/func2.o $< blib/libpone.a $(LIBROCKRE)
 
 t/c/func.o: t/c/func.c blib/libpone.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/func.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/func.o $< blib/libpone.a $(LIBROCKRE)
 
 t/c/hash.o: t/c/hash.c blib/libpone.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/hash.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/hash.o $< blib/libpone.a $(LIBROCKRE)
 
 t/c/nop.o: t/c/nop.c blib/libpone.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/nop.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/nop.o $< blib/libpone.a $(LIBROCKRE)
 
 t/c/iter.o: t/c/iter.c blib/libpone.a src/pone.h
-	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/iter.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/iter.o $< blib/libpone.a $(LIBROCKRE)
 
 t/c/for.o: t/c/for.c blib/libpone.a src/pone.h
-	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/for.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/for.o $< blib/libpone.a $(LIBROCKRE)
 
 t/c/array_methods.o: t/c/array_methods.c blib/libpone.a src/pone.h
-	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/array_methods.o $< blib/libpone.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/array_methods.o $< blib/libpone.a $(LIBROCKRE)
 
 t/c/re.o: t/c/re.c blib/libpone.a src/pone.h $(LIBROCKRE)
 	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/re.o $< blib/libpone.a $(LIBROCKRE)

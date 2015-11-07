@@ -2,9 +2,9 @@
 #include "rockre.h"
 
 static void run_tests7(pone_world* world) {
-    rockre_regexp* re = rockre_compile(world->universe->rockre, "h((o))ge", 8);
-    rockre_region* region = rockre_region_new(rockre);
-    if (rockre_partial_match(rockre, re, region, "hoge", 4)) {
+    rockre_regexp* re = rockre_compile(world->universe->rockre, "h((o))ge", 8, true);
+    rockre_region* region = rockre_region_new(world->universe->rockre);
+    if (rockre_partial_match(world->universe->rockre, re, region, "hoge", 4)) {
         printf("matched\n");
     }
     for (int i=0; i< region->num_regs; ++i) {

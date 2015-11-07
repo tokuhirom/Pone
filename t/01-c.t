@@ -16,8 +16,6 @@ run {
     subtest $src, sub {
         (my $objfile = $src) =~ s/\.c$/.o/;
 
-        unlink $objfile;
-        system('clang', '-lm', '-Isrc/', '-g', '-std=c99', '-o', $objfile, $src, 'blib/libpone.a');
         my ($out, $err, $exit) = capture {
             system("./$objfile");
         };
