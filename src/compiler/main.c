@@ -196,11 +196,11 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             switch (node->children.nodes[1]->type) {
 #define CMP(label, func) \
                 case label: \
-                    PRINTF(func "(world,"); \
+                    PRINTF("(" func "(world,"); \
                     COMPILE(node->children.nodes[0]); \
                     PRINTF(","); \
                     COMPILE(node->children.nodes[1]->children.nodes[0]); \
-                    PRINTF(")"); \
+                    PRINTF(") ? pone_true() : pone_false())"); \
                     break;
 
                 CMP(PVIP_NODE_EQ, "pone_eq")
@@ -215,7 +215,13 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 CMP(PVIP_NODE_STRLT, "pone_str_lt")
                 CMP(PVIP_NODE_STRGT, "pone_str_gt")
                 CMP(PVIP_NODE_STRGE, "pone_str_ge")
-                CMP(PVIP_NODE_SMART_MATCH, "pone_smart_match")
+                case PVIP_NODE_SMART_MATCH:
+                    PRINTF("pone_smart_match(world,");
+                    COMPILE(node->children.nodes[0]);
+                    PRINTF(",");
+                    COMPILE(node->children.nodes[1]->children.nodes[0]);
+                    PRINTF(")");
+                    break;
                 default:
                     fprintf(stderr, "unsupported chain node '%s'\n", PVIP_node_name(node->children.nodes[1]->type));
                     abort();

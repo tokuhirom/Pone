@@ -637,7 +637,7 @@ hello
 
 ===
 --- input
-say("aaaahh3ge" ~~ /h(((o||3)))ge/)
+print("aaaahh3ge" ~~ /h(((o||3)))ge/)
 --- expected
 ｢h3ge｣
  0 ｢3｣
