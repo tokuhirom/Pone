@@ -49,17 +49,14 @@ pone_val* pone_str_new_vprintf(pone_universe* universe, const char* fmt, va_list
 }
 
 pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2) {
-    pone_val* s1 = pone_stringify(world, v1);
-    pone_val* s2 = pone_stringify(world, v2);
+    pone_val* s1 = pone_mortalize(world, pone_stringify(world, v1));
+    pone_val* s2 = pone_mortalize(world, pone_stringify(world, v2));
 
     pone_string* pv = (pone_string*)pone_obj_alloc(world->universe, PONE_STRING);
     pv->len = pone_str_len(s1)+pone_str_len(s2);
     pv->p = pone_malloc(world->universe, pv->len);
     memcpy(pv->p, pone_str_ptr(s1), pone_str_len(s1));
     memcpy(pv->p+pone_str_len(s1), pone_str_ptr(s2), pone_str_len(s2));
-
-    pone_refcnt_dec(world->universe, s1);
-    pone_refcnt_dec(world->universe, s2);
 
     return (pone_val*)pv;
 }
@@ -132,7 +129,7 @@ pone_val* pone_str_c_str(pone_world* world, pone_val* val) {
         pone_throw_str(world, "You can't convert string to c-string. Since it contains \\0.");
     }
 
-    return pone_str_concat(world, val, pone_str_new(world->universe, "\0", 1));
+    return pone_str_concat(world, val, pone_mortalize(world, pone_str_new(world->universe, "\0", 1)));
 }
 
 void pone_str_append_c(pone_world* world, pone_val* val, const char* s, int s_len) {
@@ -149,6 +146,7 @@ void pone_str_append_c(pone_world* world, pone_val* val, const char* s, int s_le
         pone_throw_str(world, "You can't modify immutable string");
     }
 
+    assert(pone_type(val) == PONE_STRING);
     val->as.str.p = realloc(val->as.str.p, val->as.str.len + s_len);
     PONE_ALLOC_CHECK(val->as.str.p);
     memcpy(val->as.str.p + val->as.str.len, s, s_len);

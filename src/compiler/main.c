@@ -68,6 +68,22 @@ static inline int find_lex(pone_compile_ctx* ctx, const char* name) {
     }
 }
 
+static bool is_builtin(const char* name) {
+    return
+        strcmp(name, "print")==0
+        || strcmp(name, "say")==0
+        || strcmp(name, "dd")==0
+        || strcmp(name, "abs")==0
+        || strcmp(name, "elems")==0
+        || strcmp(name, "getenv")==0
+        || strcmp(name, "time")==0
+        || strcmp(name, "signal")==0
+        || strcmp(name, "sleep")==0
+        || strcmp(name, "die")==0
+        || strcmp(name, "printf")==0
+        || strcmp(name, "slurp")==0;
+}
+
 void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
 #define PRINTF(fmt, ...) PVIP_string_printf(ctx->buf, fmt,  ##__VA_ARGS__)
 #define WRITE_PV(pv) PVIP_string_concat(ctx->buf, pv->buf, pv->len)
@@ -331,21 +347,9 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                     || node->children.nodes[0]->type == PVIP_NODE_VARIABLE
                     );
             const char* name = PVIP_string_c_str(node->children.nodes[0]->pv);
-            if (
-                    strcmp(name, "print")==0
-                    || strcmp(name, "say")==0
-                    || strcmp(name, "dd")==0
-                    || strcmp(name, "abs")==0
-                    || strcmp(name, "elems")==0
-                    || strcmp(name, "getenv")==0
-                    || strcmp(name, "time")==0
-                    || strcmp(name, "signal")==0
-                    || strcmp(name, "sleep")==0
-                    || strcmp(name, "die")==0
-                    || strcmp(name, "printf")==0
-                    || strcmp(name, "slurp")==0
-                    ) {
-                PRINTF("pone_builtin_%s(world", name);
+            bool builtin = is_builtin(name);
+            if (builtin) {
+                PRINTF("pone_mortalize(world, pone_builtin_%s(world", name);
             } else {
                 PRINTF("pone_code_call(world, pone_get_lex(world, \"%s%s\"), pone_nil(), %d",
                         node->children.nodes[0]->type == PVIP_NODE_IDENT ? "&" : "",
@@ -356,6 +360,9 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             }
             COMPILE(node->children.nodes[1]);
             PRINTF(")");
+            if (builtin) {
+                PRINTF(")");
+            }
             break;
         }
         case PVIP_NODE_IF:
