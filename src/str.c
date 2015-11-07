@@ -18,6 +18,14 @@ pone_val* pone_str_new_const(pone_universe* universe, const char*p, size_t len) 
     return (pone_val*)pv;
 }
 
+pone_val* pone_str_new_printf(pone_universe* universe, const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    pone_val* retval = pone_str_new_vprintf(universe, fmt, args);
+    va_end(args);
+    return retval;
+}
+
 pone_val* pone_str_new_vprintf(pone_universe* universe, const char* fmt, va_list args) {
     assert(universe);
 
@@ -75,7 +83,7 @@ void pone_str_free(pone_universe* universe, pone_val* val) {
     }
 }
 
-pone_val* pone_str_from_int(pone_universe* universe, int i) {
+pone_val* pone_str_from_int(pone_universe* universe, pone_int_t i) {
     // INT_MAX=2147483647. "2147483647".elems = 10
     char buf[11+1];
     int size = snprintf(buf, 11+1, "%d", i);
@@ -151,6 +159,13 @@ void pone_str_append(pone_world* world, pone_val* str, pone_val* s) {
     s = pone_stringify(world, s);
     pone_str_append_c(world, str, pone_str_ptr(s), pone_str_len(s));
     pone_refcnt_dec(world->universe, s);
+}
+
+void pone_str_appendf(pone_world* world, pone_val* str, const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    pone_str_append(world, str, pone_mortalize(world, pone_str_new_vprintf(world->universe, fmt, args)));
+    va_end(args);
 }
 
 static pone_val* meth_str_str(pone_world* world, pone_val* self, int n, va_list args) {

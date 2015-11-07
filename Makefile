@@ -1,7 +1,7 @@
 all: blib/libpone.a bin/pone
 
-CFLAGS=-D_POSIX_C_SOURCE=200809L -std=c99 -g -W -I 3rd/pvip/src/qre/ -I 3rd/linenoise/ -I 3rd/pvip/src/ -DCC=$(CC) -Isrc/ -fPIC
-LDFLAGS=-lm
+CFLAGS=-D_POSIX_C_SOURCE=200809L -std=c99 -g -W -I 3rd/pvip/src/qre/ -I 3rd/linenoise/ -I 3rd/pvip/src/ -DCC=$(CC) -Isrc/ -fPIC -I 3rd/rockre/include/
+LDFLAGS=-lm -lstdc++
 LIBPONE=blib/libpone.a
 LIBPVIP=3rd/pvip/libpvip.a
 LIBROCKRE=3rd/rockre/librockre.a
@@ -122,8 +122,8 @@ t/c/for.o: t/c/for.c blib/libpone.a src/pone.h
 t/c/array_methods.o: t/c/array_methods.c blib/libpone.a src/pone.h
 	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/array_methods.o $< blib/libpone.a
 
-t/c/re.o: t/c/re.c blib/libpone.a src/pone.h
-	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/re.o $< blib/libpone.a
+t/c/re.o: t/c/re.c blib/libpone.a src/pone.h $(LIBROCKRE)
+	$(CC) $(CFLAGS) $(LDFLAGS) -I src/ -o t/c/re.o $< blib/libpone.a $(LIBROCKRE)
 
 pone_generated.out: pone_generated.c blib/libpone.a
 	$(CC) $(LDFLAGS) $(CFLAGS) -Werror -I src -o ./pone_generated.out  pone_generated.c blib/libpone.a

@@ -635,3 +635,12 @@ say slurp("t/dat/hello.txt")
 --- expected
 hello
 
+===
+--- input
+say("aaaahh3ge" ~~ /h(((o||3)))ge/)
+--- expected
+｢h3ge｣
+ 0 ｢3｣
+  0 ｢3｣
+   0 ｢3｣
+

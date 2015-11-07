@@ -54,6 +54,8 @@ pone_universe* pone_universe_init() {
     universe->err_handler_idx = 0;
     universe->err_handler_max = PONE_ERR_HANDLERS_INIT;
 
+    universe->rockre = rockre_new();
+
 #ifdef TRACE_UNIVERSE
     printf("initializing class mu\n");
 #endif
@@ -136,6 +138,8 @@ void pone_universe_destroy(pone_universe* universe) {
     pone_refcnt_dec(universe, universe->class_cool);
     pone_refcnt_dec(universe, universe->class_class);
     pone_refcnt_dec(universe, universe->class_mu);
+
+    rockre_destroy(universe->rockre);
 
     pone_arena* a = universe->arena_head;
     while (a) {
