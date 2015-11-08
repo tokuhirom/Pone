@@ -89,7 +89,7 @@ static pone_val* match_str(pone_world* world,  pone_val* self, int n, int indent
     pone_str_append_c(world, buf, "｣\n", strlen("｣\n"));
     for (pone_int_t i=0; i<pone_ary_elems(list); ++i) {
         pone_val* match = pone_ary_at_pos(list, i);
-        pone_str_append(world, buf, match_str(world, match, i, indent+1));
+        pone_str_append(world, buf, pone_mortalize(world, match_str(world, match, i, indent+1)));
     }
     return buf;
 }
