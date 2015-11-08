@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <dlfcn.h>
 #include "pvip.h"
 #include "pone.h"
 #include "linenoise.h"
@@ -12,6 +13,8 @@
 #ifndef CC
 #define CC cc
 #endif
+
+typedef void (*pone_so_init_t)(pone_world*);
 
 static void usage() {
     printf("Usage: pone -e=code\n"
@@ -648,7 +651,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
 #undef COMPILE
 }
 
-void pone_compile(pone_compile_ctx* ctx, FILE* fp, PVIPNode* node) {
+void pone_compile(pone_compile_ctx* ctx, FILE* fp, PVIPNode* node, int so_no) {
     _pone_compile(ctx, node);
 
 #define PRINTF(fmt, ...) fprintf(fp, (fmt), ##__VA_ARGS__)
@@ -658,7 +661,12 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, PVIPNode* node) {
     for (int i=0; i<ctx->sub_idx; ++i) {
         fwrite(ctx->subs[i]->buf, 1, ctx->subs[i]->len, fp);
     }
+    PRINTF("// --------------- vvvv loader point vvvv -------------------\n");
+    PRINTF("void pone_so_init_%d(pone_world* world) {\n", so_no);
+    fwrite(ctx->buf->buf, 1, ctx->buf->len, fp);
+    PRINTF("}\n");
     PRINTF("// --------------- vvvv main function vvvv -------------------\n");
+    PRINTF("#ifndef PONE_DYNAMIC\n");
     PRINTF("int main(int argc, const char **argv) {\n");
     PRINTF("    pone_init();\n");
     PRINTF("    pone_universe* universe = pone_universe_init();\n");
@@ -669,13 +677,14 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, PVIPNode* node) {
     PRINTF("    } else {\n");
     PRINTF("        pone_savetmps(world);\n");
     PRINTF("        pone_push_scope(world);\n");
-    fwrite(ctx->buf->buf, 1, ctx->buf->len, fp);
+    PRINTF("        pone_so_init_%d(world);\n", so_no);
     PRINTF("        pone_freetmps(world);\n");
     PRINTF("        pone_pop_scope(world);\n");
     PRINTF("        pone_destroy_world(world);\n");
     PRINTF("        pone_universe_destroy(universe);\n");
     PRINTF("    }\n");
     PRINTF("}\n");
+    PRINTF("#endif\n");
 }
 
 static void pone_compile_node(PVIPNode* node, const char* filename, bool compile_only) {
@@ -695,7 +704,8 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
     }
     ctx.vars_max = 1;
     push_vars_stack(&ctx);
-    pone_compile(&ctx, fp, node);
+    int so_no = 0;
+    pone_compile(&ctx, fp, node, so_no);
     pop_vars_stack(&ctx);
     for (int i=0; i<ctx.sub_idx; ++i) {
         PVIP_string_destroy(ctx.subs[i]);
@@ -708,13 +718,31 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
 
     fclose(fp);
 
-    system("clang -lstdc++ -I3rd/rockre/include/ -I src/ -g -lm -std=c99 -o pone_generated.out pone_generated.c blib/libpone.a 3rd/rockre/librockre.a");
+    system("clang -rdynamic -DPONE_DYNAMIC -fPIC -shared -lstdc++ -I3rd/rockre/include/ -I src/ -g -lm -std=c99 -o pone_generated.so pone_generated.c blib/libpone.a 3rd/rockre/librockre.a");
 
     if (!compile_only) {
-        int r = system("./pone_generated.out");
-        if (WIFSIGNALED(r)) {
-            fprintf(stderr, "signal received: %d\n", WTERMSIG(r));
+        void* handle = dlopen("./pone_generated.so", RTLD_LAZY);
+        if (!handle) {
+            fprintf(stderr, "cannot load dll: %s\n", dlerror());
         }
+        pone_so_init_t pone_so_init = (pone_so_init_t)dlsym(handle, "pone_so_init_0");
+
+        pone_universe* universe = pone_universe_init();
+        pone_world* world = pone_world_new(universe);
+        universe->err_handler_worlds[0] = world;
+        if (setjmp(universe->err_handlers[0])) {
+            pone_universe_default_err_handler(world);
+        } else {
+            pone_savetmps(world);
+            pone_push_scope(world);
+            pone_so_init(world);
+            pone_pop_scope(world);
+            pone_freetmps(world);
+            pone_destroy_world(world);
+            pone_universe_destroy(universe);
+        }
+
+        dlclose(handle);
     }
 }
 
@@ -740,6 +768,8 @@ int main(int argc, char** argv) {
                 exit(EXIT_FAILURE);
         }
     }
+
+    pone_init();
 
     pvip_t* pvip = pvip_new();
     if (eval) {

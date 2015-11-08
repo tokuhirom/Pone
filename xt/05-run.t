@@ -17,22 +17,13 @@ run {
     my ($src, $expected) = ($block->input, $block->expected);
 
     subtest $src, sub {
-        {
-            my ($out, $err, $exit) = capture {
-                system("./bin/pone", "-c", "-e", "$src");
-            };
-            ok WIFEXITED($exit), 'exited';
-            is WEXITSTATUS($exit), 0, 'exited by 0';
-        }
-
-        {
-            my ($out, $err, $exit) = capture {
-                system("valgrind", "--leak-check=full", "./pone_generated.out");
-            };
-            is $out, $expected;
-            ok WIFEXITED($exit), 'exited';
-            like $err, qr/All heap blocks were freed/, 'valgrind';
-        }
+        my ($out, $err, $exit) = capture {
+            system("valgrind", "--leak-check=full", "./bin/pone", '-e', $src);
+        };
+        is $out, $expected;
+        ok WIFEXITED($exit), 'exited';
+        is WEXITSTATUS($exit), 0, 'exited by 0';
+        like $err, qr/All heap blocks were freed/, 'valgrind';
     };
 }
 

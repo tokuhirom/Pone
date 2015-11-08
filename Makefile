@@ -1,7 +1,7 @@
 all: blib/libpone.a bin/pone
 
-CFLAGS=-D_POSIX_C_SOURCE=200809L -std=c99 -g -W -I 3rd/pvip/src/qre/ -I 3rd/linenoise/ -I 3rd/pvip/src/ -DCC=$(CC) -Isrc/ -fPIC -I 3rd/rockre/include/
-LDFLAGS=-lm -lstdc++
+CFLAGS=-D_POSIX_C_SOURCE=200809L -std=c99 -g -W -I 3rd/pvip/src/qre/ -I 3rd/linenoise/ -I 3rd/pvip/src/ -DCC=$(CC) -Isrc/ -fPIC -I 3rd/rockre/include/ -ldl -fPIC
+LDFLAGS=-lm -lstdc++ -ldl -fPIC
 LIBPONE=blib/libpone.a
 LIBPVIP=3rd/pvip/libpvip.a
 LIBROCKRE=3rd/rockre/librockre.a
@@ -26,7 +26,7 @@ blib/libpone.a: $(RUNTIME_OBJFILES) src/pone.h
 	ar rcs blib/libpone.a $(RUNTIME_OBJFILES) $(LIBROCKRE)
 
 bin/pone: $(COMPILER_OBJFILES) $(LIBPVIP) $(LIBPONE) $(LIBROCKRE)
-	$(CC) $(CFLAGS) -lm -o bin/pone $(COMPILER_OBJFILES) $(LIBPONE) $(LIBPVIP) $(LIBROCKRE)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o bin/pone $(COMPILER_OBJFILES) $(LIBPONE) $(LIBPVIP) $(LIBROCKRE)
 
 3rd/pvip/src/pvip_node.o: 3rd/pvip/src/pvip_node.c
 
