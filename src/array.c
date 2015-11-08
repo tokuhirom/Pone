@@ -123,7 +123,7 @@ static pone_val* meth_ary_elems(pone_world* world, pone_val* self, int n, va_lis
     return pone_int_new(world->universe, pone_ary_elems(self));
 }
 
-void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
+void pone_ary_append_noinc(pone_universe* universe, pone_val* self, pone_val* val) {
     assert(pone_type(self) == PONE_ARRAY);
 
     if (self->as.ary.max == self->as.ary.len) {
@@ -140,6 +140,10 @@ void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
     }
 
     self->as.ary.a[self->as.ary.len++] = val;
+}
+
+void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
+    pone_ary_append_noinc(universe, self, val);
     pone_refcnt_inc(universe, val);
 }
 

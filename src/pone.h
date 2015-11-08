@@ -15,6 +15,9 @@
 #include <stdarg.h>
 #include <setjmp.h>
 #include "khash.h" /* PONE_INC */
+#include "rockre.h"
+
+typedef long pone_int_t;
 
 // TODO: NaN boxing
 
@@ -68,7 +71,7 @@ typedef struct {
 // integer value
 typedef struct {
     PONE_HEAD;
-    int i;
+    pone_int_t i;
 } pone_int;
 
 typedef struct {
@@ -224,10 +227,16 @@ typedef struct pone_universe {
     // We use a sentinel value to mark the end of an iteration.
     // This is "IterationEnd" in rakudo Perl6.
     struct pone_val* instance_iteration_end;
+    // class of Regex
+    struct pone_val* class_regex;
+    // class of Match
+    struct pone_val* class_match;
     // class of IO::Socket::INET
     struct pone_val* class_io_socket_inet;
 
     khash_t(str) *globals;
+
+    rockre* rockre;
 } pone_universe;
 
 typedef struct pone_arena {
@@ -282,6 +291,7 @@ void pone_ary_free(pone_universe* universe, pone_val* val);
 void pone_ary_init(pone_universe* universe);
 pone_val* pone_ary_at_pos(pone_val* ary, int n);
 void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val);
+void pone_ary_append_noinc(pone_universe* universe, pone_val* self, pone_val* val);
 
 // str.c
 pone_val* pone_str_new(pone_universe* universe, const char*p, size_t len);
@@ -294,8 +304,10 @@ size_t pone_str_len(pone_val* val);
 char* pone_strdup(pone_universe* universe, const char* src, size_t size);
 void pone_str_append_c(pone_world* world, pone_val* str, const char* s, int s_len);
 void pone_str_append(pone_world* world, pone_val* str, pone_val* s);
+void pone_str_appendf(pone_world* world, pone_val* str, const char* fmt, ...);
 void pone_str_init(pone_universe* universe);
 pone_val* pone_str_new_vprintf(pone_universe* universe, const char* fmt, va_list args);
+pone_val* pone_str_new_printf(pone_universe* universe, const char* fmt, ...);
 bool pone_str_contains_null(pone_universe* universe, pone_val* val);
 pone_val* pone_str_c_str(pone_world* world, pone_val* val);
 
@@ -308,10 +320,10 @@ void pone_code_free(pone_universe* universe, pone_val* v);
 void pone_code_init(pone_universe* universe);
 
 // int.c
-pone_val* pone_str_from_int(pone_universe* universe, int i);
-int pone_int_val(pone_val* val);
+pone_val* pone_str_from_int(pone_universe* universe, pone_int_t i);
+pone_int_t pone_int_val(pone_val* val);
 pone_val* pone_int_incr(pone_world* world, pone_val* i);
-pone_val* pone_int_new(pone_universe* universe, int i);
+pone_val* pone_int_new(pone_universe* universe, pone_int_t i);
 void pone_int_init(pone_universe* universe);
 
 // SV ops
@@ -364,7 +376,7 @@ pone_val* pone_divide(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2);
 bool pone_so(pone_val* val);
-bool pone_smart_match(pone_world* world, pone_val* v1, pone_val* v2);
+pone_val* pone_smart_match(pone_world* world, pone_val* v1, pone_val* v2);
 
 // iter.c
 pone_val* pone_iter_init(pone_world* world, pone_val* val);
@@ -438,6 +450,12 @@ void pone_range_init(pone_universe* universe);
 
 // socket.c
 void pone_sock_init(pone_universe* universe);
+
+// re.c
+pone_val* pone_regex_new(pone_universe* universe, const char* str, size_t len);
+void pone_regex_init(pone_universe* universe);
+pone_val* pone_match_new(pone_universe* universe, pone_val* orig, int from, int to);
+pone_val* pone_match_push(pone_world* world, pone_val* self, int from, int to);
 
 #define PONE_ALLOC_CHECK(v) \
   do { \

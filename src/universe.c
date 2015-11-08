@@ -54,6 +54,8 @@ pone_universe* pone_universe_init() {
     universe->err_handler_idx = 0;
     universe->err_handler_max = PONE_ERR_HANDLERS_INIT;
 
+    universe->rockre = rockre_new();
+
 #ifdef TRACE_UNIVERSE
     printf("initializing class mu\n");
 #endif
@@ -82,6 +84,8 @@ pone_universe* pone_universe_init() {
     pone_code_init(universe);
     assert(universe->class_range == NULL);
     pone_range_init(universe);
+    pone_regex_init(universe);
+    assert(universe->class_io_socket_inet == NULL);
     pone_sock_init(universe);
 
 #ifdef TRACE_UNIVERSE
@@ -103,6 +107,7 @@ pone_universe* pone_universe_init() {
 
     PUT("Nil", pone_nil());
     PUT("IO::Socket::INET", universe->class_io_socket_inet);
+    PUT("Regex", universe->class_regex);
 
 #undef PUT
 
@@ -118,6 +123,8 @@ void pone_universe_destroy(pone_universe* universe) {
 
     pone_refcnt_dec(universe, universe->instance_iteration_end);
     pone_refcnt_dec(universe, universe->class_io_socket_inet);
+    pone_refcnt_dec(universe, universe->class_match);
+    pone_refcnt_dec(universe, universe->class_regex);
     pone_refcnt_dec(universe, universe->class_range);
     pone_refcnt_dec(universe, universe->class_code);
     pone_refcnt_dec(universe, universe->class_hash);
@@ -131,6 +138,8 @@ void pone_universe_destroy(pone_universe* universe) {
     pone_refcnt_dec(universe, universe->class_cool);
     pone_refcnt_dec(universe, universe->class_class);
     pone_refcnt_dec(universe, universe->class_mu);
+
+    rockre_destroy(universe->rockre);
 
     pone_arena* a = universe->arena_head;
     while (a) {

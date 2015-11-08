@@ -68,6 +68,22 @@ static inline int find_lex(pone_compile_ctx* ctx, const char* name) {
     }
 }
 
+static bool is_builtin(const char* name) {
+    return
+        strcmp(name, "print")==0
+        || strcmp(name, "say")==0
+        || strcmp(name, "dd")==0
+        || strcmp(name, "abs")==0
+        || strcmp(name, "elems")==0
+        || strcmp(name, "getenv")==0
+        || strcmp(name, "time")==0
+        || strcmp(name, "signal")==0
+        || strcmp(name, "sleep")==0
+        || strcmp(name, "die")==0
+        || strcmp(name, "printf")==0
+        || strcmp(name, "slurp")==0;
+}
+
 void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
 #define PRINTF(fmt, ...) PVIP_string_printf(ctx->buf, fmt,  ##__VA_ARGS__)
 #define WRITE_PV(pv) PVIP_string_concat(ctx->buf, pv->buf, pv->len)
@@ -122,6 +138,28 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF("pone_int_new(world->universe, %ld)", node->iv);
             MORTAL_END;
             break;
+        case PVIP_NODE_REGEXP:
+            MORTAL_START;
+            PRINTF("pone_regex_new(world->universe, \"");
+            for (size_t i=0; i<node->pv->len; ++i) {
+                switch (node->pv->buf[i]) {
+                case '\a': PRINTF("\\a"); break;
+                case '\b': PRINTF("\\b"); break;
+                case '\t': PRINTF("\\t"); break;
+                case '\n': PRINTF("\\n"); break;
+                case '\v': PRINTF("\\v"); break;
+                case '\f': PRINTF("\\f"); break;
+                case '\r': PRINTF("\\r"); break;
+                case '\\': PRINTF("\\\\"); break;
+                case '\"': PRINTF("\""); break;
+                default:
+                    PRINTF("%c", node->pv->buf[i]);
+                    break;
+                }
+            }
+            PRINTF("\", %ld)", node->pv->len);
+            MORTAL_END;
+            break;
         case PVIP_NODE_STRING:
             MORTAL_START;
             PRINTF("pone_str_new_const(world->universe, \"");
@@ -171,15 +209,14 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 abort();
             }
 
-            PRINTF("(");
             switch (node->children.nodes[1]->type) {
 #define CMP(label, func) \
                 case label: \
-                    PRINTF(func "(world,"); \
+                    PRINTF("(" func "(world,"); \
                     COMPILE(node->children.nodes[0]); \
                     PRINTF(","); \
                     COMPILE(node->children.nodes[1]->children.nodes[0]); \
-                    PRINTF(")"); \
+                    PRINTF(") ? pone_true() : pone_false())"); \
                     break;
 
                 CMP(PVIP_NODE_EQ, "pone_eq")
@@ -194,12 +231,17 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 CMP(PVIP_NODE_STRLT, "pone_str_lt")
                 CMP(PVIP_NODE_STRGT, "pone_str_gt")
                 CMP(PVIP_NODE_STRGE, "pone_str_ge")
-                CMP(PVIP_NODE_SMART_MATCH, "pone_smart_match")
+                case PVIP_NODE_SMART_MATCH:
+                    PRINTF("pone_mortalize(world, pone_smart_match(world,");
+                    COMPILE(node->children.nodes[0]);
+                    PRINTF(",");
+                    COMPILE(node->children.nodes[1]->children.nodes[0]);
+                    PRINTF("))");
+                    break;
                 default:
                     fprintf(stderr, "unsupported chain node '%s'\n", PVIP_node_name(node->children.nodes[1]->type));
                     abort();
             }
-            PRINTF(" ? pone_true() : pone_false())");
             break;
         case PVIP_NODE_ATPOS:
             // (atpos (variable "$a") (int 0))
@@ -305,21 +347,9 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                     || node->children.nodes[0]->type == PVIP_NODE_VARIABLE
                     );
             const char* name = PVIP_string_c_str(node->children.nodes[0]->pv);
-            if (
-                    strcmp(name, "print")==0
-                    || strcmp(name, "say")==0
-                    || strcmp(name, "dd")==0
-                    || strcmp(name, "abs")==0
-                    || strcmp(name, "elems")==0
-                    || strcmp(name, "getenv")==0
-                    || strcmp(name, "time")==0
-                    || strcmp(name, "signal")==0
-                    || strcmp(name, "sleep")==0
-                    || strcmp(name, "die")==0
-                    || strcmp(name, "printf")==0
-                    || strcmp(name, "slurp")==0
-                    ) {
-                PRINTF("pone_builtin_%s(world", name);
+            bool builtin = is_builtin(name);
+            if (builtin) {
+                PRINTF("pone_mortalize(world, pone_builtin_%s(world", name);
             } else {
                 PRINTF("pone_code_call(world, pone_get_lex(world, \"%s%s\"), pone_nil(), %d",
                         node->children.nodes[0]->type == PVIP_NODE_IDENT ? "&" : "",
@@ -330,6 +360,9 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             }
             COMPILE(node->children.nodes[1]);
             PRINTF(")");
+            if (builtin) {
+                PRINTF(")");
+            }
             break;
         }
         case PVIP_NODE_IF:
@@ -675,7 +708,7 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
 
     fclose(fp);
 
-    system("clang -I src/ -g -lm -std=c99 -o pone_generated.out pone_generated.c blib/libpone.a");
+    system("clang -lstdc++ -I3rd/rockre/include/ -I src/ -g -lm -std=c99 -o pone_generated.out pone_generated.c blib/libpone.a 3rd/rockre/librockre.a");
 
     if (!compile_only) {
         int r = system("./pone_generated.out");

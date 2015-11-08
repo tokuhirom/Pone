@@ -43,7 +43,7 @@ pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
     case PONE_INT: {
         int i = pone_int_val(val);
         if (i < 0) {
-            return pone_mortalize(world, pone_int_new(world->universe, -i));
+            return pone_int_new(world->universe, -i);
         } else {
             return val;
         }
@@ -71,18 +71,18 @@ pone_val* pone_builtin_say(pone_world* world, pone_val* val) {
 }
 
 pone_val* pone_builtin_elems(pone_world* world, pone_val* val) {
-    return pone_mortalize(world, pone_int_new(world->universe, pone_elems(world, val)));
+    return pone_int_new(world->universe, pone_elems(world, val));
 }
 
 pone_val* pone_builtin_time(pone_world* world) {
-    return pone_mortalize(world, pone_int_new(world->universe, time(NULL)));
+    return pone_int_new(world->universe, time(NULL));
 }
 
 pone_val* pone_builtin_getenv(pone_world* world, pone_val* key) {
     pone_val* str = pone_mortalize(world, pone_stringify(world, key));
     const char* len = getenv(pone_str_ptr(str));
     if (len) {
-        return pone_mortalize(world, pone_str_new(world->universe, len, strlen(len)));
+        return pone_str_new(world->universe, len, strlen(len));
     } else {
         return pone_nil();
     }

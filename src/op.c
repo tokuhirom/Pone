@@ -121,8 +121,8 @@ pone_num_t pone_numify(pone_world* world, pone_val* val) {
     return pone_num_val(v);
 }
 
-bool pone_smart_match(pone_world* world, pone_val* v1, pone_val* v2) {
-    return pone_so(pone_call_method(world, v2, "ACCEPTS", 1, v1));
+pone_val* pone_smart_match(pone_world* world, pone_val* v1, pone_val* v2) {
+    return pone_call_method(world, v2, "ACCEPTS", 1, v1);
 }
 
 pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2) {

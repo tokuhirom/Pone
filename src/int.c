@@ -1,11 +1,11 @@
 #include "pone.h" /* PONE_INC */
 
-inline int pone_int_val(pone_val* val) {
+inline pone_int_t pone_int_val(pone_val* val) {
     assert(pone_type(val) == PONE_INT);
     return ((pone_int*)val)->i;
 }
 
-pone_val* pone_int_new(pone_universe* universe, int i) {
+pone_val* pone_int_new(pone_universe* universe, pone_int_t i) {
     pone_int* iv = (pone_int*)pone_obj_alloc(universe, PONE_INT);
     iv->i = i;
     return (pone_val*)iv;
