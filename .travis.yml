@@ -1,13 +1,8 @@
-language: perl6
-perl6:
-  - latest
+language: perl
 install:
-  - rakudobrew build-panda
-  - panda --notests installdeps .
   - curl -L http://cpanmin.us/ | perl - Capture::Tiny Test::Base
 script:
-  - perl6 -MPanda::Builder -e 'Panda::Builder.build($*CWD)'
-  - PERL6LIB=$PWD/lib PERL5LIB="$HOME/perl5/lib/perl5/" make test
+  - PERL5LIB="$HOME/perl5/lib/perl5/" make test
 addons:
   apt:
     packages:
