@@ -23,7 +23,7 @@ blib/libpone.a: $(RUNTIME_OBJFILES) $(LIBROCKRE) src/pone.h
 	ar rcs blib/libpone.a $(RUNTIME_OBJFILES) $(LIBROCKRE)
 
 bin/pone: $(COMPILER_OBJFILES) $(LIBPVIP) $(LIBPONE) $(LIBROCKRE)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o bin/pone $(COMPILER_OBJFILES) $(LIBPONE) $(LIBPVIP) $(LIBROCKRE)
+	$(CC) $(CFLAGS) -o bin/pone $(COMPILER_OBJFILES) $(LIBPONE) $(LIBPVIP) $(LIBROCKRE) $(LDFLAGS)
 
 3rd/pvip/src/pvip_node.o: 3rd/pvip/src/pvip_node.c
 
