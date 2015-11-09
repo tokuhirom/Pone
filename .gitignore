@@ -12,3 +12,4 @@ vgcore.*
 tags
 /bin/pone
 /pone_generated.pone
+/perf.data
