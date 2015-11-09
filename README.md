@@ -65,15 +65,13 @@ Get current time in sec.
 TODO
 ====
 
-  * for stmt
-
-  * while stmt
-
   * user defined funciton
-
-  * implement p5-ish functions
-
-  * closure
+  * implement p5-ish built-in functions
+  * Implement `%*ENV` and deprecate `getenv()` builtin function
+  * `class Foo { }`
+  * `class Foo is Bar { }`
+  * thread support
+  * socket support
 
 AUTHOR
 ======
