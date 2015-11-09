@@ -32,6 +32,8 @@ void pone_ary_free(pone_universe* universe, pone_val* val) {
     pone_free(universe, a->a);
 }
 
+// $av.AT-POS(i)
+// $av[i]
 pone_val* pone_ary_at_pos(pone_val* av, int i) {
     assert(pone_type(av) == PONE_ARRAY);
     pone_ary*a = (pone_ary*)av;
@@ -45,6 +47,46 @@ pone_val* pone_ary_at_pos(pone_val* av, int i) {
 int pone_ary_elems(pone_val* av) {
     assert(pone_type(av) == PONE_ARRAY);
     return ((pone_ary*)av)->len;
+}
+
+void pone_ary_resize(pone_universe* universe, pone_val* self, pone_int_t size) {
+    if (self->as.ary.len < size) {
+        if (self->as.ary.max < size) { // need realloc
+            self->as.ary.max = size;
+            self->as.ary.a = realloc(self->as.ary.a, sizeof(pone_val*)*self->as.ary.max);
+            if (!self->as.ary.a) {
+                fprintf(stderr, "cannot allocate memory for array\n");
+                abort();
+            }
+        }
+
+        // fill nil
+        while (self->as.ary.len < size) {
+            self->as.ary.a[self->as.ary.len] = pone_nil();
+            self->as.ary.len++;
+        }
+    } else {
+        abort();
+    }
+}
+
+void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_val* val) {
+    assert(self); assert(pos); assert(val);
+    pone_universe* universe = world->universe;
+
+    assert(pone_type(self) == PONE_ARRAY);
+    pone_ary*a = (pone_ary*)self;
+    pone_int_t i = pone_intify(world, pos);
+
+    if (a->len > i) {
+        pone_refcnt_dec(universe, a->a[i]);
+        a->a[i] = val;
+        pone_refcnt_inc(universe, val);
+    } else {
+        pone_ary_resize(universe, self, i+1);
+        self->as.ary.a[i] = val;
+        pone_refcnt_inc(universe, val);
+    }
 }
 
 static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list args) {
@@ -266,6 +308,29 @@ static pone_val* meth_ary_str(pone_world* world, pone_val* self, int n, va_list 
     return v;
 }
 
+/*
+
+=head2 C<Array#ASSIGN-POS($pos, $value)>
+
+    $ary.ASSIGN-POS($pos, $value);
+
+is equivalent to
+
+    $ary[$pos] = $value;
+
+=cut
+
+*/
+static pone_val* meth_ary_assign_pos(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 2);
+
+    pone_val*pos = va_arg(args, pone_val*);
+    pone_val*value = va_arg(args, pone_val*);
+
+    pone_ary_assign_pos(world, self, pos, value);
+    return value;
+}
+
 void pone_ary_init(pone_universe* universe) {
     assert(universe->class_ary == NULL);
 
@@ -279,6 +344,7 @@ void pone_ary_init(pone_universe* universe) {
     pone_add_method_c(universe, universe->class_ary, "append", strlen("append"), meth_ary_append);
     pone_add_method_c(universe, universe->class_ary, "pop", strlen("pop"), meth_ary_pop);
     pone_add_method_c(universe, universe->class_ary, "Str", strlen("Str"), meth_ary_str);
+    pone_add_method_c(universe, universe->class_ary, "ASSIGN-POS", strlen("ASSIGN-POS"), meth_ary_assign_pos);
     pone_obj_set_ivar_noinc(universe, universe->class_ary, "$!iterator-class", iter_class);
 
     pone_class_compose(universe, universe->class_ary);

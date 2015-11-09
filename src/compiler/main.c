@@ -421,24 +421,45 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PVIPNode* varnode = node->children.nodes[0];
             PVIPString *var;
             switch (varnode->type) {
-            case PVIP_NODE_MY:
+            case PVIP_NODE_MY: {
                 var = varnode->children.nodes[1]->pv;
                 def_lex(ctx, PVIP_string_c_str(var));
+                int idx = find_lex(ctx, PVIP_string_c_str(var));
+                PRINTF("pone_assign(world, %d, \"", idx);
+                WRITE_PV(var);
+                PRINTF("\", ");
+                COMPILE(node->children.nodes[1]);
+                PRINTF(")");
                 break;
-            case PVIP_NODE_VARIABLE:
+            }
+            case PVIP_NODE_VARIABLE: {
                 var = varnode->pv;
+                int idx = find_lex(ctx, PVIP_string_c_str(var));
+                PRINTF("pone_assign(world, %d, \"", idx);
+                WRITE_PV(var);
+                PRINTF("\", ");
+                COMPILE(node->children.nodes[1]);
+                PRINTF(")");
                 break;
+            }
+            case PVIP_NODE_ATPOS: {
+                PVIPNode* var = varnode->children.nodes[0];
+                PVIPNode* pos = varnode->children.nodes[1];
+                int idx = find_lex(ctx, PVIP_string_c_str(var->pv));
+                PRINTF("pone_assign_pos(world, pone_get_lex(world, \"");
+                WRITE_PV(var->pv);
+                PRINTF("\"), ");
+                COMPILE(pos);
+                PRINTF(", ");
+                COMPILE(node->children.nodes[1]);
+                PRINTF(")");
+                break;
+            }
             default:
-                fprintf(stderr, "invalid node at lhs at line %d\n",
-                        node->line_number);
+                fprintf(stderr, "invalid node at lhs at line %d, %s\n",
+                        node->line_number, PVIP_node_name(varnode->type));
                 abort();
             }
-            int idx = find_lex(ctx, PVIP_string_c_str(var));
-            PRINTF("pone_assign(world, %d, \"", idx);
-            WRITE_PV(var);
-            PRINTF("\", ");
-            COMPILE(node->children.nodes[1]);
-            PRINTF(")");
             break;
         }
         case PVIP_NODE_IDENT: {

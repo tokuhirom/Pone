@@ -644,3 +644,9 @@ print("aaaahh3ge" ~~ /h(((o||3)))ge/)
   0 ｢3｣
    0 ｢3｣
 
+===
+--- input
+my $a=[]; $a[1]=3; say $a[1]
+--- expected
+3
+

@@ -43,6 +43,21 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
     return val;
 }
 
+// This function is used by following Perl6 code:
+//
+//     $var[$pos] = $rhs
+//
+// It's same as following code:
+//
+//     $var.ASSIGN-POS($pos, $rhs);
+pone_val* pone_assign_pos(pone_world* world, pone_val* var, pone_val* pos, pone_val* rhs) {
+    if (pone_type(var) == PONE_ARRAY) { // specialize
+        pone_ary_assign_pos(world, var, pos, rhs);
+    } else {
+        return pone_call_method(world, var, "ASSIGN-POS", 2, pos, rhs);
+    }
+}
+
 // TODO we should implement .gist and .perl method for each class...
 void pone_dd(pone_universe* universe, pone_val* val) {
     switch (pone_type(val)) {
@@ -111,7 +126,7 @@ bool pone_so(pone_val* val) {
     }
 }
 
-int pone_intify(pone_world* world, pone_val* val) {
+pone_int_t pone_intify(pone_world* world, pone_val* val) {
     pone_val* v = pone_call_method(world, val, "Int", 0);
     return pone_int_val(v);
 }

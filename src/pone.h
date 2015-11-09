@@ -85,7 +85,7 @@ typedef struct {
       char* p;
       struct pone_val* val;
     };
-    size_t len;
+    pone_int_t len;
 } pone_string;
 
 typedef struct {
@@ -96,14 +96,14 @@ typedef struct {
 typedef struct {
     PONE_HEAD;
     struct pone_val** a;
-    int max;
-    int len;
+    pone_int_t max;
+    pone_int_t len;
 } pone_ary;
 
 typedef struct {
     PONE_HEAD;
     khash_t(str) *h;
-    size_t len;
+    pone_int_t len;
 } pone_hash;
 
 typedef struct {
@@ -292,6 +292,7 @@ void pone_ary_init(pone_universe* universe);
 pone_val* pone_ary_at_pos(pone_val* ary, int n);
 void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val);
 void pone_ary_append_noinc(pone_universe* universe, pone_val* self, pone_val* val);
+void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_val* val);
 
 // str.c
 pone_val* pone_str_new(pone_universe* universe, const char*p, size_t len);
@@ -332,7 +333,7 @@ bool pone_bool_val(pone_val* val);
 void pone_refcnt_dec(pone_universe* universe, pone_val* val);
 void pone_refcnt_inc(pone_universe* universe, pone_val* val);
 size_t pone_elems(pone_world* world, pone_val* val);
-int pone_intify(pone_world* world, pone_val* val);
+pone_int_t pone_intify(pone_world* world, pone_val* val);
 pone_num_t pone_numify(pone_world* world, pone_val* val);
 bool pone_is_frozen(pone_val* v);
 
@@ -369,6 +370,7 @@ static inline bool pone_defined(pone_val* val) { return val->as.basic.type != PO
 // op.c
 pone_val* pone_get_lex(pone_world* world, const char* key);
 pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val);
+pone_val* pone_assign_pos(pone_world* world, pone_val* var, pone_val* pos, pone_val* rhs);
 pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_subtract(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_multiply(pone_world* world, pone_val* v1, pone_val* v2);
