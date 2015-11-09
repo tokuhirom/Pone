@@ -58,6 +58,18 @@ pone_val* pone_assign_pos(pone_world* world, pone_val* var, pone_val* pos, pone_
     }
 }
 
+// This function is used by following Perl6 code:
+//
+//     $h<$key> = $rhs
+//
+// It's same as following code:
+//
+//     $var.ASSIGN-KEY($key, $rhs);
+pone_val* pone_assign_key(pone_world* world, pone_val* var, pone_val* key, pone_val* rhs) {
+    return pone_call_method(world, var, "ASSIGN-KEY", 2, key, rhs);
+}
+
+
 // TODO we should implement .gist and .perl method for each class...
 void pone_dd(pone_universe* universe, pone_val* val) {
     switch (pone_type(val)) {
@@ -302,6 +314,14 @@ pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos) {
         return pone_ary_at_pos(obj, pone_intify(world, pos));
     } else {
         return pone_call_method(world, obj, "AT-POS", 1, pos);
+    }
+}
+
+pone_val* pone_at_key(pone_world* world, pone_val* obj, pone_val* pos) {
+    if (pone_type(obj) == PONE_HASH) { // specialization for performance
+        return pone_hash_at_key_c(world->universe, obj, pone_str_ptr(pone_mortalize(world, pone_str_c_str(world, pos))));
+    } else {
+        return pone_call_method(world, obj, "AT-KEY", 1, pos);
     }
 }
 

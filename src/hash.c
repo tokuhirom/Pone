@@ -61,7 +61,7 @@ bool pone_hash_exists_c(pone_universe* universe, pone_val* hash, const char* nam
     }
 }
 
-pone_val* pone_hash_at_pos_c(pone_universe* universe, pone_val* hash, const char* name) {
+pone_val* pone_hash_at_key_c(pone_universe* universe, pone_val* hash, const char* name) {
     assert(pone_type(hash) == PONE_HASH);
     assert(hash->as.hash.h);
 
@@ -113,11 +113,29 @@ static pone_val* meth_hash_elems(pone_world* world, pone_val* self, int n, va_li
     return pone_int_new(world->universe, pone_hash_elems(self));
 }
 
+/*
+
+=head2 C<Hash#ASSIGN-KEY($key, $value)>
+
+Get the number of elements.
+
+=cut
+
+*/
+static pone_val* meth_hash_assign_key(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 2);
+    pone_val* key = va_arg(args, pone_val*);
+    pone_val* value = va_arg(args, pone_val*);
+    pone_hash_put(world, self, key, value);
+    return value;
+}
+
 void pone_hash_init(pone_universe* universe) {
     assert(universe->class_hash == NULL);
 
     universe->class_hash = pone_class_new(universe, "Hash", strlen("Hash"));
     pone_add_method_c(universe, universe->class_hash, "elems", strlen("elems"), meth_hash_elems);
+    pone_add_method_c(universe, universe->class_hash, "ASSIGN-KEY", strlen("ASSIGN-KEY"), meth_hash_assign_key);
     pone_class_compose(universe, universe->class_hash);
 }
 

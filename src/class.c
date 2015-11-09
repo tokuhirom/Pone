@@ -99,7 +99,7 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
     assert(klass);
     pone_val* methods = pone_obj_get_ivar(world->universe, klass, "$!methods");
     assert(methods);
-    pone_val* method = pone_hash_at_pos_c(world->universe, methods, name);
+    pone_val* method = pone_hash_at_key_c(world->universe, methods, name);
     assert(method);
     if (pone_defined(method)) {
         return method;

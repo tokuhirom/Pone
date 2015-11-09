@@ -650,3 +650,15 @@ my $a=[]; $a[1]=3; say $a[1]
 --- expected
 3
 
+===
+--- input
+my $h={}; $h<a> = "hoge"; say $h<a>
+--- expected
+hoge
+
+===
+--- input
+my $h={}; $h.ASSIGN-KEY("a", "hoge"); say $h<a>
+--- expected
+hoge
+

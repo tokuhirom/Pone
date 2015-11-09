@@ -278,7 +278,7 @@ void pone_hash_put_c(pone_universe* universe, pone_val* hv, const char* key, int
 void pone_hash_put(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
 size_t pone_hash_elems(pone_val* val);
 void pone_hash_free(pone_universe* universe, pone_val* val);
-pone_val* pone_hash_at_pos_c(pone_universe* universe, pone_val* hash, const char* name);
+pone_val* pone_hash_at_key_c(pone_universe* universe, pone_val* hash, const char* name);
 void pone_hash_init(pone_universe* universe);
 bool pone_hash_exists_c(pone_universe* universe, pone_val* hash, const char* name);
 pone_val* pone_hash_keys(pone_world* world, pone_val* val);
@@ -379,6 +379,7 @@ pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2);
 bool pone_so(pone_val* val);
 pone_val* pone_smart_match(pone_world* world, pone_val* v1, pone_val* v2);
+pone_val* pone_assign_key(pone_world* world, pone_val* self, pone_val* key, pone_val* val);
 
 // iter.c
 pone_val* pone_iter_init(pone_world* world, pone_val* val);
@@ -433,6 +434,7 @@ pone_val* pone_obj_get_ivar(pone_universe* universe, pone_val* obj, const char* 
 
 // op.c
 pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos);
+pone_val* pone_at_key(pone_world* world, pone_val* obj, pone_val* key);
 bool pone_eq(pone_world* world, pone_val* v1, pone_val* v2);
 bool pone_ne(pone_world* world, pone_val* v1, pone_val* v2);
 bool pone_le(pone_world* world, pone_val* v1, pone_val* v2);

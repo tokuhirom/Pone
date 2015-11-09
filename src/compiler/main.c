@@ -254,6 +254,14 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             COMPILE(node->children.nodes[1]);
             PRINTF(")");
             break;
+        case PVIP_NODE_ATKEY:
+            // (atkey (variable "$a") (int 0))
+            PRINTF("pone_at_key(world, ");
+            COMPILE(node->children.nodes[0]);
+            PRINTF(",");
+            COMPILE(node->children.nodes[1]);
+            PRINTF(")");
+            break;
         case PVIP_NODE_IT_METHODCALL:
             // (it_methodcall (ident "say"))
             PRINTF("pone_call_method(world, pone_get_lex(world, \"$_\"), \"");
@@ -450,6 +458,20 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 WRITE_PV(var->pv);
                 PRINTF("\"), ");
                 COMPILE(pos);
+                PRINTF(", ");
+                COMPILE(node->children.nodes[1]);
+                PRINTF(")");
+                break;
+            }
+            case PVIP_NODE_ATKEY: {
+                PVIPNode* var = varnode->children.nodes[0];
+                PVIPNode* key = varnode->children.nodes[1];
+                PVIP_node_dump_sexp(node);
+                int idx = find_lex(ctx, PVIP_string_c_str(var->pv));
+                PRINTF("pone_assign_key(world, pone_get_lex(world, \"");
+                WRITE_PV(var->pv);
+                PRINTF("\"), ");
+                COMPILE(key);
                 PRINTF(", ");
                 COMPILE(node->children.nodes[1]);
                 PRINTF(")");
