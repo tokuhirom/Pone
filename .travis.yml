@@ -2,7 +2,7 @@ language: perl
 install:
   - cpanm -nv Capture::Tiny Test::Base
 script:
-  - PERL5LIB="$HOME/perl5/lib/perl5/" make test
+  - make test
 addons:
   apt:
     packages:
