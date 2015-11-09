@@ -21,7 +21,7 @@ clean:
 	rm -f $(RUNTIME_OBJFILES) blib/libpone.a $(CTEST_OBJFILES) vgcore.* core.* bin/pone
 	cd 3rd/pvip/ && make clean
 
-blib/libpone.a: $(RUNTIME_OBJFILES) src/pone.h
+blib/libpone.a: $(RUNTIME_OBJFILES) $(LIBROCKRE) src/pone.h
 	-mkdir -p blib
 	ar rcs blib/libpone.a $(RUNTIME_OBJFILES) $(LIBROCKRE)
 
