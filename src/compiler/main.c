@@ -466,7 +466,6 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             case PVIP_NODE_ATKEY: {
                 PVIPNode* var = varnode->children.nodes[0];
                 PVIPNode* key = varnode->children.nodes[1];
-                PVIP_node_dump_sexp(node);
                 int idx = find_lex(ctx, PVIP_string_c_str(var->pv));
                 PRINTF("pone_assign_key(world, pone_get_lex(world, \"");
                 WRITE_PV(var->pv);
@@ -508,7 +507,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
         case PVIP_NODE_HASH:
             // (statements (hash (pair (ident "a") (int 3))))
             MORTAL_START;
-            PRINTF("pone_hash_puts(world, pone_hash_new(world->universe), %d", node->children.size*2);
+            PRINTF("pone_hash_assign_keys(world, pone_hash_new(world->universe), %d", node->children.size*2);
             for (int i=0; i<node->children.size; ++i) {
                 PRINTF(",");
 

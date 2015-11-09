@@ -10,7 +10,7 @@ pone_val* pone_hash_new(pone_universe* universe) {
     return hv;
 }
 
-pone_val* pone_hash_puts(pone_world* world, pone_val* hash, int n, ...) {
+pone_val* pone_hash_assign_keys(pone_world* world, pone_val* hash, int n, ...) {
     va_list list;
 
     va_start(list, n);
@@ -18,7 +18,7 @@ pone_val* pone_hash_puts(pone_world* world, pone_val* hash, int n, ...) {
     for (int i=0; i<n; i+=2) {
         pone_val* k = va_arg(list, pone_val*);
         pone_val* v = va_arg(list, pone_val*);
-        pone_hash_put(world, hash, k, v);
+        pone_hash_assign_key(world, hash, k, v);
     }
     va_end(list);
 
@@ -36,7 +36,7 @@ void pone_hash_free(pone_universe* universe, pone_val* val) {
     kh_destroy(str, h->h);
 }
 
-void pone_hash_put_c(pone_universe* universe, pone_val* hv, const char* key, int key_len, pone_val* v) {
+void pone_hash_assign_key_c(pone_universe* universe, pone_val* hv, const char* key, int key_len, pone_val* v) {
     assert(pone_type(hv) == PONE_HASH);
     int ret;
     const char* ks=pone_strdup(universe, key, key_len);
@@ -73,9 +73,9 @@ pone_val* pone_hash_at_key_c(pone_universe* universe, pone_val* hash, const char
     }
 }
 
-void pone_hash_put(pone_world* world, pone_val* hv, pone_val* k, pone_val* v) {
+void pone_hash_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val* v) {
     k = pone_stringify(world, k);
-    pone_hash_put_c(world->universe, hv, pone_str_ptr(k), pone_str_len(k), v);
+    pone_hash_assign_key_c(world->universe, hv, pone_str_ptr(k), pone_str_len(k), v);
     pone_refcnt_dec(world->universe, k);
 }
 
@@ -126,7 +126,7 @@ static pone_val* meth_hash_assign_key(pone_world* world, pone_val* self, int n, 
     assert(n == 2);
     pone_val* key = va_arg(args, pone_val*);
     pone_val* value = va_arg(args, pone_val*);
-    pone_hash_put(world, self, key, value);
+    pone_hash_assign_key(world, self, key, value);
     return value;
 }
 

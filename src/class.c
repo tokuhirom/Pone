@@ -65,7 +65,7 @@ void pone_add_method(pone_universe* universe, pone_val* klass, const char* name,
 
     pone_val* methods = pone_obj_get_ivar(universe, klass, "$!methods");
     assert(pone_type(methods) == PONE_HASH);
-    pone_hash_put_c(universe, methods, name, name_len, method);
+    pone_hash_assign_key_c(universe, methods, name, name_len, method);
 }
 
 static void _compose(pone_universe* universe, pone_val* target_methods, pone_val* klass) {
@@ -76,7 +76,7 @@ static void _compose(pone_universe* universe, pone_val* target_methods, pone_val
     kh_foreach(methods->as.hash.h, k, v, {
         assert(v);
         if (!pone_hash_exists_c(universe, target_methods, k)) {
-            pone_hash_put_c(universe, target_methods, k, strlen(k), v);
+            pone_hash_assign_key_c(universe, target_methods, k, strlen(k), v);
         }
     });
 
