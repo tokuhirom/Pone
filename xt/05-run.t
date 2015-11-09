@@ -18,12 +18,12 @@ run {
 
     subtest $src, sub {
         my ($out, $err, $exit) = capture {
-            system("valgrind", "--leak-check=full", "./bin/pone", '-e', $src);
+            system("valgrind", "--leak-check=full", '--show-reachable=yes', "./bin/pone", '-e', $src);
         };
         is $out, $expected;
         ok WIFEXITED($exit), 'exited';
         is WEXITSTATUS($exit), 0, 'exited by 0';
-        like $err, qr/All heap blocks were freed/, 'valgrind';
+        like $err, qr/ERROR SUMMARY: 0 errors/, 'valgrind';
     };
 }
 
