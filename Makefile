@@ -11,13 +11,11 @@ LIBROCKRE=3rd/rockre/librockre.a
 RUNTIME_OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/builtin.o src/code.o src/hash.o src/int.o src/nil.o src/num.o src/op.o src/pone.o src/scope.o src/str.o src/world.o src/universe.o src/iter.o src/exc.o src/range.o src/mu.o src/any.o src/cool.o src/socket.o src/re.o
 COMPILER_OBJFILES=src/compiler/main.o 3rd/linenoise/linenoise.o
 
-test: blib/libpone.a $(CTEST_OBJFILES)
+test: blib/libpone.a bin/pone
 	prove -lrv t/ xt/
 
-rtest: $(CTEST_OBJFILES)
-
 clean:
-	rm -f $(RUNTIME_OBJFILES) blib/libpone.a $(CTEST_OBJFILES) vgcore.* core.* bin/pone
+	rm -f $(RUNTIME_OBJFILES) blib/libpone.a vgcore.* core.* bin/pone
 	cd 3rd/pvip/ && make clean
 
 blib/libpone.a: $(RUNTIME_OBJFILES) $(LIBROCKRE) src/pone.h
