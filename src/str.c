@@ -83,7 +83,7 @@ void pone_str_free(pone_universe* universe, pone_val* val) {
 pone_val* pone_str_from_int(pone_universe* universe, pone_int_t i) {
     // INT_MAX=2147483647. "2147483647".elems = 10
     char buf[11+1];
-    int size = snprintf(buf, 11+1, "%d", i);
+    int size = snprintf(buf, 11+1, PoneIntFmt, i);
     return pone_str_new(universe, buf, size);
 }
 

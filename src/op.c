@@ -74,12 +74,12 @@ pone_val* pone_assign_key(pone_world* world, pone_val* var, pone_val* key, pone_
 void pone_dd(pone_universe* universe, pone_val* val) {
     switch (pone_type(val)) {
         case PONE_STRING:
-            printf("(string: len:%d, ", pone_str_len(val));
+            printf("(string: len:" PoneIntFmt " , ", pone_str_len(val));
             fwrite(pone_str_ptr(val), 1, pone_str_len(val), stdout);
             printf(")\n");
             break;
         case PONE_INT:
-            printf("(int: refcnt:%d, flags:%d %d)\n", pone_refcnt(val), pone_flags(val), pone_int_val(val));
+            printf("(int: refcnt:%d, flags:%d " PoneIntFmt ")\n", pone_refcnt(val), pone_flags(val), pone_int_val(val));
             break;
         case PONE_NIL:
             printf("(undef)\n");
@@ -98,7 +98,7 @@ void pone_dd(pone_universe* universe, pone_val* val) {
             break;
         }
         case PONE_ARRAY: {
-            printf("(array len:%d, max:%d)\n", val->as.ary.len, val->as.ary.max);
+            printf("(array len:" PoneIntFmt ", max:" PoneIntFmt ")\n", val->as.ary.len, val->as.ary.max);
             break;
         }
         case PONE_BOOL: {
@@ -271,6 +271,8 @@ size_t pone_elems(pone_world* world, pone_val* val) {
     case PONE_BOOL:
     case PONE_CODE:
         return 1; // same as perl6
+    case PONE_OBJ:
+        abort(); // TODO call .elem?
     }
 }
 

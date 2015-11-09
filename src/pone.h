@@ -18,6 +18,7 @@
 #include "rockre.h"
 
 typedef long pone_int_t;
+#define PoneIntFmt "%ld"
 
 // TODO: NaN boxing
 

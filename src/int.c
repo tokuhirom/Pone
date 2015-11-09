@@ -16,7 +16,7 @@ pone_val* pone_int_incr(pone_world* world, pone_val* i) {
     if (pone_is_frozen(i)) {
         // TODO should we use better interface?
         // show line number
-        fprintf(stderr, "[ERROR] You can't modify an itenger literal: %d", i);
+        fprintf(stderr, "[ERROR] You can't modify an itenger literal: " PoneIntFmt, i);
         exit(1);
     }
     ((pone_int*)i)->i++;
