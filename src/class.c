@@ -8,6 +8,9 @@
 pone_val* pone_init_class(pone_universe* universe) {
     pone_val* val = pone_obj_alloc(universe, PONE_OBJ);
     val->as.obj.ivar = kh_init(str);
+    pone_obj_set_ivar_noinc(universe, val, "$!name", pone_str_new_const(universe, "Class", strlen("class")));
+    pone_obj_set_ivar_noinc(universe, val, "$!methods", pone_hash_new(universe));
+    pone_obj_set_ivar_noinc(universe, val, "@!parents", pone_ary_new(universe, 0));
     return val;
 }
 
@@ -30,7 +33,11 @@ pone_val* pone_what(pone_universe* universe, pone_val* obj) {
     case PONE_CODE:
         return universe->class_code;
     case PONE_OBJ:
-        return obj->as.obj.klass;
+        if (obj->as.obj.klass == universe->class_class) {
+            return obj; // return obj itself if it's a class.
+        } else {
+            return obj->as.obj.klass;
+        }
     }
 }
 
@@ -99,6 +106,7 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
     assert(klass);
     pone_val* methods = pone_obj_get_ivar(world->universe, klass, "$!methods");
     assert(methods);
+    assert(pone_type(methods) == PONE_HASH);
     pone_val* method = pone_hash_at_key_c(world->universe, methods, name);
     assert(method);
     if (pone_defined(method)) {
