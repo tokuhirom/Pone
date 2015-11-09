@@ -25,7 +25,11 @@ LITERALS
 
   * `0`, `1`, `100`
 
-There is integer literal.
+There is an integer literal.
+
+  * `0.5`, `3.14`
+
+There is a number literal.
 
   * `'hoge' `
 
