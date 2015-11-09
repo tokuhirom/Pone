@@ -92,7 +92,7 @@ inline void pone_refcnt_dec(pone_universe* universe, pone_val* val) {
     assert(val != NULL);
 #ifndef NDEBUG
     if (val->as.basic.type == 0) {
-        fprintf(stderr, "%x was already freed\n", val);
+        fprintf(stderr, "%p was already freed\n", val);
     }
     if (val->as.basic.refcnt <= 0) { 
         assert(val->as.basic.refcnt > 0);

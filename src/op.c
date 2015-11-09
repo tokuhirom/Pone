@@ -297,7 +297,7 @@ const char* pone_what_str_c(pone_val* val) {
     }
     }
     if (pone_type(val) == 0) {
-        fprintf(stderr, "[ERROR] You can't access free'd value: %x\n",
+        fprintf(stderr, "[ERROR] You can't access free'd value: %p\n",
                 val);
         abort();
     }
