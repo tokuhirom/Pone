@@ -14,6 +14,7 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <setjmp.h>
+#include <pthread.h>
 #include "khash.h" /* PONE_INC */
 #include "rockre.h"
 
@@ -182,6 +183,11 @@ typedef struct pone_val {
     } as;
 } pone_val;
 
+typedef struct pone_thread_t {
+    struct pone_thread_t * next;
+    pthread_t thread;
+} pone_thread_t;
+
 // VM context
 typedef struct pone_universe {
     struct pone_arena* arena_head;
@@ -234,12 +240,20 @@ typedef struct pone_universe {
     struct pone_val* class_regex;
     // class of Match
     struct pone_val* class_match;
+    // class of Thread
+    struct pone_val* class_thread;
     // class of IO::Socket::INET
     struct pone_val* class_io_socket_inet;
 
     khash_t(str) *globals;
 
     rockre* rockre;
+
+    // global interpreter lock
+    pthread_mutex_t mutex;
+
+    pone_thread_t* threads;
+    int thread_num;
 } pone_universe;
 
 typedef struct pone_arena {
@@ -263,6 +277,7 @@ void pone_world_refcnt_inc(pone_world* world);
 void pone_world_refcnt_dec(pone_world* world);
 pone_val* pone_try(pone_world* world, pone_val* code);
 pone_val* pone_errvar(pone_world* world);
+
 
 // exc.c
 jmp_buf* pone_exc_handler_push(pone_world* world);
@@ -352,10 +367,11 @@ pone_lex_t* pone_lex_new(pone_world* world, pone_lex_t* parent);
 void pone_lex_refcnt_dec(pone_world* world, pone_lex_t* lex);
 void pone_lex_refcnt_inc(pone_world* world, pone_lex_t* lex);
 
-// alloc.c
+// universe.c
 pone_universe* pone_universe_init();
 void pone_universe_destroy(pone_universe* universe);
 void pone_universe_default_err_handler(pone_world* world);
+void pone_universe_set_global(pone_universe* universe, const char* key, pone_val* val);
 
 // bool.c
 pone_val* pone_true();
@@ -465,6 +481,37 @@ pone_val* pone_regex_new(pone_universe* universe, const char* str, size_t len);
 void pone_regex_init(pone_universe* universe);
 pone_val* pone_match_new(pone_universe* universe, pone_val* orig, int from, int to);
 pone_val* pone_match_push(pone_world* world, pone_val* self, int from, int to);
+
+// thread.c
+void pone_thread_init(pone_universe* universe);
+pone_val* pone_thread_join(pone_universe* universe, pthread_t thr);
+
+#ifdef THREAD_DEBUG
+#define THREAD_TRACE(fmt, ...) printf("[pone-thread] " fmt, ##__VA_ARGS__)
+#else
+#define THREAD_TRACE(fmt, ...)
+#endif
+
+#define GVL_LOCK(universe) \
+  do { \
+      THREAD_TRACE("LOCK: %d\n", pthread_self()); \
+      pthread_mutex_lock(&(universe->mutex)); \
+  } while (0)
+#define GVL_UNLOCK(universe) \
+  do { \
+      THREAD_TRACE("UNLOCK: %d\n", pthread_self()); \
+      pthread_mutex_unlock(&(universe->mutex)); \
+  } while(0)
+#define PONE_YIELD(universe) \
+    do { \
+        GVL_UNLOCK(universe); \
+        int e; \
+        if ((sched_yield()) == -1) { \
+            perror("cannot yield thread"); \
+            exit(EXIT_FAILURE); \
+        } \
+        GVL_LOCK(universe); \
+    } while (0)
 
 #define PONE_ALLOC_CHECK(v) \
   do { \

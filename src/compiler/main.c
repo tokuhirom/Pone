@@ -113,7 +113,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 int n = (child)->line_number;
                 const char* filename = ctx->filename;
                 PRINTF("#line %d \"%s\"\n", n, filename);
-                if (ctx->want_return && i==node->children.size-1) {
+                if (ctx->want_return && i==node->children.size-1 && child->type != PVIP_NODE_FOR) {
                     PRINTF("return ");
                     COMPILE(child);
                 } else {
@@ -771,8 +771,17 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
         void* handle = dlopen("./pone_generated.so", RTLD_LAZY);
         if (!handle) {
             fprintf(stderr, "cannot load dll: %s\n", dlerror());
+            exit(EXIT_FAILURE);
         }
         pone_so_init_t pone_so_init = (pone_so_init_t)dlsym(handle, "pone_so_init_0");
+
+
+        char* error;
+        if ((error = dlerror()) != NULL)  {
+            fprintf(stderr, "%s\n", error);
+            exit(EXIT_FAILURE);
+        }
+
 
         pone_universe* universe = pone_universe_init();
         pone_world* world = pone_world_new(universe);
@@ -785,6 +794,7 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
             pone_so_init(world);
             pone_pop_scope(world);
             pone_freetmps(world);
+            assert(world->refcnt == 1);
             pone_world_refcnt_dec(world);
             pone_universe_destroy(universe);
         }
@@ -840,7 +850,7 @@ int main(int argc, char** argv) {
         FILE* fp = fopen(filename, "r");
         if (!fp) {
             fprintf(stderr, "Cannot open %s", filename);
-            abort();
+            exit(1);
         }
         PVIPString *error;
         PVIPNode *node = PVIP_parse_fp(pvip, fp, false, &error);
