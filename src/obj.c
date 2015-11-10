@@ -13,7 +13,7 @@ pone_val* pone_obj_new(pone_universe* universe, pone_val* klass) {
     return (pone_val*)obj;
 }
 
-pone_val* pone_obj_free(pone_universe* universe, pone_val* val) {
+void pone_obj_free(pone_universe* universe, pone_val* val) {
     assert(pone_type(val) == PONE_OBJ);
 
     if (val->as.obj.klass != NULL) {

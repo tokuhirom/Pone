@@ -448,7 +448,7 @@ void pone_class_compose(pone_universe* universe, pone_val* klass);
 // obj.c
 pone_val* pone_init_mu(pone_universe* universe);
 pone_val* pone_obj_new(pone_universe* universe, pone_val* klass);
-pone_val* pone_obj_free(pone_universe* universe, pone_val* val);
+void pone_obj_free(pone_universe* universe, pone_val* val);
 void pone_obj_set_ivar(pone_universe* universe, pone_val* obj, const char* name, pone_val* val);
 void pone_obj_set_ivar_noinc(pone_universe* universe, pone_val* obj, const char* name, pone_val* val);
 pone_val* pone_obj_get_ivar(pone_universe* universe, pone_val* obj, const char* name);
