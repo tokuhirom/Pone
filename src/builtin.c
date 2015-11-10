@@ -65,8 +65,9 @@ pone_val* pone_builtin_print(pone_world* world, pone_val* val) {
 }
 
 pone_val* pone_builtin_say(pone_world* world, pone_val* val) {
-    pone_builtin_print(world, val);
-    fwrite("\n", sizeof(char), 1, stdout);
+    pone_val* str = pone_mortalize(world, pone_str_copy(world->universe, pone_mortalize(world, pone_stringify(world, val))));
+    pone_str_append_c(world, str, "\n", 1);
+    fwrite(pone_str_ptr(str), sizeof(char), pone_str_len(str), stdout);
     return pone_nil();
 }
 

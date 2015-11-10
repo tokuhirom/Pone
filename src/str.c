@@ -137,11 +137,12 @@ void pone_str_append_c(pone_world* world, pone_val* val, const char* s, int s_le
 
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) { // needs CoW
         pone_val* src = val->as.str.val;
-        val->as.str.p = pone_strdup(universe, pone_str_ptr(src), pone_str_len(src));
+        char* p = pone_strdup(universe, pone_str_ptr(src), pone_str_len(src));
         val->as.str.len = pone_str_len(src);
         val->as.basic.flags ^= PONE_FLAGS_STR_COPY;
         // refcnt-- for source val
         pone_refcnt_dec(universe, val->as.str.val);
+        val->as.str.p = p;
     } else if (pone_flags(val) & PONE_FLAGS_STR_CONST) {
         pone_throw_str(world, "You can't modify immutable string");
     }
