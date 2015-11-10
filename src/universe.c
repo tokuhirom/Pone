@@ -56,6 +56,8 @@ pone_universe* pone_universe_init() {
 
     universe->rockre = rockre_new();
 
+    universe->globals = kh_init(str);
+
 #ifdef TRACE_UNIVERSE
     printf("initializing class mu\n");
 #endif
@@ -86,6 +88,7 @@ pone_universe* pone_universe_init() {
     pone_range_init(universe);
     pone_regex_init(universe);
     assert(universe->class_io_socket_inet == NULL);
+    pone_thread_init(universe);
     pone_sock_init(universe);
 
 #ifdef TRACE_UNIVERSE
@@ -93,28 +96,30 @@ pone_universe* pone_universe_init() {
 #endif
     universe->instance_iteration_end = pone_obj_new(universe, universe->class_mu);
 
-    universe->globals = kh_init(str);
-
-#define PUT(key, val) \
-    do { \
-        int ret; \
-        khint_t k = kh_put(str, universe->globals, key, &ret); \
-        if (ret == -1) { \
-            abort();  \
-        } \
-        kh_val(universe->globals, k) = val; \
-    } while(0)
-
-    PUT("Nil", pone_nil());
-    PUT("IO::Socket::INET", universe->class_io_socket_inet);
-    PUT("Regex", universe->class_regex);
+    pone_universe_set_global(universe, "Nil", pone_nil());
+    pone_universe_set_global(universe, "IO::Socket::INET", universe->class_io_socket_inet);
+    pone_universe_set_global(universe, "Regex", universe->class_regex);
 
 #undef PUT
 
     return universe;
 }
 
+void pone_universe_set_global(pone_universe* universe, const char* key, pone_val* val) {
+    int ret;
+    khint_t k = kh_put(str, universe->globals, key, &ret);
+    if (ret == -1) {
+        abort();
+    }
+    kh_val(universe->globals, k) = val;
+}
+
 void pone_universe_destroy(pone_universe* universe) {
+    while (universe->thread_num>0) {
+        pone_val* v = pone_thread_join(universe, universe->threads->thread);
+        pone_refcnt_dec(universe, v);
+    }
+
     kh_destroy(str, universe->globals);
 
     if (universe->errvar) {
@@ -123,6 +128,7 @@ void pone_universe_destroy(pone_universe* universe) {
 
     pone_refcnt_dec(universe, universe->instance_iteration_end);
     pone_refcnt_dec(universe, universe->class_io_socket_inet);
+    pone_refcnt_dec(universe, universe->class_thread);
     pone_refcnt_dec(universe, universe->class_match);
     pone_refcnt_dec(universe, universe->class_regex);
     pone_refcnt_dec(universe, universe->class_range);
