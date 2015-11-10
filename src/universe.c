@@ -144,6 +144,14 @@ void pone_universe_destroy(pone_universe* universe) {
     pone_arena* a = universe->arena_head;
     while (a) {
         pone_arena* next = a->next;
+#ifdef TRACE_REFCNT
+        for (int i=0; i<=a->idx; i++) {
+            if (a->values[i].as.basic.type != 0) {
+                printf("Leaked object: %x %s %d\n", &(a->values[i]), pone_what_str_c(&(a->values[i])), pone_refcnt(&(a->values[i])));
+                pone_dd(universe, &(a->values[i]));
+            }
+        }
+#endif
         free(a);
         a = next;
     }
