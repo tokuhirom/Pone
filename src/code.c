@@ -49,7 +49,7 @@ pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int
         pone_refcnt_inc(world->universe, retval);
         pone_mortalize(world, retval); // refcnt-- it in upper scope
 
-        pone_destroy_world(new_world);
+        pone_world_refcnt_dec(new_world);
         return retval;
     } else {
         pone_funcptr_t func = cv->func;

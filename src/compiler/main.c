@@ -722,7 +722,7 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, PVIPNode* node, int so_no) {
     PRINTF("        pone_so_init_%d(world);\n", so_no);
     PRINTF("        pone_freetmps(world);\n");
     PRINTF("        pone_pop_scope(world);\n");
-    PRINTF("        pone_destroy_world(world);\n");
+    PRINTF("        pone_world_refcnt_dec(world);\n");
     PRINTF("        pone_universe_destroy(universe);\n");
     PRINTF("    }\n");
     PRINTF("}\n");
@@ -780,7 +780,7 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
             pone_so_init(world);
             pone_pop_scope(world);
             pone_freetmps(world);
-            pone_destroy_world(world);
+            pone_world_refcnt_dec(world);
             pone_universe_destroy(universe);
         }
 

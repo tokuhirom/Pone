@@ -129,6 +129,8 @@ struct pone_universe;
 
 // Calling context
 typedef struct pone_world {
+    int refcnt;
+
     struct pone_universe* universe;
 
     // save last tmpstack_floor
@@ -257,7 +259,8 @@ void pone_nil_init(pone_universe* universe);
 // world.c
 pone_world* pone_world_new(pone_universe* universe);
 pone_world* pone_world_new_from_world(pone_world* world, pone_lex_t* lex);
-void pone_destroy_world(pone_world* world);
+void pone_world_refcnt_inc(pone_world* world);
+void pone_world_refcnt_dec(pone_world* world);
 pone_val* pone_try(pone_world* world, pone_val* code);
 pone_val* pone_errvar(pone_world* world);
 

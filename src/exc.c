@@ -53,7 +53,7 @@ void pone_throw(pone_world* world, pone_val* val) {
     // exit from this scope
     while (world != target_world) {
         pone_world* parent = world->parent;
-        pone_destroy_world(world);
+        pone_world_refcnt_dec(world);
         world = parent;
     }
 
