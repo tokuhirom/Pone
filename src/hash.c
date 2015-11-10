@@ -127,6 +127,7 @@ static pone_val* meth_hash_assign_key(pone_world* world, pone_val* self, int n, 
     pone_val* key = va_arg(args, pone_val*);
     pone_val* value = va_arg(args, pone_val*);
     pone_hash_assign_key(world, self, key, value);
+    pone_refcnt_inc(world->universe, value);
     return value;
 }
 
