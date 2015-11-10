@@ -662,3 +662,9 @@ my $h={}; $h.ASSIGN-KEY("a", "hoge"); say $h<a>
 --- expected
 hoge
 
+===
+--- input
+say 9223372036854775807;
+--- expected
+9223372036854775807
+
