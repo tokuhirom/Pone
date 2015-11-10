@@ -1,5 +1,5 @@
 {
-    <insert_a_suppression_name_here>
+    dlerror_leak
     Memcheck:Leak
     match-leak-kinds: reachable
     fun:calloc
