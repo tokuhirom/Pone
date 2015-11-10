@@ -102,7 +102,6 @@ void pone_world_refcnt_dec(pone_world* world) {
         }
 
         pone_lex_refcnt_dec(world, world->lex);
-        pone_lex_refcnt_dec(world, world->lex);
         free(world->savestack);
         free(world->tmpstack);
         free(world);
