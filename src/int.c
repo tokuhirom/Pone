@@ -20,6 +20,7 @@ pone_val* pone_int_incr(pone_world* world, pone_val* i) {
         exit(1);
     }
     ((pone_int*)i)->i++;
+    return i;
 }
 
 static pone_val* meth_int_is_prime(pone_world* world, pone_val* self, int n, va_list args) {

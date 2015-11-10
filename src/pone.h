@@ -480,7 +480,7 @@ void pone_sock_init(pone_universe* universe);
 pone_val* pone_regex_new(pone_universe* universe, const char* str, size_t len);
 void pone_regex_init(pone_universe* universe);
 pone_val* pone_match_new(pone_universe* universe, pone_val* orig, int from, int to);
-pone_val* pone_match_push(pone_world* world, pone_val* self, int from, int to);
+void pone_match_push(pone_world* world, pone_val* self, int from, int to);
 
 // thread.c
 void pone_thread_init(pone_universe* universe);
@@ -505,7 +505,6 @@ pone_val* pone_thread_join(pone_universe* universe, pthread_t thr);
 #define PONE_YIELD(universe) \
     do { \
         GVL_UNLOCK(universe); \
-        int e; \
         if ((sched_yield()) == -1) { \
             perror("cannot yield thread"); \
             exit(EXIT_FAILURE); \

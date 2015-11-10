@@ -69,6 +69,7 @@ static inline int find_lex(pone_compile_ctx* ctx, const char* name) {
         }
         --i;
     }
+    abort();
 }
 
 static bool is_builtin(const char* name) {
@@ -458,7 +459,6 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             case PVIP_NODE_ATPOS: {
                 PVIPNode* var = varnode->children.nodes[0];
                 PVIPNode* pos = varnode->children.nodes[1];
-                int idx = find_lex(ctx, PVIP_string_c_str(var->pv));
                 PRINTF("pone_assign_pos(world, pone_get_lex(world, \"");
                 WRITE_PV(var->pv);
                 PRINTF("\"), ");
@@ -471,7 +471,6 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             case PVIP_NODE_ATKEY: {
                 PVIPNode* var = varnode->children.nodes[0];
                 PVIPNode* key = varnode->children.nodes[1];
-                int idx = find_lex(ctx, PVIP_string_c_str(var->pv));
                 PRINTF("pone_assign_key(world, pone_get_lex(world, \"");
                 WRITE_PV(var->pv);
                 PRINTF("\"), ");
@@ -587,7 +586,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             // (func (ident "x") (params) (nop) (block (statements (funcall (ident "say") (args (int 3))))))
             // (func (ident "x") (params (param (nop) (variable "$n") (nop) (int 0))) (nop) (block (statements (funcall (ident "say") (args (variable "$n"))))))
             PVIPNode* name = node->children.nodes[0];
-            int argcnt = node->children.nodes[1]->children.size;
+            // int argcnt = node->children.nodes[1]->children.size;
 
             bool is_anon = false;
             if (name->type == PVIP_NODE_NOP) {

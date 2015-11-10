@@ -39,6 +39,7 @@ pone_val* pone_what(pone_universe* universe, pone_val* obj) {
             return obj->as.obj.klass;
         }
     }
+    abort();
 }
 
 /**
@@ -132,6 +133,7 @@ pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_
         return retval;
     } else {
         pone_throw_str(world, "Method '%s' not found for invocant of class '%s'", method_name, pone_what_str_c(obj));
+        abort();
     }
 }
 
@@ -143,6 +145,7 @@ pone_val* pone_call_meta_method(pone_world* world, pone_val* obj, const char* me
         return pone_hash_keys(world, methods);
     } else {
         pone_throw_str(world, "Meta method '%s' not found for invocant of class '%s'", method_name, pone_what_str_c(obj));
+        abort();
     }
 }
 

@@ -20,6 +20,7 @@ pone_val* pone_get_lex(pone_world* world, const char* key) {
     }
 
     pone_throw_str(world, "Unknown lexical variable: %s", key);
+    abort();
 }
 
 pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val) {
@@ -53,6 +54,8 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
 pone_val* pone_assign_pos(pone_world* world, pone_val* var, pone_val* pos, pone_val* rhs) {
     if (pone_type(var) == PONE_ARRAY) { // specialize
         pone_ary_assign_pos(world, var, pos, rhs);
+        pone_refcnt_inc(world->universe, rhs);
+        return rhs;
     } else {
         return pone_call_method(world, var, "ASSIGN-POS", 2, pos, rhs);
     }
@@ -274,6 +277,7 @@ size_t pone_elems(pone_world* world, pone_val* val) {
     case PONE_OBJ:
         abort(); // TODO call .elem?
     }
+    abort();
 }
 
 const char* pone_what_str_c(pone_val* val) {
