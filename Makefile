@@ -7,7 +7,7 @@ LIBPVIP=3rd/pvip/libpvip.a
 LIBROCKRE=3rd/rockre/librockre.a
 
 # CFLAGS+=-DTRACE_WORLD
-CFLAGS+= -DTRACE_REFCNT
+# CFLAGS+= -DTRACE_REFCNT
 # CFLAGS+= -DTRACE_UNIVERSE
 
 RUNTIME_OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/builtin.o src/code.o src/hash.o src/int.o src/nil.o src/num.o src/op.o src/pone.o src/scope.o src/str.o src/world.o src/universe.o src/iter.o src/exc.o src/range.o src/mu.o src/any.o src/cool.o src/socket.o src/re.o src/thread.o
