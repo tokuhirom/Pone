@@ -113,7 +113,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 int n = (child)->line_number;
                 const char* filename = ctx->filename;
                 PRINTF("#line %d \"%s\"\n", n, filename);
-                if (ctx->want_return && i==node->children.size-1 && node->type != PVIP_NODE_STATEMENTS) {
+                if (ctx->want_return && i==node->children.size-1 && child->type != PVIP_NODE_FOR) {
                     PRINTF("return ");
                     COMPILE(child);
                 } else {
