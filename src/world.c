@@ -18,7 +18,6 @@ pone_world* pone_world_new(pone_universe* universe) {
     printf("world new: %x\n", world);
 #endif
 
-
     world->savestack = (size_t*)malloc(sizeof(size_t*) * 64);
     if (!world->savestack) {
         fprintf(stderr, "Cannot make world\n");
@@ -71,14 +70,15 @@ pone_world* pone_world_new_from_world(pone_world* world, pone_lex_t* lex) {
 
 void pone_world_refcnt_inc(pone_world* world) {
 #ifdef TRACE_WORLD
-        printf("world refcnt++: %x\n", world);
+    printf("world refcnt++: %x\n", world);
 #endif
     world->refcnt++;
 }
 
+
 void pone_world_refcnt_dec(pone_world* world) {
 #ifdef TRACE_WORLD
-        printf("world refcnt--: %x (refcnt:%d)\n", world, world->refcnt);
+    printf("world refcnt--: %x (refcnt:%d)\n", world, world->refcnt);
 #endif
     world->refcnt--;
 
@@ -102,7 +102,7 @@ void pone_world_refcnt_dec(pone_world* world) {
         }
 
         pone_lex_refcnt_dec(world, world->lex);
-
+        pone_lex_refcnt_dec(world, world->lex);
         free(world->savestack);
         free(world->tmpstack);
         free(world);
