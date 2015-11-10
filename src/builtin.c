@@ -67,7 +67,7 @@ pone_val* pone_builtin_print(pone_world* world, pone_val* val) {
 }
 
 pone_val* pone_builtin_say(pone_world* world, pone_val* val) {
-    pone_val* str = pone_stringify(world, val);
+    pone_val* str = pone_mortalize(world, pone_str_copy(world->universe, pone_mortalize(world, pone_stringify(world, val))));
     pone_str_append_c(world, str, "\n", 1);
     GVL_UNLOCK(world->universe);
     fwrite(pone_str_ptr(str), sizeof(char), pone_str_len(str), stdout);

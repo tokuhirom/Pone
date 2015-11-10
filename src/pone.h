@@ -330,6 +330,7 @@ pone_val* pone_str_new_vprintf(pone_universe* universe, const char* fmt, va_list
 pone_val* pone_str_new_printf(pone_universe* universe, const char* fmt, ...);
 bool pone_str_contains_null(pone_universe* universe, pone_val* val);
 pone_val* pone_str_c_str(pone_world* world, pone_val* val);
+pone_val* pone_str_copy(pone_universe* universe, pone_val* val);
 
 // code.c
 pone_val* pone_code_new_c(pone_universe* universe, pone_funcptr_t func);
