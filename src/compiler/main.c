@@ -279,6 +279,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             break;
         case PVIP_NODE_META_METHOD_CALL:
             // (meta_method_call (string "3.14") (ident "methods") (nop))
+            MORTAL_START;
             PRINTF("pone_call_meta_method(world, ");
             COMPILE(node->children.nodes[0]);
             PRINTF(", \"");
@@ -292,10 +293,12 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 PRINTF("\", 0");
             }
             PRINTF(")");
+            MORTAL_END;
             break;
         case PVIP_NODE_METHODCALL:
             // (methodcall (variable "$a") (ident "pop") (args))
             // (atpos (variable "$a") (int 0))
+            MORTAL_START;
             PRINTF("pone_call_method(world, ");
             COMPILE(node->children.nodes[0]);
             PRINTF(", \"");
@@ -310,6 +313,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 PRINTF("\", 0");
             }
             PRINTF(")");
+            MORTAL_END;
             break;
         case PVIP_NODE_FOR: {
             PRINTF("{\n");
@@ -324,7 +328,8 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             def_lex(ctx, "$_");
             PRINTF("        pone_assign(world, 0, \"$_\", next);\n");
             COMPILE(node->children.nodes[1]);
-            PRINTF("    ;}\n");
+            PRINTF(";\n");
+            PRINTF("    }\n");
             PRINTF("}\n");
             break;
         }

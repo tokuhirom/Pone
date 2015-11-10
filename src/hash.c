@@ -94,7 +94,7 @@ pone_val* pone_hash_keys(pone_world* world, pone_val* val) {
     const char* k;
     pone_val* v;
     kh_foreach(h->h, k, v, {
-        pone_ary_append(world->universe, retval, pone_str_new(world->universe, k, strlen(k)));
+        pone_ary_append_noinc(world->universe, retval, pone_str_new(world->universe, k, strlen(k)));
     });
     return retval;
 }
@@ -127,6 +127,7 @@ static pone_val* meth_hash_assign_key(pone_world* world, pone_val* self, int n, 
     pone_val* key = va_arg(args, pone_val*);
     pone_val* value = va_arg(args, pone_val*);
     pone_hash_assign_key(world, self, key, value);
+    pone_refcnt_inc(world->universe, value);
     return value;
 }
 

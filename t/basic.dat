@@ -668,3 +668,17 @@ say 9223372036854775807;
 --- expected
 9223372036854775807
 
+===
+--- input
+say(3.Str)
+--- expected
+3
+
+===
+--- input
+.say for 1..3
+--- expected
+1
+2
+3
+
