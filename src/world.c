@@ -87,6 +87,10 @@ void pone_world_refcnt_dec(pone_world* world) {
         printf("destroy_world: %x parent:%x tmpstack_idx:%x\n", world, world->parent, world->tmpstack_idx);
 #endif
 
+        if (world->parent) {
+            pone_world_refcnt_dec(world->parent);
+        }
+
         while (world->tmpstack_idx > 0) {
             pone_freetmps(world);
         }

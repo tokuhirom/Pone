@@ -1,12 +1,13 @@
 all: blib/libpone.a bin/pone
 
 CFLAGS=-D_POSIX_C_SOURCE=200809L -std=c99 -g -W -I 3rd/pvip/src/qre/ -I 3rd/linenoise/ -I 3rd/pvip/src/ -DCC=$(CC) -Isrc/ -fPIC -I 3rd/rockre/include/ -ldl -fPIC -pthread
-CFLAGS+=-DTRACE_WORLD
 LDFLAGS=-lm -lstdc++ -ldl -fPIC -pthread
 LIBPONE=blib/libpone.a
 LIBPVIP=3rd/pvip/libpvip.a
 LIBROCKRE=3rd/rockre/librockre.a
-# CFLAGS+= -DTRACE_REFCNT
+
+# CFLAGS+=-DTRACE_WORLD
+CFLAGS+= -DTRACE_REFCNT
 # CFLAGS+= -DTRACE_UNIVERSE
 
 RUNTIME_OBJFILES= src/obj.o src/class.o src/alloc.o src/array.o src/bool.o src/builtin.o src/code.o src/hash.o src/int.o src/nil.o src/num.o src/op.o src/pone.o src/scope.o src/str.o src/world.o src/universe.o src/iter.o src/exc.o src/range.o src/mu.o src/any.o src/cool.o src/socket.o src/re.o src/thread.o

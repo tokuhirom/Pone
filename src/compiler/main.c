@@ -789,6 +789,7 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
             pone_so_init(world);
             pone_pop_scope(world);
             pone_freetmps(world);
+            assert(world->refcnt == 1);
             pone_world_refcnt_dec(world);
             pone_universe_destroy(universe);
         }
