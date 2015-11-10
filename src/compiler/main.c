@@ -164,6 +164,22 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF("\", %ld)", node->pv->len);
             MORTAL_END;
             break;
+        case PVIP_NODE_PAIR: {
+            // (pair (ident "a") (int 3))
+            PVIPNode* key = node->children.nodes[0];
+            PVIPNode* value = node->children.nodes[1];
+            MORTAL_START;
+            PRINTF("pone_pair_new(world->universe, ");
+            if (key->type == PVIP_NODE_IDENT) {
+                key->type = PVIP_NODE_STRING;
+            }
+            COMPILE(key);
+            PRINTF(",");
+            COMPILE(value);
+            PRINTF(")");
+            MORTAL_END;
+            break;
+        }
         case PVIP_NODE_STRING:
             MORTAL_START;
             PRINTF("pone_str_new_const(world->universe, \"");

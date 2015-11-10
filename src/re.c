@@ -31,19 +31,11 @@ static pone_val* meth_regex_accepts(pone_world* world, pone_val* self, int n, va
     }
 }
 
-#define DECLARE_GETTER(name, var) \
-    static pone_val* name(pone_world* world, pone_val* self, int n, va_list args) { \
-        assert(n == 0); \
-        pone_val* v = pone_obj_get_ivar(world->universe, self, var); \
-        pone_refcnt_inc(world->universe, v); \
-        return v; \
-    }
-
-DECLARE_GETTER(meth_regex_str, "$!str")
-DECLARE_GETTER(meth_match_from, "$!from")
-DECLARE_GETTER(meth_match_to, "$!to")
-DECLARE_GETTER(meth_match_orig, "$!orig")
-DECLARE_GETTER(meth_match_list, "@!list")
+PONE_DECLARE_GETTER(meth_regex_str, "$!str")
+PONE_DECLARE_GETTER(meth_match_from, "$!from")
+PONE_DECLARE_GETTER(meth_match_to, "$!to")
+PONE_DECLARE_GETTER(meth_match_orig, "$!orig")
+PONE_DECLARE_GETTER(meth_match_list, "@!list")
 
 pone_val* pone_match_new(pone_universe* universe, pone_val* orig, int from, int to) {
     assert(universe->class_match);

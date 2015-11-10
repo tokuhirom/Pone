@@ -242,6 +242,8 @@ typedef struct pone_universe {
     struct pone_val* class_match;
     // class of Thread
     struct pone_val* class_thread;
+    // class of Pair
+    struct pone_val* class_pair;
     // class of IO::Socket::INET
     struct pone_val* class_io_socket_inet;
 
@@ -486,6 +488,10 @@ void pone_match_push(pone_world* world, pone_val* self, int from, int to);
 void pone_thread_init(pone_universe* universe);
 pone_val* pone_thread_join(pone_universe* universe, pthread_t thr);
 
+// pair.c
+void pone_pair_init(pone_universe* universe);
+pone_val* pone_pair_new(pone_universe* universe, pone_val* key, pone_val* value);
+
 #ifdef THREAD_DEBUG
 #define THREAD_TRACE(fmt, ...) printf("[pone-thread] " fmt, ##__VA_ARGS__)
 #else
@@ -519,6 +525,15 @@ pone_val* pone_thread_join(pone_universe* universe, pthread_t thr);
       abort(); \
     } \
   } while (0)
+
+#define PONE_DECLARE_GETTER(name, var) \
+    static pone_val* name(pone_world* world, pone_val* self, int n, va_list args) { \
+        assert(n == 0); \
+        pone_val* v = pone_obj_get_ivar(world->universe, self, var); \
+        pone_refcnt_inc(world->universe, v); \
+        return v; \
+    }
+
 
 #endif
 
