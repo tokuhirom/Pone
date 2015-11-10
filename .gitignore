@@ -16,3 +16,10 @@ tags
 *.o
 *.so
 *.a
+/CMakeCache.txt
+/CMakeFiles/
+/CTestTestfile.cmake
+/Testing/
+/cmake_install.cmake
+/pvip-prefix/
+/Makefile

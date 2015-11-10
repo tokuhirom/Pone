@@ -89,6 +89,7 @@ pone_universe* pone_universe_init() {
     pone_regex_init(universe);
     assert(universe->class_io_socket_inet == NULL);
     pone_thread_init(universe);
+    pone_pair_init(universe);
     pone_sock_init(universe);
 
 #ifdef TRACE_UNIVERSE
@@ -128,6 +129,7 @@ void pone_universe_destroy(pone_universe* universe) {
 
     pone_refcnt_dec(universe, universe->instance_iteration_end);
     pone_refcnt_dec(universe, universe->class_io_socket_inet);
+    pone_refcnt_dec(universe, universe->class_pair);
     pone_refcnt_dec(universe, universe->class_thread);
     pone_refcnt_dec(universe, universe->class_match);
     pone_refcnt_dec(universe, universe->class_regex);

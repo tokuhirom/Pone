@@ -682,3 +682,10 @@ say(3.Str)
 2
 3
 
+===
+--- input
+my $p = a => 3; say $p.key; say $p.value
+--- expected
+a
+3
+

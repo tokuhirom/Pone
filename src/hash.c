@@ -96,6 +96,7 @@ pone_val* pone_hash_keys(pone_world* world, pone_val* val) {
     kh_foreach(h->h, k, v, {
         pone_ary_append_noinc(world->universe, retval, pone_str_new(world->universe, k, strlen(k)));
     });
+
     return retval;
 }
 

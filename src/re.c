@@ -31,20 +31,11 @@ static pone_val* meth_regex_accepts(pone_world* world, pone_val* self, int n, va
     }
 }
 
-#define DECLARE_ACCESSOR(name, var) \
-    static pone_val* name(pone_world* world, pone_val* self, int n, va_list args) { \
-        assert(n == 0); \
-        pone_val* obj = va_arg(args, pone_val*); \
-        pone_val* v = pone_obj_get_ivar(world->universe, self, var); \
-        pone_refcnt_inc(world->universe, v); \
-        return v; \
-    }
-
-DECLARE_ACCESSOR(meth_regex_str, "$!str")
-DECLARE_ACCESSOR(meth_match_from, "$!from")
-DECLARE_ACCESSOR(meth_match_to, "$!to")
-DECLARE_ACCESSOR(meth_match_orig, "$!orig")
-DECLARE_ACCESSOR(meth_match_list, "@!list")
+PONE_DECLARE_GETTER(meth_regex_str, "$!str")
+PONE_DECLARE_GETTER(meth_match_from, "$!from")
+PONE_DECLARE_GETTER(meth_match_to, "$!to")
+PONE_DECLARE_GETTER(meth_match_orig, "$!orig")
+PONE_DECLARE_GETTER(meth_match_list, "@!list")
 
 pone_val* pone_match_new(pone_universe* universe, pone_val* orig, int from, int to) {
     assert(universe->class_match);
@@ -56,13 +47,12 @@ pone_val* pone_match_new(pone_universe* universe, pone_val* orig, int from, int 
     return obj;
 }
 
-pone_val* pone_match_push(pone_world* world, pone_val* self, int from, int to) {
+void pone_match_push(pone_world* world, pone_val* self, int from, int to) {
     pone_val* list = pone_obj_get_ivar(world->universe, self, "@!list");
     pone_val* orig = pone_obj_get_ivar(world->universe, self, "$!orig");
     for (pone_int_t i=0; i<pone_ary_elems(list); ++i) {
         pone_val* c = pone_ary_at_pos(list, i);
         pone_int_t c_from = pone_intify(world, pone_obj_get_ivar(world->universe, c, "$!from"));
-        pone_int_t c_to = pone_intify(world, pone_obj_get_ivar(world->universe, c, "$!to"));
         if (from >= c_from) {
             return pone_match_push(world, c, from, to);
         }

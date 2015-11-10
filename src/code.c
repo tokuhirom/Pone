@@ -31,7 +31,7 @@ void pone_code_free(pone_universe* universe, pone_val* v) {
     printf("pone_code_free: universe:%x code:%x\n", universe, v);
 #endif
     assert(pone_type(v) == PONE_CODE);
-    pone_code* cv = (pone_code*)v;
+    // pone_code* cv = (pone_code*)v;
     // cv->lex may NULL if the value was created by pone_code_new_c.
 
     // pone_lex_refcnt_dec(world, cv->lex);
