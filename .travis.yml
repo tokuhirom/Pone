@@ -2,10 +2,13 @@ language: perl
 install:
   - cpanm -nv Capture::Tiny Test::Base
 script:
-  - make test
+  - cmake .
+  - make all
+  - make test ARGS="-V"
 addons:
   apt:
     packages:
       - valgrind
+      - cmake
 sudo: false
 
