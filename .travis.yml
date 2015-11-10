@@ -4,7 +4,7 @@ install:
 script:
   - cmake .
   - make all
-  - prove -r t xt
+  - prove -v -r t xt
 addons:
   apt:
     packages:

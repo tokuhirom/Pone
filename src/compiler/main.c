@@ -764,7 +764,7 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
 
     fclose(fp);
 
-    system("clang -rdynamic -DPONE_DYNAMIC -fPIC -shared -lstdc++ -I3rd/rockre/include/ -I src/ -g -lm -std=c99 -o pone_generated.so pone_generated.c blib/libpone.a 3rd/rockre/librockre.a");
+    system("clang -rdynamic -DPONE_DYNAMIC -fPIC -shared -lstdc++ -I3rd/rockre/include/ -I src/ -g -lm -std=c99 -o pone_generated.so pone_generated.c -L. -lpone 3rd/rockre/librockre.a");
 
     if (!compile_only) {
         void* handle = dlopen("./pone_generated.so", RTLD_LAZY);

@@ -6,8 +6,8 @@ enable_testing()
 include_directories(3rd/linenoise/ 3rd/rockre/include 3rd/pvip/src/ src/)
 
 # -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith
-SET(CMAKE_C_FLAGS_DEBUG   "-D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function -g")
-SET(CMAKE_C_FLAGS_RELEASE "-D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-function -DNDEBUG")
+SET(CMAKE_C_FLAGS_DEBUG   "-fPIC -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function -g")
+SET(CMAKE_C_FLAGS_RELEASE "-fPIC -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-function -DNDEBUG")
 SET(CMAKE_BUILD_TYPE Debug)
 
 SET(serial "0.0.1")
@@ -24,6 +24,9 @@ set_target_properties(pone
     RUNTIME_OUTPUT_DIRECTORY "bin/")
 
 ADD_LIBRARY(libpone STATIC ${SRCS})
+set_target_properties(libpone
+    PROPERTIES
+    OUTPUT_NAME "pone")
 
 ADD_LIBRARY(linenoise STATIC 3rd/linenoise/linenoise.c)
 set_source_files_properties(3rd/linenoise/linenoise.c PROPERTIES COMPILE_FLAGS "-g -Wno-implicit-function-declaration")
