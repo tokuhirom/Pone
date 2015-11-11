@@ -20,6 +20,8 @@ FEATURES
 
 for stability.
 
+  * Threading support
+
 LITERALS
 ========
 
@@ -70,7 +72,6 @@ TODO
   * Implement `%*ENV` and deprecate `getenv()` builtin function
   * `class Foo { }`
   * `class Foo is Bar { }`
-  * thread support
   * socket support
 
 AUTHOR
