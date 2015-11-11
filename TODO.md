@@ -15,9 +15,18 @@ TODO
  * file i/o
  * array methods
  * str methods
+ * `system` builtin function
+ * `%*ENV`
+ * // operator
+ * bit ops
  * -p
  * -lane
  * -i
+ * `and`
+ * `or`
+ * `xor`
+ * `&&`
+ * `||`
 
 ## Bindings
 
