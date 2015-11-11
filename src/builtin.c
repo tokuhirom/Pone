@@ -127,7 +127,7 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
         sigemptyset(&act.sa_mask);
 
         if (sigaction(sig, &act, NULL) == 0) {
-            printf("Set sig %d\n", sig);
+            printf("Set sig " PoneIntFmt "\n", sig);
             pone_refcnt_inc(world->universe, code);
             world->universe->signal_handlers[sig] = code;
         } else {
