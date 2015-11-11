@@ -153,6 +153,9 @@ typedef struct pone_world {
 
     // parent context
     struct pone_world* parent;
+    // linked-list for gc
+    struct pone_world* next;
+    struct pone_world* prev;
 } pone_world;
 
 typedef struct pone_val* (*pone_funcptr_t)(pone_world*, struct pone_val*, int n, va_list);
@@ -256,6 +259,9 @@ typedef struct pone_universe {
 
     pone_thread_t* threads;
     int thread_num;
+
+    // list of world for gc
+    pone_world* world_head;
 } pone_universe;
 
 typedef struct pone_arena {

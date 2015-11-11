@@ -1,5 +1,25 @@
 #include "pone.h" /* PONE_INC */
 
+static inline void pone_world_list_append(pone_universe *universe, pone_world* world) {
+    if (universe->world_head) {
+        universe->world_head->prev = world;
+        world->next = universe->world_head;
+    }
+    universe->world_head = world;
+}
+
+static inline void pone_world_list_remove(pone_universe *universe, pone_world* world) {
+    if (world->prev) {
+        world->prev->next = world->next;
+    }
+    if (world->next) {
+        world->next->prev = world->prev;
+    }
+    if (world == universe->world_head) {
+        universe->world_head = world->next;
+    }
+}
+
 pone_world* pone_world_new(pone_universe* universe) {
     assert(universe);
 
@@ -36,6 +56,8 @@ pone_world* pone_world_new(pone_universe* universe) {
 
     world->lex = pone_lex_new(world, NULL);
 
+    pone_world_list_append(universe, world);
+
     return world;
 }
 
@@ -64,6 +86,8 @@ pone_world* pone_world_new_from_world(pone_world* world, pone_lex_t* lex) {
 
     pone_savetmps(new_world);
     pone_push_scope(new_world);
+
+    pone_world_list_append(world->universe, world);
 
     return new_world;
 }
@@ -100,6 +124,8 @@ void pone_world_refcnt_dec(pone_world* world) {
                 pone_pop_scope(world);
             }
         }
+
+        pone_world_list_remove(world->universe, world);
 
         pone_lex_refcnt_dec(world, world->lex);
         free(world->savestack);
