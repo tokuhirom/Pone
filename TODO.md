@@ -22,5 +22,6 @@ TODO
 ## Bindings
 
  * h2o
- * redis
+ * hiredis
+ * libmysqlclient
 
