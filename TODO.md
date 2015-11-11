@@ -27,6 +27,7 @@ TODO
  * `xor`
  * `&&`
  * `||`
+ * `s///`
 
 ## Bindings
 
