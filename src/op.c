@@ -161,8 +161,8 @@ pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2) {
         pone_num_t n2 = pone_numify(world, v2);
         return pone_num_new(world->universe, n1 + n2);
     } else {
-        int i1 = pone_intify(world, v1);
-        int i2 = pone_intify(world, v2);
+        pone_int_t i1 = pone_intify(world, v1);
+        pone_int_t i2 = pone_intify(world, v2);
         return pone_int_new(world->universe, i1 + i2);
     }
 }
@@ -173,8 +173,8 @@ pone_val* pone_subtract(pone_world* world, pone_val* v1, pone_val* v2) {
         pone_num_t n2 = pone_numify(world, v2);
         return pone_num_new(world->universe, n1 - n2);
     } else {
-        int i1 = pone_intify(world, v1);
-        int i2 = pone_intify(world, v2);
+        pone_int_t i1 = pone_intify(world, v1);
+        pone_int_t i2 = pone_intify(world, v2);
         return pone_int_new(world->universe, i1 - i2);
     }
 }
@@ -185,8 +185,8 @@ pone_val* pone_multiply(pone_world* world, pone_val* v1, pone_val* v2) {
         pone_num_t n2 = pone_numify(world, v2);
         return pone_num_new(world->universe, n1 * n2);
     } else {
-        int i1 = pone_intify(world, v1);
-        int i2 = pone_intify(world, v2);
+        pone_int_t i1 = pone_intify(world, v1);
+        pone_int_t i2 = pone_intify(world, v2);
         return pone_int_new(world->universe, i1 * i2);
     }
 }
@@ -197,15 +197,15 @@ pone_val* pone_divide(pone_world* world, pone_val* v1, pone_val* v2) {
         pone_num_t n2 = pone_numify(world, v2);
         return pone_num_new(world->universe, n1 / n2);
     } else {
-        int i1 = pone_intify(world, v1);
-        int i2 = pone_intify(world, v2);
+        pone_int_t i1 = pone_intify(world, v1);
+        pone_int_t i2 = pone_intify(world, v2);
         return pone_int_new(world->universe, i1 / i2);
     }
 }
 
 pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2) {
-    int i1 = pone_intify(world, v1);
-    int i2 = pone_intify(world, v2);
+    pone_int_t i1 = pone_intify(world, v1);
+    pone_int_t i2 = pone_intify(world, v2);
     return pone_int_new(world->universe, i1 % i2); // TODO: We should upgrade value to NV
 }
 
@@ -216,8 +216,8 @@ pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2) {
             pone_num_t n2 = pone_numify(world, v2); \
             return n1 op n2; \
         } else { \
-            int i1 = pone_intify(world, v1); \
-            int i2 = pone_intify(world, v2); \
+            pone_int_t i1 = pone_intify(world, v1); \
+            pone_int_t i2 = pone_intify(world, v2); \
             return i1 op i2; \
         } \
     } while (0)
@@ -233,12 +233,12 @@ bool pone_gt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(>);  }
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
-int pone_str_cmp(pone_world* world, pone_val* v1, pone_val* v2) {
+pone_int_t pone_str_cmp(pone_world* world, pone_val* v1, pone_val* v2) {
     pone_val* s1 = pone_stringify(world, v1);
     pone_val* s2 = pone_stringify(world, v2);
-    int l1 = pone_str_len(s1);
-    int l2 = pone_str_len(s2);
-    int n = memcmp(pone_str_ptr(s1), pone_str_ptr(s2), MIN(pone_str_len(s1), pone_str_len(s2)));
+    pone_int_t l1 = pone_str_len(s1);
+    pone_int_t l2 = pone_str_len(s2);
+    pone_int_t n = memcmp(pone_str_ptr(s1), pone_str_ptr(s2), MIN(pone_str_len(s1), pone_str_len(s2)));
     if (n == 0) {
         if (l1 > l2) {
             n = 1;

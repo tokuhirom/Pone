@@ -1,6 +1,6 @@
 #include "pone.h" /* PONE_INC */
 
-pone_val* pone_ary_new(pone_universe* universe, int n, ...) {
+pone_val* pone_ary_new(pone_universe* universe, pone_int_t n, ...) {
     va_list list;
 
     pone_ary* av = (pone_ary*)pone_obj_alloc(universe, PONE_ARRAY);
@@ -13,7 +13,7 @@ pone_val* pone_ary_new(pone_universe* universe, int n, ...) {
     av->max = n;
     av->len = n;
     // we can optimize in case of `[1,2,3]`.
-    for (int i=0; i<n; ++i) {
+    for (pone_int_t i=0; i<n; ++i) {
         pone_val* v = va_arg(list, pone_val*);
         av->a[i] = v;
         pone_refcnt_inc(universe, v);
@@ -34,7 +34,7 @@ void pone_ary_free(pone_universe* universe, pone_val* val) {
 
 // $av.AT-POS(i)
 // $av[i]
-pone_val* pone_ary_at_pos(pone_val* av, int i) {
+pone_val* pone_ary_at_pos(pone_val* av, pone_int_t i) {
     assert(pone_type(av) == PONE_ARRAY);
     pone_ary*a = (pone_ary*)av;
     if (a->len > i) {
@@ -44,7 +44,7 @@ pone_val* pone_ary_at_pos(pone_val* av, int i) {
     }
 }
 
-int pone_ary_elems(pone_val* av) {
+pone_int_t pone_ary_elems(pone_val* av) {
     assert(pone_type(av) == PONE_ARRAY);
     return ((pone_ary*)av)->len;
 }
@@ -300,7 +300,7 @@ static pone_val* meth_ary_str(pone_world* world, pone_val* self, int n, va_list 
 
     pone_val* v = pone_str_new(world->universe, "", 0);
     pone_str_append_c(world, v, "(", 1);
-    for (int i=0; i<pone_ary_elems(self); ++i) {
+    for (pone_int_t i=0; i<pone_ary_elems(self); ++i) {
         pone_str_append(world, v, pone_ary_at_pos(self, i));
         pone_str_append_c(world, v, " ", 1);
     }

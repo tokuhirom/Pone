@@ -18,7 +18,7 @@ run {
         my ($out, $err, $exit) = capture {
             system("./bin/pone", "-e", "$src");
         };
-        diag $err;
+        diag $err if $err =~ /\S/;
         is($out, $expected, "stdout($src)") or do {
             system("./bin/pone", "-e", $src, "-d");
 

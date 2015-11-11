@@ -37,7 +37,7 @@ PONE_DECLARE_GETTER(meth_match_to, "$!to")
 PONE_DECLARE_GETTER(meth_match_orig, "$!orig")
 PONE_DECLARE_GETTER(meth_match_list, "@!list")
 
-pone_val* pone_match_new(pone_universe* universe, pone_val* orig, int from, int to) {
+pone_val* pone_match_new(pone_universe* universe, pone_val* orig, pone_int_t from, pone_int_t to) {
     assert(universe->class_match);
     pone_val* obj = pone_obj_new(universe, universe->class_match);
     pone_obj_set_ivar(universe, obj, "$!orig", orig);
@@ -47,7 +47,7 @@ pone_val* pone_match_new(pone_universe* universe, pone_val* orig, int from, int 
     return obj;
 }
 
-void pone_match_push(pone_world* world, pone_val* self, int from, int to) {
+void pone_match_push(pone_world* world, pone_val* self, pone_int_t from, pone_int_t to) {
     pone_val* list = pone_obj_get_ivar(world->universe, self, "@!list");
     pone_val* orig = pone_obj_get_ivar(world->universe, self, "$!orig");
     for (pone_int_t i=0; i<pone_ary_elems(list); ++i) {

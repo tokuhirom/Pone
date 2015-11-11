@@ -10,12 +10,12 @@ pone_val* pone_hash_new(pone_universe* universe) {
     return hv;
 }
 
-pone_val* pone_hash_assign_keys(pone_world* world, pone_val* hash, int n, ...) {
+pone_val* pone_hash_assign_keys(pone_world* world, pone_val* hash, pone_int_t n, ...) {
     va_list list;
 
     va_start(list, n);
     // we can optimize in case of `{a => 3}`. we can omit mortalize.
-    for (int i=0; i<n; i+=2) {
+    for (pone_int_t i=0; i<n; i+=2) {
         pone_val* k = va_arg(list, pone_val*);
         pone_val* v = va_arg(list, pone_val*);
         pone_hash_assign_key(world, hash, k, v);
@@ -36,7 +36,7 @@ void pone_hash_free(pone_universe* universe, pone_val* val) {
     kh_destroy(str, h->h);
 }
 
-void pone_hash_assign_key_c(pone_universe* universe, pone_val* hv, const char* key, int key_len, pone_val* v) {
+void pone_hash_assign_key_c(pone_universe* universe, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v) {
     assert(pone_type(hv) == PONE_HASH);
     int ret;
     const char* ks=pone_strdup(universe, key, key_len);

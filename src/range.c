@@ -91,8 +91,8 @@ static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list
 
     pone_val* i_val = pone_obj_get_ivar(world->universe, self, "$!i");
     pone_val* max_val = pone_obj_get_ivar(world->universe, self, "$!max");
-    int i = pone_intify(world, i_val);
-    int max = pone_intify(world, max_val);
+    pone_int_t i = pone_intify(world, i_val);
+    pone_int_t max = pone_intify(world, max_val);
 
     if (i > max) {
         pone_refcnt_inc(world->universe, world->universe->instance_iteration_end);

@@ -90,8 +90,8 @@ static void _compose(pone_universe* universe, pone_val* target_methods, pone_val
 
     pone_val* parents = pone_obj_get_ivar(universe, klass, "@!parents");
     assert(pone_type(parents) == PONE_ARRAY);
-    int l = pone_ary_elems(parents);
-    for (int i=0; i<l; ++i) {
+    pone_int_t l = pone_ary_elems(parents);
+    for (pone_int_t i=0; i<l; ++i) {
         _compose(universe, target_methods, pone_ary_at_pos(parents, i));
     }
 }

@@ -294,8 +294,8 @@ const char* pone_what_str_c(pone_val* val);
 
 // hash.c
 pone_val* pone_hash_new(pone_universe* universe);
-pone_val* pone_hash_assign_keys(pone_world* world, pone_val* hash, int n, ...);
-void pone_hash_assign_key_c(pone_universe* universe, pone_val* hv, const char* key, int key_len, pone_val* v);
+pone_val* pone_hash_assign_keys(pone_world* world, pone_val* hash, pone_int_t n, ...);
+void pone_hash_assign_key_c(pone_universe* universe, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v);
 void pone_hash_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
 size_t pone_hash_elems(pone_val* val);
 void pone_hash_free(pone_universe* universe, pone_val* val);
@@ -305,12 +305,11 @@ bool pone_hash_exists_c(pone_universe* universe, pone_val* hash, const char* nam
 pone_val* pone_hash_keys(pone_world* world, pone_val* val);
 
 // array.c
-pone_val* pone_ary_new(pone_universe* universe, int n, ...);
-int pone_ary_elems(pone_val* val);
-pone_val* pone_ary_at_pos(pone_val* val, int pos);
+pone_val* pone_ary_new(pone_universe* universe, pone_int_t n, ...);
+pone_int_t pone_ary_elems(pone_val* val);
 void pone_ary_free(pone_universe* universe, pone_val* val);
 void pone_ary_init(pone_universe* universe);
-pone_val* pone_ary_at_pos(pone_val* ary, int n);
+pone_val* pone_ary_at_pos(pone_val* ary, pone_int_t n);
 void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val);
 void pone_ary_append_noinc(pone_universe* universe, pone_val* self, pone_val* val);
 void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_val* val);
@@ -324,7 +323,7 @@ pone_val* pone_str_from_num(pone_universe* universe, double n);
 const char* pone_str_ptr(pone_val* val);
 size_t pone_str_len(pone_val* val);
 char* pone_strdup(pone_universe* universe, const char* src, size_t size);
-void pone_str_append_c(pone_world* world, pone_val* str, const char* s, int s_len);
+void pone_str_append_c(pone_world* world, pone_val* str, const char* s, pone_int_t s_len);
 void pone_str_append(pone_world* world, pone_val* str, pone_val* s);
 void pone_str_appendf(pone_world* world, pone_val* str, const char* fmt, ...);
 void pone_str_init(pone_universe* universe);
@@ -481,8 +480,8 @@ void pone_sock_init(pone_universe* universe);
 // re.c
 pone_val* pone_regex_new(pone_universe* universe, const char* str, size_t len);
 void pone_regex_init(pone_universe* universe);
-pone_val* pone_match_new(pone_universe* universe, pone_val* orig, int from, int to);
-void pone_match_push(pone_world* world, pone_val* self, int from, int to);
+pone_val* pone_match_new(pone_universe* universe, pone_val* orig, pone_int_t from, pone_int_t to);
+void pone_match_push(pone_world* world, pone_val* self, pone_int_t from, pone_int_t to);
 
 // thread.c
 void pone_thread_init(pone_universe* universe);

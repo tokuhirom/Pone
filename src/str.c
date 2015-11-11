@@ -132,7 +132,7 @@ pone_val* pone_str_c_str(pone_world* world, pone_val* val) {
     return pone_str_concat(world, val, pone_mortalize(world, pone_str_new(world->universe, "\0", 1)));
 }
 
-void pone_str_append_c(pone_world* world, pone_val* val, const char* s, int s_len) {
+void pone_str_append_c(pone_world* world, pone_val* val, const char* s, pone_int_t s_len) {
     pone_universe* universe = world->universe;
 
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) { // needs CoW
