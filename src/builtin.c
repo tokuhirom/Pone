@@ -41,7 +41,7 @@ pone_val* pone_builtin_dd(pone_world* world, pone_val* val) {
 pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_INT: {
-        int i = pone_int_val(val);
+        pone_int_t i = pone_int_val(val);
         if (i < 0) {
             return pone_int_new(world->universe, -i);
         } else {
@@ -95,7 +95,7 @@ pone_val* pone_builtin_getenv(pone_world* world, pone_val* key) {
 
 pone_val* pone_builtin_sleep(pone_world* world, pone_val* vi) {
     // TODO Time::HiRes
-    int i = pone_intify(world, vi);
+    pone_int_t i = pone_intify(world, vi);
     sleep(i);
     return pone_nil();
 }
@@ -116,7 +116,7 @@ static void sig_handler(int sig) {
 }
 
 pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* code) {
-    int sig = pone_intify(world, sig_val);
+    pone_int_t sig = pone_intify(world, sig_val);
 
     if (pone_defined(code)) {
 #ifndef _WIN32
@@ -200,7 +200,7 @@ pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...) {
                             break;
                         }
                         case 'd': {
-                            int i = pone_intify(world, v);
+                            pone_int_t i = pone_intify(world, v);
                             printed = snprintf(dst_buf, PRINTF_BUFSIZ-1, fmt_buf, i);
                             break;
                         }
