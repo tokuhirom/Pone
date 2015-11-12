@@ -151,8 +151,9 @@ typedef struct pone_world {
     // root lex entry in this world
     pone_lex_t* orig_lex;
 
-    // parent context
+    // parent context(needs for exception
     struct pone_world* parent;
+
     // linked-list for gc
     struct pone_world* next;
     struct pone_world* prev;
