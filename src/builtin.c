@@ -1,7 +1,6 @@
 #include "pone.h" /* PONE_INC */
 #include <stdlib.h>
 #include <time.h>
-#include <signal.h>
 #include <unistd.h>
 #include <errno.h>
 
@@ -99,50 +98,8 @@ pone_val* pone_builtin_sleep(pone_world* world, pone_val* vi) {
     return pone_nil();
 }
 
-static int pone_signal_received;
-
-void pone_signal_handle(pone_world* world) {
-    if (pone_signal_received > 0) {
-        int sig = pone_signal_received;
-        pone_signal_received = 0;
-        pone_val* code = world->universe->signal_handlers[sig];
-        pone_code_call(world, code, pone_nil(), 0);
-    }
-}
-
-static void sig_handler(int sig) {
-    pone_signal_received = sig;
-}
-
-// send internal signal like PONE_SIG_GC
-void pone_send_private_sig(int sig) {
-    pone_signal_received = sig;
-}
-
 pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* code) {
-    pone_int_t sig = pone_intify(world, sig_val);
-
-    if (pone_defined(code)) {
-#ifndef _WIN32
-        struct sigaction act = {
-            .sa_handler = sig_handler,
-            .sa_flags = 0,
-        };
-        sigemptyset(&act.sa_mask);
-
-        if (sigaction(sig, &act, NULL) == 0) {
-            printf("Set sig " PoneIntFmt "\n", sig);
-            world->universe->signal_handlers[sig] = code;
-        } else {
-            pone_throw_str(world, "cannot set signal");
-        }
-#else
-        pone_throw_str(world, "not implemented on windows");
-#endif
-    } else {
-        signal(sig, SIG_DFL);
-    }
-
+    pone_signal_register_handler(world, pone_intify(world, sig_val), code);
     return pone_nil();
 }
 

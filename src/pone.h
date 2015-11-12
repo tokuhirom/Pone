@@ -497,6 +497,7 @@ void pone_gc_init(pone_universe* universe);
 
 // signal.c
 void pone_send_private_sig(int sig);
+void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* code);
 
 #ifdef THREAD_DEBUG
 #define THREAD_TRACE(fmt, ...) printf("[pone-thread] " fmt, ##__VA_ARGS__)
