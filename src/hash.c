@@ -1,4 +1,12 @@
-#include "pone.h" /* PONE_INC */
+#include "pone.h"
+
+void pone_hash_mark(pone_val* val) {
+    const char* k;
+    pone_val* v;
+    kh_foreach(val->as.hash.h, k, v, {
+        pone_gc_mark_value(v);
+    });
+}
 
 // TODO: delete key
 // TODO: push key

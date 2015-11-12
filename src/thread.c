@@ -10,6 +10,9 @@ typedef struct thread_context {
 static void* thread_start(void* p) {
     thread_context* context = (thread_context*)p;
 
+    // TODO we should create new world for new thread.
+    // Because we shouldn't use upper level's exception handler for threads.
+
     // extract values to stack
     pone_world* world = context->world;
     pone_val* code = context->code;

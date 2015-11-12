@@ -1,6 +1,26 @@
 #include "pone.h" /* PONE_INC */
 
+#ifdef TRACE_WORLD
+static inline void pone_world_dump(pone_universe* universe) {
+    pone_world* world = universe->world_head;
+    if (world) {
+        while (world) {
+            printf("WWW %p prev:%p next:%p\n", world, world->prev, world->next);
+            assert(world != world->next);
+            world = world->next;
+        }
+    } else {
+        printf("WWW no world\n");
+    }
+}
+#endif
+
 static inline void pone_world_list_append(pone_universe *universe, pone_world* world) {
+#ifdef TRACE_WORLD
+    printf("WWW ADD %p\n", world);
+    pone_world_dump(universe);
+#endif
+
     if (universe->world_head) {
         universe->world_head->prev = world;
         world->next = universe->world_head;
@@ -87,7 +107,7 @@ pone_world* pone_world_new_from_world(pone_world* world, pone_lex_t* lex) {
     pone_savetmps(new_world);
     pone_push_scope(new_world);
 
-    pone_world_list_append(world->universe, world);
+    pone_world_list_append(world->universe, new_world);
 
     return new_world;
 }
@@ -132,5 +152,9 @@ void pone_world_refcnt_dec(pone_world* world) {
         free(world->tmpstack);
         free(world);
     }
+}
+
+void pone_world_mark(pone_world* world) {
+    pone_lex_mark(world->lex);
 }
 

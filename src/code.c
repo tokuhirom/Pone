@@ -1,5 +1,11 @@
 #include "pone.h" /* PONE_INC */
 
+void pone_code_mark(pone_val* val) {
+    if (val->as.code.lex) {
+        pone_lex_mark(val->as.code.lex);
+    }
+}
+
 /**
  * C level API to create new Code object
  */
@@ -21,7 +27,7 @@ pone_val* pone_code_new(pone_world* world, pone_funcptr_t func) {
     cv->func = func;
     cv->lex = world->lex;
 
-    // pone_lex_refcnt_inc(world, world->lex);
+    pone_lex_refcnt_inc(world, world->lex);
 
     return (pone_val*)cv;
 }

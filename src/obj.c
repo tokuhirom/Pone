@@ -1,5 +1,13 @@
 #include "pone.h" /* PONE_INC */
 
+void pone_obj_mark(pone_val* val) {
+    const char* k;
+    pone_val* v;
+    kh_foreach(val->as.obj.ivar, k, v, {
+        pone_gc_mark_value(v);
+    });
+}
+
 pone_val* pone_obj_new(pone_universe* universe, pone_val* klass) {
     assert(klass);
     assert(pone_type(klass) == PONE_OBJ);

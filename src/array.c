@@ -1,5 +1,12 @@
 #include "pone.h" /* PONE_INC */
 
+void pone_ary_mark(pone_val* val) {
+    pone_int_t l = val->as.ary.len;
+    for (pone_int_t i=0; i<l; i++) {
+        pone_gc_mark_value(val->as.ary.a[i]);
+    }
+}
+
 pone_val* pone_ary_new(pone_universe* universe, pone_int_t n, ...) {
     va_list list;
 

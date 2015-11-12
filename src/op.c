@@ -1,6 +1,17 @@
 #include "pone.h" /* PONE_INC */
 #include <setjmp.h>
 
+void pone_lex_mark(pone_lex_t* lex) {
+    const char* k;
+    pone_val* v;
+    kh_foreach(lex->map, k, v, {
+        pone_gc_mark_value(v);
+    });
+    if (lex->parent) {
+        pone_lex_mark(lex->parent);
+    }
+}
+
 pone_val* pone_get_lex(pone_world* world, const char* key) {
     pone_lex_t* lex = world->lex;
     while (lex != NULL) {

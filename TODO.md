@@ -28,6 +28,7 @@ TODO
  * `&&`
  * `||`
  * `s///`
+ * `Proc` builtin class
 
 ## Bindings
 

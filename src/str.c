@@ -1,5 +1,12 @@
 #include "pone.h" /* PONE_INC */
 
+void pone_str_mark(pone_val* val) {
+    if (pone_type(val) == PONE_FLAGS_STR_COPY) {
+        pone_gc_mark_value(val->as.str.val);
+    }
+}
+
+
 // pone dup p.
 pone_val* pone_str_new(pone_universe* universe, const char*p, size_t len) {
     pone_string* pv = (pone_string*)pone_obj_alloc(universe, PONE_STRING);
@@ -191,4 +198,5 @@ void pone_str_init(pone_universe* universe) {
     pone_add_method_c(universe, universe->class_str, "Num", strlen("Num"), meth_str_num);
     pone_class_compose(universe, universe->class_str);
 }
+
 

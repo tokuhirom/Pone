@@ -116,12 +116,12 @@ void pone_universe_set_global(pone_universe* universe, const char* key, pone_val
 }
 
 void pone_universe_destroy(pone_universe* universe) {
+    pone_gc_run(universe);
+
     while (universe->thread_num>0) {
         pone_val* v = pone_thread_join(universe, universe->threads->thread);
         pone_refcnt_dec(universe, v);
     }
-
-    kh_destroy(str, universe->globals);
 
     if (universe->errvar) {
         pone_refcnt_dec(universe, universe->errvar);
@@ -147,6 +147,8 @@ void pone_universe_destroy(pone_universe* universe) {
     pone_refcnt_dec(universe, universe->class_class);
     pone_refcnt_dec(universe, universe->class_mu);
 
+    kh_destroy(str, universe->globals);
+
     rockre_destroy(universe->rockre);
 
     pone_arena* a = universe->arena_head;
@@ -166,5 +168,46 @@ void pone_universe_destroy(pone_universe* universe) {
     free(universe->err_handler_worlds);
     free(universe->err_handlers);
     free(universe);
+}
+
+// gc mark
+void pone_universe_mark(pone_universe* universe) {
+    {
+        const char* k;
+        pone_val* v;
+        kh_foreach(universe->globals, k, v, {
+            pone_gc_mark_value(v);
+        });
+    }
+
+    pone_gc_mark_value(universe->errvar);
+
+    pone_gc_mark_value(universe->instance_iteration_end);
+
+    pone_gc_mark_value(universe->class_io_socket_inet);
+    pone_gc_mark_value(universe->class_pair);
+    pone_gc_mark_value(universe->class_thread);
+    pone_gc_mark_value(universe->class_match);
+    pone_gc_mark_value(universe->class_regex);
+    pone_gc_mark_value(universe->class_range);
+    pone_gc_mark_value(universe->class_code);
+    pone_gc_mark_value(universe->class_hash);
+    pone_gc_mark_value(universe->class_bool);
+    pone_gc_mark_value(universe->class_num);
+    pone_gc_mark_value(universe->class_int);
+    pone_gc_mark_value(universe->class_str);
+    pone_gc_mark_value(universe->class_nil);
+    pone_gc_mark_value(universe->class_ary);
+    pone_gc_mark_value(universe->class_any);
+    pone_gc_mark_value(universe->class_cool);
+    pone_gc_mark_value(universe->class_class);
+    pone_gc_mark_value(universe->class_mu);
+
+    pone_world* world = universe->world_head;
+    while (world) {
+        pone_world_mark(world);
+        assert(world != world->next);
+        world = world->next;
+    }
 }
 
