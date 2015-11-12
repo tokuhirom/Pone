@@ -95,7 +95,6 @@ static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list
     pone_int_t max = pone_intify(world, max_val);
 
     if (i > max) {
-        pone_refcnt_inc(world->universe, world->universe->instance_iteration_end);
         return world->universe->instance_iteration_end;
     } else {
         pone_val* retval = pone_int_new(world->universe, pone_intify(world, i_val));
@@ -118,4 +117,6 @@ void pone_range_init(pone_universe* universe) {
     pone_obj_set_ivar_noinc(universe, universe->class_range, "$!iterator-class", iter_class);
 
     pone_class_compose(universe, universe->class_range);
+
+    pone_universe_set_global(universe, "Range", universe->class_range);
 }

@@ -21,13 +21,9 @@ pone_val* pone_code_new_c(pone_universe* universe, pone_funcptr_t func) {
  * pone level API to create new Code object
  */
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func) {
-    world->lex->refcnt++;
-
     pone_code* cv = (pone_code*)pone_obj_alloc(world->universe, PONE_CODE);
     cv->func = func;
     cv->lex = world->lex;
-
-    pone_lex_refcnt_inc(world, world->lex);
 
     return (pone_val*)cv;
 }
@@ -48,14 +44,8 @@ pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int
 
     pone_code* cv = (pone_code*)code;
     if (cv->lex) { //pone level code
-        pone_world* new_world = pone_world_new_from_world(world, cv->lex);
-
         pone_funcptr_t func = cv->func;
-        pone_val* retval = func(new_world, self, n, args);
-        pone_refcnt_inc(world->universe, retval);
-        pone_mortalize(world, retval); // refcnt-- it in upper scope
-
-        pone_world_refcnt_dec(new_world);
+        pone_val* retval = func(world, self, n, args);
         return retval;
     } else {
         pone_funcptr_t func = cv->func;

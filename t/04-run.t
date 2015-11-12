@@ -19,6 +19,9 @@ run {
             system("./bin/pone", "-e", "$src");
         };
         diag $err if $err =~ /\S/;
+        if ($err =~ /\d error generated./) {
+            fail "$src\n\n$err";
+        }
         is($out, $expected, "stdout($src)") or do {
             system("./bin/pone", "-e", $src, "-d");
 

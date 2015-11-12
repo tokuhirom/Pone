@@ -1,16 +1,13 @@
 #include "pone.h" /* PONE_INC */
+#include "rockre.h"
 
 #ifdef __GLIBC__
 #include <execinfo.h>
 #endif
 
-#define PONE_ERR_HANDLERS_INIT 10
-
 void pone_universe_default_err_handler(pone_world* world) {
-    pone_universe* universe = world->universe;
-    assert(universe);
-    assert(universe->errvar);
-    pone_val* str = pone_stringify(world, universe->errvar);
+    assert(world->errvar);
+    pone_val* str = pone_stringify(world, world->errvar);
     fwrite("\n!!!!!!!!! ( Д ) ..._。..._。 !!!!!!!!!\n\n", 1, strlen("\n!!!!!!!!! ( Д ) ..._。..._。 !!!!!!!!!\n\n"), stderr);
     fwrite(pone_str_ptr(str), 1, pone_str_len(str), stderr);
     fwrite("\n\n", 1, strlen("\n\n"), stderr);
@@ -39,20 +36,6 @@ pone_universe* pone_universe_init() {
         exit(1);
     }
     memset(universe->arena_last, 0, sizeof(pone_arena));
-    universe->errvar = pone_nil();
-
-    universe->err_handlers = malloc(sizeof(jmp_buf)*PONE_ERR_HANDLERS_INIT);
-    if (!universe->err_handlers) {
-        fprintf(stderr, "cannot allocate memory\n");
-        exit(1);
-    }
-    universe->err_handler_worlds = malloc(sizeof(pone_world*)*PONE_ERR_HANDLERS_INIT);
-    if (!universe->err_handler_worlds) {
-        fprintf(stderr, "cannot allocate memory\n");
-        exit(1);
-    }
-    universe->err_handler_idx = 0;
-    universe->err_handler_max = PONE_ERR_HANDLERS_INIT;
 
     universe->rockre = rockre_new();
 
@@ -91,6 +74,7 @@ pone_universe* pone_universe_init() {
     pone_thread_init(universe);
     pone_pair_init(universe);
     pone_sock_init(universe);
+    pone_gc_init(universe);
 
 #ifdef TRACE_UNIVERSE
     printf("initializing value IterationEnd\n");
@@ -102,6 +86,13 @@ pone_universe* pone_universe_init() {
     pone_universe_set_global(universe, "Regex", universe->class_regex);
 
 #undef PUT
+
+    {
+        const char* env = getenv("PONE_GC_LOG");
+        if (env && strlen(env) > 0) {
+            universe->gc_log = fopen(env, "w");
+        }
+    }
 
     return universe;
 }
@@ -116,36 +107,9 @@ void pone_universe_set_global(pone_universe* universe, const char* key, pone_val
 }
 
 void pone_universe_destroy(pone_universe* universe) {
-    pone_gc_run(universe);
-
     while (universe->thread_num>0) {
-        pone_val* v = pone_thread_join(universe, universe->threads->thread);
-        pone_refcnt_dec(universe, v);
+        (void)pone_thread_join(universe, universe->threads->thread);
     }
-
-    if (universe->errvar) {
-        pone_refcnt_dec(universe, universe->errvar);
-    }
-
-    pone_refcnt_dec(universe, universe->instance_iteration_end);
-    pone_refcnt_dec(universe, universe->class_io_socket_inet);
-    pone_refcnt_dec(universe, universe->class_pair);
-    pone_refcnt_dec(universe, universe->class_thread);
-    pone_refcnt_dec(universe, universe->class_match);
-    pone_refcnt_dec(universe, universe->class_regex);
-    pone_refcnt_dec(universe, universe->class_range);
-    pone_refcnt_dec(universe, universe->class_code);
-    pone_refcnt_dec(universe, universe->class_hash);
-    pone_refcnt_dec(universe, universe->class_bool);
-    pone_refcnt_dec(universe, universe->class_num);
-    pone_refcnt_dec(universe, universe->class_int);
-    pone_refcnt_dec(universe, universe->class_str);
-    pone_refcnt_dec(universe, universe->class_nil);
-    pone_refcnt_dec(universe, universe->class_ary);
-    pone_refcnt_dec(universe, universe->class_any);
-    pone_refcnt_dec(universe, universe->class_cool);
-    pone_refcnt_dec(universe, universe->class_class);
-    pone_refcnt_dec(universe, universe->class_mu);
 
     kh_destroy(str, universe->globals);
 
@@ -154,19 +118,9 @@ void pone_universe_destroy(pone_universe* universe) {
     pone_arena* a = universe->arena_head;
     while (a) {
         pone_arena* next = a->next;
-#ifdef TRACE_REFCNT
-        for (int i=0; i<=a->idx; i++) {
-            if (a->values[i].as.basic.type != 0) {
-                printf("Leaked object: %x %s %d\n", &(a->values[i]), pone_what_str_c(&(a->values[i])), pone_refcnt(&(a->values[i])));
-                pone_dd(universe, &(a->values[i]));
-            }
-        }
-#endif
         free(a);
         a = next;
     }
-    free(universe->err_handler_worlds);
-    free(universe->err_handlers);
     free(universe);
 }
 
@@ -179,8 +133,6 @@ void pone_universe_mark(pone_universe* universe) {
             pone_gc_mark_value(v);
         });
     }
-
-    pone_gc_mark_value(universe->errvar);
 
     pone_gc_mark_value(universe->instance_iteration_end);
 
@@ -208,6 +160,15 @@ void pone_universe_mark(pone_universe* universe) {
         pone_world_mark(world);
         assert(world != world->next);
         world = world->next;
+    }
+}
+
+void pone_gc_log(pone_universe* universe, const char* fmt, ...) {
+    if (universe->gc_log) {
+        va_list args;
+        va_start(args, fmt);
+        vfprintf(universe->gc_log, fmt, args);
+        va_end(args);
     }
 }
 

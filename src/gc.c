@@ -2,6 +2,8 @@
 
 // TODO use bitmap gc
 void pone_gc_mark_value(pone_val* val) {
+    assert(val);
+
     if (pone_flags(val) & PONE_FLAGS_GC_MARK) {
         return; // already marked.
     }
@@ -27,6 +29,9 @@ void pone_gc_mark_value(pone_val* val) {
         break;
     case PONE_OBJ:
         pone_obj_mark(val);
+        break;
+    case PONE_LEX:
+        pone_lex_mark(val);
         break;
     }
 }
@@ -75,6 +80,9 @@ static void pone_gc_collect(pone_universe* universe) {
                 case PONE_BOOL:
                     continue;
                     abort(); // should not reach here.
+                case PONE_LEX:
+                    pone_lex_free(universe, val);
+                    break;
                 }
                 pone_val_free(universe, val);
             }
@@ -84,7 +92,26 @@ static void pone_gc_collect(pone_universe* universe) {
 }
 
 void pone_gc_run(pone_universe* universe) {
+    pone_gc_log(universe, "[pone gc] starting gc\n");
+
     pone_gc_mark(universe);
+    pone_gc_log(universe, "[pone gc] finished marking phase\n");
     pone_gc_collect(universe);
+
+    pone_gc_log(universe, "[pone gc] finished gc\n");
+}
+
+// got PONE_SIG_GC private gc
+static pone_val* meth_gc_got_sig(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 0);
+
+    pone_gc_run(world->universe);
+
+    return pone_nil();
+}
+
+void pone_gc_init(pone_universe* universe) {
+    pone_val* cb = pone_code_new_c(universe, meth_gc_got_sig);
+    universe->signal_handlers[PONE_SIG_GC] = cb;
 }
 

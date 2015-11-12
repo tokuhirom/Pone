@@ -8,6 +8,7 @@
 pone_val* pone_init_class(pone_universe* universe) {
     pone_val* val = pone_obj_alloc(universe, PONE_OBJ);
     val->as.obj.ivar = kh_init(str);
+    val->as.obj.klass = pone_nil();
     pone_obj_set_ivar_noinc(universe, val, "$!name", pone_str_new_const(universe, "Class", strlen("class")));
     pone_obj_set_ivar_noinc(universe, val, "$!methods", pone_hash_new(universe));
     pone_obj_set_ivar_noinc(universe, val, "@!parents", pone_ary_new(universe, 0));
@@ -15,6 +16,8 @@ pone_val* pone_init_class(pone_universe* universe) {
 }
 
 pone_val* pone_what(pone_universe* universe, pone_val* obj) {
+    assert(pone_alive(obj));
+
     switch (pone_type(obj)) {
     case PONE_NIL:
         return universe->class_nil;
@@ -38,6 +41,8 @@ pone_val* pone_what(pone_universe* universe, pone_val* obj) {
         } else {
             return obj->as.obj.klass;
         }
+    case PONE_LEX:
+        abort();
     }
     abort();
 }
@@ -63,7 +68,6 @@ void pone_add_method_c(pone_universe* universe, pone_val* klass, const char* nam
     assert(klass);
     pone_val* code = pone_code_new_c(universe, funcptr);
     pone_add_method(universe, klass, name, name_len, code);
-    pone_refcnt_dec(universe, code);
 }
 
 void pone_add_method(pone_universe* universe, pone_val* klass, const char* name, size_t name_len, pone_val* method) {
@@ -103,6 +107,8 @@ void pone_class_compose(pone_universe* universe, pone_val* klass) {
 }
 
 pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
+    assert(pone_alive(obj));
+
     pone_val* klass = pone_what(world->universe, obj);
     assert(klass);
     pone_val* methods = pone_obj_get_ivar(world->universe, klass, "$!methods");
@@ -120,6 +126,7 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
 // Usage: return pone_call_method(world, iter, "pull-one", 0);
 pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...) {
     assert(obj);
+    assert(pone_alive(obj));
 
     pone_val* method = pone_find_method(world, obj, method_name);
     if (pone_defined(method)) {

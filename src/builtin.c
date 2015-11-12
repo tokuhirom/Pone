@@ -10,7 +10,7 @@ pone_val* pone_builtin_slurp(pone_world* world, pone_val* val) {
         pone_throw_str(world, "You can't slurp file. Because file name contains \\0.");
     }
 
-    pone_val* str = pone_mortalize(world, pone_str_c_str(world, val));
+    pone_val* str = pone_str_c_str(world, val);
     FILE *fp = fopen(pone_str_ptr(str), "r");
     if (!fp) {
         pone_throw_str(world, "Cannot open '%s': %s", pone_str_ptr(str), strerror(errno));
@@ -62,12 +62,11 @@ pone_val* pone_builtin_print(pone_world* world, pone_val* val) {
     GVL_UNLOCK(world->universe);
     fwrite(pone_str_ptr(str), sizeof(char), pone_str_len(str), stdout);
     GVL_LOCK(world->universe);
-    pone_refcnt_dec(world->universe, str);
     return pone_nil();
 }
 
 pone_val* pone_builtin_say(pone_world* world, pone_val* val) {
-    pone_val* str = pone_mortalize(world, pone_str_copy(world->universe, pone_mortalize(world, pone_stringify(world, val))));
+    pone_val* str = pone_str_copy(world->universe, pone_stringify(world, val));
     pone_str_append_c(world, str, "\n", 1);
     GVL_UNLOCK(world->universe);
     fwrite(pone_str_ptr(str), sizeof(char), pone_str_len(str), stdout);
@@ -84,7 +83,7 @@ pone_val* pone_builtin_time(pone_world* world) {
 }
 
 pone_val* pone_builtin_getenv(pone_world* world, pone_val* key) {
-    pone_val* str = pone_mortalize(world, pone_stringify(world, key));
+    pone_val* str = pone_stringify(world, key);
     const char* len = getenv(pone_str_ptr(str));
     if (len) {
         return pone_str_new(world->universe, len, strlen(len));
@@ -100,7 +99,7 @@ pone_val* pone_builtin_sleep(pone_world* world, pone_val* vi) {
     return pone_nil();
 }
 
-int pone_signal_received;
+static int pone_signal_received;
 
 void pone_signal_handle(pone_world* world) {
     if (pone_signal_received > 0) {
@@ -112,6 +111,11 @@ void pone_signal_handle(pone_world* world) {
 }
 
 static void sig_handler(int sig) {
+    pone_signal_received = sig;
+}
+
+// send internal signal like PONE_SIG_GC
+void pone_send_private_sig(int sig) {
     pone_signal_received = sig;
 }
 
@@ -128,7 +132,6 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
 
         if (sigaction(sig, &act, NULL) == 0) {
             printf("Set sig " PoneIntFmt "\n", sig);
-            pone_refcnt_inc(world->universe, code);
             world->universe->signal_handlers[sig] = code;
         } else {
             pone_throw_str(world, "cannot set signal");
@@ -137,9 +140,6 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
         pone_throw_str(world, "not implemented on windows");
 #endif
     } else {
-        if (world->universe->signal_handlers[sig]) {
-            pone_refcnt_dec(world->universe, world->universe->signal_handlers[sig]);
-        }
         signal(sig, SIG_DFL);
     }
 
@@ -176,7 +176,6 @@ pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...) {
                     pone_val* v = va_arg(args, pone_val*);
                     pone_val* str = pone_stringify(world, v);
                     fwrite(pone_str_ptr(str), sizeof(char), pone_str_len(str), stdout);
-                    pone_refcnt_dec(world->universe, str);
                     done = true;
                     break;
                 }

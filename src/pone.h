@@ -16,10 +16,11 @@
 #include <setjmp.h>
 #include <pthread.h>
 #include "khash.h" /* PONE_INC */
-#include "rockre.h"
 
 typedef long pone_int_t;
 #define PoneIntFmt "%ld"
+
+struct rockre;
 
 // TODO: NaN boxing
 
@@ -52,12 +53,12 @@ typedef enum {
     PONE_BOOL,
     PONE_HASH,
     PONE_CODE,
-    PONE_OBJ
+    PONE_OBJ,
+    PONE_LEX,
 } pone_t;
 
 #define PONE_HEAD \
     pone_t type; \
-    int refcnt; \
     uint8_t flags
 
 struct pone_val;
@@ -119,7 +120,7 @@ typedef struct {
 
 typedef struct pone_lex_t {
     PONE_HEAD;
-    struct pone_lex_t* parent;
+    struct pone_val* parent;
     khash_t(str) *map;
 } pone_lex_t;
 
@@ -130,31 +131,23 @@ typedef struct pone_lex_t {
 struct pone_arena;
 struct pone_universe;
 
-// Calling context
+// thread context
 typedef struct pone_world {
-    int refcnt;
+    bool mark;
 
     struct pone_universe* universe;
 
-    // save last tmpstack_floor
-    size_t* savestack;
-    size_t savestack_idx;
-    size_t savestack_max;
-
-    // mortals we've made
-    struct pone_val** tmpstack;
-    size_t tmpstack_idx;
-    size_t tmpstack_floor;
-    size_t tmpstack_max;
-
     // lexical value list
-    pone_lex_t* lex;
+    struct pone_val* lex;
 
-    // root lex entry in this world
-    pone_lex_t* orig_lex;
+    // $!($@ in perl5)
+    struct pone_val* errvar;
 
-    // parent context(needs for exception
-    struct pone_world* parent;
+    // error handler
+    jmp_buf* err_handlers;
+    struct pone_val** err_handler_lexs;
+    int err_handler_idx;
+    int err_handler_max;
 
     // linked-list for gc
     struct pone_world* next;
@@ -166,7 +159,7 @@ typedef struct pone_val* (*pone_funcptr_t)(pone_world*, struct pone_val*, int n,
 typedef struct {
     PONE_HEAD;
     pone_funcptr_t func;
-    pone_lex_t* lex;
+    struct pone_val* lex;
 } pone_code;
 
 typedef struct pone_val {
@@ -186,6 +179,7 @@ typedef struct pone_val {
         pone_int integer;
         pone_obj obj;
         pone_bool boolean;
+        pone_lex_t lex;
     } as;
 } pone_val;
 
@@ -204,14 +198,6 @@ typedef struct pone_universe {
 
     // signal handlers
     struct pone_val *signal_handlers[32];
-
-    // $!($@ in perl5)
-    struct pone_val* errvar;
-
-    jmp_buf* err_handlers;
-    pone_world** err_handler_worlds;
-    int err_handler_idx;
-    int err_handler_max;
 
     // 無("Mu")
     struct pone_val* class_mu;
@@ -255,7 +241,7 @@ typedef struct pone_universe {
 
     khash_t(str) *globals;
 
-    rockre* rockre;
+    struct rockre* rockre;
 
     // global interpreter lock
     pthread_mutex_t mutex;
@@ -265,7 +251,11 @@ typedef struct pone_universe {
 
     // list of world for gc
     pone_world* world_head;
+
+    FILE* gc_log;
 } pone_universe;
+
+#define PONE_SIG_GC 31
 
 typedef struct pone_arena {
     struct pone_arena* next;
@@ -283,9 +273,7 @@ void pone_nil_init(pone_universe* universe);
 
 // world.c
 pone_world* pone_world_new(pone_universe* universe);
-pone_world* pone_world_new_from_world(pone_world* world, pone_lex_t* lex);
-void pone_world_refcnt_inc(pone_world* world);
-void pone_world_refcnt_dec(pone_world* world);
+void pone_world_free(pone_world* world);
 pone_val* pone_try(pone_world* world, pone_val* code);
 pone_val* pone_errvar(pone_world* world);
 void pone_world_mark(pone_world*);
@@ -364,22 +352,17 @@ void pone_int_init(pone_universe* universe);
 // SV ops
 double pone_num_val(pone_val* val);
 bool pone_bool_val(pone_val* val);
-void pone_refcnt_dec(pone_universe* universe, pone_val* val);
-void pone_refcnt_inc(pone_universe* universe, pone_val* val);
 size_t pone_elems(pone_world* world, pone_val* val);
 pone_int_t pone_intify(pone_world* world, pone_val* val);
 pone_num_t pone_numify(pone_world* world, pone_val* val);
 bool pone_is_frozen(pone_val* v);
 
 // scope.c
-pone_val* pone_mortalize(pone_world* world, pone_val* val);
 void pone_push_scope(pone_world* world);
 void pone_pop_scope(pone_world* world);
-void pone_freetmps(pone_world* world);
-void pone_savetmps(pone_world* world);
-pone_lex_t* pone_lex_new(pone_world* world, pone_lex_t* parent);
-void pone_lex_refcnt_dec(pone_world* world, pone_lex_t* lex);
-void pone_lex_refcnt_inc(pone_world* world, pone_lex_t* lex);
+pone_val* pone_lex_new(pone_world* world, pone_val* parent);
+void pone_lex_free(pone_universe* universe, pone_val* lex);
+void pone_lex_mark(pone_val* lex);
 
 // universe.c
 pone_universe* pone_universe_init();
@@ -387,6 +370,7 @@ void pone_universe_destroy(pone_universe* universe);
 void pone_universe_default_err_handler(pone_world* world);
 void pone_universe_set_global(pone_universe* universe, const char* key, pone_val* val);
 void pone_universe_mark(pone_universe*);
+void pone_gc_log(pone_universe* unvierse, const char* fmt, ...);
 
 // bool.c
 pone_val* pone_true();
@@ -398,13 +382,12 @@ pone_val* pone_num_new(pone_universe* universe, double i);
 void pone_num_init(pone_universe* universe);
 
 // basic value operations
-static inline int pone_refcnt(pone_val* val) { return val->as.basic.refcnt; }
 static inline pone_t pone_type(pone_val* val) { return val->as.basic.type; }
 static inline pone_t pone_flags(pone_val* val) { return val->as.basic.flags; }
 static inline bool pone_defined(pone_val* val) { return val->as.basic.type != PONE_NIL; }
+static inline bool pone_alive(pone_val* val) { return val->as.basic.type != 0; }
 
 // op.c
-void pone_lex_mark(pone_lex_t* lex);
 pone_val* pone_get_lex(pone_world* world, const char* key);
 pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val);
 pone_val* pone_assign_pos(pone_world* world, pone_val* var, pone_val* pos, pone_val* rhs);
@@ -510,6 +493,10 @@ pone_val* pone_pair_new(pone_universe* universe, pone_val* key, pone_val* value)
 // gc.c
 void pone_gc_mark_value(pone_val* val);
 void pone_gc_run(pone_universe* universe);
+void pone_gc_init(pone_universe* universe);
+
+// signal.c
+void pone_send_private_sig(int sig);
 
 #ifdef THREAD_DEBUG
 #define THREAD_TRACE(fmt, ...) printf("[pone-thread] " fmt, ##__VA_ARGS__)
@@ -549,10 +536,8 @@ void pone_gc_run(pone_universe* universe);
     static pone_val* name(pone_world* world, pone_val* self, int n, va_list args) { \
         assert(n == 0); \
         pone_val* v = pone_obj_get_ivar(world->universe, self, var); \
-        pone_refcnt_inc(world->universe, v); \
         return v; \
     }
-
 
 #endif
 

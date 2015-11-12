@@ -3,32 +3,30 @@
 #include <signal.h>
 
 typedef struct thread_context {
-    pone_world* world;
+    pone_universe* universe;
     pone_val* code;
 } thread_context;
 
 static void* thread_start(void* p) {
     thread_context* context = (thread_context*)p;
 
-    // TODO we should create new world for new thread.
-    // Because we shouldn't use upper level's exception handler for threads.
-
     // extract values to stack
-    pone_world* world = context->world;
+    pone_universe* universe = context->universe;
     pone_val* code = context->code;
     assert(code);
 
     // free the context object.
-    pone_free(context->world->universe, p);
+    pone_free(context->universe, p);
 
-    GVL_LOCK(world->universe);
+    GVL_LOCK(universe);
+
+    pone_world* world = pone_world_new(universe);
 
     pone_val* retval = pone_code_call(world, code, pone_nil(), 0);
 
-    GVL_UNLOCK(world->universe);
+    GVL_UNLOCK(universe);
 
-    pone_world_refcnt_dec(world);
-    pone_refcnt_dec(world->universe, code);
+    pone_world_free(world);
 
     // get thread mutex
     return retval;
@@ -41,10 +39,8 @@ static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_
     assert(pone_type(code) == PONE_CODE);
 
     thread_context* p = pone_malloc(world->universe, sizeof(thread_context));
-    p->world = world;
+    p->universe = world->universe;
     p->code = code;
-    pone_world_refcnt_inc(world);
-    pone_refcnt_inc(world->universe, code);
 
     if (world->universe->thread_num == INT_MAX) {
         fprintf(stderr, "too many threads\n");
@@ -159,5 +155,6 @@ void pone_thread_init(pone_universe* universe) {
     pone_add_method_c(universe, universe->class_thread, "kill", strlen("kill"), meth_thread_kill);
     pone_class_compose(universe, universe->class_thread);
     pone_universe_set_global(universe, "Thread", universe->class_thread);
+    assert(universe->class_thread->as.obj.klass);
 }
 

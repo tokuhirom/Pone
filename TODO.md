@@ -36,3 +36,7 @@ TODO
  * hiredis
  * libmysqlclient
 
+### GC
+
+ * bitmap marking?
+
