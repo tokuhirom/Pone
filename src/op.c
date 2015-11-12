@@ -2,14 +2,14 @@
 #include <setjmp.h>
 
 pone_val* pone_get_lex(pone_world* world, const char* key) {
-    pone_lex_t* lex = world->lex;
+    pone_val* lex = world->lex;
     while (lex != NULL) {
-        khint_t kh = kh_get(str, lex->map, key);
-        if (kh == kh_end(lex->map)) {
-            lex = lex->parent;
+        khint_t kh = kh_get(str, lex->as.lex.map, key);
+        if (kh == kh_end(lex->as.lex.map)) {
+            lex = lex->as.lex.parent;
             continue;
         }
-        return kh_val(lex->map, kh);
+        return kh_val(lex->as.lex.map, kh);
     }
 
     {
@@ -24,22 +24,25 @@ pone_val* pone_get_lex(pone_world* world, const char* key) {
 }
 
 pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val) {
-    pone_lex_t* lex = world->lex;
+    pone_val* lex = world->lex;
+#ifndef NDEBUG
+    if (pone_type(world->lex) != PONE_LEX) {
+        printf("illegal value %p. type:%d\n", val, pone_type(val));
+        abort();
+    }
+#endif
+    assert(pone_type(world->lex) == PONE_LEX);
     for (int i=0; i<up; i++) {
-        lex = lex->parent;
+        lex = lex->as.lex.parent;
     }
 
-    pone_refcnt_inc(world->universe, val);
     int ret;
-    khint_t k = kh_put(str, lex->map, key, &ret);
+    khint_t k = kh_put(str, lex->as.lex.map, key, &ret);
     if (ret == -1) {
         fprintf(stderr, "hash operation failed\n");
         abort();
     }
-    if (ret == 0) { // the key is present in the hash table
-        pone_refcnt_dec(world->universe, kh_val(lex->map, k));
-    }
-    kh_val(lex->map, k) = val;
+    kh_val(lex->as.lex.map, k) = val;
 
     return val;
 }
@@ -54,7 +57,6 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
 pone_val* pone_assign_pos(pone_world* world, pone_val* var, pone_val* pos, pone_val* rhs) {
     if (pone_type(var) == PONE_ARRAY) { // specialize
         pone_ary_assign_pos(world, var, pos, rhs);
-        pone_refcnt_inc(world->universe, rhs);
         return rhs;
     } else {
         return pone_call_method(world, var, "ASSIGN-POS", 2, pos, rhs);
@@ -72,9 +74,14 @@ pone_val* pone_assign_key(pone_world* world, pone_val* var, pone_val* key, pone_
     return pone_call_method(world, var, "ASSIGN-KEY", 2, key, rhs);
 }
 
+static void pin(pone_int_t indent) {
+    for (pone_int_t i=0; i<indent; ++i) {
+        printf(" ");
+    }
+}
 
-// TODO we should implement .gist and .perl method for each class...
-void pone_dd(pone_universe* universe, pone_val* val) {
+static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
+    pin(indent);
     switch (pone_type(val)) {
         case PONE_STRING:
             printf("(string: len:" PoneIntFmt " , ", pone_str_len(val));
@@ -82,7 +89,7 @@ void pone_dd(pone_universe* universe, pone_val* val) {
             printf(")\n");
             break;
         case PONE_INT:
-            printf("(int: refcnt:%d, flags:%d " PoneIntFmt ")\n", pone_refcnt(val), pone_flags(val), pone_int_val(val));
+            printf("(int: flags:%d " PoneIntFmt ")\n", pone_flags(val), pone_int_val(val));
             break;
         case PONE_NIL:
             printf("(undef)\n");
@@ -91,17 +98,26 @@ void pone_dd(pone_universe* universe, pone_val* val) {
             printf("(code)\n");
             break;
         case PONE_HASH: {
-            printf("(hash ");
+            printf("(hash\n");
             const char* k;
             pone_val* v;
             kh_foreach(val->as.hash.h, k, v, {
-                printf("key:%s, ", k);
+                pin(indent+1);
+                printf("key:%s\n", k);
+                dd(universe, v, indent+2);
             });
+            pin(indent);
             printf(")\n");
             break;
         }
         case PONE_ARRAY: {
-            printf("(array len:" PoneIntFmt ", max:" PoneIntFmt ")\n", val->as.ary.len, val->as.ary.max);
+            printf("(array len:" PoneIntFmt ", max:" PoneIntFmt, val->as.ary.len, val->as.ary.max);
+            for (pone_int_t i=0; i<val->as.ary.len; ++i) {
+                pin(indent+1);
+                dd(universe, val->as.ary.a[i], indent+2);
+            }
+            pin(indent);
+            printf(")\n");
             break;
         }
         case PONE_BOOL: {
@@ -109,13 +125,22 @@ void pone_dd(pone_universe* universe, pone_val* val) {
             break;
         }
         case PONE_OBJ: {
-            printf("(obj ");
+            printf("(obj\n");
+            pin(indent+1);
+            if (val->as.obj.klass) {
+                printf("class:\n");
+                dd(universe, val->as.obj.klass, indent+2);
+            } else {
+                printf("class is NULL!\n");
+            }
             const char* k;
             pone_val* v;
             kh_foreach(val->as.obj.ivar, k, v, {
-                printf("key:%s, ", k);
-                pone_dd(universe, v);
+                pin(indent+1);
+                printf("key:%s\n", k);
+                dd(universe, v, indent+2);
             });
+            pin(indent);
             printf(")\n");
             break;
         }
@@ -123,6 +148,11 @@ void pone_dd(pone_universe* universe, pone_val* val) {
             fprintf(stderr, "unknown type: %d\n", pone_type(val));
             abort();
     }
+}
+
+// TODO we should implement .gist and .perl method for each class...
+void pone_dd(pone_universe* universe, pone_val* val) {
+    dd(universe, val, 0);
 }
 
 
@@ -276,11 +306,14 @@ size_t pone_elems(pone_world* world, pone_val* val) {
         return 1; // same as perl6
     case PONE_OBJ:
         abort(); // TODO call .elem?
+    case PONE_LEX:
+        abort();
     }
     abort();
 }
 
 const char* pone_what_str_c(pone_val* val) {
+    assert(pone_alive(val));
     switch (pone_type(val)) {
     case PONE_NIL:
         return "Any"; // remove this branch. pone_call_method(pone_what(), "name") should work.
@@ -298,13 +331,9 @@ const char* pone_what_str_c(pone_val* val) {
         return "Hash";
     case PONE_CODE:
         return "Code";
-    case PONE_OBJ: {
+    case PONE_OBJ:
         return "Obj"; // TODO return the class name!
-    }
-    }
-    if (pone_type(val) == 0) {
-        fprintf(stderr, "[ERROR] You can't access free'd value: %p\n",
-                val);
+    case PONE_LEX:
         abort();
     }
     abort();
@@ -325,7 +354,7 @@ pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos) {
 
 pone_val* pone_at_key(pone_world* world, pone_val* obj, pone_val* pos) {
     if (pone_type(obj) == PONE_HASH) { // specialization for performance
-        return pone_hash_at_key_c(world->universe, obj, pone_str_ptr(pone_mortalize(world, pone_str_c_str(world, pos))));
+        return pone_hash_at_key_c(world->universe, obj, pone_str_ptr(pone_str_c_str(world, pos)));
     } else {
         return pone_call_method(world, obj, "AT-KEY", 1, pos);
     }

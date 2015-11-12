@@ -32,7 +32,7 @@ Prints value to $*OUT after stringification using .gist method with newline at e
 static pone_val* meth_mu_say(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n==0);
 
-    pone_val* s = pone_mortalize(world, pone_stringify(world, self));
+    pone_val* s = pone_stringify(world, self);
     pone_builtin_say(world, s);
     return pone_nil();
 }
@@ -54,6 +54,7 @@ static pone_val* meth_mu_str(pone_world* world, pone_val* self, int n, va_list a
 pone_val* pone_init_mu(pone_universe* universe) {
     pone_val* obj = pone_obj_alloc(universe, PONE_OBJ);
     obj->as.obj.ivar = kh_init(str);
+    obj->as.obj.klass = pone_nil();
     pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!name", pone_str_new_const(universe, "Mu", strlen("Mu")));
     pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!methods", pone_hash_new(universe));
     pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "@!parents", pone_ary_new(universe, 0));

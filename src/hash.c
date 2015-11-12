@@ -1,4 +1,12 @@
-#include "pone.h" /* PONE_INC */
+#include "pone.h"
+
+void pone_hash_mark(pone_val* val) {
+    const char* k;
+    pone_val* v;
+    kh_foreach(val->as.hash.h, k, v, {
+        pone_gc_mark_value(v);
+    });
+}
 
 // TODO: delete key
 // TODO: push key
@@ -31,7 +39,6 @@ void pone_hash_free(pone_universe* universe, pone_val* val) {
     pone_val* v;
     kh_foreach(h->h, k, v, {
         pone_free(universe, (void*)k); // k is strdupped.
-        pone_refcnt_dec(universe, v);
     });
     kh_destroy(str, h->h);
 }
@@ -45,7 +52,6 @@ void pone_hash_assign_key_c(pone_universe* universe, pone_val* hv, const char* k
         abort(); // TODO better error msg
     }
     kh_val(((pone_hash*)hv)->h, k) = v;
-    pone_refcnt_inc(universe, v);
     ((pone_hash*)hv)->len++;
 }
 
@@ -76,7 +82,6 @@ pone_val* pone_hash_at_key_c(pone_universe* universe, pone_val* hash, const char
 void pone_hash_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val* v) {
     k = pone_stringify(world, k);
     pone_hash_assign_key_c(world->universe, hv, pone_str_ptr(k), pone_str_len(k), v);
-    pone_refcnt_dec(world->universe, k);
 }
 
 size_t pone_hash_elems(pone_val* val) {
@@ -128,7 +133,6 @@ static pone_val* meth_hash_assign_key(pone_world* world, pone_val* self, int n, 
     pone_val* key = va_arg(args, pone_val*);
     pone_val* value = va_arg(args, pone_val*);
     pone_hash_assign_key(world, self, key, value);
-    pone_refcnt_inc(world->universe, value);
     return value;
 }
 

@@ -1,8 +1,8 @@
 #include "pone.h" /* PONE_INC */
 #include <stdbool.h>
 
-pone_bool pone_true_val = { PONE_BOOL, -1, PONE_FLAGS_GLOBAL, true };
-pone_bool pone_false_val = { PONE_BOOL, -1, PONE_FLAGS_GLOBAL, false };
+pone_bool pone_true_val = { .type=PONE_BOOL, .flags=PONE_FLAGS_GLOBAL, .b=true };
+pone_bool pone_false_val = { .type=PONE_BOOL, .flags=PONE_FLAGS_GLOBAL, .b=false };
 
 inline bool pone_bool_val(pone_val* val) {
     assert(pone_type(val) == PONE_BOOL);

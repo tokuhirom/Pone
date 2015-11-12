@@ -26,6 +26,11 @@ pone_val* pone_obj_alloc(pone_universe* universe, pone_t type) {
         // then, use value from arena.
         if (universe->arena_last->idx == PONE_ARENA_SIZE) {
             // arena doesn't have an empty slot
+
+            // Run GC.
+            pone_send_private_sig(PONE_SIG_GC);
+
+            // alloc new arena
             pone_arena* arena = pone_malloc(universe, sizeof(pone_arena));
             universe->arena_last->next = arena;
             universe->arena_last = arena;
@@ -36,12 +41,7 @@ pone_val* pone_obj_alloc(pone_universe* universe, pone_t type) {
         }
     }
 
-    val->as.basic.refcnt = 1;
     val->as.basic.type   = type;
-
-#ifdef TRACE_REFCNT
-    printf("pone_obj_alloc: %x type:%s\n", val, pone_what_str_c(val));
-#endif
 
     return val;
 }
@@ -70,64 +70,4 @@ char* pone_strdup(pone_universe* universe, const char* src, size_t size) {
     return p;
 }
 
-inline void pone_refcnt_inc(pone_universe* universe, pone_val* val) {
-#ifdef TRACE_REFCNT
-    printf("pone_refcnt_inc: universe:%X val:%X\n", universe, val);
-#endif
-    assert(val != NULL);
-
-    val->as.basic.refcnt++;
-}
-
-// decrement reference count
-inline void pone_refcnt_dec(pone_universe* universe, pone_val* val) {
-#ifdef TRACE_REFCNT
-    printf("refcnt_dec: %x refcnt:%d type:%s\n", val, pone_refcnt(val), pone_what_str_c(val));
-#endif
-
-    if (val->as.basic.flags & PONE_FLAGS_GLOBAL) {
-        return;
-    }
-
-    assert(val != NULL);
-#ifndef NDEBUG
-    if (val->as.basic.type == 0) {
-        fprintf(stderr, "%p was already freed\n", val);
-    }
-    if (val->as.basic.refcnt <= 0) { 
-        assert(val->as.basic.refcnt > 0);
-    }
-#endif
-
-    val->as.basic.refcnt--;
-    if (val->as.basic.refcnt == 0) {
-        switch (pone_type(val)) {
-        case PONE_STRING:
-            pone_str_free(universe, val);
-            break;
-        case PONE_ARRAY:
-            pone_ary_free(universe, val);
-            break;
-        case PONE_HASH:
-            pone_hash_free(universe, val);
-            break;
-        case PONE_CODE:
-            pone_code_free(universe, val);
-            break;
-        case PONE_OBJ:
-            pone_obj_free(universe, val);
-            break;
-        case PONE_INT: // don't need to free heap
-        case PONE_NUM:
-            break;
-        case PONE_NIL:
-        case PONE_BOOL:
-            abort(); // should not reach here.
-        }
-#ifdef TRACE_REFCNT
-        memset(val, 0, sizeof(pone_val));
-#endif
-        pone_val_free(universe, val);
-    }
-}
 

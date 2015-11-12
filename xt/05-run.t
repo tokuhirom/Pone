@@ -18,7 +18,7 @@ run {
 
     subtest $src, sub {
         my ($out, $err, $exit) = capture {
-            system("valgrind", '--suppressions=t/pone.supp', "--leak-check=full", '--show-reachable=yes', "./bin/pone", '-e', $src);
+            system("valgrind", '--suppressions=t/pone.supp', "./bin/pone", '-e', $src);
         };
         is $out, $expected;
         ok WIFEXITED($exit), 'exited';

@@ -28,10 +28,15 @@ TODO
  * `&&`
  * `||`
  * `s///`
+ * `Proc` builtin class
 
 ## Bindings
 
  * h2o
  * hiredis
  * libmysqlclient
+
+### GC
+
+ * bitmap marking?
 

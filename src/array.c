@@ -1,5 +1,12 @@
 #include "pone.h" /* PONE_INC */
 
+void pone_ary_mark(pone_val* val) {
+    pone_int_t l = val->as.ary.len;
+    for (pone_int_t i=0; i<l; i++) {
+        pone_gc_mark_value(val->as.ary.a[i]);
+    }
+}
+
 pone_val* pone_ary_new(pone_universe* universe, pone_int_t n, ...) {
     va_list list;
 
@@ -16,7 +23,6 @@ pone_val* pone_ary_new(pone_universe* universe, pone_int_t n, ...) {
     for (pone_int_t i=0; i<n; ++i) {
         pone_val* v = va_arg(list, pone_val*);
         av->a[i] = v;
-        pone_refcnt_inc(universe, v);
     }
     va_end(list);
 
@@ -24,12 +30,7 @@ pone_val* pone_ary_new(pone_universe* universe, pone_int_t n, ...) {
 }
 
 void pone_ary_free(pone_universe* universe, pone_val* val) {
-    pone_ary* a=(pone_ary*)val;
-    size_t l = pone_ary_elems(val);
-    for (size_t i=0; i<l; ++i) {
-        pone_refcnt_dec(universe, a->a[i]);
-    }
-    pone_free(universe, a->a);
+    pone_free(universe, val->as.ary.a);
 }
 
 // $av.AT-POS(i)
@@ -79,13 +80,10 @@ void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_
     pone_int_t i = pone_intify(world, pos);
 
     if (a->len > i) {
-        pone_refcnt_dec(universe, a->a[i]);
         a->a[i] = val;
-        pone_refcnt_inc(universe, val);
     } else {
         pone_ary_resize(universe, self, i+1);
         self->as.ary.a[i] = val;
-        pone_refcnt_inc(universe, val);
     }
 }
 
@@ -99,11 +97,9 @@ static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list
 
     if (pone_int_val(i) != pone_ary_elems(ary)) {
         pone_val* val = pone_ary_at_pos(ary, pone_int_val(i));
-        pone_refcnt_inc(world->universe, val);
         pone_int_incr(world, i);
         return val;
     } else {
-        pone_refcnt_inc(world->universe, world->universe->instance_iteration_end);
         return world->universe->instance_iteration_end;
     }
 }
@@ -186,7 +182,6 @@ void pone_ary_append_noinc(pone_universe* universe, pone_val* self, pone_val* va
 
 void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
     pone_ary_append_noinc(universe, self, val);
-    pone_refcnt_inc(universe, val);
 }
 
 /*

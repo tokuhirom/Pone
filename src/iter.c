@@ -1,6 +1,8 @@
 #include "pone.h"
 
 pone_val* pone_iter_init(pone_world* world, pone_val* obj) {
+    assert(pone_alive(obj));
+
     pone_val* method = pone_find_method(world, obj, "iterator");
     if (pone_defined(method)) {
         // call it.
@@ -13,6 +15,7 @@ pone_val* pone_iter_init(pone_world* world, pone_val* obj) {
 
 // TODO deprecate this API
 pone_val* pone_iter_next(pone_world* world, pone_val* iter) {
+    assert(pone_alive(iter));
     return pone_call_method(world, iter, "pull-one", 0);
 }
 

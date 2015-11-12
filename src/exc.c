@@ -1,35 +1,35 @@
 #include "pone.h"
 
 jmp_buf* pone_exc_handler_push(pone_world* world) {
-    if (world->universe->err_handler_idx == world->universe->err_handler_max) {
-        world->universe->err_handler_max *= 2;
-        world->universe->err_handlers = realloc(world->universe->err_handlers, sizeof(jmp_buf)*world->universe->err_handler_max);
-        if (!world->universe->err_handlers) {
+    if (world->err_handler_idx == world->err_handler_max) {
+        world->err_handler_max *= 2;
+        world->err_handlers = realloc(world->err_handlers, sizeof(jmp_buf)*world->err_handler_max);
+        if (!world->err_handlers) {
             fprintf(stderr, "can't alloc mem\n");
             exit(1);
         }
 
-        world->universe->err_handler_worlds = realloc(world->universe->err_handler_worlds, sizeof(pone_world*)*world->universe->err_handler_max);
-        if (!world->universe->err_handler_worlds) {
+        world->err_handler_lexs = realloc(world->err_handler_lexs, sizeof(pone_world*)*world->err_handler_max);
+        if (!world->err_handler_lexs) {
             fprintf(stderr, "can't alloc mem\n");
             exit(1);
         }
     }
 
-    world->universe->err_handler_worlds[world->universe->err_handler_idx+1] = world;
-    return &(world->universe->err_handlers[++world->universe->err_handler_idx]);
+    world->err_handler_lexs[world->err_handler_idx+1] = world->lex;
+    return &(world->err_handlers[++world->err_handler_idx]);
 }
 
 void pone_exc_handler_pop(pone_world* world) {
     assert(world->universe);
-    assert(world->universe->err_handler_idx >= 0);
-    world->universe->err_handler_idx--;
+    assert(world->err_handler_idx >= 0);
+    world->err_handler_idx--;
 }
 
 void pone_throw_str(pone_world* world, const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    pone_val* v = pone_mortalize(world, pone_str_new_vprintf(world->universe, fmt, args));
+    pone_val* v = pone_str_new_vprintf(world->universe, fmt, args);
     va_end(args);
     pone_throw(world, v);
 }
@@ -38,27 +38,14 @@ void pone_throw_str(pone_world* world, const char* fmt, ...) {
 void pone_throw(pone_world* world, pone_val* val) {
     assert(val);
 
-    pone_universe* universe = world->universe;
-
-    if (universe->errvar) {
-        pone_refcnt_dec(universe, universe->errvar);
-    }
-
     // save error information to $!
-    universe->errvar = val;
-    pone_refcnt_inc(universe, val);
+    world->errvar = val;
 
-    pone_world* target_world = universe->err_handler_worlds[universe->err_handler_idx];
-
-    // exit from this scope
-    while (world != target_world) {
-        pone_world* parent = world->parent;
-        pone_world_refcnt_dec(world);
-        world = parent;
-    }
+    // back to the lex
+    world->lex = world->err_handler_lexs[world->err_handler_idx];
 
     // jmp to exception handler
-    longjmp(universe->err_handlers[universe->err_handler_idx--], 1);
+    longjmp(world->err_handlers[world->err_handler_idx--], 1);
 }
 
 void pone_warn_str(pone_world* world, const char* fmt, ...) {
@@ -84,6 +71,6 @@ pone_val* pone_try(pone_world* world, pone_val* code) {
 // get $!
 // $! is equivalent to $@ in Perl5
 pone_val* pone_errvar(pone_world* world) {
-    return world->universe->errvar;
+    return world->errvar;
 }
 

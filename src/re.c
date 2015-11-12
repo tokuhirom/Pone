@@ -1,4 +1,5 @@
 #include "pone.h" /* PONE_INC */
+#include "rockre.h"
 
 pone_val* pone_regex_new(pone_universe* universe, const char* str, size_t len) {
     pone_val* obj = pone_obj_new(universe, universe->class_regex);
@@ -79,7 +80,7 @@ static pone_val* match_str(pone_world* world,  pone_val* self, int n, int indent
     pone_str_append_c(world, buf, "｣\n", strlen("｣\n"));
     for (pone_int_t i=0; i<pone_ary_elems(list); ++i) {
         pone_val* match = pone_ary_at_pos(list, i);
-        pone_str_append(world, buf, pone_mortalize(world, match_str(world, match, i, indent+1)));
+        pone_str_append(world, buf, match_str(world, match, i, indent+1));
     }
     return buf;
 }
@@ -110,5 +111,7 @@ void pone_regex_init(pone_universe* universe) {
     pone_add_method_c(universe, universe->class_match, "list", strlen("list"), meth_match_list);
     pone_class_push_parent(universe, universe->class_match, universe->class_any);
     pone_class_compose(universe, universe->class_match);
+
+    pone_universe_set_global(universe, "Regex", universe->class_regex);
 }
 

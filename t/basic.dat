@@ -689,3 +689,25 @@ my $p = a => 3; say $p.key; say $p.value
 a
 3
 
+===
+--- input
+sub fib() { if False { 1 } else { 1 } }; say fib();
+--- expected
+1
+
+===
+--- input
+sub x($n) {
+    if  $n > 0 {
+        say $n;
+        x($n-1);
+    }
+}
+x(5);
+--- expected
+5
+4
+3
+2
+1
+
