@@ -711,3 +711,15 @@ x(5);
 2
 1
 
+===
+--- input
+my $n=0; sub x() { $n=5 }; x(); say $n
+--- expected
+5
+
+===
+--- input
+my $inc; { my $n=0; $inc = sub () { $n=$n+1; $n }; }; $inc() for 1..10; say $inc()
+--- expected
+11
+

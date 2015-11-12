@@ -189,6 +189,11 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF("\", %ld)", node->pv->len);
             break;
 #define INFIX(func) do { PRINTF("%s(world, ", func); COMPILE(node->children.nodes[0]);  PRINTF(","); COMPILE(node->children.nodes[1]); PRINTF(")"); } while (0)
+        case PVIP_NODE_MY:
+            // (my (nop) (variable "$inc"))
+            PVIP_node_dump_sexp(node);
+            def_lex(ctx, PVIP_string_c_str(node->children.nodes[1]->pv));
+            break;
         case PVIP_NODE_ADD:
             INFIX("pone_add");
             break;
@@ -768,9 +773,7 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
         if (setjmp(world->err_handlers[0])) {
             pone_universe_default_err_handler(world);
         } else {
-    assert(pone_type(world->lex) == PONE_LEX);
             pone_push_scope(world);
-    assert(pone_type(world->lex) == PONE_LEX);
             pone_so_init(world);
             pone_pop_scope(world);
             pone_world_free(world);

@@ -363,6 +363,7 @@ void pone_pop_scope(pone_world* world);
 pone_val* pone_lex_new(pone_world* world, pone_val* parent);
 void pone_lex_free(pone_universe* universe, pone_val* lex);
 void pone_lex_mark(pone_val* lex);
+void pone_lex_dump(pone_val* lex);
 
 // universe.c
 pone_universe* pone_universe_init();
