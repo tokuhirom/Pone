@@ -31,9 +31,14 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
         abort();
     }
 #endif
+
     assert(pone_type(world->lex) == PONE_LEX);
     for (int i=0; i<up; i++) {
         lex = lex->as.lex.parent;
+    }
+
+    if (pthread_self() != lex->as.lex.thread_id) {
+        pone_throw_str(world, "You can't set variable to non-owned lexical variables from other thread");
     }
 
     int ret;

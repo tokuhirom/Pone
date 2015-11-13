@@ -7,6 +7,7 @@ pone_val* pone_lex_new(pone_world* world, pone_val* parent) {
 #endif
     lex->map = kh_init(str);
     lex->parent = parent;
+    lex->thread_id = pthread_self();
     return (pone_val*)lex;
 }
 

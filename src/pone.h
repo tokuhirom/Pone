@@ -122,6 +122,7 @@ typedef struct pone_lex_t {
     PONE_HEAD;
     struct pone_val* parent;
     khash_t(str) *map;
+    pthread_t thread_id;
 } pone_lex_t;
 
 #ifndef PONE_ARENA_SIZE
