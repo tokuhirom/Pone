@@ -1,4 +1,5 @@
 #include "pone.h" /* PONE_INC */
+#include "utlist.h"
 
 #define PONE_ERR_HANDLERS_INIT 10
 
@@ -17,35 +18,37 @@ static inline void pone_world_dump(pone_universe* universe) {
 }
 #endif
 
+// This routine needs GVL
 static inline void pone_world_list_append(pone_universe *universe, pone_world* world) {
 #ifdef TRACE_WORLD
     printf("WWW ADD %p\n", world);
     pone_world_dump(universe);
 #endif
 
-    if (universe->world_head) {
-        universe->world_head->prev = world;
-        world->next = universe->world_head;
+#define HEAD (universe->world_head)
+
+    if (HEAD) {
+        world->prev = HEAD->prev;
+        HEAD->prev->next = world;
+        HEAD->prev = world;
+        world->next = NULL;
+    } else {
+        HEAD = world;
+        HEAD->prev = HEAD;
+        HEAD->next = NULL;
     }
-    universe->world_head = world;
+
+#undef HEAD
 }
 
+// This routine needs GVL
 static inline void pone_world_list_remove(pone_universe *universe, pone_world* world) {
-    if (world->prev) {
-        world->prev->next = world->next;
-    }
-    if (world->next) {
-        world->next->prev = world->prev;
-    }
-    if (world == universe->world_head) {
-        universe->world_head = world->next;
-    }
+    DL_DELETE(universe->world_head, world);
 }
 
+// This routine needs GVL
 pone_world* pone_world_new(pone_universe* universe) {
     assert(universe);
-
-    GVL_LOCK(universe);
 
     // we can't use pone_malloc yet.
     pone_world* world = (pone_world*)malloc(sizeof(pone_world));
@@ -70,14 +73,22 @@ pone_world* pone_world_new(pone_universe* universe) {
     world->err_handler_idx = 0;
     world->err_handler_max = PONE_ERR_HANDLERS_INIT;
 
-    world->tmpstack = pone_ary_new(world->universe, 0);
+    kv_init(world->tmpstack);
+    kv_init(world->savestack);
+
+    pone_gc_log(world->universe, "[pone gc] create new world %p\n", world);
 
     pone_world_list_append(universe, world);
 
     return world;
 }
 
+// This routine needs GVL
 void pone_world_free(pone_world* world) {
+    kv_destroy(world->tmpstack);
+    kv_destroy(world->savestack);
+
+    pone_gc_log(world->universe, "[pone gc] freeing world %p\n", world);
     pone_world_list_remove(world->universe, world);
     pone_free(world->universe, world->err_handler_lexs);
     pone_free(world->universe, world->err_handlers);
@@ -85,23 +96,18 @@ void pone_world_free(pone_world* world) {
 }
 
 void pone_world_mark(pone_world* world) {
-    world->mark = true;
-    pone_lex_mark(world->lex);
+    pone_gc_log(world->universe, "[pone gc] mark world %p\n", world);
+
+    pone_gc_mark_value(world->lex);
     pone_gc_mark_value(world->errvar);
 
     for (pone_int_t i=0; i<world->err_handler_idx; ++i) {
-        pone_lex_mark(world->err_handler_lexs[i]);
+        pone_gc_mark_value(world->err_handler_lexs[i]);
     }
 
     // mark tmp stack
-    {
-        pone_int_t l = pone_ary_elems(world->tmpstack);
-        for (pone_int_t i=0; i<l; i++) {
-            pone_int_t k = pone_ary_elems(world->tmpstack->as.ary.a[i]);
-            for (pone_int_t j=0; i<k; i++) {
-                pone_gc_mark_value(world->tmpstack->as.ary.a[i]->as.ary.a[j]);
-            }
-        }
+    for (size_t i=0; i<kv_size(world->tmpstack); ++i) {
+        pone_gc_mark_value(kv_A(world->tmpstack,i));
     }
 }
 

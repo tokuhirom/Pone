@@ -55,6 +55,7 @@ static void pone_gc_collect(pone_universe* universe) {
             if (pone_flags(val) & PONE_FLAGS_GC_MARK) {
                 // marked.
                 // remove marked flag.
+                pone_gc_log(universe, "[pone gc] marked: %p\n", val);
                 val->as.basic.flags ^= PONE_FLAGS_GC_MARK;
             } else {
                 switch (pone_type(val)) {
@@ -81,6 +82,7 @@ static void pone_gc_collect(pone_universe* universe) {
                     continue;
                     abort(); // should not reach here.
                 case PONE_LEX:
+                pone_gc_log(universe, "[pone gc] free!!: %d, %p\n", pone_flags(val),val);
                     pone_lex_free(universe, val);
                     break;
                 }
@@ -92,6 +94,8 @@ static void pone_gc_collect(pone_universe* universe) {
 }
 
 void pone_gc_run(pone_universe* universe) {
+    GVL_LOCK(universe);
+
     pone_gc_log(universe, "[pone gc] starting gc\n");
 
     pone_gc_mark(universe);
@@ -99,10 +103,11 @@ void pone_gc_run(pone_universe* universe) {
     pone_gc_collect(universe);
 
     pone_gc_log(universe, "[pone gc] finished gc\n");
+
+    GVL_UNLOCK(universe);
 }
 
-// got PONE_SIG_GC private gc
-static pone_val* meth_gc_got_sig(pone_world* world, pone_val* self, int n, va_list args) {
+static pone_val* meth_gc_run(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
 
     pone_gc_run(world->universe);
@@ -111,7 +116,9 @@ static pone_val* meth_gc_got_sig(pone_world* world, pone_val* self, int n, va_li
 }
 
 void pone_gc_init(pone_universe* universe) {
-    pone_val* cb = pone_code_new_c(universe, meth_gc_got_sig);
-    universe->signal_handlers[PONE_SIG_GC] = cb;
+    pone_val* gc = pone_class_new(universe, "GC", strlen("GC"));
+    pone_add_method_c(universe, gc, "run", strlen("run"), meth_gc_run);
+    pone_class_compose(universe, gc);
+    pone_universe_set_global(universe, "GC", gc);
 }
 

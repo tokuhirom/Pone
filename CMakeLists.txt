@@ -3,12 +3,23 @@ project(pone)
 
 enable_testing()
 
-include_directories(3rd/linenoise/ 3rd/rockre/include 3rd/pvip/src/ src/)
+include_directories(3rd/uthash/include/ 3rd/linenoise/ 3rd/rockre/include 3rd/pvip/src/ src/)
 
 # -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith
 SET(CMAKE_C_FLAGS_DEBUG   "-fPIC -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function -g")
 SET(CMAKE_C_FLAGS_RELEASE "-fPIC -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-function -DNDEBUG")
 SET(CMAKE_BUILD_TYPE Debug)
+
+set(THREAD_DEBUG "0" CACHE BOOL "enable thread debugging")
+if (THREAD_DEBUG)
+    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DTHREAD_DEBUG")
+endif()
+
+set(NO_REUSE "0" CACHE BOOL "do not reuse free'd value")
+if (NO_REUSE)
+    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DNO_REUSE")
+endif()
+
 
 SET(serial "0.0.1")
 SET(soserial "1")

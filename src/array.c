@@ -203,6 +203,7 @@ static pone_val* meth_ary_append(pone_world* world, pone_val* self, int n, va_li
 }
 
 pone_val* pone_ary_last(pone_world* world, pone_val* self) {
+    assert(pone_type(self) == PONE_ARRAY);
     if (self->as.ary.len == 0) {
         pone_throw_str(world, "Cannot get last element from an empty Array");
     }

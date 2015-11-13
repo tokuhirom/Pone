@@ -10,10 +10,17 @@ void* pone_malloc(pone_universe* universe, size_t size) {
     return p;
 }
 
+static pthread_mutex_t alloc_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 pone_val* pone_obj_alloc(pone_universe* universe, pone_t type) {
+    pthread_mutex_lock(&alloc_mutex);
+
     assert(universe);
     assert(universe->arena_last != NULL);
     pone_val* val;
+
+    // STRESS GC.
+    pone_send_private_sig(PONE_SIG_GC);
 
     // check free-ed values
     if (universe->freelist) {
@@ -43,16 +50,21 @@ pone_val* pone_obj_alloc(pone_universe* universe, pone_t type) {
 
     val->as.basic.type   = type;
 
+    pthread_mutex_unlock(&alloc_mutex);
+
     return val;
 }
 
+// needs GVL(only called from GC).
 void pone_val_free(pone_universe* universe, pone_val* p) {
 #ifndef NDEBUG
     // clear val's memory for debugging
     memset(p, 0, sizeof(pone_val));
 #endif
+#ifndef NO_REUSE
     p->as.free.next = universe->freelist;
     universe->freelist = p;
+#endif
 }
 
 void pone_free(pone_universe* universe, void* p) {

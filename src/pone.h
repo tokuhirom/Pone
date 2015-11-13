@@ -15,7 +15,8 @@
 #include <stdarg.h>
 #include <setjmp.h>
 #include <pthread.h>
-#include "khash.h" /* PONE_INC */
+#include "khash.h"
+#include "kvec.h"
 
 typedef long pone_int_t;
 #define PoneIntFmt "%ld"
@@ -134,8 +135,6 @@ struct pone_universe;
 
 // thread context
 typedef struct pone_world {
-    bool mark;
-
     struct pone_universe* universe;
 
     // lexical value list
@@ -150,8 +149,11 @@ typedef struct pone_world {
     int err_handler_idx;
     int err_handler_max;
 
-    // save C stack values for saving from GC
-    struct pone_val* tmpstack;
+    // save C stack values for saving from GC...
+    // tmpstack contains list of values in C stack.
+    kvec_t(struct pone_val*) tmpstack;
+    // pone pushes current position of the tmpstack top.
+    kvec_t(pone_int_t) savestack;
 
     // linked-list for gc
     struct pone_world* next;
@@ -192,6 +194,8 @@ typedef struct pone_thread_t {
     pthread_t thread;
 } pone_thread_t;
 
+#define PONE_SIGNAL_HANDLERS_SIZE 32
+
 // VM context
 typedef struct pone_universe {
     struct pone_arena* arena_head;
@@ -201,7 +205,7 @@ typedef struct pone_universe {
     struct pone_val* freelist;
 
     // signal handlers
-    struct pone_val *signal_handlers[32];
+    struct pone_val *signal_handlers[PONE_SIGNAL_HANDLERS_SIZE];
 
     // 無("Mu")
     struct pone_val* class_mu;
@@ -513,23 +517,14 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
 
 #define GVL_LOCK(universe) \
   do { \
-      THREAD_TRACE("LOCK: %d\n", pthread_self()); \
+      THREAD_TRACE("LOCK: thread:%lx\n", pthread_self()); \
       pthread_mutex_lock(&(universe->mutex)); \
   } while (0)
 #define GVL_UNLOCK(universe) \
   do { \
-      THREAD_TRACE("UNLOCK: %d\n", pthread_self()); \
+      THREAD_TRACE("UNLOCK: thread:%lx\n", pthread_self()); \
       pthread_mutex_unlock(&(universe->mutex)); \
   } while(0)
-#define PONE_YIELD(universe) \
-    do { \
-        GVL_UNLOCK(universe); \
-        if ((sched_yield()) == -1) { \
-            perror("cannot yield thread"); \
-            exit(EXIT_FAILURE); \
-        } \
-        GVL_LOCK(universe); \
-    } while (0)
 
 #define PONE_ALLOC_CHECK(v) \
   do { \

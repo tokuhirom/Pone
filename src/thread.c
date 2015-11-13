@@ -3,53 +3,68 @@
 #include <signal.h>
 
 typedef struct thread_context {
-    pone_universe* universe;
+    pone_world* world;
     pone_val* code;
 } thread_context;
 
 static void* thread_start(void* p) {
+    THREAD_TRACE("NEW %ld\n", pthread_self());
+
     thread_context* context = (thread_context*)p;
 
     // extract values to stack
-    pone_universe* universe = context->universe;
-    pone_val* code = context->code;
+    pone_world* world = context->world;
+    pone_val*   code = context->code;
     assert(code);
+    assert(pone_type(code) == PONE_CODE);
+    assert(world->universe);
 
     // free the context object.
-    pone_free(context->universe, p);
+    pone_free(world->universe, p);
 
-    GVL_LOCK(universe);
-
-    pone_world* world = pone_world_new(universe);
-
+    assert(pone_type(code) == PONE_CODE);
     pone_val* retval = pone_code_call(world, code, pone_nil(), 0);
 
+
+    pone_universe* universe = world->universe;
+    GVL_LOCK(universe);
+    pone_world_free(world);
     GVL_UNLOCK(universe);
 
-    pone_world_free(world);
-
-    // get thread mutex
-    return retval;
+    return retval; // XXX we need to save this value?
 }
 
 static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 1);
+    assert(world->universe);
 
     pone_val*code = va_arg(args, pone_val*);
     assert(pone_type(code) == PONE_CODE);
 
+    GVL_LOCK(world->universe); // This operation modifies universe's structure.
+    pone_world* new_world = pone_world_new(world->universe);
+    GVL_UNLOCK(world->universe);
+
+    // save `code`
+    pone_save_tmp(new_world, code);
+
     thread_context* p = pone_malloc(world->universe, sizeof(thread_context));
-    p->universe = world->universe;
+    p->world = new_world;
     p->code = code;
 
     if (world->universe->thread_num == INT_MAX) {
         fprintf(stderr, "too many threads\n");
         abort();
     }
+
+    GVL_LOCK(world->universe); // This operation modifies universe's structure.
+
     world->universe->thread_num++;
     pone_thread_t* pthr = pone_malloc(world->universe, sizeof(pone_thread_t));
     pthr->next = world->universe->threads;
     world->universe->threads = pthr;
+
+    GVL_UNLOCK(world->universe);
 
     int e;
     if ((e = pthread_create(&(pthr->thread), NULL, &thread_start, p)) != 0) {
@@ -75,9 +90,7 @@ static pone_val* meth_thread_id(pone_world* world, pone_val* self, int n, va_lis
 }
 
 pone_val* pone_thread_join(pone_universe* universe, pthread_t thr) {
-    THREAD_TRACE("JOIN %x\n", thr);
-
-    GVL_UNLOCK(universe);
+    THREAD_TRACE("JOIN %ld\n", thr);
 
     void* retval;
     int e;
@@ -87,7 +100,7 @@ pone_val* pone_thread_join(pone_universe* universe, pthread_t thr) {
         exit(EXIT_FAILURE);
     }
 
-    GVL_LOCK(universe);
+    GVL_LOCK(universe); // This operation modifies universe's structure.
 
     pone_thread_t *pthr = universe->threads;
     if (pthr->thread == thr) {
@@ -107,6 +120,8 @@ pone_val* pone_thread_join(pone_universe* universe, pthread_t thr) {
         }
     }
     universe->thread_num--;
+
+    GVL_UNLOCK(universe);
 
     return (pone_val*)retval;
 }
@@ -130,16 +145,12 @@ static pone_val* meth_thread_kill(pone_world* world, pone_val* self, int n, va_l
     pone_val* thread = pone_obj_get_ivar(world->universe, self, "$!thread");
     pthread_t* thr = (pthread_t*)pone_int_val(thread);
 
-    GVL_UNLOCK(world->universe);
-
     int e;
     if ((e = pthread_kill(*thr, pone_intify(world, sig))) != 0) {
         errno = e;
         perror("cannot join thread");
         exit(EXIT_FAILURE);
     }
-
-    GVL_LOCK(world->universe);
 
     return pone_nil();
 }

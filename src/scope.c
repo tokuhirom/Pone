@@ -2,9 +2,7 @@
 
 pone_val* pone_lex_new(pone_world* world, pone_val* parent) {
     pone_lex_t* lex = (pone_lex_t*)pone_obj_alloc(world->universe, PONE_LEX);
-#ifdef TRACE_LEX
-    printf("pone_lex_new: %x lex:%x\n", world, lex);
-#endif
+    printf("[pone lex] pone_lex_new: %p lex:%p\n", world, lex);
     lex->map = kh_init(str);
     lex->parent = parent;
     lex->thread_id = pthread_self();
@@ -12,6 +10,8 @@ pone_val* pone_lex_new(pone_world* world, pone_val* parent) {
 }
 
 void pone_lex_mark(pone_val* lex) {
+    printf("lex mark %p flags:%d\n", lex, lex->as.lex.flags);
+
     const char* k;
     pone_val* v;
     kh_foreach(lex->as.lex.map, k, v, {
@@ -48,13 +48,12 @@ void pone_push_scope(pone_world* world) {
     // create new lex scope
     world->lex = pone_lex_new(world, world->lex);
     assert(pone_type(world->lex) == PONE_LEX);
-    pone_ary_append(world->universe, world->tmpstack, pone_ary_new(world->universe, 0));
+
+    kv_push(pone_int_t, world->savestack, kv_size(world->tmpstack));
 }
 
 void pone_lex_free(pone_universe* universe, pone_val* val) {
-#ifdef TRACE_LEX
     printf("pone_lex_free: %p lex:%p\n", universe, val);
-#endif
     kh_destroy(str, val->as.lex.map);
 }
 
@@ -62,13 +61,25 @@ void pone_pop_scope(pone_world* world) {
 #ifdef TRACE_SCOPE
     printf("pone_pop_scope: %x\n", world);
 #endif
+#ifndef NDEBUG
+    if (pone_type(world->lex) != PONE_LEX) {
+        fprintf(stderr, "[BUG] world->lex(%p) isn't lex: %d. world:%p\n", world->lex, pone_type(world->lex), world);
+        abort();
+    }
+#endif
     world->lex = world->lex->as.lex.parent;
-    assert(pone_type(world->lex) == PONE_LEX);
-    pone_ary_pop(world, world->tmpstack);
+#ifndef NDEBUG
+    if (pone_type(world->lex) != PONE_LEX) {
+        fprintf(stderr, "[BUG] bad parent! world->lex(%p) isn't lex: %d. world:%p\n", world->lex, pone_type(world->lex), world);
+        abort();
+    }
+#endif
+
+    world->tmpstack.n = kv_pop(world->savestack);
 }
 
 pone_val* pone_save_tmp(pone_world* world, pone_val* val) {
-    pone_ary_append(world->universe, pone_ary_last(world, world->tmpstack), val);
+    kv_push(pone_val*, world->tmpstack, val);
     return val;
 }
 

@@ -121,6 +121,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                     COMPILE(child);
                 }
                 PRINTF(";\n");
+                PRINTF("pone_signal_handle(world);\n");
             }
             break;
         case PVIP_NODE_NUMBER:

@@ -69,6 +69,15 @@ Concurrency
 
  * built-in Array/Hash is *not* thread safe.
 
+There is no GVL in Pone. But there's some synchronization point.
+
+ * Creating new thread.
+  * Since Pone manages threads as linked-list.
+
+And thre's some limitations.
+
+ * You can't assign variables that created by another thread.
+
 TODO
 ====
 

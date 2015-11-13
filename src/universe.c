@@ -37,6 +37,8 @@ pone_universe* pone_universe_init() {
     }
     memset(universe->arena_last, 0, sizeof(pone_arena));
 
+    pthread_mutex_init(&(universe->mutex), NULL);
+
     universe->rockre = rockre_new();
 
     universe->globals = kh_init(str);
@@ -160,6 +162,14 @@ void pone_universe_mark(pone_universe* universe) {
         pone_world_mark(world);
         assert(world != world->next);
         world = world->next;
+    }
+
+
+    for (int i=0; i<PONE_SIGNAL_HANDLERS_SIZE; ++i) {
+        pone_val* handler = universe->signal_handlers[i];
+        if (handler) {
+            pone_gc_mark_value(handler);
+        }
     }
 }
 
