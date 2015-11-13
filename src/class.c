@@ -9,9 +9,9 @@ pone_val* pone_init_class(pone_universe* universe) {
     pone_val* val = pone_obj_alloc(universe, PONE_OBJ);
     val->as.obj.ivar = kh_init(str);
     val->as.obj.klass = pone_nil();
-    pone_obj_set_ivar_noinc(universe, val, "$!name", pone_str_new_const(universe, "Class", strlen("class")));
-    pone_obj_set_ivar_noinc(universe, val, "$!methods", pone_hash_new(universe));
-    pone_obj_set_ivar_noinc(universe, val, "@!parents", pone_ary_new(universe, 0));
+    pone_obj_set_ivar(universe, val, "$!name", pone_str_new_const(universe, "Class", strlen("class")));
+    pone_obj_set_ivar(universe, val, "$!methods", pone_hash_new(universe));
+    pone_obj_set_ivar(universe, val, "@!parents", pone_ary_new(universe, 0));
     return val;
 }
 
@@ -52,9 +52,9 @@ pone_val* pone_what(pone_universe* universe, pone_val* obj) {
  */
 pone_val* pone_class_new(pone_universe* universe, const char* name, size_t name_len) {
     pone_val* obj = pone_obj_new(universe, universe->class_class);
-    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!name", pone_str_new(universe, name, name_len));
-    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!methods", pone_hash_new(universe));
-    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "@!parents", pone_ary_new(universe, 0));
+    pone_obj_set_ivar(universe, (pone_val*)obj, "$!name", pone_str_new(universe, name, name_len));
+    pone_obj_set_ivar(universe, (pone_val*)obj, "$!methods", pone_hash_new(universe));
+    pone_obj_set_ivar(universe, (pone_val*)obj, "@!parents", pone_ary_new(universe, 0));
 
     return (pone_val*)obj;
 }

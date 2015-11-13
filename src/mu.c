@@ -55,9 +55,9 @@ pone_val* pone_init_mu(pone_universe* universe) {
     pone_val* obj = pone_obj_alloc(universe, PONE_OBJ);
     obj->as.obj.ivar = kh_init(str);
     obj->as.obj.klass = pone_nil();
-    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!name", pone_str_new_const(universe, "Mu", strlen("Mu")));
-    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "$!methods", pone_hash_new(universe));
-    pone_obj_set_ivar_noinc(universe, (pone_val*)obj, "@!parents", pone_ary_new(universe, 0));
+    pone_obj_set_ivar(universe, (pone_val*)obj, "$!name", pone_str_new_const(universe, "Mu", strlen("Mu")));
+    pone_obj_set_ivar(universe, (pone_val*)obj, "$!methods", pone_hash_new(universe));
+    pone_obj_set_ivar(universe, (pone_val*)obj, "@!parents", pone_ary_new(universe, 0));
 
     pone_add_method_c(universe, obj, "Str", strlen("Str"), meth_mu_str);
     pone_add_method_c(universe, obj, "say", strlen("say"), meth_mu_say);

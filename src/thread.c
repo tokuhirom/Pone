@@ -59,7 +59,7 @@ static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_
     }
 
     pone_val* thr = pone_obj_new(world->universe, world->universe->class_thread);
-    pone_obj_set_ivar_noinc(world->universe, thr, "$!thread", pone_int_new(world->universe, (pone_int_t)(&(pthr->thread))));
+    pone_obj_set_ivar(world->universe, thr, "$!thread", pone_int_new(world->universe, (pone_int_t)(&(pthr->thread))));
 
     return thr;
 }

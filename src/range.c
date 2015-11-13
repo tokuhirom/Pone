@@ -80,7 +80,7 @@ static pone_val* meth_range_iterator(pone_world* world, pone_val* self, int n, v
     // self!iterator-class.bless(i => self.min, max => self.max)
     pone_val* iterator_class = pone_obj_get_ivar(world->universe, pone_what(world->universe, self), "$!iterator-class");
     pone_val* iter = pone_obj_new(world->universe, iterator_class);
-    pone_obj_set_ivar_noinc(world->universe, iter, "$!i", pone_int_new(world->universe, pone_intify(world, min)));
+    pone_obj_set_ivar(world->universe, iter, "$!i", pone_int_new(world->universe, pone_intify(world, min)));
     pone_obj_set_ivar(world->universe, iter, "$!max", max);
     return iter;
 }
@@ -114,7 +114,7 @@ void pone_range_init(pone_universe* universe) {
     pone_add_method_c(universe, universe->class_range, "min", strlen("min"), meth_range_min);
     pone_add_method_c(universe, universe->class_range, "max", strlen("max"), meth_range_max);
     pone_add_method_c(universe, universe->class_range, "Str", strlen("Str"), meth_range_str);
-    pone_obj_set_ivar_noinc(universe, universe->class_range, "$!iterator-class", iter_class);
+    pone_obj_set_ivar(universe, universe->class_range, "$!iterator-class", iter_class);
 
     pone_class_compose(universe, universe->class_range);
 

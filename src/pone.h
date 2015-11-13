@@ -309,7 +309,6 @@ void pone_ary_free(pone_universe* universe, pone_val* val);
 void pone_ary_init(pone_universe* universe);
 pone_val* pone_ary_at_pos(pone_val* ary, pone_int_t n);
 void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val);
-void pone_ary_append_noinc(pone_universe* universe, pone_val* self, pone_val* val);
 void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_val* val);
 void pone_ary_mark(pone_val* val);
 
@@ -450,7 +449,6 @@ pone_val* pone_init_mu(pone_universe* universe);
 pone_val* pone_obj_new(pone_universe* universe, pone_val* klass);
 void pone_obj_free(pone_universe* universe, pone_val* val);
 void pone_obj_set_ivar(pone_universe* universe, pone_val* obj, const char* name, pone_val* val);
-void pone_obj_set_ivar_noinc(pone_universe* universe, pone_val* obj, const char* name, pone_val* val);
 pone_val* pone_obj_get_ivar(pone_universe* universe, pone_val* obj, const char* name);
 void pone_obj_mark(pone_val* val);
 

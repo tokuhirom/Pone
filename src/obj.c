@@ -38,7 +38,7 @@ void pone_obj_free(pone_universe* universe, pone_val* val) {
 }
 
 // set instance variable to the object without refinc++
-void pone_obj_set_ivar_noinc(pone_universe* universe, pone_val* obj, const char* name, pone_val* val) {
+void pone_obj_set_ivar(pone_universe* universe, pone_val* obj, const char* name, pone_val* val) {
     assert(pone_type(obj) == PONE_OBJ);
 
     char *ks = pone_strdup(universe, name, strlen(name));
@@ -49,12 +49,6 @@ void pone_obj_set_ivar_noinc(pone_universe* universe, pone_val* obj, const char*
         abort();
     }
     kh_val(obj->as.obj.ivar, key) = val;
-}
-
-
-// set instance variable to the object
-void pone_obj_set_ivar(pone_universe* universe, pone_val* obj, const char* name, pone_val* val) {
-    pone_obj_set_ivar_noinc(universe, obj, name, val);
 }
 
 // get instance variable from the object

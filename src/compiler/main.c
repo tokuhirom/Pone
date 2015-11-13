@@ -191,7 +191,6 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
 #define INFIX(func) do { PRINTF("%s(world, ", func); COMPILE(node->children.nodes[0]);  PRINTF(","); COMPILE(node->children.nodes[1]); PRINTF(")"); } while (0)
         case PVIP_NODE_MY:
             // (my (nop) (variable "$inc"))
-            PVIP_node_dump_sexp(node);
             def_lex(ctx, PVIP_string_c_str(node->children.nodes[1]->pv));
             break;
         case PVIP_NODE_ADD:

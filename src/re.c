@@ -4,8 +4,8 @@
 pone_val* pone_regex_new(pone_universe* universe, const char* str, size_t len) {
     pone_val* obj = pone_obj_new(universe, universe->class_regex);
     rockre_regexp* re = rockre_compile(universe->rockre, str, len, true);
-    pone_obj_set_ivar_noinc(universe, obj, "$!re", pone_int_new(universe, (long)re));
-    pone_obj_set_ivar_noinc(universe, obj, "$!str", pone_str_new_const(universe, str, len));
+    pone_obj_set_ivar(universe, obj, "$!re", pone_int_new(universe, (long)re));
+    pone_obj_set_ivar(universe, obj, "$!str", pone_str_new_const(universe, str, len));
     return obj;
 }
 
@@ -42,9 +42,9 @@ pone_val* pone_match_new(pone_universe* universe, pone_val* orig, pone_int_t fro
     assert(universe->class_match);
     pone_val* obj = pone_obj_new(universe, universe->class_match);
     pone_obj_set_ivar(universe, obj, "$!orig", orig);
-    pone_obj_set_ivar_noinc(universe, obj, "$!from", pone_int_new(universe, from));
-    pone_obj_set_ivar_noinc(universe, obj, "$!to", pone_int_new(universe, to));
-    pone_obj_set_ivar_noinc(universe, obj, "@!list", pone_ary_new(universe, 0));
+    pone_obj_set_ivar(universe, obj, "$!from", pone_int_new(universe, from));
+    pone_obj_set_ivar(universe, obj, "$!to", pone_int_new(universe, to));
+    pone_obj_set_ivar(universe, obj, "@!list", pone_ary_new(universe, 0));
     return obj;
 }
 
@@ -58,7 +58,7 @@ void pone_match_push(pone_world* world, pone_val* self, pone_int_t from, pone_in
             return pone_match_push(world, c, from, to);
         }
     }
-    pone_ary_append_noinc(world->universe, list, pone_match_new(world->universe, orig, from, to));
+    pone_ary_append(world->universe, list, pone_match_new(world->universe, orig, from, to));
 }
 
 static pone_val* match_str(pone_world* world,  pone_val* self, int n, int indent) {

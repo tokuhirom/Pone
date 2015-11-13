@@ -141,7 +141,7 @@ static pone_val* meth_ary_iterator(pone_world* world, pone_val* self, int n, va_
     // self!iterator-class.bless(i => 0, val => self)
     pone_val* iterator_class = pone_obj_get_ivar(world->universe, pone_what(world->universe, self), "$!iterator-class");
     pone_val* iter = pone_obj_new(world->universe, iterator_class);
-    pone_obj_set_ivar_noinc(world->universe, iter, "$!i", pone_int_new(world->universe, 0));
+    pone_obj_set_ivar(world->universe, iter, "$!i", pone_int_new(world->universe, 0));
     pone_obj_set_ivar(world->universe, iter, "$!val", self);
     return iter;
 }
@@ -161,7 +161,7 @@ static pone_val* meth_ary_elems(pone_world* world, pone_val* self, int n, va_lis
     return pone_int_new(world->universe, pone_ary_elems(self));
 }
 
-void pone_ary_append_noinc(pone_universe* universe, pone_val* self, pone_val* val) {
+void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
     assert(pone_type(self) == PONE_ARRAY);
 
     if (self->as.ary.max == self->as.ary.len) {
@@ -178,10 +178,6 @@ void pone_ary_append_noinc(pone_universe* universe, pone_val* self, pone_val* va
     }
 
     self->as.ary.a[self->as.ary.len++] = val;
-}
-
-void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
-    pone_ary_append_noinc(universe, self, val);
 }
 
 /*
@@ -340,7 +336,7 @@ void pone_ary_init(pone_universe* universe) {
     pone_add_method_c(universe, universe->class_ary, "pop", strlen("pop"), meth_ary_pop);
     pone_add_method_c(universe, universe->class_ary, "Str", strlen("Str"), meth_ary_str);
     pone_add_method_c(universe, universe->class_ary, "ASSIGN-POS", strlen("ASSIGN-POS"), meth_ary_assign_pos);
-    pone_obj_set_ivar_noinc(universe, universe->class_ary, "$!iterator-class", iter_class);
+    pone_obj_set_ivar(universe, universe->class_ary, "$!iterator-class", iter_class);
 
     pone_class_compose(universe, universe->class_ary);
 }
