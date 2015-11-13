@@ -87,8 +87,21 @@ void pone_world_free(pone_world* world) {
 void pone_world_mark(pone_world* world) {
     world->mark = true;
     pone_lex_mark(world->lex);
+    pone_gc_mark_value(world->errvar);
+
     for (pone_int_t i=0; i<world->err_handler_idx; ++i) {
         pone_lex_mark(world->err_handler_lexs[i]);
+    }
+
+    // mark tmp stack
+    {
+        pone_int_t l = pone_ary_elems(world->tmpstack);
+        for (pone_int_t i=0; i<l; i++) {
+            pone_int_t k = pone_ary_elems(world->tmpstack->as.ary.a[i]);
+            for (pone_int_t j=0; i<k; i++) {
+                pone_gc_mark_value(world->tmpstack->as.ary.a[i]->as.ary.a[j]);
+            }
+        }
     }
 }
 
