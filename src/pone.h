@@ -311,6 +311,7 @@ pone_val* pone_ary_at_pos(pone_val* ary, pone_int_t n);
 void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val);
 void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_val* val);
 void pone_ary_mark(pone_val* val);
+pone_val* pone_ary_pop(pone_world* world, pone_val* self);
 
 // str.c
 pone_val* pone_str_new(pone_universe* universe, const char*p, size_t len);

@@ -202,6 +202,17 @@ static pone_val* meth_ary_append(pone_world* world, pone_val* self, int n, va_li
     return pone_nil();
 }
 
+pone_val* pone_ary_pop(pone_world* world, pone_val* self) {
+    if (self->as.ary.len == 0) {
+        pone_throw_str(world, "Cannot pop from an empty Array");
+    }
+
+    pone_val* retval = self->as.ary.a[self->as.ary.len-1];
+    self->as.ary.a[self->as.ary.len-1] = NULL;
+    self->as.ary.len--;
+    return retval;
+}
+
 /*
 
 =head2 C<Array#pop($val)>
@@ -216,16 +227,7 @@ Pop element from an array.
 */
 static pone_val* meth_ary_pop(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
-
-    if (self->as.ary.len == 0) {
-        pone_throw_str(world, "Cannot pop from an empty Array");
-    }
-
-    pone_val* retval = self->as.ary.a[self->as.ary.len-1];
-    self->as.ary.a[self->as.ary.len-1] = NULL;
-    self->as.ary.len--;
-
-    return retval;
+    return pone_ary_pop(world, self);
 }
 
 /*
