@@ -70,6 +70,8 @@ pone_world* pone_world_new(pone_universe* universe) {
     world->err_handler_idx = 0;
     world->err_handler_max = PONE_ERR_HANDLERS_INIT;
 
+    world->tmpstack = pone_ary_new(world->universe, 0);
+
     pone_world_list_append(universe, world);
 
     return world;

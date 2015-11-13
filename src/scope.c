@@ -47,6 +47,7 @@ void pone_push_scope(pone_world* world) {
     // create new lex scope
     world->lex = pone_lex_new(world, world->lex);
     assert(pone_type(world->lex) == PONE_LEX);
+    pone_ary_append(world->universe, world->tmpstack, pone_ary_new(world->universe, 0));
 }
 
 void pone_lex_free(pone_universe* universe, pone_val* val) {
@@ -62,5 +63,11 @@ void pone_pop_scope(pone_world* world) {
 #endif
     world->lex = world->lex->as.lex.parent;
     assert(pone_type(world->lex) == PONE_LEX);
+    pone_ary_pop(world, world->tmpstack);
+}
+
+pone_val* pone_save_tmp(pone_world* world, pone_val* val) {
+    pone_ary_append(world->universe, pone_ary_last(world, world->tmpstack), val);
+    return val;
 }
 

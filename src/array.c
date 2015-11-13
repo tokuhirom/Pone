@@ -202,6 +202,14 @@ static pone_val* meth_ary_append(pone_world* world, pone_val* self, int n, va_li
     return pone_nil();
 }
 
+pone_val* pone_ary_last(pone_world* world, pone_val* self) {
+    if (self->as.ary.len == 0) {
+        pone_throw_str(world, "Cannot get last element from an empty Array");
+    }
+
+    return self->as.ary.a[self->as.ary.len-1];
+}
+
 pone_val* pone_ary_pop(pone_world* world, pone_val* self) {
     if (self->as.ary.len == 0) {
         pone_throw_str(world, "Cannot pop from an empty Array");

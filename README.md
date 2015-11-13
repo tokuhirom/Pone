@@ -64,6 +64,11 @@ get environment variable
 
 Get current time in sec.
 
+Concurrency
+===========
+
+ * built-in Array/Hash is *not* thread safe.
+
 TODO
 ====
 

@@ -149,6 +149,9 @@ typedef struct pone_world {
     int err_handler_idx;
     int err_handler_max;
 
+    // save C stack values for saving from GC
+    struct pone_val* tmpstack;
+
     // linked-list for gc
     struct pone_world* next;
     struct pone_world* prev;
@@ -312,6 +315,7 @@ void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val);
 void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_val* val);
 void pone_ary_mark(pone_val* val);
 pone_val* pone_ary_pop(pone_world* world, pone_val* self);
+pone_val* pone_ary_last(pone_world* world, pone_val* self);
 
 // str.c
 pone_val* pone_str_new(pone_universe* universe, const char*p, size_t len);
@@ -364,6 +368,7 @@ pone_val* pone_lex_new(pone_world* world, pone_val* parent);
 void pone_lex_free(pone_universe* universe, pone_val* lex);
 void pone_lex_mark(pone_val* lex);
 void pone_lex_dump(pone_val* lex);
+pone_val* pone_save_tmp(pone_world* world, pone_val* val);
 
 // universe.c
 pone_universe* pone_universe_init();
