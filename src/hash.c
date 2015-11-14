@@ -12,8 +12,8 @@ void pone_hash_mark(pone_val* val) {
 // TODO: push key
 // TODO: exists key
 
-pone_val* pone_hash_new(pone_universe* universe) {
-    pone_val* hv = pone_obj_alloc(universe, PONE_HASH);
+pone_val* pone_hash_new(pone_world* world) {
+    pone_val* hv = pone_obj_alloc(world, PONE_HASH);
     hv->as.hash.h = kh_init(str);
     return hv;
 }
@@ -43,10 +43,10 @@ void pone_hash_free(pone_universe* universe, pone_val* val) {
     kh_destroy(str, h->h);
 }
 
-void pone_hash_assign_key_c(pone_universe* universe, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v) {
+void pone_hash_assign_key_c(pone_world* world, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v) {
     assert(pone_type(hv) == PONE_HASH);
     int ret;
-    const char* ks=pone_strdup(universe, key, key_len);
+    const char* ks=pone_strdup(world, key, key_len);
     khint_t k = kh_put(str, ((pone_hash*)hv)->h, ks, &ret);
     if (ret == -1) {
         abort(); // TODO better error msg
@@ -55,7 +55,7 @@ void pone_hash_assign_key_c(pone_universe* universe, pone_val* hv, const char* k
     ((pone_hash*)hv)->len++;
 }
 
-bool pone_hash_exists_c(pone_universe* universe, pone_val* hash, const char* name) {
+bool pone_hash_exists_c(pone_world* world, pone_val* hash, const char* name) {
     assert(pone_type(hash) == PONE_HASH);
     assert(hash->as.hash.h);
 
@@ -81,7 +81,7 @@ pone_val* pone_hash_at_key_c(pone_universe* universe, pone_val* hash, const char
 
 void pone_hash_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val* v) {
     k = pone_stringify(world, k);
-    pone_hash_assign_key_c(world->universe, hv, pone_str_ptr(k), pone_str_len(k), v);
+    pone_hash_assign_key_c(world, hv, pone_str_ptr(k), pone_str_len(k), v);
 }
 
 size_t pone_hash_elems(pone_val* val) {
@@ -94,12 +94,12 @@ pone_val* pone_hash_keys(pone_world* world, pone_val* val) {
 
     pone_hash* h=(pone_hash*)val;
 
-    pone_val* retval = pone_ary_new(world->universe, 0);
+    pone_val* retval = pone_ary_new(world, 0);
 
     const char* k;
     pone_val* v;
     kh_foreach(h->h, k, v, {
-        pone_ary_append(world->universe, retval, pone_str_new(world->universe, k, strlen(k)));
+        pone_ary_append(world->universe, retval, pone_str_new(world, k, strlen(k)));
     });
 
     return retval;
@@ -116,7 +116,7 @@ Get the number of elements.
 */
 static pone_val* meth_hash_elems(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
-    return pone_int_new(world->universe, pone_hash_elems(self));
+    return pone_int_new(world, pone_hash_elems(self));
 }
 
 /*
@@ -136,12 +136,13 @@ static pone_val* meth_hash_assign_key(pone_world* world, pone_val* self, int n, 
     return value;
 }
 
-void pone_hash_init(pone_universe* universe) {
+void pone_hash_init(pone_world* world) {
+    pone_universe* universe = world->universe;
     assert(universe->class_hash == NULL);
 
-    universe->class_hash = pone_class_new(universe, "Hash", strlen("Hash"));
-    pone_add_method_c(universe, universe->class_hash, "elems", strlen("elems"), meth_hash_elems);
-    pone_add_method_c(universe, universe->class_hash, "ASSIGN-KEY", strlen("ASSIGN-KEY"), meth_hash_assign_key);
-    pone_class_compose(universe, universe->class_hash);
+    universe->class_hash = pone_class_new(world, "Hash", strlen("Hash"));
+    pone_add_method_c(world, universe->class_hash, "elems", strlen("elems"), meth_hash_elems);
+    pone_add_method_c(world, universe->class_hash, "ASSIGN-KEY", strlen("ASSIGN-KEY"), meth_hash_assign_key);
+    pone_class_compose(world, universe->class_hash);
 }
 

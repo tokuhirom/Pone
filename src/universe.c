@@ -43,58 +43,6 @@ pone_universe* pone_universe_init() {
 
     universe->globals = kh_init(str);
 
-#ifdef TRACE_UNIVERSE
-    printf("initializing class mu\n");
-#endif
-    universe->class_mu = pone_init_mu(universe);
-
-#ifdef TRACE_UNIVERSE
-    printf("initializing class Class\n");
-#endif
-    universe->class_class = pone_init_class(universe);
-
-    universe->class_any = pone_init_any(universe);
-    universe->class_cool = pone_init_cool(universe);
-
-#ifdef TRACE_UNIVERSE
-    printf("initializing class Array\n");
-#endif
-    pone_ary_init(universe);
-    assert(universe->class_ary);
-
-    pone_nil_init(universe);
-    pone_int_init(universe);
-    pone_str_init(universe);
-    pone_num_init(universe);
-    pone_bool_init(universe);
-    pone_hash_init(universe);
-    pone_code_init(universe);
-    assert(universe->class_range == NULL);
-    pone_range_init(universe);
-    pone_regex_init(universe);
-    assert(universe->class_io_socket_inet == NULL);
-    pone_thread_init(universe);
-    pone_pair_init(universe);
-    pone_sock_init(universe);
-    pone_gc_init(universe);
-
-#ifdef TRACE_UNIVERSE
-    printf("initializing value IterationEnd\n");
-#endif
-    universe->instance_iteration_end = pone_obj_new(universe, universe->class_mu);
-
-    pone_universe_set_global(universe, "Nil", pone_nil());
-    pone_universe_set_global(universe, "IO::Socket::INET", universe->class_io_socket_inet);
-    pone_universe_set_global(universe, "Regex", universe->class_regex);
-
-#undef PUT
-
-    {
-        const char* env = getenv("PONE_GC_LOG");
-        if (env && strlen(env) > 0) {
-            universe->gc_log = fopen(env, "w");
-        }
-    }
 
     return universe;
 }

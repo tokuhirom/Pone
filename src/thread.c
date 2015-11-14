@@ -73,8 +73,8 @@ static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_
         abort();
     }
 
-    pone_val* thr = pone_obj_new(world->universe, world->universe->class_thread);
-    pone_obj_set_ivar(world->universe, thr, "$!thread", pone_int_new(world->universe, (pone_int_t)(&(pthr->thread))));
+    pone_val* thr = pone_obj_new(world, world->universe->class_thread);
+    pone_obj_set_ivar(world, thr, "$!thread", pone_int_new(world, (pone_int_t)(&(pthr->thread))));
 
     return thr;
 }
@@ -83,10 +83,10 @@ static pone_val* meth_thread_id(pone_world* world, pone_val* self, int n, va_lis
     assert(n == 0);
     assert(sizeof(pthread_t) <= sizeof(pone_int_t));
 
-    pone_val* thread = pone_obj_get_ivar(world->universe, self, "$!thread");
+    pone_val* thread = pone_obj_get_ivar(world, self, "$!thread");
     pthread_t* thr = (pthread_t*)pone_int_val(thread);
 
-    return pone_int_new(world->universe, *thr);
+    return pone_int_new(world, *thr);
 }
 
 pone_val* pone_thread_join(pone_universe* universe, pthread_t thr) {
@@ -130,7 +130,7 @@ static pone_val* meth_thread_join(pone_world* world, pone_val* self, int n, va_l
     assert(n == 0);
     assert(sizeof(pthread_t) <= sizeof(pone_int_t));
 
-    pone_val* thread = pone_obj_get_ivar(world->universe, self, "$!thread");
+    pone_val* thread = pone_obj_get_ivar(world, self, "$!thread");
     pthread_t* thr = (pthread_t*)pone_int_val(thread);
 
     return pone_thread_join(world->universe, *thr);
@@ -142,7 +142,7 @@ static pone_val* meth_thread_kill(pone_world* world, pone_val* self, int n, va_l
 
     pone_val* sig = va_arg(args, pone_val*);
 
-    pone_val* thread = pone_obj_get_ivar(world->universe, self, "$!thread");
+    pone_val* thread = pone_obj_get_ivar(world, self, "$!thread");
     pthread_t* thr = (pthread_t*)pone_int_val(thread);
 
     int e;
@@ -155,16 +155,17 @@ static pone_val* meth_thread_kill(pone_world* world, pone_val* self, int n, va_l
     return pone_nil();
 }
 
-void pone_thread_init(pone_universe* universe) {
+void pone_thread_init(pone_world* world) {
+    pone_universe* universe = world->universe;
     assert(universe->class_thread == NULL);
 
-    universe->class_thread = pone_class_new(universe, "Thread", strlen("Thread"));
-    pone_class_push_parent(universe, universe->class_thread, universe->class_any);
-    pone_add_method_c(universe, universe->class_thread, "start", strlen("start"), meth_thread_start);
-    pone_add_method_c(universe, universe->class_thread, "id", strlen("id"), meth_thread_id);
-    pone_add_method_c(universe, universe->class_thread, "join", strlen("join"), meth_thread_join);
-    pone_add_method_c(universe, universe->class_thread, "kill", strlen("kill"), meth_thread_kill);
-    pone_class_compose(universe, universe->class_thread);
+    universe->class_thread = pone_class_new(world, "Thread", strlen("Thread"));
+    pone_class_push_parent(world, universe->class_thread, universe->class_any);
+    pone_add_method_c(world, universe->class_thread, "start", strlen("start"), meth_thread_start);
+    pone_add_method_c(world, universe->class_thread, "id", strlen("id"), meth_thread_id);
+    pone_add_method_c(world, universe->class_thread, "join", strlen("join"), meth_thread_join);
+    pone_add_method_c(world, universe->class_thread, "kill", strlen("kill"), meth_thread_kill);
+    pone_class_compose(world, universe->class_thread);
     pone_universe_set_global(universe, "Thread", universe->class_thread);
     assert(universe->class_thread->as.obj.klass);
 }

@@ -10,17 +10,18 @@ void* pone_malloc(pone_universe* universe, size_t size) {
     return p;
 }
 
-static pthread_mutex_t alloc_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-pone_val* pone_obj_alloc(pone_universe* universe, pone_t type) {
-    pthread_mutex_lock(&alloc_mutex);
+pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
+    pone_universe* universe = world->universe;
 
     assert(universe);
     assert(universe->arena_last != NULL);
     pone_val* val;
 
-    // STRESS GC.
+#ifdef STRESS_GC
     pone_send_private_sig(PONE_SIG_GC);
+#endif
+
+    GVL_LOCK(universe);
 
     // check free-ed values
     if (universe->freelist) {
@@ -50,7 +51,9 @@ pone_val* pone_obj_alloc(pone_universe* universe, pone_t type) {
 
     val->as.basic.type   = type;
 
-    pthread_mutex_unlock(&alloc_mutex);
+    pone_save_tmp(world, val);
+
+    GVL_UNLOCK(universe);
 
     return val;
 }
@@ -71,7 +74,7 @@ void pone_free(pone_universe* universe, void* p) {
     free(p);
 }
 
-char* pone_strdup(pone_universe* universe, const char* src, size_t size) {
+char* pone_strdup(pone_world* world, const char* src, size_t size) {
     char* p = (char*)malloc(size+1);
     if (!p) {
         fprintf(stderr, "Cannot allocate memory\n");

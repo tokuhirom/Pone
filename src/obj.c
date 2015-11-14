@@ -13,11 +13,11 @@ void pone_obj_mark(pone_val* val) {
     pone_gc_mark_value(val->as.obj.klass);
 }
 
-pone_val* pone_obj_new(pone_universe* universe, pone_val* klass) {
+pone_val* pone_obj_new(pone_world* world, pone_val* klass) {
     assert(klass);
     assert(pone_type(klass) == PONE_OBJ);
 
-    pone_obj* obj = (pone_obj*)pone_obj_alloc(universe, PONE_OBJ);
+    pone_obj* obj = (pone_obj*)pone_obj_alloc(world, PONE_OBJ);
     obj->klass = klass;
     obj->ivar = kh_init(str);
 
@@ -38,10 +38,10 @@ void pone_obj_free(pone_universe* universe, pone_val* val) {
 }
 
 // set instance variable to the object without refinc++
-void pone_obj_set_ivar(pone_universe* universe, pone_val* obj, const char* name, pone_val* val) {
+void pone_obj_set_ivar(pone_world* world, pone_val* obj, const char* name, pone_val* val) {
     assert(pone_type(obj) == PONE_OBJ);
 
-    char *ks = pone_strdup(universe, name, strlen(name));
+    char *ks = pone_strdup(world, name, strlen(name));
     int ret;
     khint_t key = kh_put(str, obj->as.obj.ivar, ks, &ret);
     if (ret == -1) {
@@ -52,7 +52,7 @@ void pone_obj_set_ivar(pone_universe* universe, pone_val* obj, const char* name,
 }
 
 // get instance variable from the object
-pone_val* pone_obj_get_ivar(pone_universe* universe, pone_val* obj, const char* name) {
+pone_val* pone_obj_get_ivar(pone_world* world, pone_val* obj, const char* name) {
     assert(pone_type(obj) == PONE_OBJ);
 
     khint_t entry = kh_get(str, obj->as.obj.ivar, name);

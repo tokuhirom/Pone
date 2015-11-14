@@ -9,8 +9,8 @@ void pone_code_mark(pone_val* val) {
 /**
  * C level API to create new Code object
  */
-pone_val* pone_code_new_c(pone_universe* universe, pone_funcptr_t func) {
-    pone_code* cv = (pone_code*)pone_obj_alloc(universe, PONE_CODE);
+pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func) {
+    pone_code* cv = (pone_code*)pone_obj_alloc(world, PONE_CODE);
     cv->func = func;
     cv->lex = NULL;
 
@@ -21,7 +21,7 @@ pone_val* pone_code_new_c(pone_universe* universe, pone_funcptr_t func) {
  * pone level API to create new Code object
  */
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func) {
-    pone_code* cv = (pone_code*)pone_obj_alloc(world->universe, PONE_CODE);
+    pone_code* cv = (pone_code*)pone_obj_alloc(world, PONE_CODE);
     cv->func = func;
     cv->lex = world->lex;
 
@@ -29,7 +29,7 @@ pone_val* pone_code_new(pone_world* world, pone_funcptr_t func) {
 }
 
 void pone_code_free(pone_universe* universe, pone_val* v) {
-    printf("pone_code_free: universe:%p code:%p\n", universe, v);
+    // printf("pone_code_free: universe:%p code:%p\n", universe, v);
     assert(pone_type(v) == PONE_CODE);
 }
 
@@ -40,7 +40,7 @@ pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int
     if (cv->lex) { //pone level code
         // save original lex.
         pone_val* orig_lex = world->lex;
-        printf("WORK %p?\n", orig_lex);
+        pone_save_tmp(world, orig_lex);
         // create new lex from Code's saved lex.
         world->lex = cv->lex;
 
@@ -70,10 +70,11 @@ pone_val* pone_code_call(pone_world* world, pone_val* code, pone_val* self, int 
     return retval;
 }
 
-void pone_code_init(pone_universe* universe) {
+void pone_code_init(pone_world* world) {
+    pone_universe* universe = world->universe;
     assert(universe->class_code == NULL);
 
-    universe->class_code = pone_class_new(universe, "Code", strlen("Code"));
-    pone_class_compose(universe, universe->class_code);
+    universe->class_code = pone_class_new(world, "Code", strlen("Code"));
+    pone_class_compose(world, universe->class_code);
 }
 

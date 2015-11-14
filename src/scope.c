@@ -1,16 +1,22 @@
 #include "pone.h" /* PONE_INC */
 
 pone_val* pone_lex_new(pone_world* world, pone_val* parent) {
-    pone_lex_t* lex = (pone_lex_t*)pone_obj_alloc(world->universe, PONE_LEX);
+    pone_val* lex = pone_obj_alloc(world, PONE_LEX);
+    assert(lex->as.basic.type == PONE_LEX);
+#ifdef TRACE_LEX
     printf("[pone lex] pone_lex_new: %p lex:%p\n", world, lex);
-    lex->map = kh_init(str);
-    lex->parent = parent;
-    lex->thread_id = pthread_self();
-    return (pone_val*)lex;
+#endif
+    lex->as.lex.map = kh_init(str);
+    lex->as.lex.parent = parent;
+    lex->as.lex.thread_id = pthread_self();
+    assert(lex->as.basic.type == PONE_LEX);
+    return lex;
 }
 
 void pone_lex_mark(pone_val* lex) {
+#ifdef TRACE_LEX
     printf("lex mark %p flags:%d\n", lex, lex->as.lex.flags);
+#endif
 
     const char* k;
     pone_val* v;
@@ -53,7 +59,7 @@ void pone_push_scope(pone_world* world) {
 }
 
 void pone_lex_free(pone_universe* universe, pone_val* val) {
-    printf("pone_lex_free: %p lex:%p\n", universe, val);
+    // printf("pone_lex_free: %p lex:%p\n", universe, val);
     kh_destroy(str, val->as.lex.map);
 }
 

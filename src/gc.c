@@ -115,10 +115,11 @@ static pone_val* meth_gc_run(pone_world* world, pone_val* self, int n, va_list a
     return pone_nil();
 }
 
-void pone_gc_init(pone_universe* universe) {
-    pone_val* gc = pone_class_new(universe, "GC", strlen("GC"));
-    pone_add_method_c(universe, gc, "run", strlen("run"), meth_gc_run);
-    pone_class_compose(universe, gc);
+void pone_gc_init(pone_world* world) {
+    pone_universe* universe = world->universe;
+    pone_val* gc = pone_class_new(world, "GC", strlen("GC"));
+    pone_add_method_c(world, gc, "run", strlen("run"), meth_gc_run);
+    pone_class_compose(world, gc);
     pone_universe_set_global(universe, "GC", gc);
 }
 
