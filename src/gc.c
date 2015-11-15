@@ -44,52 +44,56 @@ static void pone_gc_mark(pone_universe* universe) {
 }
 
 static void pone_gc_collect(pone_universe* universe) {
-    pone_arena* arena = universe->arena_head;
-    while (arena) {
-        for (pone_int_t i=0; i< arena->idx; ++i) {
-            pone_val* val = &(arena->values[i]);
-            if (pone_type(val) == 0) { // free-ed
-                continue;
-            }
-
-            if (pone_flags(val) & PONE_FLAGS_GC_MARK) {
-                // marked.
-                // remove marked flag.
-                pone_gc_log(universe, "[pone gc] marked: %p\n", val);
-                val->as.basic.flags ^= PONE_FLAGS_GC_MARK;
-            } else {
-                switch (pone_type(val)) {
-                case PONE_STRING:
-                    pone_str_free(universe, val);
-                    break;
-                case PONE_ARRAY:
-                    pone_ary_free(universe, val);
-                    break;
-                case PONE_HASH:
-                    pone_hash_free(universe, val);
-                    break;
-                case PONE_CODE:
-                    pone_code_free(universe, val);
-                    break;
-                case PONE_OBJ:
-                    pone_obj_free(universe, val);
-                    break;
-                case PONE_INT: // don't need to free heap
-                case PONE_NUM:
-                    break;
-                case PONE_NIL:
-                case PONE_BOOL:
+    pone_world* world = universe->world_head;
+    while (world) {
+        pone_arena* arena = world->arena_head;
+        while (arena) {
+            for (pone_int_t i=0; i< arena->idx; ++i) {
+                pone_val* val = &(arena->values[i]);
+                if (pone_type(val) == 0) { // free-ed
                     continue;
-                    abort(); // should not reach here.
-                case PONE_LEX:
-                pone_gc_log(universe, "[pone gc] free!!: %d, %p\n", pone_flags(val),val);
-                    pone_lex_free(universe, val);
-                    break;
                 }
-                pone_val_free(universe, val);
+
+                if (pone_flags(val) & PONE_FLAGS_GC_MARK) {
+                    // marked.
+                    // remove marked flag.
+                    GC_TRACE("marked obj: %p\n", val);
+                    val->as.basic.flags ^= PONE_FLAGS_GC_MARK;
+                } else {
+                    GC_TRACE("free: %p\n", val);
+                    switch (pone_type(val)) {
+                    case PONE_STRING:
+                        pone_str_free(universe, val);
+                        break;
+                    case PONE_ARRAY:
+                        pone_ary_free(universe, val);
+                        break;
+                    case PONE_HASH:
+                        pone_hash_free(universe, val);
+                        break;
+                    case PONE_CODE:
+                        pone_code_free(universe, val);
+                        break;
+                    case PONE_OBJ:
+                        pone_obj_free(universe, val);
+                        break;
+                    case PONE_INT: // don't need to free heap
+                    case PONE_NUM:
+                        break;
+                    case PONE_NIL:
+                    case PONE_BOOL:
+                        continue;
+                        abort(); // should not reach here.
+                    case PONE_LEX:
+                        pone_lex_free(universe, val);
+                        break;
+                    }
+                    pone_val_free(universe, val);
+                }
             }
+            arena = arena->next;
         }
-        arena = arena->next;
+        world = world->next;
     }
 }
 

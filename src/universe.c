@@ -30,12 +30,6 @@ pone_universe* pone_universe_init() {
         exit(1);
     }
     memset(universe, 0, sizeof(pone_universe));
-    universe->arena_last = universe->arena_head = malloc(sizeof(pone_arena));
-    if (!universe->arena_last) {
-        fprintf(stderr, "cannot allocate memory\n");
-        exit(1);
-    }
-    memset(universe->arena_last, 0, sizeof(pone_arena));
 
     pthread_mutex_init(&(universe->mutex), NULL);
 
@@ -65,12 +59,6 @@ void pone_universe_destroy(pone_universe* universe) {
 
     rockre_destroy(universe->rockre);
 
-    pone_arena* a = universe->arena_head;
-    while (a) {
-        pone_arena* next = a->next;
-        free(a);
-        a = next;
-    }
     free(universe);
 }
 

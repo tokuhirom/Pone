@@ -135,6 +135,12 @@ struct pone_universe;
 
 // thread context
 typedef struct pone_world {
+    struct pone_arena* arena_head;
+    struct pone_arena* arena_last;
+
+    // list of unused values.
+    struct pone_val* freelist;
+
     struct pone_universe* universe;
 
     // lexical value list
@@ -151,9 +157,18 @@ typedef struct pone_world {
 
     // save C stack values for saving from GC...
     // tmpstack contains list of values in C stack.
-    kvec_t(struct pone_val*) tmpstack;
+    struct {
+        struct pone_val** a;
+        size_t n;
+        size_t m;
+    } tmpstack;
+
     // pone pushes current position of the tmpstack top.
-    kvec_t(pone_int_t) savestack;
+    struct {
+        size_t* a;
+        size_t n;
+        size_t m;
+    } savestack;
 
     // linked-list for gc
     struct pone_world* next;
@@ -198,14 +213,12 @@ typedef struct pone_thread_t {
 
 // VM context
 typedef struct pone_universe {
-    struct pone_arena* arena_head;
-    struct pone_arena* arena_last;
-
-    // list of unused values.
-    struct pone_val* freelist;
-
     // signal handlers
     struct pone_val *signal_handlers[PONE_SIGNAL_HANDLERS_SIZE];
+
+    // arena's from free'd world.
+    struct pone_arena* freed_arena;
+    struct pone_val* freed_freelist;
 
     // 無("Mu")
     struct pone_val* class_mu;
@@ -510,14 +523,26 @@ void pone_send_private_sig(int sig);
 void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* code);
 
 #ifdef THREAD_DEBUG
-#define THREAD_TRACE(fmt, ...) printf("[pone-thread] " fmt, ##__VA_ARGS__)
+#define THREAD_TRACE(fmt, ...) printf("[pone thread] " fmt, ##__VA_ARGS__)
 #else
 #define THREAD_TRACE(fmt, ...)
 #endif
 
+#ifdef GC_DEBUG
+#define GC_TRACE(fmt, ...) printf("[pone gc] " fmt, ##__VA_ARGS__)
+#else
+#define GC_TRACE(fmt, ...)
+#endif
+
+#ifdef EXC_DEBUG
+#define EXC_LOG(fmt, ...) printf("[pone exc] " fmt, ##__VA_ARGS__)
+#else
+#define EXC_LOG(fmt, ...)
+#endif
+
 #define GVL_LOCK(universe) \
   do { \
-      THREAD_TRACE("LOCK: thread:%lx(%s)\n", pthread_self(), __func__); \
+      THREAD_TRACE("LOCK: thread:%lx(%s line %d)\n", pthread_self(), __func__, __LINE__); \
       pthread_mutex_lock(&(universe->mutex)); \
   } while (0)
 #define GVL_UNLOCK(universe) \

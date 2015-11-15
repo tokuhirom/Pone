@@ -15,6 +15,21 @@ if (THREAD_DEBUG)
     SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DTHREAD_DEBUG")
 endif()
 
+set(EXC_DEBUG "0" CACHE BOOL "enable EXC debugging")
+if (EXC_DEBUG)
+    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DEXC_DEBUG")
+endif()
+
+set(GC_DEBUG "0" CACHE BOOL "enable GC debugging")
+if (GC_DEBUG)
+    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DGC_DEBUG")
+endif()
+
+set(TRACE_WORLD "0" CACHE BOOL "enable world tracing")
+if (TRACE_WORLD)
+    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DTRACE_WORLD")
+endif()
+
 set(NO_REUSE "0" CACHE BOOL "do not reuse free'd value")
 if (NO_REUSE)
     SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DNO_REUSE")

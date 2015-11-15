@@ -14,7 +14,7 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
     pone_universe* universe = world->universe;
 
     assert(universe);
-    assert(universe->arena_last != NULL);
+    assert(world->arena_last != NULL);
     pone_val* val;
 
 #ifdef STRESS_GC
@@ -24,15 +24,15 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
     GVL_LOCK(universe);
 
     // check free-ed values
-    if (universe->freelist) {
+    if (world->freelist) {
         // reuse it.
-        val = universe->freelist;
-        universe->freelist = universe->freelist->as.free.next;
+        val = world->freelist;
+        world->freelist = world->freelist->as.free.next;
         val->as.basic.flags = 0;
     } else {
         // there is no free-ed value.
         // then, use value from arena.
-        if (universe->arena_last->idx == PONE_ARENA_SIZE) {
+        if (world->arena_last->idx == PONE_ARENA_SIZE) {
             // arena doesn't have an empty slot
 
             // Run GC.
@@ -40,12 +40,12 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
 
             // alloc new arena
             pone_arena* arena = pone_malloc(universe, sizeof(pone_arena));
-            universe->arena_last->next = arena;
-            universe->arena_last = arena;
+            world->arena_last->next = arena;
+            world->arena_last = arena;
             val = &(arena->values[arena->idx++]);
         } else {
             // use last arena entry
-            val = &(universe->arena_last->values[universe->arena_last->idx++]);
+            val = &(world->arena_last->values[world->arena_last->idx++]);
         }
     }
 
@@ -65,8 +65,8 @@ void pone_val_free(pone_universe* universe, pone_val* p) {
     memset(p, 0, sizeof(pone_val));
 #endif
 #ifndef NO_REUSE
-    p->as.free.next = universe->freelist;
-    universe->freelist = p;
+    p->as.free.next = world->freelist;
+    world->freelist = p;
 #endif
 }
 

@@ -60,10 +60,17 @@ pone_world* pone_world_new(pone_universe* universe) {
     world->errvar = pone_nil();
 
 #ifdef TRACE_WORLD
-    printf("world new: %x\n", world);
+    printf("[pone world] world new: %p\n", world);
 #endif
 
     world->universe = universe;
+
+    world->arena_last = world->arena_head = malloc(sizeof(pone_arena));
+    if (!world->arena_last) {
+        fprintf(stderr, "cannot allocate memory\n");
+        exit(1);
+    }
+    memset(world->arena_last, 0, sizeof(pone_arena));
 
     world->lex = pone_lex_new(world, NULL);
     assert(pone_type(world->lex) == PONE_LEX);
@@ -73,20 +80,54 @@ pone_world* pone_world_new(pone_universe* universe) {
     world->err_handler_idx = 0;
     world->err_handler_max = PONE_ERR_HANDLERS_INIT;
 
-    kv_init(world->tmpstack);
-    kv_init(world->savestack);
+    world->tmpstack.a = NULL;
+    world->tmpstack.n = 0;
+    world->tmpstack.m = 0;
+
+    world->savestack.a = NULL;
+    world->savestack.n = 0;
+    world->savestack.m = 0;
 
     pone_gc_log(world->universe, "[pone gc] create new world %p\n", world);
 
+    GVL_LOCK(world->universe); // This operation modifies universe's structure.
     pone_world_list_append(universe, world);
+    GVL_UNLOCK(world->universe);
 
     return world;
 }
 
 // This routine needs GVL
 void pone_world_free(pone_world* world) {
-    kv_destroy(world->tmpstack);
-    kv_destroy(world->savestack);
+    GC_TRACE("freeing world! %p\n", world);
+
+    // pass free'd arenas to universe.
+    world->arena_head->next = world->universe->freed_arena;
+    world->universe->freed_arena = world->arena_head;
+
+    pone_val* v = world->freelist;
+    while (v) {
+        pone_val* nv = v->as.free.next;
+        v->as.free.next = world->universe->freed_freelist;
+        world->universe->freed_freelist = v;
+        v = nv;
+    }
+
+#ifndef NDEBUG
+    world->tmpstack.n=0;
+    world->tmpstack.m=0;
+    world->savestack.n=0;
+    world->savestack.m=0;
+#endif
+    free(world->tmpstack.a);
+    free(world->savestack.a);
+
+//  pone_arena* a = world->arena_head;
+//  while (a) {
+//      pone_arena* next = a->next;
+//      free(a);
+//      a = next;
+//  }
 
     pone_gc_log(world->universe, "[pone gc] freeing world %p\n", world);
     pone_world_list_remove(world->universe, world);

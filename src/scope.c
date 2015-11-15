@@ -55,11 +55,17 @@ void pone_push_scope(pone_world* world) {
     world->lex = pone_lex_new(world, world->lex);
     assert(pone_type(world->lex) == PONE_LEX);
 
-    kv_push(pone_int_t, world->savestack, kv_size(world->tmpstack));
+    if (world->savestack.n == world->savestack.m) {
+        world->savestack.m = world->savestack.m ? world->savestack.m<<1 : 2;
+        world->savestack.a = (size_t*)realloc(world->savestack.a,
+                sizeof(size_t) * world->savestack.m);
+        PONE_ALLOC_CHECK(world->savestack.a);
+    }
+    world->savestack.a[world->savestack.n++] = world->tmpstack.n;
 }
 
 void pone_lex_free(pone_universe* universe, pone_val* val) {
-    // printf("pone_lex_free: %p lex:%p\n", universe, val);
+    GC_TRACE("pone_lex_free: %p lex:%p\n", universe, val);
     kh_destroy(str, val->as.lex.map);
 }
 
@@ -81,11 +87,17 @@ void pone_pop_scope(pone_world* world) {
     }
 #endif
 
-    world->tmpstack.n = kv_pop(world->savestack);
+    world->tmpstack.n = world->savestack.a[--(world->savestack.n)];
 }
 
 pone_val* pone_save_tmp(pone_world* world, pone_val* val) {
-    kv_push(pone_val*, world->tmpstack, val);
+    if (world->tmpstack.n == world->tmpstack.m) {
+        world->tmpstack.m = world->tmpstack.m ? world->tmpstack.m<<1 : 2;
+        world->tmpstack.a = (pone_val**)realloc(world->tmpstack.a,
+                sizeof(pone_val*)*world->tmpstack.m);
+        PONE_ALLOC_CHECK(world->tmpstack.a);
+    }
+    world->tmpstack.a[world->tmpstack.n++] = val;
     return val;
 }
 

@@ -4,6 +4,7 @@
 pone_val* pone_get_lex(pone_world* world, const char* key) {
     pone_val* lex = world->lex;
     while (lex != NULL) {
+        assert(pone_alive(lex));
         khint_t kh = kh_get(str, lex->as.lex.map, key);
         if (kh == kh_end(lex->as.lex.map)) {
             lex = lex->as.lex.parent;

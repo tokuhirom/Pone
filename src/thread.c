@@ -8,9 +8,10 @@ typedef struct thread_context {
 } thread_context;
 
 static void* thread_start(void* p) {
-    THREAD_TRACE("NEW %ld\n", pthread_self());
 
     thread_context* context = (thread_context*)p;
+
+    THREAD_TRACE("NEW %lx world:%p\n", pthread_self(), context->world);
 
     // extract values to stack
     pone_world* world = context->world;
@@ -41,9 +42,7 @@ static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_
     pone_val*code = va_arg(args, pone_val*);
     assert(pone_type(code) == PONE_CODE);
 
-    GVL_LOCK(world->universe); // This operation modifies universe's structure.
     pone_world* new_world = pone_world_new(world->universe);
-    GVL_UNLOCK(world->universe);
 
     // save `code`
     pone_save_tmp(new_world, code);
@@ -90,7 +89,7 @@ static pone_val* meth_thread_id(pone_world* world, pone_val* self, int n, va_lis
 }
 
 pone_val* pone_thread_join(pone_universe* universe, pthread_t thr) {
-    THREAD_TRACE("JOIN %ld\n", thr);
+    THREAD_TRACE("JOIN thread:%lx\n", thr);
 
     void* retval;
     int e;
@@ -99,6 +98,8 @@ pone_val* pone_thread_join(pone_universe* universe, pthread_t thr) {
         perror("cannot join thread");
         exit(EXIT_FAILURE);
     }
+
+    THREAD_TRACE("JOIN-ed thread:%lx\n", thr);
 
     GVL_LOCK(universe); // This operation modifies universe's structure.
 
