@@ -71,6 +71,18 @@ void pone_universe_destroy(pone_universe* universe) {
         (void)pone_thread_join(universe, universe->threads->thread);
     }
 
+    if (universe->gc_thread) {
+        // Kill GC thread
+        GC_LOCK(universe);
+        universe->in_global_destruction = true;
+        CHECK_PTHREAD(pthread_cond_signal(&(universe->gc_cond)));
+        GC_UNLOCK(universe);
+
+        CHECK_PTHREAD(pthread_join(universe->gc_thread, NULL));
+    } else {
+        universe->in_global_destruction = true;
+    }
+
     pthread_mutex_destroy(&(universe->gc_mutex));
     pthread_cond_destroy(&(universe->gc_cond));
     pthread_mutex_destroy(&(universe->universe_mutex));

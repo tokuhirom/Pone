@@ -271,6 +271,8 @@ typedef struct pone_universe {
     // thread id of GC thread
     pthread_t gc_thread;
 
+    bool in_global_destruction;
+
     // UNIVERSE lock. You need to lock this before modify this object.
     pthread_mutex_t universe_mutex;
 
@@ -527,13 +529,13 @@ void pone_gc_request(pone_universe* universe);
 void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* code);
 
 #ifdef THREAD_DEBUG
-#define THREAD_TRACE(fmt, ...) fprintf(stderr, "[pone thread] " fmt, ##__VA_ARGS__)
+#define THREAD_TRACE(fmt, ...) fprintf(stderr, "[pone thread] [%lx] " fmt "\n", pthread_self(), ##__VA_ARGS__)
 #else
 #define THREAD_TRACE(fmt, ...)
 #endif
 
 #ifdef GC_DEBUG
-#define GC_TRACE(fmt, ...) fprintf(stderr, "[pone gc] " fmt, ##__VA_ARGS__)
+#define GC_TRACE(fmt, ...) fprintf(stderr, "[pone gc] " fmt "\n", ##__VA_ARGS__)
 #else
 #define GC_TRACE(fmt, ...)
 #endif
@@ -589,6 +591,17 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
 #else
 #define ASSERT_LOCK(lock)
 #endif
+
+#define CHECK_PTHREAD(code) \
+  do { \
+      int r; \
+      THREAD_TRACE("%s", #code); \
+      if ((r=(code)) != 0) { \
+          errno = r; \
+          perror("pthread error: " #code); \
+          abort(); \
+      } \
+  } while (0)
 
 #define ASSERT_GC_LOCK(universe) ASSERT_LOCK((universe)->gc_mutex)
 

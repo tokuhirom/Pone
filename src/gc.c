@@ -135,18 +135,19 @@ static pone_val* meth_gc_run(pone_world* world, pone_val* self, int n, va_list a
 static void* gc_thread(void* p) {
     pone_universe* universe = (pone_universe*)p;
 
+    // universe.c will cancel at process termination
+    int oldstate;
+    CHECK_PTHREAD(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE|PTHREAD_CANCEL_ASYNCHRONOUS, &oldstate));
+
     GC_LOCK(universe);
 
-    while (true) {
+    while (!universe->in_global_destruction) {
         GC_TRACE("GC thread waiting GC request...");
-        int r;
-        if ((r=pthread_cond_wait(&(universe->gc_cond), &(universe->gc_mutex)))!=0) {
-            errno = r;
-            perror("cannot call pthread_cond_wait");
-            abort();
-        }
+        CHECK_PTHREAD(pthread_cond_wait(&(universe->gc_cond), &(universe->gc_mutex)));
+        GC_TRACE("GC thread got gc request");
         pone_gc_run(universe);
     }
+    CHECK_PTHREAD(pthread_mutex_unlock(&(universe->gc_mutex)));
 
     return NULL;
 }
