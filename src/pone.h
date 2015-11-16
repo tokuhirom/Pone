@@ -169,6 +169,8 @@ typedef struct pone_world {
         size_t m;
     } savestack;
 
+    pthread_t thread_id;
+
     // linked-list for gc
     struct pone_world* next;
     struct pone_world* prev;
@@ -202,11 +204,6 @@ typedef struct pone_val {
         pone_lex_t lex;
     } as;
 } pone_val;
-
-typedef struct pone_thread_t {
-    struct pone_thread_t * next;
-    pthread_t thread;
-} pone_thread_t;
 
 #define PONE_SIGNAL_HANDLERS_SIZE 32
 
@@ -270,13 +267,13 @@ typedef struct pone_universe {
     // thread id of GC thread
     pthread_t gc_thread;
 
+    // thread.c sends signal at thread termination.
+    pthread_cond_t thread_temrinate_cond;
+
     bool in_global_destruction;
 
     // UNIVERSE lock. You need to lock this before modify this object.
     pthread_mutex_t universe_mutex;
-
-    pone_thread_t* threads;
-    int thread_num;
 
     // list of world for gc
     pone_world* world_head;
@@ -513,7 +510,7 @@ void pone_match_push(pone_world* world, pone_val* self, pone_int_t from, pone_in
 
 // thread.c
 void pone_thread_init(pone_world* world);
-pone_val* pone_thread_join(pone_universe* universe, pthread_t thr);
+void pone_thread_join(pone_universe* universe, pthread_t thr);
 
 // pair.c
 void pone_pair_init(pone_world* world);
@@ -590,6 +587,9 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
 #define ASSERT_LOCK(lock)
 #endif
 
+#define ASSERT_GC_LOCK(universe) ASSERT_LOCK((universe)->gc_mutex)
+#define ASSERT_UNIVERSE_LOCK(universe) ASSERT_LOCK((universe)->universe_mutex)
+
 #define CHECK_PTHREAD(code) \
   do { \
       int r; \
@@ -600,8 +600,6 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
           abort(); \
       } \
   } while (0)
-
-#define ASSERT_GC_LOCK(universe) ASSERT_LOCK((universe)->gc_mutex)
 
 #define PONE_DECLARE_GETTER(name, var) \
     static pone_val* name(pone_world* world, pone_val* self, int n, va_list args) { \

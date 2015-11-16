@@ -64,6 +64,9 @@ Get current time in sec.
 Concurrency
 ===========
 
+*Do not communicate by sharing memory; instead, share memory by communicating*.
+
+ * Shared nothing architecture. Each threads communicate by Channels.
  * built-in Array/Hash is *not* thread safe.
 
 There is no GVL in Pone. But there's some synchronization point.
@@ -75,6 +78,12 @@ And there's some limitations.
 
  * You can't assign variables that created by another thread.
 
+FAQ
+===
+
+## Is there a thread.join equivalent?
+
+No. You should use termination channel instead.
 
 AUTHOR
 ======

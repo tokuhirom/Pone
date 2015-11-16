@@ -24,15 +24,15 @@ static void* thread_start(void* p) {
     pone_free(world->universe, p);
 
     assert(pone_type(code) == PONE_CODE);
-    pone_val* retval = pone_code_call(world, code, pone_nil(), 0);
-
+    (void) pone_code_call(world, code, pone_nil(), 0);
 
     pone_universe* universe = world->universe;
     UNIVERSE_LOCK(universe);
     pone_world_free(world);
+    CHECK_PTHREAD(pthread_cond_signal(&(universe->thread_temrinate_cond)));
     UNIVERSE_UNLOCK(universe);
 
-    return retval; // XXX we need to save this value?
+    return world;
 }
 
 static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_list args) {
@@ -53,29 +53,15 @@ static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_
     p->world = new_world;
     p->code = code;
 
-    if (world->universe->thread_num == INT_MAX) {
-        fprintf(stderr, "too many threads\n");
-        abort();
-    }
-
-    UNIVERSE_LOCK(world->universe); // This operation modifies universe's structure.
-
-    world->universe->thread_num++;
-    pone_thread_t* pthr = pone_malloc(world->universe, sizeof(pone_thread_t));
-    pthr->next = world->universe->threads;
-    world->universe->threads = pthr;
-
-    UNIVERSE_UNLOCK(world->universe);
-
     int e;
-    if ((e = pthread_create(&(pthr->thread), NULL, &thread_start, p)) != 0) {
+    if ((e = pthread_create(&(new_world->thread_id), NULL, &thread_start, p)) != 0) {
         errno=e;
         perror("Cannot create thread");
         abort();
     }
 
     pone_val* thr = pone_obj_new(world, world->universe->class_thread);
-    pone_obj_set_ivar(world, thr, "$!thread", pone_int_new(world, (pone_int_t)(&(pthr->thread))));
+    pone_obj_set_ivar(world, thr, "$!thread", pone_int_new(world, (pone_int_t)(&(world->thread_id))));
 
     return thr;
 }
@@ -90,74 +76,6 @@ static pone_val* meth_thread_id(pone_world* world, pone_val* self, int n, va_lis
     return pone_int_new(world, *thr);
 }
 
-pone_val* pone_thread_join(pone_universe* universe, pthread_t thr) {
-    THREAD_TRACE("JOIN thread:%lx", thr);
-
-    void* retval;
-    int e;
-    if ((e = pthread_join(thr, &retval)) != 0) {
-        errno = e;
-        perror("cannot join thread");
-        exit(EXIT_FAILURE);
-    }
-
-    THREAD_TRACE("JOIN-ed thread:%lx", thr);
-
-    UNIVERSE_LOCK(universe); // This operation modifies universe's structure.
-
-    pone_thread_t *pthr = universe->threads;
-    if (pthr->thread == thr) {
-        universe->threads = pthr->next;
-        pone_free(universe, pthr);
-    } else {
-        pone_thread_t *prev = pthr;
-        pthr = pthr->next;
-        while (pthr != NULL) {
-            if (pthr->thread == thr) {
-                prev->next = pthr->next;
-                pone_free(universe, pthr);
-                break;
-            }
-            prev = pthr;
-            pthr = pthr->next;
-        }
-    }
-    universe->thread_num--;
-
-    UNIVERSE_UNLOCK(universe);
-
-    return (pone_val*)retval;
-}
-
-static pone_val* meth_thread_join(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
-    assert(sizeof(pthread_t) <= sizeof(pone_int_t));
-
-    pone_val* thread = pone_obj_get_ivar(world, self, "$!thread");
-    pthread_t* thr = (pthread_t*)pone_int_val(thread);
-
-    return pone_thread_join(world->universe, *thr);
-}
-
-static pone_val* meth_thread_kill(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 1);
-    assert(sizeof(pthread_t) <= sizeof(pone_int_t));
-
-    pone_val* sig = va_arg(args, pone_val*);
-
-    pone_val* thread = pone_obj_get_ivar(world, self, "$!thread");
-    pthread_t* thr = (pthread_t*)pone_int_val(thread);
-
-    int e;
-    if ((e = pthread_kill(*thr, pone_intify(world, sig))) != 0) {
-        errno = e;
-        perror("cannot join thread");
-        exit(EXIT_FAILURE);
-    }
-
-    return pone_nil();
-}
-
 void pone_thread_init(pone_world* world) {
     pone_universe* universe = world->universe;
     assert(universe->class_thread == NULL);
@@ -166,8 +84,6 @@ void pone_thread_init(pone_world* world) {
     pone_class_push_parent(world, universe->class_thread, universe->class_any);
     pone_add_method_c(world, universe->class_thread, "start", strlen("start"), meth_thread_start);
     pone_add_method_c(world, universe->class_thread, "id", strlen("id"), meth_thread_id);
-    pone_add_method_c(world, universe->class_thread, "join", strlen("join"), meth_thread_join);
-    pone_add_method_c(world, universe->class_thread, "kill", strlen("kill"), meth_thread_kill);
     pone_class_compose(world, universe->class_thread);
     pone_universe_set_global(universe, "Thread", universe->class_thread);
     assert(universe->class_thread->as.obj.klass);

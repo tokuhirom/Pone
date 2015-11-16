@@ -93,8 +93,9 @@ pone_world* pone_world_new(pone_universe* universe) {
     return world;
 }
 
-// This routine needs GVL
 void pone_world_free(pone_world* world) {
+    ASSERT_UNIVERSE_LOCK(world->universe);
+
     GC_TRACE("freeing world! %p", world);
 
     // pass free'd arenas to universe.

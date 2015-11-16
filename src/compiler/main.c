@@ -325,6 +325,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             COMPILE(node->children.nodes[0]);
             PRINTF(");\n");
             PRINTF("    while (true) {\n");
+            PUSH_SCOPE();
             PRINTF("        pone_val* next = pone_iter_next(world, iter);\n");
             PRINTF("        if (next == world->universe->instance_iteration_end) {\n");
             PRINTF("            break;\n");
@@ -333,6 +334,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF("        pone_assign(world, 0, \"$_\", next);\n");
             COMPILE(node->children.nodes[1]);
             PRINTF(";\n");
+            POP_SCOPE();
             PRINTF("    }\n");
             PRINTF("}\n");
             break;
@@ -702,6 +704,7 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, PVIPNode* node, int so_no) {
     PRINTF("int main(int argc, const char **argv) {\n");
     PRINTF("    pone_universe* universe = pone_universe_init();\n");
     PRINTF("    pone_world* world = pone_world_new(universe);\n");
+    PRINTF("    world->thread_id = pthread_self();\n");
     PRINTF("    pone_init(world);\n");
     PRINTF("    world->err_handler_lexs[0] = world->lex;\n");
     PRINTF("    if (setjmp(world->err_handlers[0])) {\n");
@@ -710,7 +713,9 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, PVIPNode* node, int so_no) {
     PRINTF("        pone_push_scope(world);\n");
     PRINTF("        pone_so_init_%d(world);\n", so_no);
     PRINTF("        pone_pop_scope(world);\n");
+    PRINTF("        UNIVERSE_LOCK(world->universe);\n");
     PRINTF("        pone_world_free(world);\n");
+    PRINTF("        UNIVERSE_UNLOCK(world->universe);\n");
     PRINTF("        pone_universe_destroy(universe);\n");
     PRINTF("    }\n");
     PRINTF("}\n");
@@ -768,6 +773,7 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
 
         pone_universe* universe = pone_universe_init();
         pone_world* world = pone_world_new(universe);
+        world->thread_id = pthread_self();
         pone_init(world);
         world->err_handler_lexs[0] = world->lex;
         if (setjmp(world->err_handlers[0])) {
@@ -776,7 +782,9 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
             pone_push_scope(world);
             pone_so_init(world);
             pone_pop_scope(world);
+            UNIVERSE_LOCK(world->universe);
             pone_world_free(world);
+            UNIVERSE_UNLOCK(world->universe);
             pone_universe_destroy(universe);
         }
 

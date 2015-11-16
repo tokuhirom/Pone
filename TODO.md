@@ -33,6 +33,7 @@ TODO
  * `s///`
  * `Proc` builtin class
  * implement p5-ish built-in functions
+ * remove thread list in universe.
 
 ## Bindings
 

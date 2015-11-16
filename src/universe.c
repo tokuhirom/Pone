@@ -49,10 +49,11 @@ pone_universe* pone_universe_init() {
         abort();
     }
 
+    CHECK_PTHREAD(pthread_cond_init(&(universe->thread_temrinate_cond), NULL));
+
     universe->rockre = rockre_new();
 
     universe->globals = kh_init(str);
-
 
     return universe;
 }
@@ -67,9 +68,12 @@ void pone_universe_set_global(pone_universe* universe, const char* key, pone_val
 }
 
 void pone_universe_destroy(pone_universe* universe) {
-    while (universe->thread_num>0) {
-        (void)pone_thread_join(universe, universe->threads->thread);
+    // wait threads.
+    UNIVERSE_LOCK(universe);
+    while (universe->world_head) {
+        CHECK_PTHREAD(pthread_cond_wait(&(universe->thread_temrinate_cond), &(universe->universe_mutex)));
     }
+    UNIVERSE_UNLOCK(universe);
 
     if (universe->gc_thread) {
         // Kill GC thread
@@ -83,6 +87,7 @@ void pone_universe_destroy(pone_universe* universe) {
         universe->in_global_destruction = true;
     }
 
+    CHECK_PTHREAD(pthread_cond_destroy(&(universe->thread_temrinate_cond)));
     pthread_mutex_destroy(&(universe->gc_mutex));
     pthread_cond_destroy(&(universe->gc_cond));
     pthread_mutex_destroy(&(universe->universe_mutex));

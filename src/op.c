@@ -342,7 +342,7 @@ const char* pone_what_str_c(pone_val* val) {
     case PONE_OBJ:
         return "Obj"; // TODO return the class name!
     case PONE_LEX:
-        abort();
+        return "Lex";
     }
     abort();
 }

@@ -58,7 +58,7 @@ static void pone_gc_collect(pone_universe* universe) {
                 if (pone_flags(val) & PONE_FLAGS_GC_MARK) {
                     // marked.
                     // remove marked flag.
-                    GC_TRACE("marked obj: %p", val);
+                    GC_TRACE("marked obj: %p %s", val, pone_what_str_c(val));
                     val->as.basic.flags ^= PONE_FLAGS_GC_MARK;
                 } else {
                     GC_TRACE("free: %p", val);
