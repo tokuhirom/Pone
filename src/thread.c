@@ -20,17 +20,22 @@ static void* thread_start(void* p) {
     assert(pone_type(code) == PONE_CODE);
     assert(world->universe);
 
-    // free the context object.
-    pone_free(world->universe, p);
+    world->err_handler_lexs[0] = world->lex;
+    if (setjmp(world->err_handlers[0])) {
+        pone_universe_default_err_handler(world);
+    } else {
+        // free the context object.
+        pone_free(world->universe, p);
 
-    assert(pone_type(code) == PONE_CODE);
-    (void) pone_code_call(world, code, pone_nil(), 0);
+        assert(pone_type(code) == PONE_CODE);
+        (void) pone_code_call(world, code, pone_nil(), 0);
 
-    pone_universe* universe = world->universe;
-    UNIVERSE_LOCK(universe);
-    pone_world_free(world);
-    CHECK_PTHREAD(pthread_cond_signal(&(universe->thread_temrinate_cond)));
-    UNIVERSE_UNLOCK(universe);
+        pone_universe* universe = world->universe;
+        UNIVERSE_LOCK(universe);
+        pone_world_free(world);
+        CHECK_PTHREAD(pthread_cond_signal(&(universe->thread_temrinate_cond)));
+        UNIVERSE_UNLOCK(universe);
+    }
 
     return NULL;
 }
