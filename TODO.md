@@ -7,6 +7,9 @@ TODO
    * lex operation
    * world operation
    * mutable objects
+ * Channel
+
+## Basic features
 
  * `class A { }`
  * `class A is B { }`

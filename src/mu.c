@@ -48,19 +48,21 @@ Returns a string representation of the invocant, intended to be machine readable
 */
 static pone_val* meth_mu_str(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n==0);
-    return pone_str_new_const(world->universe, "Nil", strlen("Nil"));
+    return pone_str_new_const(world, "Nil", strlen("Nil"));
 }
 
-pone_val* pone_init_mu(pone_universe* universe) {
-    pone_val* obj = pone_obj_alloc(universe, PONE_OBJ);
+pone_val* pone_init_mu(pone_world* world) {
+    GC_LOCK(world->universe);
+    pone_val* obj = pone_obj_alloc(world, PONE_OBJ);
     obj->as.obj.ivar = kh_init(str);
     obj->as.obj.klass = pone_nil();
-    pone_obj_set_ivar(universe, (pone_val*)obj, "$!name", pone_str_new_const(universe, "Mu", strlen("Mu")));
-    pone_obj_set_ivar(universe, (pone_val*)obj, "$!methods", pone_hash_new(universe));
-    pone_obj_set_ivar(universe, (pone_val*)obj, "@!parents", pone_ary_new(universe, 0));
+    GC_UNLOCK(world->universe);
+    pone_obj_set_ivar(world, (pone_val*)obj, "$!name", pone_str_new_const(world, "Mu", strlen("Mu")));
+    pone_obj_set_ivar(world, (pone_val*)obj, "$!methods", pone_hash_new(world));
+    pone_obj_set_ivar(world, (pone_val*)obj, "@!parents", pone_ary_new(world, 0));
 
-    pone_add_method_c(universe, obj, "Str", strlen("Str"), meth_mu_str);
-    pone_add_method_c(universe, obj, "say", strlen("say"), meth_mu_say);
+    pone_add_method_c(world, obj, "Str", strlen("Str"), meth_mu_str);
+    pone_add_method_c(world, obj, "say", strlen("say"), meth_mu_say);
 
     return obj;
 }

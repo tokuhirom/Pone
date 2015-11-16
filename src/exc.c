@@ -29,7 +29,7 @@ void pone_exc_handler_pop(pone_world* world) {
 void pone_throw_str(pone_world* world, const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    pone_val* v = pone_str_new_vprintf(world->universe, fmt, args);
+    pone_val* v = pone_str_new_vprintf(world, fmt, args);
     va_end(args);
     pone_throw(world, v);
 }
@@ -43,6 +43,8 @@ void pone_throw(pone_world* world, pone_val* val) {
 
     // back to the lex
     world->lex = world->err_handler_lexs[world->err_handler_idx];
+
+    EXC_TRACE("throwing exc");
 
     // jmp to exception handler
     longjmp(world->err_handlers[world->err_handler_idx--], 1);

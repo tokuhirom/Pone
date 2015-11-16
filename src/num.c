@@ -13,9 +13,11 @@ Num - Num literal
 
 */
 
-pone_val* pone_num_new(pone_universe* universe, double n) {
-    pone_num* nv = (pone_num*)pone_obj_alloc(universe, PONE_NUM);
+pone_val* pone_num_new(pone_world* world, pone_num_t n) {
+    GC_LOCK(world->universe);
+    pone_num* nv = (pone_num*)pone_obj_alloc(world, PONE_NUM);
     nv->n = n;
+    GC_UNLOCK(world->universe);
     return (pone_val*)nv;
 }
 
@@ -40,25 +42,26 @@ static pone_val* meth_num_floor(pone_world* world, pone_val* self, int n, va_lis
     if (num > INT_MAX) {
         pone_throw_str(world, "integer overflow");
     }
-    return pone_int_new(world->universe, (int)floor(num));
+    return pone_int_new(world, (int)floor(num));
 }
 
 static pone_val* meth_num_str(pone_world* world, pone_val* self, int n, va_list args) {
-    return pone_str_from_num(world->universe, pone_num_val(self));
+    return pone_str_from_num(world, pone_num_val(self));
 }
 
 static pone_val* meth_num_num(pone_world* world, pone_val* self, int n, va_list args) {
-    return pone_num_new(world->universe, pone_num_val(self));
+    return pone_num_new(world, pone_num_val(self));
 }
 
-void pone_num_init(pone_universe* universe) {
+void pone_num_init(pone_world* world) {
+    pone_universe* universe = world->universe;
     assert(universe->class_num == NULL);
 
-    universe->class_num = pone_class_new(universe, "Num", strlen("Num"));
-    pone_class_push_parent(universe, universe->class_num, universe->class_cool);
-    pone_add_method_c(universe, universe->class_num, "floor", strlen("floor"), meth_num_floor);
-    pone_add_method_c(universe, universe->class_num, "Str", strlen("Str"), meth_num_str);
-    pone_add_method_c(universe, universe->class_num, "Num", strlen("Num"), meth_num_num);
-    pone_class_compose(universe, universe->class_num);
+    universe->class_num = pone_class_new(world, "Num", strlen("Num"));
+    pone_class_push_parent(world, universe->class_num, universe->class_cool);
+    pone_add_method_c(world, universe->class_num, "floor", strlen("floor"), meth_num_floor);
+    pone_add_method_c(world, universe->class_num, "Str", strlen("Str"), meth_num_str);
+    pone_add_method_c(world, universe->class_num, "Num", strlen("Num"), meth_num_num);
+    pone_class_compose(world, universe->class_num);
 }
 

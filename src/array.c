@@ -7,13 +7,14 @@ void pone_ary_mark(pone_val* val) {
     }
 }
 
-pone_val* pone_ary_new(pone_universe* universe, pone_int_t n, ...) {
+pone_val* pone_ary_new(pone_world* world, pone_int_t n, ...) {
     va_list list;
 
-    pone_ary* av = (pone_ary*)pone_obj_alloc(universe, PONE_ARRAY);
+    GC_LOCK(world->universe);
+    pone_ary* av = (pone_ary*)pone_obj_alloc(world, PONE_ARRAY);
 
     va_start(list, n);
-    av->a = (pone_val**)pone_malloc(universe, sizeof(pone_val)*n);
+    av->a = (pone_val**)pone_malloc(world->universe, sizeof(pone_val)*n);
     if (!av->a) {
         abort();
     }
@@ -24,6 +25,7 @@ pone_val* pone_ary_new(pone_universe* universe, pone_int_t n, ...) {
         pone_val* v = va_arg(list, pone_val*);
         av->a[i] = v;
     }
+    GC_UNLOCK(world->universe);
     va_end(list);
 
     return (pone_val*)av;
@@ -51,6 +53,8 @@ pone_int_t pone_ary_elems(pone_val* av) {
 }
 
 void pone_ary_resize(pone_universe* universe, pone_val* self, pone_int_t size) {
+    GC_LOCK(universe);
+
     if (self->as.ary.len < size) {
         if (self->as.ary.max < size) { // need realloc
             self->as.ary.max = size;
@@ -69,6 +73,8 @@ void pone_ary_resize(pone_universe* universe, pone_val* self, pone_int_t size) {
     } else {
         abort();
     }
+
+    GC_UNLOCK(universe);
 }
 
 void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_val* val) {
@@ -80,19 +86,24 @@ void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_
     pone_int_t i = pone_intify(world, pos);
 
     if (a->len > i) {
+        GC_LOCK(world->universe);
         a->a[i] = val;
+        GC_UNLOCK(world->universe);
     } else {
         pone_ary_resize(universe, self, i+1);
+        GC_LOCK(world->universe);
         self->as.ary.a[i] = val;
+        GC_UNLOCK(world->universe);
     }
 }
 
+// this method is *not* thread safe.
 static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
 
     assert(pone_type(self) == PONE_OBJ);
-    pone_val* ary = pone_obj_get_ivar(world->universe, self, "$!val");
-    pone_val* i = pone_obj_get_ivar(world->universe, self, "$!i");
+    pone_val* ary = pone_obj_get_ivar(world, self, "$!val");
+    pone_val* i = pone_obj_get_ivar(world, self, "$!i");
     assert(pone_type(i) == PONE_INT);
 
     if (pone_int_val(i) != pone_ary_elems(ary)) {
@@ -139,10 +150,10 @@ static pone_val* meth_ary_iterator(pone_world* world, pone_val* self, int n, va_
     assert(pone_type(self) == PONE_ARRAY);
 
     // self!iterator-class.bless(i => 0, val => self)
-    pone_val* iterator_class = pone_obj_get_ivar(world->universe, pone_what(world->universe, self), "$!iterator-class");
-    pone_val* iter = pone_obj_new(world->universe, iterator_class);
-    pone_obj_set_ivar(world->universe, iter, "$!i", pone_int_new(world->universe, 0));
-    pone_obj_set_ivar(world->universe, iter, "$!val", self);
+    pone_val* iterator_class = pone_obj_get_ivar(world, pone_what(world, self), "$!iterator-class");
+    pone_val* iter = pone_obj_new(world, iterator_class);
+    pone_obj_set_ivar(world, iter, "$!i", pone_int_new(world, 0));
+    pone_obj_set_ivar(world, iter, "$!val", self);
     return iter;
 }
 
@@ -158,10 +169,12 @@ Get the number of elements.
 static pone_val* meth_ary_elems(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
     assert(pone_type(self) == PONE_ARRAY);
-    return pone_int_new(world->universe, pone_ary_elems(self));
+    return pone_int_new(world, pone_ary_elems(self));
 }
 
 void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
+    GC_LOCK(universe);
+
     assert(pone_type(self) == PONE_ARRAY);
 
     if (self->as.ary.max == self->as.ary.len) {
@@ -178,6 +191,7 @@ void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
     }
 
     self->as.ary.a[self->as.ary.len++] = val;
+    GC_UNLOCK(universe);
 }
 
 /*
@@ -203,6 +217,7 @@ static pone_val* meth_ary_append(pone_world* world, pone_val* self, int n, va_li
 }
 
 pone_val* pone_ary_last(pone_world* world, pone_val* self) {
+    assert(pone_type(self) == PONE_ARRAY);
     if (self->as.ary.len == 0) {
         pone_throw_str(world, "Cannot get last element from an empty Array");
     }
@@ -215,9 +230,11 @@ pone_val* pone_ary_pop(pone_world* world, pone_val* self) {
         pone_throw_str(world, "Cannot pop from an empty Array");
     }
 
+    GC_LOCK(world->universe);
     pone_val* retval = self->as.ary.a[self->as.ary.len-1];
     self->as.ary.a[self->as.ary.len-1] = NULL;
     self->as.ary.len--;
+    GC_UNLOCK(world->universe);
     return retval;
 }
 
@@ -299,7 +316,7 @@ NYI
 static pone_val* meth_ary_str(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
 
-    pone_val* v = pone_str_new(world->universe, "", 0);
+    pone_val* v = pone_str_new(world, "", 0);
     pone_str_append_c(world, v, "(", 1);
     for (pone_int_t i=0; i<pone_ary_elems(self); ++i) {
         pone_str_append(world, v, pone_ary_at_pos(self, i));
@@ -332,22 +349,23 @@ static pone_val* meth_ary_assign_pos(pone_world* world, pone_val* self, int n, v
     return value;
 }
 
-void pone_ary_init(pone_universe* universe) {
+void pone_ary_init(pone_world* world) {
+    pone_universe* universe = world->universe;
     assert(universe->class_ary == NULL);
 
-    pone_val* iter_class = pone_class_new(universe, "Array::Iterator", strlen("Array::Iterator"));
-    pone_add_method_c(universe, iter_class, "pull-one", strlen("pull-one"), meth_pull_one);
+    pone_val* iter_class = pone_class_new(world, "Array::Iterator", strlen("Array::Iterator"));
+    pone_add_method_c(world, iter_class, "pull-one", strlen("pull-one"), meth_pull_one);
 
-    universe->class_ary = pone_class_new(universe, "Array", strlen("Array"));
-    pone_class_push_parent(universe, universe->class_ary, universe->class_any);
-    pone_add_method_c(universe, universe->class_ary, "iterator", strlen("iterator"), meth_ary_iterator);
-    pone_add_method_c(universe, universe->class_ary, "elems", strlen("elems"), meth_ary_elems);
-    pone_add_method_c(universe, universe->class_ary, "append", strlen("append"), meth_ary_append);
-    pone_add_method_c(universe, universe->class_ary, "pop", strlen("pop"), meth_ary_pop);
-    pone_add_method_c(universe, universe->class_ary, "Str", strlen("Str"), meth_ary_str);
-    pone_add_method_c(universe, universe->class_ary, "ASSIGN-POS", strlen("ASSIGN-POS"), meth_ary_assign_pos);
-    pone_obj_set_ivar(universe, universe->class_ary, "$!iterator-class", iter_class);
+    universe->class_ary = pone_class_new(world, "Array", strlen("Array"));
+    pone_class_push_parent(world, universe->class_ary, universe->class_any);
+    pone_add_method_c(world, universe->class_ary, "iterator", strlen("iterator"), meth_ary_iterator);
+    pone_add_method_c(world, universe->class_ary, "elems", strlen("elems"), meth_ary_elems);
+    pone_add_method_c(world, universe->class_ary, "append", strlen("append"), meth_ary_append);
+    pone_add_method_c(world, universe->class_ary, "pop", strlen("pop"), meth_ary_pop);
+    pone_add_method_c(world, universe->class_ary, "Str", strlen("Str"), meth_ary_str);
+    pone_add_method_c(world, universe->class_ary, "ASSIGN-POS", strlen("ASSIGN-POS"), meth_ary_assign_pos);
+    pone_obj_set_ivar(world, universe->class_ary, "$!iterator-class", iter_class);
 
-    pone_class_compose(universe, universe->class_ary);
+    pone_class_compose(world, universe->class_ary);
 }
 

@@ -5,9 +5,11 @@ inline pone_int_t pone_int_val(pone_val* val) {
     return ((pone_int*)val)->i;
 }
 
-pone_val* pone_int_new(pone_universe* universe, pone_int_t i) {
-    pone_int* iv = (pone_int*)pone_obj_alloc(universe, PONE_INT);
+pone_val* pone_int_new(pone_world* world, pone_int_t i) {
+    GC_LOCK(world->universe);
+    pone_int* iv = (pone_int*)pone_obj_alloc(world, PONE_INT);
     iv->i = i;
+    GC_UNLOCK(world->universe);
     return (pone_val*)iv;
 }
 
@@ -40,11 +42,11 @@ static pone_val* meth_int_is_prime(pone_world* world, pone_val* self, int n, va_
 }
 
 static pone_val* meth_int_str(pone_world* world, pone_val* self, int n, va_list args) {
-    return pone_str_from_int(world->universe, pone_int_val(self));
+    return pone_str_from_int(world, pone_int_val(self));
 }
 
 static pone_val* meth_int_int(pone_world* world, pone_val* self, int n, va_list args) {
-    return pone_int_new(world->universe, pone_int_val(self));
+    return pone_int_new(world, pone_int_val(self));
 }
 
 static pone_val* meth_int_accepts(pone_world* world, pone_val* self, int n, va_list args) {
@@ -57,20 +59,21 @@ static pone_val* meth_int_accepts(pone_world* world, pone_val* self, int n, va_l
 }
 
 static pone_val* meth_int_num(pone_world* world, pone_val* self, int n, va_list args) {
-    return pone_num_new(world->universe, pone_int_val(self));
+    return pone_num_new(world, pone_int_val(self));
 }
 
-void pone_int_init(pone_universe* universe) {
+void pone_int_init(pone_world* world) {
+    pone_universe* universe = world->universe;
     assert(universe->class_int == NULL);
 
-    universe->class_int = pone_class_new(universe, "Int", strlen("Int"));
-    pone_class_push_parent(universe, universe->class_int, universe->class_cool);
-    pone_add_method_c(universe, universe->class_int, "is-prime", strlen("is-prime"), meth_int_is_prime);
-    pone_add_method_c(universe, universe->class_int, "Str", strlen("Str"), meth_int_str);
-    pone_add_method_c(universe, universe->class_int, "Int", strlen("Int"), meth_int_int);
-    pone_add_method_c(universe, universe->class_int, "Num", strlen("Num"), meth_int_num);
-    pone_add_method_c(universe, universe->class_int, "ACCEPTS", strlen("ACCEPTS"), meth_int_accepts);
+    universe->class_int = pone_class_new(world, "Int", strlen("Int"));
+    pone_class_push_parent(world, universe->class_int, universe->class_cool);
+    pone_add_method_c(world, universe->class_int, "is-prime", strlen("is-prime"), meth_int_is_prime);
+    pone_add_method_c(world, universe->class_int, "Str", strlen("Str"), meth_int_str);
+    pone_add_method_c(world, universe->class_int, "Int", strlen("Int"), meth_int_int);
+    pone_add_method_c(world, universe->class_int, "Num", strlen("Num"), meth_int_num);
+    pone_add_method_c(world, universe->class_int, "ACCEPTS", strlen("ACCEPTS"), meth_int_accepts);
 
-    pone_class_compose(universe, universe->class_int);
+    pone_class_compose(world, universe->class_int);
 }
 

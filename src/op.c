@@ -4,6 +4,7 @@
 pone_val* pone_get_lex(pone_world* world, const char* key) {
     pone_val* lex = world->lex;
     while (lex != NULL) {
+        assert(pone_alive(lex));
         khint_t kh = kh_get(str, lex->as.lex.map, key);
         if (kh == kh_end(lex->as.lex.map)) {
             lex = lex->as.lex.parent;
@@ -31,11 +32,17 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
         abort();
     }
 #endif
+
     assert(pone_type(world->lex) == PONE_LEX);
     for (int i=0; i<up; i++) {
         lex = lex->as.lex.parent;
     }
 
+    if (pthread_self() != lex->as.lex.thread_id) {
+        pone_throw_str(world, "You can't set variable to non-owned lexical variables from other thread");
+    }
+
+    GC_LOCK(world->universe);
     int ret;
     khint_t k = kh_put(str, lex->as.lex.map, key, &ret);
     if (ret == -1) {
@@ -43,6 +50,7 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
         abort();
     }
     kh_val(lex->as.lex.map, k) = val;
+    GC_UNLOCK(world->universe);
 
     return val;
 }
@@ -151,8 +159,8 @@ static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
 }
 
 // TODO we should implement .gist and .perl method for each class...
-void pone_dd(pone_universe* universe, pone_val* val) {
-    dd(universe, val, 0);
+void pone_dd(pone_world* world, pone_val* val) {
+    dd(world->universe, val, 0);
 }
 
 
@@ -189,11 +197,11 @@ pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2) {
     if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
         pone_num_t n1 = pone_numify(world, v1);
         pone_num_t n2 = pone_numify(world, v2);
-        return pone_num_new(world->universe, n1 + n2);
+        return pone_num_new(world, n1 + n2);
     } else {
         pone_int_t i1 = pone_intify(world, v1);
         pone_int_t i2 = pone_intify(world, v2);
-        return pone_int_new(world->universe, i1 + i2);
+        return pone_int_new(world, i1 + i2);
     }
 }
 
@@ -201,11 +209,11 @@ pone_val* pone_subtract(pone_world* world, pone_val* v1, pone_val* v2) {
     if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
         pone_num_t n1 = pone_numify(world, v1);
         pone_num_t n2 = pone_numify(world, v2);
-        return pone_num_new(world->universe, n1 - n2);
+        return pone_num_new(world, n1 - n2);
     } else {
         pone_int_t i1 = pone_intify(world, v1);
         pone_int_t i2 = pone_intify(world, v2);
-        return pone_int_new(world->universe, i1 - i2);
+        return pone_int_new(world, i1 - i2);
     }
 }
 
@@ -213,11 +221,11 @@ pone_val* pone_multiply(pone_world* world, pone_val* v1, pone_val* v2) {
     if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
         pone_num_t n1 = pone_numify(world, v1);
         pone_num_t n2 = pone_numify(world, v2);
-        return pone_num_new(world->universe, n1 * n2);
+        return pone_num_new(world, n1 * n2);
     } else {
         pone_int_t i1 = pone_intify(world, v1);
         pone_int_t i2 = pone_intify(world, v2);
-        return pone_int_new(world->universe, i1 * i2);
+        return pone_int_new(world, i1 * i2);
     }
 }
 
@@ -225,18 +233,18 @@ pone_val* pone_divide(pone_world* world, pone_val* v1, pone_val* v2) {
     if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) {
         pone_num_t n1 = pone_numify(world, v1);
         pone_num_t n2 = pone_numify(world, v2);
-        return pone_num_new(world->universe, n1 / n2);
+        return pone_num_new(world, n1 / n2);
     } else {
         pone_int_t i1 = pone_intify(world, v1);
         pone_int_t i2 = pone_intify(world, v2);
-        return pone_int_new(world->universe, i1 / i2);
+        return pone_int_new(world, i1 / i2);
     }
 }
 
 pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2) {
     pone_int_t i1 = pone_intify(world, v1);
     pone_int_t i2 = pone_intify(world, v2);
-    return pone_int_new(world->universe, i1 % i2); // TODO: We should upgrade value to NV
+    return pone_int_new(world, i1 % i2); // TODO: We should upgrade value to NV
 }
 
 #define CMP_OP(op) \

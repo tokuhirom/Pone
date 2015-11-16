@@ -1,5 +1,6 @@
 #include "pone.h" /* PONE_INC */
 #include "rockre.h"
+#include <errno.h>
 
 #ifdef __GLIBC__
 #include <execinfo.h>
@@ -30,69 +31,28 @@ pone_universe* pone_universe_init() {
         exit(1);
     }
     memset(universe, 0, sizeof(pone_universe));
-    universe->arena_last = universe->arena_head = malloc(sizeof(pone_arena));
-    if (!universe->arena_last) {
-        fprintf(stderr, "cannot allocate memory\n");
-        exit(1);
+
+    int r=0;
+    if ((r=pthread_mutex_init(&(universe->gc_mutex), NULL))!=0) {
+        errno=r;
+        perror("pthread_mutex_init");
+        abort();
     }
-    memset(universe->arena_last, 0, sizeof(pone_arena));
+    if ((r=pthread_mutex_init(&(universe->universe_mutex), NULL))!=0) {
+        errno=r;
+        perror("pthread_mutex_init");
+        abort();
+    }
+    if ((r=pthread_cond_init(&(universe->gc_cond), NULL))!=0) {
+        errno=r;
+        perror("pthread_cond_init");
+        abort();
+    }
 
     universe->rockre = rockre_new();
 
     universe->globals = kh_init(str);
 
-#ifdef TRACE_UNIVERSE
-    printf("initializing class mu\n");
-#endif
-    universe->class_mu = pone_init_mu(universe);
-
-#ifdef TRACE_UNIVERSE
-    printf("initializing class Class\n");
-#endif
-    universe->class_class = pone_init_class(universe);
-
-    universe->class_any = pone_init_any(universe);
-    universe->class_cool = pone_init_cool(universe);
-
-#ifdef TRACE_UNIVERSE
-    printf("initializing class Array\n");
-#endif
-    pone_ary_init(universe);
-    assert(universe->class_ary);
-
-    pone_nil_init(universe);
-    pone_int_init(universe);
-    pone_str_init(universe);
-    pone_num_init(universe);
-    pone_bool_init(universe);
-    pone_hash_init(universe);
-    pone_code_init(universe);
-    assert(universe->class_range == NULL);
-    pone_range_init(universe);
-    pone_regex_init(universe);
-    assert(universe->class_io_socket_inet == NULL);
-    pone_thread_init(universe);
-    pone_pair_init(universe);
-    pone_sock_init(universe);
-    pone_gc_init(universe);
-
-#ifdef TRACE_UNIVERSE
-    printf("initializing value IterationEnd\n");
-#endif
-    universe->instance_iteration_end = pone_obj_new(universe, universe->class_mu);
-
-    pone_universe_set_global(universe, "Nil", pone_nil());
-    pone_universe_set_global(universe, "IO::Socket::INET", universe->class_io_socket_inet);
-    pone_universe_set_global(universe, "Regex", universe->class_regex);
-
-#undef PUT
-
-    {
-        const char* env = getenv("PONE_GC_LOG");
-        if (env && strlen(env) > 0) {
-            universe->gc_log = fopen(env, "w");
-        }
-    }
 
     return universe;
 }
@@ -111,16 +71,26 @@ void pone_universe_destroy(pone_universe* universe) {
         (void)pone_thread_join(universe, universe->threads->thread);
     }
 
+    if (universe->gc_thread) {
+        // Kill GC thread
+        GC_LOCK(universe);
+        universe->in_global_destruction = true;
+        CHECK_PTHREAD(pthread_cond_signal(&(universe->gc_cond)));
+        GC_UNLOCK(universe);
+
+        CHECK_PTHREAD(pthread_join(universe->gc_thread, NULL));
+    } else {
+        universe->in_global_destruction = true;
+    }
+
+    pthread_mutex_destroy(&(universe->gc_mutex));
+    pthread_cond_destroy(&(universe->gc_cond));
+    pthread_mutex_destroy(&(universe->universe_mutex));
+
     kh_destroy(str, universe->globals);
 
     rockre_destroy(universe->rockre);
 
-    pone_arena* a = universe->arena_head;
-    while (a) {
-        pone_arena* next = a->next;
-        free(a);
-        a = next;
-    }
     free(universe);
 }
 
@@ -160,6 +130,14 @@ void pone_universe_mark(pone_universe* universe) {
         pone_world_mark(world);
         assert(world != world->next);
         world = world->next;
+    }
+
+
+    for (int i=0; i<PONE_SIGNAL_HANDLERS_SIZE; ++i) {
+        pone_val* handler = universe->signal_handlers[i];
+        if (handler) {
+            pone_gc_mark_value(handler);
+        }
     }
 }
 

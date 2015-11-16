@@ -2,7 +2,7 @@
 
 #include <signal.h>
 
-static int pone_signal_received;
+static int pone_signal_received=0;
 
 void pone_signal_handle(pone_world* world) {
     if (pone_signal_received > 0) {
@@ -14,11 +14,6 @@ void pone_signal_handle(pone_world* world) {
 }
 
 static void sig_handler(int sig) {
-    pone_signal_received = sig;
-}
-
-// send internal signal like PONE_SIG_GC
-void pone_send_private_sig(int sig) {
     pone_signal_received = sig;
 }
 
@@ -40,6 +35,7 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
         pone_throw_str(world, "not implemented on windows");
 #endif
     } else {
+        world->universe->signal_handlers[sig] = NULL;
         signal(sig, SIG_DFL);
     }
 }

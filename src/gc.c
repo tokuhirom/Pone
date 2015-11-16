@@ -1,4 +1,5 @@
 #include "pone.h"
+#include <errno.h>
 
 // TODO use bitmap gc
 void pone_gc_mark_value(pone_val* val) {
@@ -44,54 +45,62 @@ static void pone_gc_mark(pone_universe* universe) {
 }
 
 static void pone_gc_collect(pone_universe* universe) {
-    pone_arena* arena = universe->arena_head;
-    while (arena) {
-        for (pone_int_t i=0; i< arena->idx; ++i) {
-            pone_val* val = &(arena->values[i]);
-            if (pone_type(val) == 0) { // free-ed
-                continue;
-            }
-
-            if (pone_flags(val) & PONE_FLAGS_GC_MARK) {
-                // marked.
-                // remove marked flag.
-                val->as.basic.flags ^= PONE_FLAGS_GC_MARK;
-            } else {
-                switch (pone_type(val)) {
-                case PONE_STRING:
-                    pone_str_free(universe, val);
-                    break;
-                case PONE_ARRAY:
-                    pone_ary_free(universe, val);
-                    break;
-                case PONE_HASH:
-                    pone_hash_free(universe, val);
-                    break;
-                case PONE_CODE:
-                    pone_code_free(universe, val);
-                    break;
-                case PONE_OBJ:
-                    pone_obj_free(universe, val);
-                    break;
-                case PONE_INT: // don't need to free heap
-                case PONE_NUM:
-                    break;
-                case PONE_NIL:
-                case PONE_BOOL:
+    pone_world* world = universe->world_head;
+    while (world) {
+        pone_arena* arena = world->arena_head;
+        while (arena) {
+            for (pone_int_t i=0; i< arena->idx; ++i) {
+                pone_val* val = &(arena->values[i]);
+                if (pone_type(val) == 0) { // free-ed
                     continue;
-                    abort(); // should not reach here.
-                case PONE_LEX:
-                    pone_lex_free(universe, val);
-                    break;
                 }
-                pone_val_free(universe, val);
+
+                if (pone_flags(val) & PONE_FLAGS_GC_MARK) {
+                    // marked.
+                    // remove marked flag.
+                    GC_TRACE("marked obj: %p", val);
+                    val->as.basic.flags ^= PONE_FLAGS_GC_MARK;
+                } else {
+                    GC_TRACE("free: %p", val);
+                    switch (pone_type(val)) {
+                    case PONE_STRING:
+                        pone_str_free(universe, val);
+                        break;
+                    case PONE_ARRAY:
+                        pone_ary_free(universe, val);
+                        break;
+                    case PONE_HASH:
+                        pone_hash_free(universe, val);
+                        break;
+                    case PONE_CODE:
+                        pone_code_free(universe, val);
+                        break;
+                    case PONE_OBJ:
+                        pone_obj_free(universe, val);
+                        break;
+                    case PONE_INT: // don't need to free heap
+                    case PONE_NUM:
+                        break;
+                    case PONE_NIL:
+                    case PONE_BOOL:
+                        continue;
+                        abort(); // should not reach here.
+                    case PONE_LEX:
+                        pone_lex_free(universe, val);
+                        break;
+                    }
+                    pone_val_free(world, val);
+                }
             }
+            arena = arena->next;
         }
-        arena = arena->next;
+        world = world->next;
     }
 }
 
 void pone_gc_run(pone_universe* universe) {
+    ASSERT_GC_LOCK(universe);
+
     pone_gc_log(universe, "[pone gc] starting gc\n");
 
     pone_gc_mark(universe);
@@ -99,19 +108,61 @@ void pone_gc_run(pone_universe* universe) {
     pone_gc_collect(universe);
 
     pone_gc_log(universe, "[pone gc] finished gc\n");
+
+    // TODO we should unlock GC lock after marking phase. Since sweeping phase should only
+    // touch objects, that aren't reachable.
 }
 
-// got PONE_SIG_GC private gc
-static pone_val* meth_gc_got_sig(pone_world* world, pone_val* self, int n, va_list args) {
+void pone_gc_request(pone_universe* universe) {
+    pone_gc_log(universe, "pone_gc_request\n");
+    int r;
+    if ((r=pthread_cond_signal(&(universe->gc_cond)))!=0) {
+        errno = r;
+        perror("pthread_cond_signal");
+        abort();
+    }
+    pthread_yield();
+}
+
+static pone_val* meth_gc_run(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
 
-    pone_gc_run(world->universe);
+    pone_gc_request(world->universe);
 
     return pone_nil();
 }
 
-void pone_gc_init(pone_universe* universe) {
-    pone_val* cb = pone_code_new_c(universe, meth_gc_got_sig);
-    universe->signal_handlers[PONE_SIG_GC] = cb;
+static void* gc_thread(void* p) {
+    pone_universe* universe = (pone_universe*)p;
+
+    // universe.c will cancel at process termination
+    int oldstate;
+    CHECK_PTHREAD(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE|PTHREAD_CANCEL_ASYNCHRONOUS, &oldstate));
+
+    GC_LOCK(universe);
+
+    while (!universe->in_global_destruction) {
+        GC_TRACE("GC thread waiting GC request...");
+        CHECK_PTHREAD(pthread_cond_wait(&(universe->gc_cond), &(universe->gc_mutex)));
+        GC_TRACE("GC thread got gc request");
+        pone_gc_run(universe);
+    }
+    CHECK_PTHREAD(pthread_mutex_unlock(&(universe->gc_mutex)));
+
+    return NULL;
+}
+
+void pone_gc_init(pone_world* world) {
+    pone_universe* universe = world->universe;
+    pone_val* gc = pone_class_new(world, "GC", strlen("GC"));
+    pone_add_method_c(world, gc, "run", strlen("run"), meth_gc_run);
+    pone_class_compose(world, gc);
+    pone_universe_set_global(universe, "GC", gc);
+
+    int r;
+    if ((r=pthread_create(&(universe->gc_thread), NULL, gc_thread, universe)) != 0) {
+        errno=r;
+        perror("cannot create gc thread");
+    }
 }
 

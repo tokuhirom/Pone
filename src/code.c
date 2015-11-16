@@ -2,17 +2,19 @@
 
 void pone_code_mark(pone_val* val) {
     if (val->as.code.lex) {
-        pone_lex_mark(val->as.code.lex);
+        pone_gc_mark_value(val->as.code.lex);
     }
 }
 
 /**
  * C level API to create new Code object
  */
-pone_val* pone_code_new_c(pone_universe* universe, pone_funcptr_t func) {
-    pone_code* cv = (pone_code*)pone_obj_alloc(universe, PONE_CODE);
+pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func) {
+    GC_LOCK(world->universe);
+    pone_code* cv = (pone_code*)pone_obj_alloc(world, PONE_CODE);
     cv->func = func;
     cv->lex = NULL;
+    GC_UNLOCK(world->universe);
 
     return (pone_val*)cv;
 }
@@ -21,17 +23,17 @@ pone_val* pone_code_new_c(pone_universe* universe, pone_funcptr_t func) {
  * pone level API to create new Code object
  */
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func) {
-    pone_code* cv = (pone_code*)pone_obj_alloc(world->universe, PONE_CODE);
+    GC_LOCK(world->universe);
+    pone_code* cv = (pone_code*)pone_obj_alloc(world, PONE_CODE);
     cv->func = func;
     cv->lex = world->lex;
+    GC_UNLOCK(world->universe);
 
     return (pone_val*)cv;
 }
 
 void pone_code_free(pone_universe* universe, pone_val* v) {
-#ifdef TRACE_CODE
-    printf("pone_code_free: universe:%x code:%x\n", universe, v);
-#endif
+    // printf("pone_code_free: universe:%p code:%p\n", universe, v);
     assert(pone_type(v) == PONE_CODE);
 }
 
@@ -42,6 +44,9 @@ pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int
     if (cv->lex) { //pone level code
         // save original lex.
         pone_val* orig_lex = world->lex;
+        GC_LOCK(world->universe);
+        pone_save_tmp(world, orig_lex);
+        GC_UNLOCK(world->universe);
         // create new lex from Code's saved lex.
         world->lex = cv->lex;
 
@@ -60,6 +65,7 @@ pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int
 }
 
 pone_val* pone_code_call(pone_world* world, pone_val* code, pone_val* self, int n, ...) {
+    assert(pone_alive(code));
     assert(pone_type(code) == PONE_CODE);
 
     va_list args;
@@ -67,15 +73,14 @@ pone_val* pone_code_call(pone_world* world, pone_val* code, pone_val* self, int 
     pone_val* retval = pone_code_vcall(world, code, self, n, args);
     va_end(args);
 
-    PONE_YIELD(world->universe);
-
     return retval;
 }
 
-void pone_code_init(pone_universe* universe) {
+void pone_code_init(pone_world* world) {
+    pone_universe* universe = world->universe;
     assert(universe->class_code == NULL);
 
-    universe->class_code = pone_class_new(universe, "Code", strlen("Code"));
-    pone_class_compose(universe, universe->class_code);
+    universe->class_code = pone_class_new(world, "Code", strlen("Code"));
+    pone_class_compose(world, universe->class_code);
 }
 
