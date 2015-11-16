@@ -19,6 +19,7 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
     pone_val* val;
 
 #ifdef STRESS_GC
+    pone_gc_log(world->universe, "stress gc\n");
     pone_gc_request(world->universe);
 #endif
 
@@ -35,6 +36,7 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
             // arena doesn't have an empty slot
 
             // Run GC.
+            pone_gc_log(world->universe, "there's no empty slot in the arena %p\n", world->arena_last);
             pone_gc_request(world->universe);
 
             // alloc new arena

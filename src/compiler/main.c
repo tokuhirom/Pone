@@ -16,6 +16,8 @@
 
 typedef void (*pone_so_init_t)(pone_world*);
 
+KHASH_SET_INIT_INT64(i64);
+
 static void usage() {
     printf("Usage: pone -e=code\n"
             "    pone src.pone\n");
@@ -29,6 +31,8 @@ typedef struct pone_compile_ctx {
     khash_t(str) **vars_stack;
     int vars_idx;
     int vars_max;
+
+    khash_t(i64) *ints;
 
     const char* filename;
     bool want_return;
@@ -132,9 +136,16 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             COMPILE(node->children.nodes[1]);
             PRINTF(")");
             break;
-        case PVIP_NODE_INT:
-            PRINTF("pone_int_new(world, %ld)", node->iv);
+        case PVIP_NODE_INT: {
+            int ret;
+            (void) kh_put(i64, ctx->ints, node->iv, &ret);
+            if (ret == -1) {
+                fprintf(stderr, "hash operation failed\n");
+                abort();
+            }
+            PRINTF("((pone_val*)&(pone_const_int_%ld))", node->iv);
             break;
+        }
         case PVIP_NODE_REGEXP:
             PRINTF("pone_regex_new(world, \"");
             for (size_t i=0; i<node->pv->len; ++i) {
@@ -691,6 +702,15 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, PVIPNode* node, int so_no) {
 #define PRINTF(fmt, ...) fprintf(fp, (fmt), ##__VA_ARGS__)
     PRINTF("#include \"pone.h\"\n");
     PRINTF("\n");
+    PRINTF("// --------------- vvvv ints          vvvv -------------------\n");
+    {
+        khint_t i;
+        for (i=kh_begin(ctx->ints); i!=kh_end(ctx->ints); ++i) {
+            if (!kh_exist(ctx->ints, i)) continue;
+            pone_int_t key = kh_key(ctx->ints, i);
+            PRINTF("static pone_int pone_const_int_%ld = { .type=PONE_INT, .flags=PONE_FLAGS_FROZEN, .i=%ld };\n", key, key);
+        }
+    }
     PRINTF("// --------------- vvvv functions     vvvv -------------------\n");
     for (int i=0; i<ctx->sub_idx; ++i) {
         fwrite(ctx->subs[i]->buf, 1, ctx->subs[i]->len, fp);
@@ -734,6 +754,7 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
     ctx.buf = PVIP_string_new();
     ctx.filename = filename;
     ctx.vars_stack = malloc(sizeof(khash_t(str)*) * 1);
+    ctx.ints = kh_init(i64);
     if (!ctx.vars_stack) {
         abort();
     }
@@ -748,12 +769,17 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
     if (ctx.subs) {
         free(ctx.subs);
     }
+    kh_destroy(i64, ctx.ints);
     free(ctx.vars_stack);
     PVIP_string_destroy(ctx.buf);
 
     fclose(fp);
 
-    system("clang -D_POSIX_C_SOURCE=200809L -rdynamic -DPONE_DYNAMIC -fPIC -shared -lstdc++ -I3rd/rockre/include/ -I src/ -g -lm -std=c99 -o pone_generated.so pone_generated.c -L. -lpone 3rd/rockre/librockre.a");
+    int retval = system("clang -D_POSIX_C_SOURCE=200809L -rdynamic -DPONE_DYNAMIC -fPIC -shared -lstdc++ -I3rd/rockre/include/ -I src/ -g -lm -std=c99 -o pone_generated.so pone_generated.c -L. -lpone 3rd/rockre/librockre.a");
+    if (retval != 0) {
+        fprintf(stderr, "cannot compile code\n");
+        exit(EXIT_FAILURE);
+    }
 
     if (!compile_only) {
         void* handle = dlopen("./pone_generated.so", RTLD_LAZY);

@@ -46,6 +46,9 @@ static void pone_gc_mark(pone_universe* universe) {
 }
 
 static void pone_gc_collect(pone_universe* universe) {
+#ifndef NDEBUG
+    pone_int_t freed_cnt = 0;
+#endif
     pone_world* world = universe->world_head;
     while (world) {
         pone_arena* arena = world->arena_head;
@@ -62,6 +65,9 @@ static void pone_gc_collect(pone_universe* universe) {
                     GC_TRACE("marked obj: %p %s", val, pone_what_str_c(val));
                     val->as.basic.flags ^= PONE_FLAGS_GC_MARK;
                 } else {
+#ifndef NDEBUG
+                    freed_cnt++;
+#endif
                     GC_TRACE("free: %p %s", val, pone_what_str_c(val));
                     switch (pone_type(val)) {
                     case PONE_STRING:
@@ -97,6 +103,9 @@ static void pone_gc_collect(pone_universe* universe) {
         }
         world = world->next;
     }
+#ifndef NDEBUG
+    pone_gc_log(universe, "[pone gc] freed %ld\n", freed_cnt);
+#endif
 }
 
 void pone_gc_run(pone_universe* universe) {
