@@ -44,7 +44,7 @@ void pone_throw(pone_world* world, pone_val* val) {
     // back to the lex
     world->lex = world->err_handler_lexs[world->err_handler_idx];
 
-    EXC_LOG("throwing exc\n");
+    EXC_TRACE("throwing exc\n");
 
     // jmp to exception handler
     longjmp(world->err_handlers[world->err_handler_idx--], 1);
