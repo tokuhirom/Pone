@@ -99,7 +99,7 @@ void pone_pop_scope(pone_world* world) {
 
 // This function may called from section that protected by GC_LOCK.
 pone_val* pone_save_tmp(pone_world* world, pone_val* val) {
-    // ASSERT_GC_LOCK(world->universe);
+    ASSERT_GC_LOCK(world->universe);
     if (world->tmpstack.n == world->tmpstack.m) {
         world->tmpstack.m = world->tmpstack.m ? world->tmpstack.m<<1 : 2;
         world->tmpstack.a = (pone_val**)realloc(world->tmpstack.a,

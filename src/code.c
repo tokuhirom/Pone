@@ -44,7 +44,9 @@ pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int
     if (cv->lex) { //pone level code
         // save original lex.
         pone_val* orig_lex = world->lex;
+        GC_LOCK(world->universe);
         pone_save_tmp(world, orig_lex);
+        GC_UNLOCK(world->universe);
         // create new lex from Code's saved lex.
         world->lex = cv->lex;
 

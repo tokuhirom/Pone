@@ -12,6 +12,7 @@ void* pone_malloc(pone_universe* universe, size_t size) {
 
 // Caller must get GC_LOCK.
 pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
+    ASSERT_GC_LOCK(world->universe);
     pone_universe* universe = world->universe;
 
     assert(universe);

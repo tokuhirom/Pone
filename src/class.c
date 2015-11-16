@@ -6,9 +6,11 @@
 
 // initialize Class class
 pone_val* pone_init_class(pone_world* world) {
+    GC_LOCK(world->universe);
     pone_val* val = pone_obj_alloc(world, PONE_OBJ);
     val->as.obj.ivar = kh_init(str);
     val->as.obj.klass = pone_nil();
+    GC_UNLOCK(world->universe);
     pone_obj_set_ivar(world, val, "$!name", pone_str_new_const(world, "Class", strlen("class")));
     pone_obj_set_ivar(world, val, "$!methods", pone_hash_new(world));
     pone_obj_set_ivar(world, val, "@!parents", pone_ary_new(world, 0));

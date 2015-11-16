@@ -52,9 +52,11 @@ static pone_val* meth_mu_str(pone_world* world, pone_val* self, int n, va_list a
 }
 
 pone_val* pone_init_mu(pone_world* world) {
+    GC_LOCK(world->universe);
     pone_val* obj = pone_obj_alloc(world, PONE_OBJ);
     obj->as.obj.ivar = kh_init(str);
     obj->as.obj.klass = pone_nil();
+    GC_UNLOCK(world->universe);
     pone_obj_set_ivar(world, (pone_val*)obj, "$!name", pone_str_new_const(world, "Mu", strlen("Mu")));
     pone_obj_set_ivar(world, (pone_val*)obj, "$!methods", pone_hash_new(world));
     pone_obj_set_ivar(world, (pone_val*)obj, "@!parents", pone_ary_new(world, 0));
