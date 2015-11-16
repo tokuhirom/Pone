@@ -1,5 +1,6 @@
 #include "pone.h" /* PONE_INC */
 #include "utlist.h"
+#include "kvec.h"
 
 #define PONE_ERR_HANDLERS_INIT 10
 

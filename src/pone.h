@@ -16,7 +16,6 @@
 #include <setjmp.h>
 #include <pthread.h>
 #include "khash.h"
-#include "kvec.h"
 
 typedef long pone_int_t;
 #define PoneIntFmt "%ld"
