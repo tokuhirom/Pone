@@ -723,3 +723,11 @@ my $inc; { my $n=0; $inc = sub () { $n=$n+1; $n }; }; $inc() for 1..10; say $inc
 --- expected
 11
 
+===
+--- input
+my $a=[1,2,3]; say $a.shift(); say $a.shift; say $a.shift
+--- expected
+1
+2
+3
+

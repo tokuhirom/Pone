@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include <errno.h>
 #include <setjmp.h>
 #include <pthread.h>
 #include "khash.h"
@@ -343,6 +344,7 @@ void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_
 void pone_ary_mark(pone_val* val);
 pone_val* pone_ary_pop(pone_world* world, pone_val* self);
 pone_val* pone_ary_last(pone_world* world, pone_val* self);
+pone_val* pone_ary_shift(pone_world* world, pone_val* self);
 
 // str.c
 pone_val* pone_str_new(pone_world* world, const char*p, size_t len);

@@ -234,7 +234,23 @@ pone_val* pone_ary_pop(pone_world* world, pone_val* self) {
     pone_val* retval = self->as.ary.a[self->as.ary.len-1];
     self->as.ary.a[self->as.ary.len-1] = NULL;
     self->as.ary.len--;
+    pone_save_tmp(world, retval);
     GC_UNLOCK(world->universe);
+    return retval;
+}
+
+pone_val* pone_ary_shift(pone_world* world, pone_val* self) {
+    if (self->as.ary.len == 0) {
+        pone_throw_str(world, "Cannot shift from an empty Array");
+    }
+
+    GC_RD_LOCK(world->universe);
+    pone_val* retval = self->as.ary.a[0];
+    memmove(self->as.ary.a, self->as.ary.a+1, sizeof(pone_val*)*(self->as.ary.len-1));
+    self->as.ary.len--;
+    pone_save_tmp(world, retval);
+    GC_UNLOCK(world->universe);
+
     return retval;
 }
 
@@ -280,11 +296,13 @@ NYI
 
 Removes and returns the first item from the array. Fails for an empty arrays.
 
-NYI
-
 =cut
 
 */
+static pone_val* meth_ary_shift(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 0);
+    return pone_ary_shift(world, self);
+}
 
 /*
 
@@ -362,6 +380,7 @@ void pone_ary_init(pone_world* world) {
     pone_add_method_c(world, universe->class_ary, "elems", strlen("elems"), meth_ary_elems);
     pone_add_method_c(world, universe->class_ary, "append", strlen("append"), meth_ary_append);
     pone_add_method_c(world, universe->class_ary, "pop", strlen("pop"), meth_ary_pop);
+    pone_add_method_c(world, universe->class_ary, "shift", strlen("shift"), meth_ary_shift);
     pone_add_method_c(world, universe->class_ary, "Str", strlen("Str"), meth_ary_str);
     pone_add_method_c(world, universe->class_ary, "ASSIGN-POS", strlen("ASSIGN-POS"), meth_ary_assign_pos);
     pone_obj_set_ivar(world, universe->class_ary, "$!iterator-class", iter_class);
