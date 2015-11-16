@@ -74,6 +74,7 @@ void pone_universe_destroy(pone_universe* universe) {
         universe->in_global_destruction = true;
     }
 
+    CHECK_PTHREAD(pthread_rwlock_destroy(&(universe->gc_rwlock)));
     CHECK_PTHREAD(pthread_cond_destroy(&(universe->thread_temrinate_cond)));
     CHECK_PTHREAD(pthread_mutex_destroy(&(universe->gc_thread_mutex)));
     CHECK_PTHREAD(pthread_cond_destroy(&(universe->gc_cond)));
