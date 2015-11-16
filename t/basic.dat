@@ -731,3 +731,9 @@ my $a=[1,2,3]; say $a.shift(); say $a.shift; say $a.shift
 2
 3
 
+===
+--- input
+my $ch = Channel.new(0); my $ch2 = Channel.new(0); Thread.start(sub() { my $n = $ch.receive(); my $m = $ch.receive; $ch2.send($n+$m)}); $ch.send(5963); $ch.send(4649); say $ch2.receive
+--- expected
+10612
+

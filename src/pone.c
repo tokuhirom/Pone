@@ -43,6 +43,7 @@ void pone_init(pone_world* world) {
     pone_pair_init(world);
     pone_sock_init(world);
     pone_gc_init(world);
+    pone_channel_init(world);
 
 #ifdef TRACE_UNIVERSE
     printf("initializing value IterationEnd\n");

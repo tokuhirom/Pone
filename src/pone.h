@@ -532,6 +532,9 @@ void pone_gc_request(pone_universe* universe);
 // signal.c
 void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* code);
 
+// channel.c
+void pone_channel_init(pone_world* world);
+
 #ifdef THREAD_DEBUG
 #define THREAD_TRACE(fmt, ...) fprintf(stderr, "[pone thread] [%lx] " fmt "\n", pthread_self(), ##__VA_ARGS__)
 #else

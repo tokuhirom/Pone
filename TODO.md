@@ -46,3 +46,7 @@ TODO
  * bitmap marking?
  * incremental GC?
 
+## Known bugs
+
+ * Exception from thread case segv.
+

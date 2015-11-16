@@ -85,6 +85,10 @@ FAQ
 
 No. You should use termination channel instead.
 
+## Is there a destructor(DESTROY)?
+
+No. Destructor is not supported. Since we are using GC. You should use LEAVE block instead.
+
 AUTHOR
 ======
 
