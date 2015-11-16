@@ -10,6 +10,7 @@ void pone_ary_mark(pone_val* val) {
 pone_val* pone_ary_new(pone_world* world, pone_int_t n, ...) {
     va_list list;
 
+    GC_LOCK(world->universe);
     pone_ary* av = (pone_ary*)pone_obj_alloc(world, PONE_ARRAY);
 
     va_start(list, n);
@@ -24,6 +25,7 @@ pone_val* pone_ary_new(pone_world* world, pone_int_t n, ...) {
         pone_val* v = va_arg(list, pone_val*);
         av->a[i] = v;
     }
+    GC_UNLOCK(world->universe);
     va_end(list);
 
     return (pone_val*)av;
@@ -51,6 +53,8 @@ pone_int_t pone_ary_elems(pone_val* av) {
 }
 
 void pone_ary_resize(pone_universe* universe, pone_val* self, pone_int_t size) {
+    GC_LOCK(universe);
+
     if (self->as.ary.len < size) {
         if (self->as.ary.max < size) { // need realloc
             self->as.ary.max = size;
@@ -69,9 +73,13 @@ void pone_ary_resize(pone_universe* universe, pone_val* self, pone_int_t size) {
     } else {
         abort();
     }
+
+    GC_UNLOCK(universe);
 }
 
 void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_val* val) {
+    GC_LOCK(world->universe);
+
     assert(self); assert(pos); assert(val);
     pone_universe* universe = world->universe;
 
@@ -85,8 +93,10 @@ void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_
         pone_ary_resize(universe, self, i+1);
         self->as.ary.a[i] = val;
     }
+    GC_UNLOCK(world->universe);
 }
 
+// this method is *not* thread safe.
 static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
 
@@ -162,6 +172,8 @@ static pone_val* meth_ary_elems(pone_world* world, pone_val* self, int n, va_lis
 }
 
 void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
+    GC_LOCK(universe);
+
     assert(pone_type(self) == PONE_ARRAY);
 
     if (self->as.ary.max == self->as.ary.len) {
@@ -178,6 +190,7 @@ void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
     }
 
     self->as.ary.a[self->as.ary.len++] = val;
+    GC_UNLOCK(universe);
 }
 
 /*
@@ -216,9 +229,11 @@ pone_val* pone_ary_pop(pone_world* world, pone_val* self) {
         pone_throw_str(world, "Cannot pop from an empty Array");
     }
 
+    GC_LOCK(world->universe);
     pone_val* retval = self->as.ary.a[self->as.ary.len-1];
     self->as.ary.a[self->as.ary.len-1] = NULL;
     self->as.ary.len--;
+    GC_UNLOCK(world->universe);
     return retval;
 }
 

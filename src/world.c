@@ -90,9 +90,9 @@ pone_world* pone_world_new(pone_universe* universe) {
 
     pone_gc_log(world->universe, "[pone gc] create new world %p\n", world);
 
-    GVL_LOCK(world->universe); // This operation modifies universe's structure.
+    UNIVERSE_LOCK(world->universe); // This operation modifies universe's structure.
     pone_world_list_append(universe, world);
-    GVL_UNLOCK(world->universe);
+    UNIVERSE_UNLOCK(world->universe);
 
     return world;
 }

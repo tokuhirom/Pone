@@ -10,9 +10,11 @@ void pone_code_mark(pone_val* val) {
  * C level API to create new Code object
  */
 pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func) {
+    GC_LOCK(world->universe);
     pone_code* cv = (pone_code*)pone_obj_alloc(world, PONE_CODE);
     cv->func = func;
     cv->lex = NULL;
+    GC_UNLOCK(world->universe);
 
     return (pone_val*)cv;
 }
@@ -21,9 +23,11 @@ pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func) {
  * pone level API to create new Code object
  */
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func) {
+    GC_LOCK(world->universe);
     pone_code* cv = (pone_code*)pone_obj_alloc(world, PONE_CODE);
     cv->func = func;
     cv->lex = world->lex;
+    GC_UNLOCK(world->universe);
 
     return (pone_val*)cv;
 }

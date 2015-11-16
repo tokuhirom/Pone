@@ -10,6 +10,7 @@ void* pone_malloc(pone_universe* universe, size_t size) {
     return p;
 }
 
+// Caller must get GC_LOCK.
 pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
     pone_universe* universe = world->universe;
 
@@ -20,8 +21,6 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
 #ifdef STRESS_GC
     pone_send_private_sig(PONE_SIG_GC);
 #endif
-
-    GVL_LOCK(universe);
 
     // check free-ed values
     if (world->freelist) {
@@ -53,13 +52,12 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
 
     pone_save_tmp(world, val);
 
-    GVL_UNLOCK(universe);
-
     return val;
 }
 
 // needs GVL(only called from GC).
-void pone_val_free(pone_universe* universe, pone_val* p) {
+// GC must get ALLOC_LOCK.
+void pone_val_free(pone_world* world, pone_val* p) {
 #ifndef NDEBUG
     // clear val's memory for debugging
     memset(p, 0, sizeof(pone_val));

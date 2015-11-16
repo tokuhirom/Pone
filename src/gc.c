@@ -88,7 +88,7 @@ static void pone_gc_collect(pone_universe* universe) {
                         pone_lex_free(universe, val);
                         break;
                     }
-                    pone_val_free(universe, val);
+                    pone_val_free(world, val);
                 }
             }
             arena = arena->next;
@@ -98,7 +98,7 @@ static void pone_gc_collect(pone_universe* universe) {
 }
 
 void pone_gc_run(pone_universe* universe) {
-    GVL_LOCK(universe);
+    GC_LOCK(universe);
 
     pone_gc_log(universe, "[pone gc] starting gc\n");
 
@@ -108,7 +108,9 @@ void pone_gc_run(pone_universe* universe) {
 
     pone_gc_log(universe, "[pone gc] finished gc\n");
 
-    GVL_UNLOCK(universe);
+    // TODO we should unlock GC lock after marking phase. Since sweeping phase should only
+    // touch objects, that aren't reachable.
+    GC_UNLOCK(universe);
 }
 
 static pone_val* meth_gc_run(pone_world* world, pone_val* self, int n, va_list args) {

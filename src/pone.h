@@ -264,8 +264,10 @@ typedef struct pone_universe {
 
     struct rockre* rockre;
 
-    // global interpreter lock
-    pthread_mutex_t mutex;
+    // GC lock. You must lock this before modifies an object.
+    pthread_mutex_t gc_mutex;
+    // UNIVERSE lock. You need to lock this before modify this object.
+    pthread_mutex_t universe_mutex;
 
     pone_thread_t* threads;
     int thread_num;
@@ -444,7 +446,7 @@ pone_val* pone_builtin_die(pone_world* world, pone_val* msg);
 void pone_signal_handle(pone_world* world);
 pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...);
 
-void pone_val_free(pone_universe* universe, pone_val* p);
+void pone_val_free(pone_world* world, pone_val* p);
 pone_t pone_type(pone_val* val);
 void* pone_malloc(pone_universe* universe, size_t size);
 pone_val* pone_obj_alloc(pone_world* world, pone_t type);
@@ -540,15 +542,27 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
 #define EXC_LOG(fmt, ...)
 #endif
 
-#define GVL_LOCK(universe) \
+// GC lock is required for the mutable object operation
+#define GC_LOCK(universe) \
   do { \
-      THREAD_TRACE("LOCK: thread:%lx(%s line %d)\n", pthread_self(), __func__, __LINE__); \
-      pthread_mutex_lock(&(universe->mutex)); \
+      THREAD_TRACE("GC LOCK: thread:%lx(%s line %d)\n", pthread_self(), __func__, __LINE__); \
+      pthread_mutex_lock(&(universe->gc_mutex)); \
   } while (0)
-#define GVL_UNLOCK(universe) \
+#define GC_UNLOCK(universe) \
   do { \
-      THREAD_TRACE("UNLOCK: thread:%lx\n", pthread_self()); \
-      pthread_mutex_unlock(&(universe->mutex)); \
+      THREAD_TRACE("GC UNLOCK: thread:%lx\n", pthread_self()); \
+      pthread_mutex_unlock(&(universe->gc_mutex)); \
+  } while(0)
+
+#define UNIVERSE_LOCK(universe) \
+  do { \
+      THREAD_TRACE("UNIVERSE LOCK: thread:%lx(%s line %d)\n", pthread_self(), __func__, __LINE__); \
+      pthread_mutex_lock(&((universe)->universe_mutex)); \
+  } while (0)
+#define UNIVERSE_UNLOCK(universe) \
+  do { \
+      THREAD_TRACE("UNIVERSE UNLOCK: thread:%lx\n", pthread_self()); \
+      pthread_mutex_unlock(&((universe)->universe_mutex)); \
   } while(0)
 
 #define PONE_ALLOC_CHECK(v) \
@@ -558,6 +572,16 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
       abort(); \
     } \
   } while (0)
+
+#ifdef __linux__
+#include <unistd.h>
+#include <sys/syscall.h>
+#define ASSERT_LOCK(lock) assert((lock).__data.__owner==syscall(SYS_gettid))
+#else
+#define ASSERT_LOCK(lock)
+#endif
+
+#define ASSERT_GC_LOCK(universe) ASSERT_LOCK((universe)->gc_mutex)
 
 #define PONE_DECLARE_GETTER(name, var) \
     static pone_val* name(pone_world* world, pone_val* self, int n, va_list args) { \

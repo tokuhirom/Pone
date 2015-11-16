@@ -28,9 +28,9 @@ static void* thread_start(void* p) {
 
 
     pone_universe* universe = world->universe;
-    GVL_LOCK(universe);
+    UNIVERSE_LOCK(universe);
     pone_world_free(world);
-    GVL_UNLOCK(universe);
+    UNIVERSE_UNLOCK(universe);
 
     return retval; // XXX we need to save this value?
 }
@@ -56,14 +56,14 @@ static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_
         abort();
     }
 
-    GVL_LOCK(world->universe); // This operation modifies universe's structure.
+    UNIVERSE_LOCK(world->universe); // This operation modifies universe's structure.
 
     world->universe->thread_num++;
     pone_thread_t* pthr = pone_malloc(world->universe, sizeof(pone_thread_t));
     pthr->next = world->universe->threads;
     world->universe->threads = pthr;
 
-    GVL_UNLOCK(world->universe);
+    UNIVERSE_UNLOCK(world->universe);
 
     int e;
     if ((e = pthread_create(&(pthr->thread), NULL, &thread_start, p)) != 0) {
@@ -101,7 +101,7 @@ pone_val* pone_thread_join(pone_universe* universe, pthread_t thr) {
 
     THREAD_TRACE("JOIN-ed thread:%lx\n", thr);
 
-    GVL_LOCK(universe); // This operation modifies universe's structure.
+    UNIVERSE_LOCK(universe); // This operation modifies universe's structure.
 
     pone_thread_t *pthr = universe->threads;
     if (pthr->thread == thr) {
@@ -122,7 +122,7 @@ pone_val* pone_thread_join(pone_universe* universe, pthread_t thr) {
     }
     universe->thread_num--;
 
-    GVL_UNLOCK(universe);
+    UNIVERSE_UNLOCK(universe);
 
     return (pone_val*)retval;
 }

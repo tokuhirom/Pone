@@ -31,7 +31,8 @@ pone_universe* pone_universe_init() {
     }
     memset(universe, 0, sizeof(pone_universe));
 
-    pthread_mutex_init(&(universe->mutex), NULL);
+    pthread_mutex_init(&(universe->gc_mutex), NULL);
+    pthread_mutex_init(&(universe->universe_mutex), NULL);
 
     universe->rockre = rockre_new();
 
