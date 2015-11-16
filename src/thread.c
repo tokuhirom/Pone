@@ -2,31 +2,18 @@
 #include <errno.h>
 #include <signal.h>
 
-typedef struct thread_context {
-    pone_world* world;
-    pone_val* code;
-} thread_context;
-
 static void* thread_start(void* p) {
-
-    thread_context* context = (thread_context*)p;
-
     THREAD_TRACE("NEW %lx world:%p", pthread_self(), context->world);
 
     // extract values to stack
-    pone_world* world = context->world;
-    pone_val*   code = context->code;
-    assert(code);
-    assert(pone_type(code) == PONE_CODE);
+    pone_world* world = (pone_world*)p;
     assert(world->universe);
 
     world->err_handler_lexs[0] = world->lex;
     if (setjmp(world->err_handlers[0])) {
         pone_universe_default_err_handler(world);
     } else {
-        // free the context object.
-        pone_free(world->universe, p);
-
+        pone_val* code = world->code;
         assert(pone_type(code) == PONE_CODE);
         (void) pone_code_call(world, code, pone_nil(), 0);
 
@@ -48,18 +35,10 @@ static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_
     assert(pone_type(code) == PONE_CODE);
 
     pone_world* new_world = pone_world_new(world->universe);
-
-    // save `code`
-    GC_RD_LOCK(world->universe);
-    pone_save_tmp(new_world, code);
-    GC_UNLOCK(world->universe);
-
-    thread_context* p = pone_malloc(world->universe, sizeof(thread_context));
-    p->world = new_world;
-    p->code = code;
+    new_world->code = code;
 
     int e;
-    if ((e = pthread_create(&(new_world->thread_id), NULL, &thread_start, p)) != 0) {
+    if ((e = pthread_create(&(new_world->thread_id), NULL, &thread_start, new_world)) != 0) {
         errno=e;
         perror("Cannot create thread");
         abort();

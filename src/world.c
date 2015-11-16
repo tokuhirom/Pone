@@ -142,6 +142,10 @@ void pone_world_mark(pone_world* world) {
     pone_gc_mark_value(world->lex);
     pone_gc_mark_value(world->errvar);
 
+    if (world->code) {
+        pone_gc_mark_value(world->code);
+    }
+
     for (pone_int_t i=0; i<world->err_handler_idx; ++i) {
         pone_gc_mark_value(world->err_handler_lexs[i]);
     }

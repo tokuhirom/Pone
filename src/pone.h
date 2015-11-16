@@ -138,6 +138,8 @@ typedef struct pone_world {
     struct pone_arena* arena_head;
     struct pone_arena* arena_last;
 
+    struct pone_val* code;
+
     // list of unused values.
     struct pone_val* freelist;
 
