@@ -11,16 +11,13 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-Pone is a demo software for Perl6' grammar. It has a Perl like syntax. This compiler compiles code into C.
+Pone is an Perl-ish interpreter. It has a Perl like syntax. This compiler compiles code into C.
 
 FEATURES
 ========
 
-  * Reference counting GC
-
-for stability.
-
   * Threading support
+   * No global interpreter lock
 
 LITERALS
 ========
@@ -37,7 +34,7 @@ There is a number literal.
 
 There is single quotation string literal
 
-  * `{ a =` 3 }>
+  * `{ a = 3 }`
 
 hash literals.
 
