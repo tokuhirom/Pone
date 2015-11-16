@@ -32,7 +32,7 @@ static void* thread_start(void* p) {
     CHECK_PTHREAD(pthread_cond_signal(&(universe->thread_temrinate_cond)));
     UNIVERSE_UNLOCK(universe);
 
-    return world;
+    return NULL;
 }
 
 static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_list args) {
