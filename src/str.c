@@ -9,7 +9,7 @@ void pone_str_mark(pone_val* val) {
 
 // pone dup p.
 pone_val* pone_str_new(pone_world* world, const char*p, size_t len) {
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->p = pone_strdup(world, p, len);
     pv->len = len;
@@ -20,7 +20,7 @@ pone_val* pone_str_new(pone_world* world, const char*p, size_t len) {
 // pone doesn't dup p.
 pone_val* pone_str_new_const(pone_world* world, const char*p, size_t len) {
     assert(world);
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->flags |= PONE_FLAGS_STR_CONST | PONE_FLAGS_FROZEN;
     pv->p = (char*)p;
@@ -53,7 +53,7 @@ pone_val* pone_str_new_vprintf(pone_world* world, const char* fmt, va_list args)
         abort();
     }
 
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->p = p;
     pv->len = size;
@@ -65,7 +65,7 @@ pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2) {
     pone_val* s1 = pone_stringify(world, v1);
     pone_val* s2 = pone_stringify(world, v2);
 
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->len = pone_str_len(s1)+pone_str_len(s2);
     pv->p = pone_malloc(world->universe, pv->len);
@@ -79,7 +79,7 @@ pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2) {
 
 pone_val* pone_str_copy(pone_world* world, pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->flags |= PONE_FLAGS_STR_COPY | PONE_FLAGS_FROZEN;
     pv->val = val;
@@ -147,7 +147,7 @@ pone_val* pone_str_c_str(pone_world* world, pone_val* val) {
 
 void pone_str_append_c(pone_world* world, pone_val* val, const char* s, pone_int_t s_len) {
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) { // needs CoW
-        GC_LOCK(world->universe);
+        GC_RD_LOCK(world->universe);
         pone_val* src = val->as.str.val;
         char* p = pone_strdup(world, pone_str_ptr(src), pone_str_len(src));
         val->as.str.len = pone_str_len(src);

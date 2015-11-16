@@ -52,7 +52,7 @@ static pone_val* meth_mu_str(pone_world* world, pone_val* self, int n, va_list a
 }
 
 pone_val* pone_init_mu(pone_world* world) {
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_val* obj = pone_obj_alloc(world, PONE_OBJ);
     obj->as.obj.ivar = kh_init(str);
     obj->as.obj.klass = pone_nil();

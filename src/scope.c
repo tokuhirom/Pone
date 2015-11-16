@@ -1,7 +1,7 @@
 #include "pone.h" /* PONE_INC */
 
 pone_val* pone_lex_new(pone_world* world, pone_val* parent) {
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_val* lex = pone_obj_alloc(world, PONE_LEX);
     assert(lex->as.basic.type == PONE_LEX);
 #ifdef TRACE_LEX
@@ -58,7 +58,7 @@ void pone_push_scope(pone_world* world) {
     world->lex = pone_lex_new(world, world->lex);
     assert(pone_type(world->lex) == PONE_LEX);
 
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     if (world->savestack.n == world->savestack.m) {
         world->savestack.m = world->savestack.m ? world->savestack.m<<1 : 2;
         world->savestack.a = (size_t*)realloc(world->savestack.a,
@@ -92,14 +92,13 @@ void pone_pop_scope(pone_world* world) {
     }
 #endif
 
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     world->tmpstack.n = world->savestack.a[--(world->savestack.n)];
     GC_UNLOCK(world->universe);
 }
 
-// This function may called from section that protected by GC_LOCK.
+// This function may called from section that protected by GC_RD_LOCK.
 pone_val* pone_save_tmp(pone_world* world, pone_val* val) {
-    ASSERT_GC_LOCK(world->universe);
     if (world->tmpstack.n == world->tmpstack.m) {
         world->tmpstack.m = world->tmpstack.m ? world->tmpstack.m<<1 : 2;
         world->tmpstack.a = (pone_val**)realloc(world->tmpstack.a,

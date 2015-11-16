@@ -45,7 +45,7 @@ static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_
     pone_world* new_world = pone_world_new(world->universe);
 
     // save `code`
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_save_tmp(new_world, code);
     GC_UNLOCK(world->universe);
 

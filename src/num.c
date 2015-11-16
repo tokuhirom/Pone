@@ -14,7 +14,7 @@ Num - Num literal
 */
 
 pone_val* pone_num_new(pone_world* world, pone_num_t n) {
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_num* nv = (pone_num*)pone_obj_alloc(world, PONE_NUM);
     nv->n = n;
     GC_UNLOCK(world->universe);

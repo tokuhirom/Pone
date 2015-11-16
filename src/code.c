@@ -10,7 +10,7 @@ void pone_code_mark(pone_val* val) {
  * C level API to create new Code object
  */
 pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func) {
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_code* cv = (pone_code*)pone_obj_alloc(world, PONE_CODE);
     cv->func = func;
     cv->lex = NULL;
@@ -23,7 +23,7 @@ pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func) {
  * pone level API to create new Code object
  */
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func) {
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_code* cv = (pone_code*)pone_obj_alloc(world, PONE_CODE);
     cv->func = func;
     cv->lex = world->lex;
@@ -44,7 +44,7 @@ pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int
     if (cv->lex) { //pone level code
         // save original lex.
         pone_val* orig_lex = world->lex;
-        GC_LOCK(world->universe);
+        GC_RD_LOCK(world->universe);
         pone_save_tmp(world, orig_lex);
         GC_UNLOCK(world->universe);
         // create new lex from Code's saved lex.

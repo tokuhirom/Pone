@@ -10,7 +10,7 @@ void pone_ary_mark(pone_val* val) {
 pone_val* pone_ary_new(pone_world* world, pone_int_t n, ...) {
     va_list list;
 
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_ary* av = (pone_ary*)pone_obj_alloc(world, PONE_ARRAY);
 
     va_start(list, n);
@@ -53,7 +53,7 @@ pone_int_t pone_ary_elems(pone_val* av) {
 }
 
 void pone_ary_resize(pone_universe* universe, pone_val* self, pone_int_t size) {
-    GC_LOCK(universe);
+    GC_RD_LOCK(universe);
 
     if (self->as.ary.len < size) {
         if (self->as.ary.max < size) { // need realloc
@@ -86,12 +86,12 @@ void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_
     pone_int_t i = pone_intify(world, pos);
 
     if (a->len > i) {
-        GC_LOCK(world->universe);
+        GC_RD_LOCK(world->universe);
         a->a[i] = val;
         GC_UNLOCK(world->universe);
     } else {
         pone_ary_resize(universe, self, i+1);
-        GC_LOCK(world->universe);
+        GC_RD_LOCK(world->universe);
         self->as.ary.a[i] = val;
         GC_UNLOCK(world->universe);
     }
@@ -173,7 +173,7 @@ static pone_val* meth_ary_elems(pone_world* world, pone_val* self, int n, va_lis
 }
 
 void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
-    GC_LOCK(universe);
+    GC_RD_LOCK(universe);
 
     assert(pone_type(self) == PONE_ARRAY);
 
@@ -230,7 +230,7 @@ pone_val* pone_ary_pop(pone_world* world, pone_val* self) {
         pone_throw_str(world, "Cannot pop from an empty Array");
     }
 
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_val* retval = self->as.ary.a[self->as.ary.len-1];
     self->as.ary.a[self->as.ary.len-1] = NULL;
     self->as.ary.len--;

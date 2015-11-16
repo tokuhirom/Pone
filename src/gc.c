@@ -99,11 +99,12 @@ static void pone_gc_collect(pone_universe* universe) {
 }
 
 void pone_gc_run(pone_universe* universe) {
-    ASSERT_GC_LOCK(universe);
-
     pone_gc_log(universe, "[pone gc] starting gc\n");
 
+    CHECK_PTHREAD(pthread_rwlock_wrlock(&(universe->gc_rwlock)));
     pone_gc_mark(universe);
+    CHECK_PTHREAD(pthread_rwlock_unlock(&(universe->gc_rwlock)));
+
     pone_gc_log(universe, "[pone gc] finished marking phase\n");
     pone_gc_collect(universe);
 
@@ -114,13 +115,16 @@ void pone_gc_run(pone_universe* universe) {
 }
 
 void pone_gc_request(pone_universe* universe) {
-    pone_gc_log(universe, "pone_gc_request\n");
-    int r;
-    if ((r=pthread_cond_signal(&(universe->gc_cond)))!=0) {
-        errno = r;
-        perror("pthread_cond_signal");
-        abort();
+    if (universe->gc_requested) {
+        pone_gc_log(universe, "gc is already requested\n");
+        return;
     }
+
+    pone_gc_log(universe, "pone_gc_request\n");
+    CHECK_PTHREAD(pthread_mutex_lock(&(universe->gc_thread_mutex)));
+    universe->gc_requested = true;
+    CHECK_PTHREAD(pthread_cond_signal(&(universe->gc_cond)));
+    CHECK_PTHREAD(pthread_mutex_unlock(&(universe->gc_thread_mutex)));
     pthread_yield();
 }
 
@@ -139,15 +143,18 @@ static void* gc_thread(void* p) {
     int oldstate;
     CHECK_PTHREAD(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE|PTHREAD_CANCEL_ASYNCHRONOUS, &oldstate));
 
-    GC_LOCK(universe);
+    CHECK_PTHREAD(pthread_mutex_lock(&(universe->gc_thread_mutex)));
 
     while (!universe->in_global_destruction) {
         GC_TRACE("GC thread waiting GC request...");
-        CHECK_PTHREAD(pthread_cond_wait(&(universe->gc_cond), &(universe->gc_mutex)));
+        CHECK_PTHREAD(pthread_cond_wait(&(universe->gc_cond), &(universe->gc_thread_mutex)));
         GC_TRACE("GC thread got gc request");
-        pone_gc_run(universe);
+        if (universe->gc_requested) {
+            pone_gc_run(universe);
+            universe->gc_requested = false;
+        }
     }
-    CHECK_PTHREAD(pthread_mutex_unlock(&(universe->gc_mutex)));
+    CHECK_PTHREAD(pthread_mutex_unlock(&(universe->gc_thread_mutex)));
 
     return NULL;
 }

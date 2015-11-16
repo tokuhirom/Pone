@@ -13,7 +13,7 @@ void pone_hash_mark(pone_val* val) {
 // TODO: exists key
 
 pone_val* pone_hash_new(pone_world* world) {
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_val* hv = pone_obj_alloc(world, PONE_HASH);
     hv->as.hash.h = kh_init(str);
     GC_UNLOCK(world->universe);
@@ -48,7 +48,7 @@ void pone_hash_free(pone_universe* universe, pone_val* val) {
 void pone_hash_assign_key_c(pone_world* world, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v) {
     assert(pone_type(hv) == PONE_HASH);
     pone_universe* universe = world->universe;
-    GC_LOCK(universe);
+    GC_RD_LOCK(universe);
     int ret;
     const char* ks=pone_strdup(world, key, key_len);
     khint_t k = kh_put(str, ((pone_hash*)hv)->h, ks, &ret);

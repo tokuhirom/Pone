@@ -261,11 +261,17 @@ typedef struct pone_universe {
     struct rockre* rockre;
 
     // GC lock. You must lock this before modifies an object.
-    pthread_mutex_t gc_mutex;
+    pthread_rwlock_t gc_rwlock;
+
+    // mutex for gc_cond
+    pthread_mutex_t gc_thread_mutex;
     // cond to wait GC start
     pthread_cond_t gc_cond;
     // thread id of GC thread
     pthread_t gc_thread;
+
+    // True if GC is requested.
+    bool gc_requested;
 
     // thread.c sends signal at thread termination.
     pthread_cond_t thread_temrinate_cond;
@@ -549,25 +555,25 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
 #endif
 
 // GC lock is required for the mutable object operation
-#define GC_LOCK(universe) \
+#define GC_RD_LOCK(universe) \
   do { \
-      THREAD_TRACE("GC LOCK: thread:%lx(%s %s line %d)\n", pthread_self(), __func__, __FILE__, __LINE__); \
-      pthread_mutex_lock(&(universe->gc_mutex)); \
+      THREAD_TRACE("GC RD LOCK: thread:%lx(%s %s line %d)", pthread_self(), __func__, __FILE__, __LINE__); \
+      pthread_rwlock_rdlock(&(universe->gc_rwlock)); \
   } while (0)
 #define GC_UNLOCK(universe) \
   do { \
-      THREAD_TRACE("GC UNLOCK: thread:%lx\n", pthread_self()); \
-      pthread_mutex_unlock(&(universe->gc_mutex)); \
+      THREAD_TRACE("GC RD UNLOCK: thread:%lx", pthread_self()); \
+      pthread_rwlock_unlock(&(universe->gc_rwlock)); \
   } while(0)
 
 #define UNIVERSE_LOCK(universe) \
   do { \
-      THREAD_TRACE("UNIVERSE LOCK: thread:%lx(%s line %d)\n", pthread_self(), __func__, __LINE__); \
+      THREAD_TRACE("UNIVERSE LOCK: thread:%lx(%s line %d)", pthread_self(), __func__, __LINE__); \
       pthread_mutex_lock(&((universe)->universe_mutex)); \
   } while (0)
 #define UNIVERSE_UNLOCK(universe) \
   do { \
-      THREAD_TRACE("UNIVERSE UNLOCK: thread:%lx\n", pthread_self()); \
+      THREAD_TRACE("UNIVERSE UNLOCK: thread:%lx", pthread_self()); \
       pthread_mutex_unlock(&((universe)->universe_mutex)); \
   } while(0)
 
@@ -587,7 +593,6 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
 #define ASSERT_LOCK(lock)
 #endif
 
-#define ASSERT_GC_LOCK(universe) ASSERT_LOCK((universe)->gc_mutex)
 #define ASSERT_UNIVERSE_LOCK(universe) ASSERT_LOCK((universe)->universe_mutex)
 
 #define CHECK_PTHREAD(code) \

@@ -32,23 +32,10 @@ pone_universe* pone_universe_init() {
     }
     memset(universe, 0, sizeof(pone_universe));
 
-    int r=0;
-    if ((r=pthread_mutex_init(&(universe->gc_mutex), NULL))!=0) {
-        errno=r;
-        perror("pthread_mutex_init");
-        abort();
-    }
-    if ((r=pthread_mutex_init(&(universe->universe_mutex), NULL))!=0) {
-        errno=r;
-        perror("pthread_mutex_init");
-        abort();
-    }
-    if ((r=pthread_cond_init(&(universe->gc_cond), NULL))!=0) {
-        errno=r;
-        perror("pthread_cond_init");
-        abort();
-    }
-
+    CHECK_PTHREAD(pthread_mutex_init(&(universe->gc_thread_mutex), NULL));
+    CHECK_PTHREAD(pthread_mutex_init(&(universe->universe_mutex), NULL));
+    CHECK_PTHREAD(pthread_cond_init(&(universe->gc_cond), NULL));
+    CHECK_PTHREAD(pthread_rwlock_init(&(universe->gc_rwlock), NULL));
     CHECK_PTHREAD(pthread_cond_init(&(universe->thread_temrinate_cond), NULL));
 
     universe->rockre = rockre_new();
@@ -77,7 +64,7 @@ void pone_universe_destroy(pone_universe* universe) {
 
     if (universe->gc_thread) {
         // Kill GC thread
-        GC_LOCK(universe);
+        GC_RD_LOCK(universe);
         universe->in_global_destruction = true;
         CHECK_PTHREAD(pthread_cond_signal(&(universe->gc_cond)));
         GC_UNLOCK(universe);
@@ -88,9 +75,9 @@ void pone_universe_destroy(pone_universe* universe) {
     }
 
     CHECK_PTHREAD(pthread_cond_destroy(&(universe->thread_temrinate_cond)));
-    pthread_mutex_destroy(&(universe->gc_mutex));
-    pthread_cond_destroy(&(universe->gc_cond));
-    pthread_mutex_destroy(&(universe->universe_mutex));
+    CHECK_PTHREAD(pthread_mutex_destroy(&(universe->gc_thread_mutex)));
+    CHECK_PTHREAD(pthread_cond_destroy(&(universe->gc_cond)));
+    CHECK_PTHREAD(pthread_mutex_destroy(&(universe->universe_mutex)));
 
     kh_destroy(str, universe->globals);
 

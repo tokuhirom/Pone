@@ -6,7 +6,7 @@
 
 // initialize Class class
 pone_val* pone_init_class(pone_world* world) {
-    GC_LOCK(world->universe);
+    GC_RD_LOCK(world->universe);
     pone_val* val = pone_obj_alloc(world, PONE_OBJ);
     val->as.obj.ivar = kh_init(str);
     val->as.obj.klass = pone_nil();
