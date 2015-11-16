@@ -784,7 +784,7 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
             pone_pop_scope(world);
             UNIVERSE_LOCK(world->universe);
             pone_world_free(world);
-            UNIVERSE_UNLOCK(world->universe);
+            UNIVERSE_UNLOCK(universe);
             pone_universe_destroy(universe);
         }
 
