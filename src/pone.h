@@ -525,27 +525,34 @@ void pone_send_private_sig(int sig);
 void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* code);
 
 #ifdef THREAD_DEBUG
-#define THREAD_TRACE(fmt, ...) printf("[pone thread] " fmt, ##__VA_ARGS__)
+#define THREAD_TRACE(fmt, ...) fprintf(stderr, "[pone thread] " fmt, ##__VA_ARGS__)
 #else
 #define THREAD_TRACE(fmt, ...)
 #endif
 
 #ifdef GC_DEBUG
-#define GC_TRACE(fmt, ...) printf("[pone gc] " fmt, ##__VA_ARGS__)
+#define GC_TRACE(fmt, ...) fprintf(stderr, "[pone gc] " fmt, ##__VA_ARGS__)
 #else
 #define GC_TRACE(fmt, ...)
 #endif
 
+// TODO rename EXC_DEBUG to EXC_TRACE
 #ifdef EXC_DEBUG
-#define EXC_LOG(fmt, ...) printf("[pone exc] " fmt, ##__VA_ARGS__)
+#define EXC_LOG(fmt, ...) fprintf(stderr, "[pone exc] " fmt, ##__VA_ARGS__)
 #else
 #define EXC_LOG(fmt, ...)
+#endif
+
+#ifdef WORLD_DEBUG
+#define WORLD_TRACE(fmt, ...) fprintf(stderr, "[pone world] " fmt, ##__VA_ARGS__)
+#else
+#define WORLD_TRACE(fmt, ...)
 #endif
 
 // GC lock is required for the mutable object operation
 #define GC_LOCK(universe) \
   do { \
-      THREAD_TRACE("GC LOCK: thread:%lx(%s line %d)\n", pthread_self(), __func__, __LINE__); \
+      THREAD_TRACE("GC LOCK: thread:%lx(%s %s line %d)\n", pthread_self(), __func__, __FILE__, __LINE__); \
       pthread_mutex_lock(&(universe->gc_mutex)); \
   } while (0)
 #define GC_UNLOCK(universe) \

@@ -26,9 +26,9 @@ if (GC_DEBUG)
     SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DGC_DEBUG")
 endif()
 
-set(TRACE_WORLD "0" CACHE BOOL "enable world tracing")
-if (TRACE_WORLD)
-    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DTRACE_WORLD")
+set(WORLD_DEBUG "0" CACHE BOOL "enable world tracing")
+if (WORLD_DEBUG)
+    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DWORLD_DEBUG")
 endif()
 
 set(NO_REUSE "0" CACHE BOOL "do not reuse free'd value")

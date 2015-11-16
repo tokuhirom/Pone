@@ -3,27 +3,24 @@
 
 #define PONE_ERR_HANDLERS_INIT 10
 
-#ifdef TRACE_WORLD
+#ifdef WORLD_DEBUG
 static inline void pone_world_dump(pone_universe* universe) {
     pone_world* world = universe->world_head;
     if (world) {
         while (world) {
-            printf("WWW %p prev:%p next:%p\n", world, world->prev, world->next);
+            WORLD_TRACE("%p prev:%p next:%p\n", world, world->prev, world->next);
             assert(world != world->next);
             world = world->next;
         }
     } else {
-        printf("WWW no world\n");
+        WORLD_TRACE("no world\n");
     }
 }
 #endif
 
 // This routine needs GVL
 static inline void pone_world_list_append(pone_universe *universe, pone_world* world) {
-#ifdef TRACE_WORLD
-    printf("WWW ADD %p\n", world);
-    pone_world_dump(universe);
-#endif
+    WORLD_TRACE("WWW ADD %p\n", world);
 
 #define HEAD (universe->world_head)
 
@@ -59,9 +56,7 @@ pone_world* pone_world_new(pone_universe* universe) {
     memset(world, 0, sizeof(pone_world));
     world->errvar = pone_nil();
 
-#ifdef TRACE_WORLD
-    printf("[pone world] world new: %p\n", world);
-#endif
+    WORLD_TRACE("[pone world] world new: %p\n", world);
 
     world->universe = universe;
 

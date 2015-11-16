@@ -78,8 +78,6 @@ void pone_ary_resize(pone_universe* universe, pone_val* self, pone_int_t size) {
 }
 
 void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_val* val) {
-    GC_LOCK(world->universe);
-
     assert(self); assert(pos); assert(val);
     pone_universe* universe = world->universe;
 
@@ -88,12 +86,15 @@ void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_
     pone_int_t i = pone_intify(world, pos);
 
     if (a->len > i) {
+        GC_LOCK(world->universe);
         a->a[i] = val;
+        GC_UNLOCK(world->universe);
     } else {
         pone_ary_resize(universe, self, i+1);
+        GC_LOCK(world->universe);
         self->as.ary.a[i] = val;
+        GC_UNLOCK(world->universe);
     }
-    GC_UNLOCK(world->universe);
 }
 
 // this method is *not* thread safe.
