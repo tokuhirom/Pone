@@ -129,7 +129,12 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
 // Usage: return pone_call_method(world, iter, "pull-one", 0);
 pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...) {
     assert(obj);
-    assert(pone_alive(obj));
+#ifndef NDEBUG
+    if (!pone_alive(obj)) {
+        fprintf(stderr, "value %p is already free'd\n", obj);
+        abort();
+    }
+#endif
 
     pone_val* method = pone_find_method(world, obj, method_name);
     if (pone_defined(method)) {

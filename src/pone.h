@@ -554,15 +554,21 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
 #define WORLD_TRACE(fmt, ...)
 #endif
 
+#ifdef GC_RD_LOCK_DEBUG
+#define GC_RD_LOCK_TRACE(fmt, ...) fprintf(stderr, "[pone gc rd lock] " fmt "\n", ##__VA_ARGS__)
+#else
+#define GC_RD_LOCK_TRACE(fmt, ...)
+#endif
+
 // GC lock is required for the mutable object operation
 #define GC_RD_LOCK(universe) \
   do { \
-      THREAD_TRACE("GC RD LOCK: thread:%lx(%s %s line %d)", pthread_self(), __func__, __FILE__, __LINE__); \
+      GC_RD_LOCK_TRACE("thread:%lx(%s %s line %d)", pthread_self(), __func__, __FILE__, __LINE__); \
       pthread_rwlock_rdlock(&(universe->gc_rwlock)); \
   } while (0)
 #define GC_UNLOCK(universe) \
   do { \
-      THREAD_TRACE("GC RD UNLOCK: thread:%lx", pthread_self()); \
+      GC_RD_LOCK_TRACE("thread:%lx", pthread_self()); \
       pthread_rwlock_unlock(&(universe->gc_rwlock)); \
   } while(0)
 

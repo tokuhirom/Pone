@@ -9,6 +9,7 @@ void pone_gc_mark_value(pone_val* val) {
         return; // already marked.
     }
     val->as.basic.flags |= PONE_FLAGS_GC_MARK;
+    assert(pone_flags(val) & PONE_FLAGS_GC_MARK);
 
     switch (pone_type(val)) {
     case PONE_NIL:
@@ -61,7 +62,7 @@ static void pone_gc_collect(pone_universe* universe) {
                     GC_TRACE("marked obj: %p %s", val, pone_what_str_c(val));
                     val->as.basic.flags ^= PONE_FLAGS_GC_MARK;
                 } else {
-                    GC_TRACE("free: %p", val);
+                    GC_TRACE("free: %p %s", val, pone_what_str_c(val));
                     switch (pone_type(val)) {
                     case PONE_STRING:
                         pone_str_free(universe, val);
@@ -103,12 +104,13 @@ void pone_gc_run(pone_universe* universe) {
 
     CHECK_PTHREAD(pthread_rwlock_wrlock(&(universe->gc_rwlock)));
     pone_gc_mark(universe);
-    CHECK_PTHREAD(pthread_rwlock_unlock(&(universe->gc_rwlock)));
 
     pone_gc_log(universe, "[pone gc] finished marking phase\n");
     pone_gc_collect(universe);
 
     pone_gc_log(universe, "[pone gc] finished gc\n");
+
+    CHECK_PTHREAD(pthread_rwlock_unlock(&(universe->gc_rwlock)));
 
     // TODO we should unlock GC lock after marking phase. Since sweeping phase should only
     // touch objects, that aren't reachable.
@@ -147,7 +149,9 @@ static void* gc_thread(void* p) {
 
     while (!universe->in_global_destruction) {
         GC_TRACE("GC thread waiting GC request...");
-        CHECK_PTHREAD(pthread_cond_wait(&(universe->gc_cond), &(universe->gc_thread_mutex)));
+        while (!universe->in_global_destruction && !universe->gc_requested) {
+            CHECK_PTHREAD(pthread_cond_wait(&(universe->gc_cond), &(universe->gc_thread_mutex)));
+        }
         GC_TRACE("GC thread got gc request");
         if (universe->gc_requested) {
             pone_gc_run(universe);

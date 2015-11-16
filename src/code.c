@@ -41,7 +41,7 @@ pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int
     assert(pone_type(code) == PONE_CODE);
 
     if (world->universe->gc_requested) {
-        THREAD_TRACE("GC requested. yield");
+        // THREAD_TRACE("GC requested. yield");
         pthread_yield();
     }
 
