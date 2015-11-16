@@ -19,7 +19,7 @@ TODO
  * array methods
  * str methods
  * `system` builtin function
- * `%*ENV`
+ * Implement `%*ENV` and deprecate `getenv()` builtin function
  * // operator
  * bit ops
  * -p
@@ -32,6 +32,7 @@ TODO
  * `||`
  * `s///`
  * `Proc` builtin class
+ * implement p5-ish built-in functions
 
 ## Bindings
 
@@ -42,4 +43,5 @@ TODO
 ### GC
 
  * bitmap marking?
+ * incremental GC?
 

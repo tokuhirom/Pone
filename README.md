@@ -78,15 +78,6 @@ And thre's some limitations.
 
  * You can't assign variables that created by another thread.
 
-TODO
-====
-
-  * user defined funciton
-  * implement p5-ish built-in functions
-  * Implement `%*ENV` and deprecate `getenv()` builtin function
-  * `class Foo { }`
-  * `class Foo is Bar { }`
-  * socket support
 
 AUTHOR
 ======
