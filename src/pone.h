@@ -542,13 +542,13 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
 
 // TODO rename EXC_DEBUG to EXC_TRACE
 #ifdef EXC_DEBUG
-#define EXC_LOG(fmt, ...) fprintf(stderr, "[pone exc] " fmt, ##__VA_ARGS__)
+#define EXC_LOG(fmt, ...) fprintf(stderr, "[pone exc] " fmt "\n", ##__VA_ARGS__)
 #else
 #define EXC_LOG(fmt, ...)
 #endif
 
 #ifdef WORLD_DEBUG
-#define WORLD_TRACE(fmt, ...) fprintf(stderr, "[pone world] " fmt, ##__VA_ARGS__)
+#define WORLD_TRACE(fmt, ...) fprintf(stderr, "[pone world] " fmt "\n", ##__VA_ARGS__)
 #else
 #define WORLD_TRACE(fmt, ...)
 #endif
