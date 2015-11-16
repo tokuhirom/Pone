@@ -21,7 +21,7 @@ static inline void pone_world_dump(pone_universe* universe) {
 
 // This routine needs GVL
 static inline void pone_world_list_append(pone_universe *universe, pone_world* world) {
-    WORLD_TRACE("WWW ADD %p", world);
+    WORLD_TRACE("ADD %p", world);
 
 #define HEAD (universe->world_head)
 
@@ -57,7 +57,7 @@ pone_world* pone_world_new(pone_universe* universe) {
     memset(world, 0, sizeof(pone_world));
     world->errvar = pone_nil();
 
-    WORLD_TRACE("[pone world] world new: %p", world);
+    WORLD_TRACE("world new: %p", world);
 
     world->universe = universe;
 
@@ -111,6 +111,7 @@ void pone_world_free(pone_world* world) {
     }
 
 #ifndef NDEBUG
+    world->freelist = NULL;
     world->tmpstack.n=0;
     world->tmpstack.m=0;
     world->savestack.n=0;
