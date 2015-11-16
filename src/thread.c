@@ -11,7 +11,7 @@ static void* thread_start(void* p) {
 
     thread_context* context = (thread_context*)p;
 
-    THREAD_TRACE("NEW %lx world:%p\n", pthread_self(), context->world);
+    THREAD_TRACE("NEW %lx world:%p", pthread_self(), context->world);
 
     // extract values to stack
     pone_world* world = context->world;
@@ -91,7 +91,7 @@ static pone_val* meth_thread_id(pone_world* world, pone_val* self, int n, va_lis
 }
 
 pone_val* pone_thread_join(pone_universe* universe, pthread_t thr) {
-    THREAD_TRACE("JOIN thread:%lx\n", thr);
+    THREAD_TRACE("JOIN thread:%lx", thr);
 
     void* retval;
     int e;
@@ -101,7 +101,7 @@ pone_val* pone_thread_join(pone_universe* universe, pthread_t thr) {
         exit(EXIT_FAILURE);
     }
 
-    THREAD_TRACE("JOIN-ed thread:%lx\n", thr);
+    THREAD_TRACE("JOIN-ed thread:%lx", thr);
 
     UNIVERSE_LOCK(universe); // This operation modifies universe's structure.
 

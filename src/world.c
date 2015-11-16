@@ -8,19 +8,19 @@ static inline void pone_world_dump(pone_universe* universe) {
     pone_world* world = universe->world_head;
     if (world) {
         while (world) {
-            WORLD_TRACE("%p prev:%p next:%p\n", world, world->prev, world->next);
+            WORLD_TRACE("%p prev:%p next:%p", world, world->prev, world->next);
             assert(world != world->next);
             world = world->next;
         }
     } else {
-        WORLD_TRACE("no world\n");
+        WORLD_TRACE("no world");
     }
 }
 #endif
 
 // This routine needs GVL
 static inline void pone_world_list_append(pone_universe *universe, pone_world* world) {
-    WORLD_TRACE("WWW ADD %p\n", world);
+    WORLD_TRACE("WWW ADD %p", world);
 
 #define HEAD (universe->world_head)
 
@@ -56,7 +56,7 @@ pone_world* pone_world_new(pone_universe* universe) {
     memset(world, 0, sizeof(pone_world));
     world->errvar = pone_nil();
 
-    WORLD_TRACE("[pone world] world new: %p\n", world);
+    WORLD_TRACE("[pone world] world new: %p", world);
 
     world->universe = universe;
 
@@ -94,7 +94,7 @@ pone_world* pone_world_new(pone_universe* universe) {
 
 // This routine needs GVL
 void pone_world_free(pone_world* world) {
-    GC_TRACE("freeing world! %p\n", world);
+    GC_TRACE("freeing world! %p", world);
 
     // pass free'd arenas to universe.
     world->arena_head->next = world->universe->freed_arena;
