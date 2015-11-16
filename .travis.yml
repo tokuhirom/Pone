@@ -2,7 +2,7 @@ language: perl
 install:
   - cpanm -nv Capture::Tiny Test::Base
 script:
-  - cmake .
+  - cmake -DCMAKE_BUILD_TYPE=Debug .
   - make all
   - prove -v -r t xt
 addons:
