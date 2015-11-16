@@ -1,5 +1,6 @@
 #include "pone.h" /* PONE_INC */
 #include "rockre.h"
+#include <errno.h>
 
 #ifdef __GLIBC__
 #include <execinfo.h>
@@ -31,8 +32,22 @@ pone_universe* pone_universe_init() {
     }
     memset(universe, 0, sizeof(pone_universe));
 
-    pthread_mutex_init(&(universe->gc_mutex), NULL);
-    pthread_mutex_init(&(universe->universe_mutex), NULL);
+    int r=0;
+    if ((r=pthread_mutex_init(&(universe->gc_mutex), NULL))!=0) {
+        errno=r;
+        perror("pthread_mutex_init");
+        abort();
+    }
+    if ((r=pthread_mutex_init(&(universe->universe_mutex), NULL))!=0) {
+        errno=r;
+        perror("pthread_mutex_init");
+        abort();
+    }
+    if ((r=pthread_cond_init(&(universe->gc_cond), NULL))!=0) {
+        errno=r;
+        perror("pthread_cond_init");
+        abort();
+    }
 
     universe->rockre = rockre_new();
 
@@ -55,6 +70,10 @@ void pone_universe_destroy(pone_universe* universe) {
     while (universe->thread_num>0) {
         (void)pone_thread_join(universe, universe->threads->thread);
     }
+
+    pthread_mutex_destroy(&(universe->gc_mutex));
+    pthread_cond_destroy(&(universe->gc_cond));
+    pthread_mutex_destroy(&(universe->universe_mutex));
 
     kh_destroy(str, universe->globals);
 

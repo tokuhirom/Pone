@@ -1,4 +1,5 @@
 #include "pone.h"
+#include <errno.h>
 
 // TODO use bitmap gc
 void pone_gc_mark_value(pone_val* val) {
@@ -98,7 +99,7 @@ static void pone_gc_collect(pone_universe* universe) {
 }
 
 void pone_gc_run(pone_universe* universe) {
-    GC_LOCK(universe);
+    ASSERT_GC_LOCK(universe);
 
     pone_gc_log(universe, "[pone gc] starting gc\n");
 
@@ -110,15 +111,44 @@ void pone_gc_run(pone_universe* universe) {
 
     // TODO we should unlock GC lock after marking phase. Since sweeping phase should only
     // touch objects, that aren't reachable.
-    GC_UNLOCK(universe);
+}
+
+void pone_gc_request(pone_universe* universe) {
+    pone_gc_log(universe, "pone_gc_request\n");
+    int r;
+    if ((r=pthread_cond_signal(&(universe->gc_cond)))!=0) {
+        errno = r;
+        perror("pthread_cond_signal");
+        abort();
+    }
+    pthread_yield();
 }
 
 static pone_val* meth_gc_run(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
 
-    pone_gc_run(world->universe);
+    pone_gc_request(world->universe);
 
     return pone_nil();
+}
+
+static void* gc_thread(void* p) {
+    pone_universe* universe = (pone_universe*)p;
+
+    GC_LOCK(universe);
+
+    while (true) {
+        GC_TRACE("GC thread waiting GC request...");
+        int r;
+        if ((r=pthread_cond_wait(&(universe->gc_cond), &(universe->gc_mutex)))!=0) {
+            errno = r;
+            perror("cannot call pthread_cond_wait");
+            abort();
+        }
+        pone_gc_run(universe);
+    }
+
+    return NULL;
 }
 
 void pone_gc_init(pone_world* world) {
@@ -127,5 +157,11 @@ void pone_gc_init(pone_world* world) {
     pone_add_method_c(world, gc, "run", strlen("run"), meth_gc_run);
     pone_class_compose(world, gc);
     pone_universe_set_global(universe, "GC", gc);
+
+    int r;
+    if ((r=pthread_create(&(universe->gc_thread), NULL, gc_thread, universe)) != 0) {
+        errno=r;
+        perror("cannot create gc thread");
+    }
 }
 

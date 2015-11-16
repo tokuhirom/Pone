@@ -266,6 +266,11 @@ typedef struct pone_universe {
 
     // GC lock. You must lock this before modifies an object.
     pthread_mutex_t gc_mutex;
+    // cond to wait GC start
+    pthread_cond_t gc_cond;
+    // thread id of GC thread
+    pthread_t gc_thread;
+
     // UNIVERSE lock. You need to lock this before modify this object.
     pthread_mutex_t universe_mutex;
 
@@ -277,8 +282,6 @@ typedef struct pone_universe {
 
     FILE* gc_log;
 } pone_universe;
-
-#define PONE_SIG_GC 31
 
 typedef struct pone_arena {
     struct pone_arena* next;
@@ -517,11 +520,10 @@ pone_val* pone_pair_new(pone_world* world, pone_val* key, pone_val* value);
 
 // gc.c
 void pone_gc_mark_value(pone_val* val);
-void pone_gc_run(pone_universe* universe);
 void pone_gc_init(pone_world* world);
+void pone_gc_request(pone_universe* universe);
 
 // signal.c
-void pone_send_private_sig(int sig);
 void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* code);
 
 #ifdef THREAD_DEBUG

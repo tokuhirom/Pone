@@ -3,7 +3,6 @@
 #include <signal.h>
 
 static int pone_signal_received=0;
-static int private_sig=0;
 
 void pone_signal_handle(pone_world* world) {
     if (pone_signal_received > 0) {
@@ -12,19 +11,10 @@ void pone_signal_handle(pone_world* world) {
         pone_val* code = world->universe->signal_handlers[sig];
         pone_code_call(world, code, pone_nil(), 0);
     }
-    if (private_sig > 0) {
-        private_sig = 0;
-        pone_gc_run(world->universe);
-    }
 }
 
 static void sig_handler(int sig) {
     pone_signal_received = sig;
-}
-
-// send internal signal like PONE_SIG_GC
-void pone_send_private_sig(int sig) {
-    private_sig = sig;
 }
 
 void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* code) {
