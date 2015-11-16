@@ -116,11 +116,11 @@ void pone_gc_run(pone_universe* universe) {
 
 void pone_gc_request(pone_universe* universe) {
     if (universe->gc_requested) {
-        pone_gc_log(universe, "gc is already requested\n");
+        // pone_gc_log(universe, "gc is already requested\n");
         return;
     }
 
-    pone_gc_log(universe, "pone_gc_request\n");
+    pone_gc_log(universe, "pone_gc_request!\n");
     CHECK_PTHREAD(pthread_mutex_lock(&(universe->gc_thread_mutex)));
     universe->gc_requested = true;
     CHECK_PTHREAD(pthread_cond_signal(&(universe->gc_cond)));

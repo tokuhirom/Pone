@@ -39,7 +39,7 @@ pone_universe* pone_universe_init() {
     CHECK_PTHREAD(pthread_cond_init(&(universe->thread_temrinate_cond), NULL));
 
     universe->rockre = rockre_new();
-
+    universe->gc_requested = false;
     universe->globals = kh_init(str);
 
     return universe;
