@@ -57,6 +57,9 @@ void pone_init(pone_world* world) {
         const char* env = getenv("PONE_GC_LOG");
         if (env && strlen(env) > 0) {
             universe->gc_log = fopen(env, "w");
+            if (!universe->gc_log) {
+                fprintf(stderr, "Cannot open %s\n", env);
+            }
         }
     }
 }
