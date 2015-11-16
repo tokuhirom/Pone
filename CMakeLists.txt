@@ -5,11 +5,16 @@ enable_testing()
 
 include_directories(3rd/uthash/include/ 3rd/linenoise/ 3rd/rockre/include 3rd/pvip/src/ src/)
 
-SET(CMAKE_C_FLAGS   "-fPIC -D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function -g -Werror")
+SET(CMAKE_C_FLAGS   "-fPIC -D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function -g")
 # -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith
-SET(CMAKE_C_FLAGS_DEBUG   "-fPIC -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function -g -Werror")
-SET(CMAKE_C_FLAGS_RELEASE "-fPIC -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-function -DNDEBUG")
-SET(CMAKE_BUILD_TYPE Debug)
+SET(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS} ")
+SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2 -DNDEBUG")
+SET(CMAKE_BUILD_TYPE Release)
+
+set(WERROR "0" CACHE BOOL "enable -Werror")
+if (WERROR)
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+endif()
 
 set(THREAD_DEBUG "0" CACHE BOOL "enable thread debugging")
 if (THREAD_DEBUG)
