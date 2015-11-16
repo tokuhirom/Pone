@@ -117,8 +117,6 @@ void pone_world_free(pone_world* world) {
     world->savestack.n=0;
     world->savestack.m=0;
 #endif
-    free(world->tmpstack.a);
-    free(world->savestack.a);
 
 //  pone_arena* a = world->arena_head;
 //  while (a) {
@@ -128,7 +126,11 @@ void pone_world_free(pone_world* world) {
 //  }
 
     pone_gc_log(world->universe, "[pone gc] freeing world %p\n", world);
+
     pone_world_list_remove(world->universe, world);
+
+    free(world->tmpstack.a);
+    free(world->savestack.a);
     pone_free(world->universe, world->err_handler_lexs);
     pone_free(world->universe, world->err_handlers);
     pone_free(world->universe, world);
