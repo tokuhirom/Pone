@@ -40,6 +40,11 @@ void pone_code_free(pone_universe* universe, pone_val* v) {
 pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int n, va_list args) {
     assert(pone_type(code) == PONE_CODE);
 
+    if (world->universe->gc_requested) {
+        THREAD_TRACE("GC requested. yield");
+        pthread_yield();
+    }
+
     pone_code* cv = (pone_code*)code;
     if (cv->lex) { //pone level code
         // save original lex.
