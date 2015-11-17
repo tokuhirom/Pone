@@ -63,10 +63,11 @@ SET(soserial "1")
 
 SET(SRCS
     src/opaque.c src/channel.c src/gc.c src/pair.c src/obj.c src/class.c src/alloc.c src/array.c src/bool.c src/builtin.c src/code.c src/hash.c src/int.c src/nil.c src/num.c src/op.c src/pone.c src/scope.c src/str.c src/world.c src/universe.c src/iter.c src/exc.c src/range.c src/mu.c src/any.c src/cool.c src/socket.c src/re.c src/thread.c src/signal.c
+    src/pvip_node.c src/pvip_string.c gen.pone.y.c gen.node.c
     )
 
 add_executable(pone src/compiler/main.c 3rd/linenoise/linenoise.c)
-target_link_libraries(pone libpvip libpone rockre-static dl pthread)
+target_link_libraries(pone libpone rockre-static dl pthread)
 set_target_properties(pone
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "bin/")
@@ -81,6 +82,19 @@ set_source_files_properties(3rd/linenoise/linenoise.c PROPERTIES COMPILE_FLAGS "
 
 add_test(NAME prove COMMAND prove t xt)
 
-add_subdirectory(3rd/pvip)
+add_executable(greg 3rd/greg/greg.c 3rd/greg/tree.c 3rd/greg/compile.c)
+set_target_properties(greg PROPERTIES COMPILE_FLAGS "-g -Wno-sign-compare")
+
+add_custom_command(
+    OUTPUT gen.pone.y.c
+    COMMAND echo $(PROJECT_BINARY_DIR)
+    COMMAND ./greg -o gen.pone.y.c ${PROJECT_SOURCE_DIR}/src/pone.y
+    DEPENDS greg
+    )
+add_custom_command(
+    OUTPUT gen.node.c
+    COMMAND perl ${PROJECT_SOURCE_DIR}/build/node.pl ${PROJECT_SOURCE_DIR}/src/pvip.h gen.node.c 
+    )
+
 add_subdirectory(3rd/rockre)
 

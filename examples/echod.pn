@@ -1,0 +1,25 @@
+my $chan = chan(9);
+
+Thread.start(sub {
+    # TODO loop
+    while True {
+        my $csock = $chan.receive();
+        for 1..10 {
+            dd "READ!";
+            my $buf = $csock.read(1000);
+            $csock.write($buf);
+            say "done read";
+        }
+        say "CLOSE";
+        $csock.close();
+    }
+});
+
+my $sock = IO::Socket::INET.listen("127.0.0.1", 10084);
+
+# TODO listen or die
+while True {
+    my $csock = $sock.accept();
+    $chan.send($csock);
+}
+

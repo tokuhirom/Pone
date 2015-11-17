@@ -1,6 +1,3 @@
-[submodule "3rd/pvip"]
-	path = 3rd/pvip
-	url = git://github.com/tokuhirom/pvip.git
 [submodule "3rd/linenoise"]
 	path = 3rd/linenoise
 	url = git://github.com/antirez/linenoise.git
