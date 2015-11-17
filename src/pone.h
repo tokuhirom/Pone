@@ -345,7 +345,7 @@ pone_int_t pone_ary_elems(pone_val* val);
 void pone_ary_free(pone_world* world, pone_val* val);
 void pone_ary_init(pone_world* world);
 pone_val* pone_ary_at_pos(pone_val* ary, pone_int_t n);
-void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val);
+void pone_ary_push(pone_universe* universe, pone_val* self, pone_val* val);
 void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_val* val);
 void pone_ary_mark(pone_val* val);
 pone_val* pone_ary_pop(pone_world* world, pone_val* self);

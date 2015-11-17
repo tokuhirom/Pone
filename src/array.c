@@ -107,35 +107,6 @@ static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list
     }
 }
 
-/*
-
-=head1 NAME
-
-Array - Built-in Array class.
-
-=head1 LITERAL
-
-There is a literal to build an instance.
-
-    [1,2,3]
-
-=head1 METHODS
-
-=cut
-
-*/
-
-/*
-
-=head3 C<Array#iterator()>
-
-    my $iter = [1,2,3].iterator();
-
-Get new instance of an iterator.
-
-=cut
-
-*/
 static pone_val* meth_ary_iterator(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
 
@@ -149,22 +120,13 @@ static pone_val* meth_ary_iterator(pone_world* world, pone_val* self, int n, va_
     return iter;
 }
 
-/*
-
-=head2 C<Array#elems() --> Int>
-
-Get the number of elements.
-
-=cut
-
-*/
 static pone_val* meth_ary_elems(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
     assert(pone_type(self) == PONE_ARRAY);
     return pone_int_new(world, pone_ary_elems(self));
 }
 
-void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
+void pone_ary_push(pone_universe* universe, pone_val* self, pone_val* val) {
     assert(pone_type(self) == PONE_ARRAY);
 
     if (self->as.ary.max == self->as.ary.len) {
@@ -183,25 +145,31 @@ void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val) {
     self->as.ary.a[self->as.ary.len++] = val;
 }
 
-/*
-
-=head2 C<Array#append($val)>
-
-    my $a = [1,2,3];
-    $a.append(4);
-    say $a.join(","); # => 1,2,3,4
-
-append an element to array tail.
-
-=cut
-
-*/
-static pone_val* meth_ary_append(pone_world* world, pone_val* self, int n, va_list args) {
+static pone_val* meth_ary_push(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 1);
 
     pone_val* val = va_arg(args, pone_val*);
-    pone_ary_append(world->universe, self, val);
+    pone_ary_push(world->universe, self, val);
 
+    return pone_nil();
+}
+
+
+void pone_ary_unshift(pone_world* world, pone_val* self, pone_val* val) {
+    if (self->as.ary.max == self->as.ary.len) {
+        self->as.ary.max = self->as.ary.max ? self->as.ary.max << 1 : 1;
+        self->as.ary.a = realloc(self->as.ary.a, sizeof(pone_val*)*self->as.ary.max);
+    }
+    memmove(self->as.ary.a+1, self->as.ary.a, sizeof(pone_val*)*(self->as.ary.len));
+    self->as.ary.a[0] = val;
+    self->as.ary.len++;
+}
+
+static pone_val* meth_ary_unshift(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 1);
+
+    pone_val* val = va_arg(args, pone_val*);
+    pone_ary_unshift(world, self, val);
     return pone_nil();
 }
 
@@ -240,109 +208,45 @@ pone_val* pone_ary_shift(pone_world* world, pone_val* self) {
     return retval;
 }
 
-/*
-
-=head2 C<Array#pop($val)>
-
-    my $a = [1,2,3];
-    say $a.pop(); # => 3
-
-Pop element from an array.
-
-=cut
-
-*/
 static pone_val* meth_ary_pop(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
     return pone_ary_pop(world, self);
 }
 
-/*
-
-=head2 C<Array#prepend($val)>
-
-    my $a = [1,2,3];
-    $a.prepend(0);
-    say $a.join(','); # => 0,1,2,3
-
-Prepend element to an array.
-
-NYI
-
-=cut
-
-*/
-
-/*
-
-=head2 C<Array#shift($val)>
-
-    my $a = [1,2,3];
-    say $a.shift(); # => 1
-
-Removes and returns the first item from the array. Fails for an empty arrays.
-
-=cut
-
-*/
 static pone_val* meth_ary_shift(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
     return pone_ary_shift(world, self);
 }
 
-/*
+static pone_val* meth_ary_join(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 1);
 
-=head2 C<Array#end()>
+    pone_val* separator = va_arg(args, pone_val*);
 
-Returns the index of the last element.
-
-NYI
-
-
-=cut
-
-*/
-
-/*
-
-=head2 C<Array#join($separator)>
-
-    say [1,2,3].join(','); # 1,2,3
-
-Treats the elements of the list as strings, interleaves them with $separator and concatenates everything into a single string.
-
-NYI
-
-=cut
-
-*/
+    pone_val* v = pone_str_new(world, "", 0);
+    pone_int_t len = pone_ary_elems(self);
+    for (pone_int_t i=0; i<len; ++i) {
+        pone_str_append(world, v, pone_ary_at_pos(self, i));
+        if (i!=len-1) {
+            pone_str_append(world, v, separator);
+        }
+    }
+    return v;
+}
 
 static pone_val* meth_ary_str(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 0);
 
     pone_val* v = pone_str_new(world, "", 0);
-    pone_str_append_c(world, v, "(", 1);
+    pone_str_append_c(world, v, "[", 1);
     for (pone_int_t i=0; i<pone_ary_elems(self); ++i) {
         pone_str_append(world, v, pone_ary_at_pos(self, i));
-        pone_str_append_c(world, v, " ", 1);
+        pone_str_append_c(world, v, ",", 1);
     }
-    pone_str_append_c(world, v, ")", 1);
+    pone_str_append_c(world, v, "]", 1);
     return v;
 }
 
-/*
-
-=head2 C<Array#ASSIGN-POS($pos, $value)>
-
-    $ary.ASSIGN-POS($pos, $value);
-
-is equivalent to
-
-    $ary[$pos] = $value;
-
-=cut
-
-*/
 static pone_val* meth_ary_assign_pos(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n == 2);
 
@@ -364,9 +268,11 @@ void pone_ary_init(pone_world* world) {
     pone_class_push_parent(world, universe->class_ary, universe->class_any);
     pone_add_method_c(world, universe->class_ary, "iterator", strlen("iterator"), meth_ary_iterator);
     pone_add_method_c(world, universe->class_ary, "elems", strlen("elems"), meth_ary_elems);
-    pone_add_method_c(world, universe->class_ary, "append", strlen("append"), meth_ary_append);
+    pone_add_method_c(world, universe->class_ary, "push", strlen("push"), meth_ary_push);
     pone_add_method_c(world, universe->class_ary, "pop", strlen("pop"), meth_ary_pop);
+    pone_add_method_c(world, universe->class_ary, "unshift", strlen("unshift"), meth_ary_unshift);
     pone_add_method_c(world, universe->class_ary, "shift", strlen("shift"), meth_ary_shift);
+    pone_add_method_c(world, universe->class_ary, "join", strlen("join"), meth_ary_join);
     pone_add_method_c(world, universe->class_ary, "Str", strlen("Str"), meth_ary_str);
     pone_add_method_c(world, universe->class_ary, "ASSIGN-POS", strlen("ASSIGN-POS"), meth_ary_assign_pos);
     pone_obj_set_ivar(world, universe->class_ary, "$!iterator-class", iter_class);

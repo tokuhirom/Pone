@@ -65,7 +65,7 @@ pone_val* pone_class_new(pone_world* world, const char* name, size_t name_len) {
 
 void pone_class_push_parent(pone_world* world, pone_val* obj, pone_val* klass) {
     pone_val* parents = pone_obj_get_ivar(world, obj, "@!parents");
-    pone_ary_append(world->universe, parents, klass);
+    pone_ary_push(world->universe, parents, klass);
 }
 
 void pone_add_method_c(pone_world* world, pone_val* klass, const char* name, size_t name_len, pone_funcptr_t funcptr) {

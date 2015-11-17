@@ -20,7 +20,7 @@ void pone_chan_send(pone_world* world, pone_val* chan, pone_val* val) {
     while (pone_intify(world, limit) < pone_ary_elems(buffer)) {
         CHECK_PTHREAD(pthread_cond_wait(recv_cond, mutex));
     }
-    pone_ary_append(world->universe, buffer, val);
+    pone_ary_push(world->universe, buffer, val);
     CHECK_PTHREAD(pthread_cond_signal(send_cond));
     CHECK_PTHREAD(pthread_mutex_unlock(mutex));
 }
