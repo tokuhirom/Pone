@@ -39,6 +39,7 @@ TODO
  * fork pvip and include it in this repository.
  * `pthread_self()`
  * `while True { last; }`
+ * `sub x() { for 1..10 { say 3; } }; say 5`
 
 ## Bindings
 
