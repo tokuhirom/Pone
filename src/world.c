@@ -22,26 +22,12 @@ static inline void pone_world_dump(pone_universe* universe) {
 // This routine needs GVL
 static inline void pone_world_list_append(pone_universe *universe, pone_world* world) {
     WORLD_TRACE("ADD %p", world);
-
-#define HEAD (universe->world_head)
-
-    if (HEAD) {
-        world->prev = HEAD->prev;
-        HEAD->prev->next = world;
-        HEAD->prev = world;
-        world->next = NULL;
-    } else {
-        HEAD = world;
-        HEAD->prev = HEAD;
-        HEAD->next = NULL;
-    }
-
-#undef HEAD
+    CDL_PREPEND(universe->world_head, world);
 }
 
 // This routine needs GVL
 static inline void pone_world_list_remove(pone_universe *universe, pone_world* world) {
-    DL_DELETE(universe->world_head, world);
+    CDL_DELETE(universe->world_head, world);
 }
 
 // This routine needs GVL
@@ -84,6 +70,9 @@ pone_world* pone_world_new(pone_universe* universe) {
     world->savestack.n = 0;
     world->savestack.m = 0;
 
+    CHECK_PTHREAD(pthread_mutex_init(&(world->mutex), NULL));
+    CHECK_PTHREAD(pthread_cond_init(&(world->cond), NULL));
+
     pone_gc_log(world->universe, "[pone gc] create new world %p\n", world);
 
     UNIVERSE_LOCK(world->universe); // This operation modifies universe's structure.
@@ -93,22 +82,24 @@ pone_world* pone_world_new(pone_universe* universe) {
     return world;
 }
 
+// Clear the world before reuse.
+void pone_world_release(pone_world* world) {
+    // rewind tmpstack
+    world->tmpstack.n=0;
+
+    // rewind savestack
+    world->savestack.n=0;
+
+    // XXX should we run GC at here?
+
+    // remove code(must be last)
+    world->code = NULL;
+}
+
 void pone_world_free(pone_world* world) {
     ASSERT_UNIVERSE_LOCK(world->universe);
 
     GC_TRACE("freeing world! %p", world);
-
-    // pass free'd arenas to universe.
-    world->arena_head->next = world->universe->freed_arena;
-    world->universe->freed_arena = world->arena_head;
-
-    pone_val* v = world->freelist;
-    while (v) {
-        pone_val* nv = v->as.free.next;
-        v->as.free.next = world->universe->freed_freelist;
-        world->universe->freed_freelist = v;
-        v = nv;
-    }
 
 #ifndef NDEBUG
     world->freelist = NULL;
@@ -129,6 +120,8 @@ void pone_world_free(pone_world* world) {
 
     pone_world_list_remove(world->universe, world);
 
+    CHECK_PTHREAD(pthread_mutex_destroy(&(world->mutex)));
+    CHECK_PTHREAD(pthread_cond_destroy(&(world->cond)));
     free(world->tmpstack.a);
     free(world->savestack.a);
     pone_free(world->universe, world->err_handler_lexs);

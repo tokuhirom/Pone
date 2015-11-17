@@ -46,6 +46,14 @@ TODO
  * bitmap marking?
  * incremental GC?
 
+### Syntax
+
+ * Switch to C like operators
+
+### Regexp
+
+ * Use onigmo
+
 ## Known bugs
 
  * Exception from thread case segv.

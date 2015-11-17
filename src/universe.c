@@ -1,6 +1,7 @@
 #include "pone.h" /* PONE_INC */
 #include "rockre.h"
 #include <errno.h>
+#include "utlist.h"
 
 #ifdef __GLIBC__
 #include <execinfo.h>
@@ -54,11 +55,28 @@ void pone_universe_set_global(pone_universe* universe, const char* key, pone_val
     kh_val(universe->globals, k) = val;
 }
 
+static pone_int_t count_alive_worlds(pone_universe* universe) {
+    pone_world* world;
+    pone_int_t r = 0;
+    CDL_FOREACH(universe->world_head, world) {
+        if (world->code) {
+            r++;
+        }
+        world = world->next;
+    }
+    return r;
+}
+
 void pone_universe_destroy(pone_universe* universe) {
     // wait threads.
     UNIVERSE_LOCK(universe);
-    while (universe->world_head) {
-        CHECK_PTHREAD(pthread_cond_wait(&(universe->thread_temrinate_cond), &(universe->universe_mutex)));
+    while (true) {
+      pone_int_t n = count_alive_worlds(universe);
+      if (n == 0) {
+          break;
+      }
+      WORLD_TRACE("There's %ld worlds", n);
+      CHECK_PTHREAD(pthread_cond_wait(&(universe->thread_temrinate_cond), &(universe->universe_mutex)));
     }
     UNIVERSE_UNLOCK(universe);
 

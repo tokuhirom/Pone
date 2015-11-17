@@ -33,7 +33,7 @@ endif()
 
 set(WORLD_DEBUG "0" CACHE BOOL "enable world tracing")
 if (WORLD_DEBUG)
-    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DWORLD_DEBUG")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWORLD_DEBUG")
 endif()
 
 set(GC_RD_LOCK_DEBUG "0" CACHE BOOL "enable GC rd lock tracing")

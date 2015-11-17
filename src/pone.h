@@ -174,7 +174,10 @@ typedef struct pone_world {
 
     pthread_t thread_id;
 
-    // linked-list for gc
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+
+    // circular linked-list
     struct pone_world* next;
     struct pone_world* prev;
 } pone_world;
@@ -214,10 +217,6 @@ typedef struct pone_val {
 typedef struct pone_universe {
     // signal handlers
     struct pone_val *signal_handlers[PONE_SIGNAL_HANDLERS_SIZE];
-
-    // arena's from free'd world.
-    struct pone_arena* freed_arena;
-    struct pone_val* freed_freelist;
 
     // 無("Mu")
     struct pone_val* class_mu;
@@ -307,6 +306,7 @@ void pone_nil_init(pone_world* world);
 // world.c
 pone_world* pone_world_new(pone_universe* universe);
 void pone_world_free(pone_world* world);
+void pone_world_release(pone_world* world);
 pone_val* pone_try(pone_world* world, pone_val* code);
 pone_val* pone_errvar(pone_world* world);
 void pone_world_mark(pone_world*);
