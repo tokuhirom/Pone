@@ -118,23 +118,24 @@ static pone_val* meth_sock_connect(pone_world* world, pone_val* self, int n, va_
         rp->ai_socktype |= SOCK_CLOEXEC;
 #endif
         fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-        if (fd == -1)
+        if (fd == -1) {
+            pone_world_set_errno(world);
             continue;
+        }
 
         if (connect(fd, rp->ai_addr, rp->ai_addrlen) != -1) {
-            pone_world_set_errno(world);
             break;                  /* Success */
         }
+        pone_world_set_errno(world);
 
         close(fd);
     }
 
+    freeaddrinfo(result);           /* No longer needed */
+
     if (rp == NULL) {               /* No address succeeded */
-        pone_world_set_errno(world);
         return pone_nil();
     }
-
-    freeaddrinfo(result);           /* No longer needed */
 
     struct pone_sock* sock = pone_malloc(world->universe, sizeof(struct pone_sock));
     sock->fd = fd;
@@ -172,12 +173,15 @@ static pone_val* meth_sock_listen(pone_world* world, pone_val* self, int n, va_l
     int fd = 0;
     for (rp = result; rp != NULL; rp = rp->ai_next) {
         fd = socket(rp->ai_family, rp->ai_socktype|SOCK_CLOEXEC, rp->ai_protocol);
-        if (fd == -1)
+        if (fd == -1) {
+            pone_world_set_errno(world);
             continue;
+        }
 
         if (bind(fd, rp->ai_addr, rp->ai_addrlen) != -1) {
             break;                  /* Success */
         }
+        pone_world_set_errno(world);
 
         close(fd);
     }
@@ -185,7 +189,6 @@ static pone_val* meth_sock_listen(pone_world* world, pone_val* self, int n, va_l
     freeaddrinfo(result);           /* No longer needed */
 
     if (rp == NULL) {               /* No address succeeded */
-        pone_world_set_errno(world);
         return pone_nil();
     }
 
