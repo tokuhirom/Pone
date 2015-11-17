@@ -16,8 +16,8 @@ TODO
  * `fork()`
  * socket i/o
  * file i/o
- * array methods
  * str methods
+ * bytes literal/class
  * `system` builtin function
  * Implement `%*ENV` and deprecate `getenv()` builtin function
  * // operator

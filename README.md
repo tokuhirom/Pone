@@ -18,6 +18,9 @@ FEATURES
 
   * Threading support
    * No global interpreter lock
+  * No GC stop the world
+   * GC working per thread.
+  * Channel based thread model
 
 LITERALS
 ========
@@ -88,6 +91,7 @@ No. You should use termination channel instead.
 ## Is there a destructor(DESTROY)?
 
 No. Destructor is not supported. Since we are using GC. You should use LEAVE block instead.
+(Same as golang's defer)
 
 AUTHOR
 ======
@@ -118,3 +122,4 @@ COPYRIGHT AND LICENSE
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     You have new mail.
+
