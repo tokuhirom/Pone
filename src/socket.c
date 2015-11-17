@@ -127,7 +127,7 @@ static pone_val* meth_sock_connect(pone_world* world, pone_val* self, int n, va_
             continue;
         }
 #ifndef SOCK_CLOEXEC
-        if (fcntl(csock->fd, F_SETFD, FD_CLOEXEC) == -1) {
+        if (fcntl(fd, F_SETFD, FD_CLOEXEC) == -1) {
             pone_world_set_errno(world);
             continue;
         }
@@ -191,7 +191,7 @@ static pone_val* meth_sock_listen(pone_world* world, pone_val* self, int n, va_l
             continue;
         }
 #ifndef SOCK_CLOEXEC
-        if (fcntl(csock->fd, F_SETFD, FD_CLOEXEC) == -1) {
+        if (fcntl(fd, F_SETFD, FD_CLOEXEC) == -1) {
             pone_world_set_errno(world);
             continue;
         }
