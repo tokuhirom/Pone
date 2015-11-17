@@ -2,6 +2,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 struct pone_sock {
     int fd;
@@ -65,21 +67,14 @@ static pone_val* meth_sock_accept(pone_world* world, pone_val* self, int n, va_l
     struct pone_sock* csock = pone_malloc(world->universe, sizeof(struct pone_sock));
     socklen_t addrlen = sizeof(struct sockaddr);
 #ifdef HAVE_ACCEPT4
-    csokc->fd = accept4(sock->fd, &(csock->addr), &addrlen, SOCK_CLOEXEC);
+    csock->fd = accept4(sock->fd, &(csock->addr), &addrlen, SOCK_CLOEXEC);
 #else
     csock->fd = accept(sock->fd, &(csock->addr), &addrlen);
 #endif
 
     if (csock->fd != -1) {
-#ifdef HAVE_ACCEPT4
-    {
-        int yes = 1;
-        if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
-            pone_world_set_errno(world);
-            pone_free(world->universe, csock);
-            return pone_nil();
-        }
-    }
+#ifndef HAVE_ACCEPT4
+    fcntl(csock->fd, F_SETFD, FD_CLOEXEC);
 #endif
         pone_val* opaque = pone_opaque_new(world, csock, finalizer);
         pone_opaque_set_class(world, opaque, world->universe->class_io_socket_inet);
@@ -119,7 +114,10 @@ static pone_val* meth_sock_connect(pone_world* world, pone_val* self, int n, va_
 
     int fd = 0;
     for (rp = result; rp != NULL; rp = rp->ai_next) {
-        fd = socket(rp->ai_family, rp->ai_socktype|SOCK_CLOEXEC, rp->ai_protocol);
+#ifdef HAVE_SOCK_CLOEXEC
+        rp->ai_socktype |= SOCK_CLOEXEC;
+#endif
+        fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
         if (fd == -1)
             continue;
 

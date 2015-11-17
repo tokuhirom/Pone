@@ -27,3 +27,4 @@ tags
 /.ycm_extra_conf.pyc
 /gen.*.c
 /src/gen.node.c
+/include/pone_config.h

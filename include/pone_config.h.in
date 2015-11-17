@@ -1,0 +1,7 @@
+#ifndef PONE_CONFIG_H_IN_
+#define PONE_CONFIG_H_IN_
+
+#cmakedefine HAVE_SOCK_CLOEXEC
+#cmakedefine HAVE_ACCEPT4
+
+#endif // PONE_CONFIG_H_IN_

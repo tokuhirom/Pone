@@ -5,11 +5,12 @@ INCLUDE(CheckSymbolExists)
 
 enable_testing()
 
-include_directories(3rd/uthash/include/ 3rd/linenoise/ 3rd/rockre/include 3rd/pvip/src/ src/)
+include_directories(3rd/uthash/include/ 3rd/linenoise/ 3rd/rockre/include 3rd/pvip/src/ src/ include)
 
 list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 check_symbol_exists(accept4 sys/socket.h HAVE_ACCEPT4)
-
+check_symbol_exists(SOCK_CLOEXEC sys/socket.h HAVE_SOCK_CLOEXEC)
+configure_file(include/pone_config.h.in include/pone_config.h)
 
 SET(CMAKE_C_FLAGS   "-fPIC -D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function -g")
 # -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith
