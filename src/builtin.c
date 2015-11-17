@@ -41,6 +41,10 @@ pone_val* pone_builtin_dd(pone_world* world, pone_val* val) {
     return pone_nil();
 }
 
+pone_val* pone_builtin_pthread_self(pone_world* world) {
+    return pone_int_new(world, pthread_self());
+}
+
 pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
     switch (pone_type(val)) {
     case PONE_INT: {

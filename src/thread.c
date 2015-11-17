@@ -3,7 +3,7 @@
 #include <signal.h>
 
 static void* thread_start(void* p) {
-    THREAD_TRACE("NEW %lx world:%p", pthread_self(), context->world);
+    THREAD_TRACE("NEW %lx", pthread_self());
 
     // extract values to stack
     pone_world* world = (pone_world*)p;

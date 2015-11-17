@@ -37,6 +37,8 @@ TODO
  * $! vavariable
  * $@ vavariable
  * fork pvip and include it in this repository.
+ * `pthread_self()`
+ * `while True { last; }`
 
 ## Bindings
 

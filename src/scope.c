@@ -66,7 +66,7 @@ void pone_push_scope(pone_world* world) {
 }
 
 void pone_lex_free(pone_world* world, pone_val* val) {
-    GC_TRACE("pone_lex_free: %p lex:%p", universe, val);
+    GC_TRACE("pone_lex_free: %p lex:%p", world->universe, val);
     kh_destroy(str, val->as.lex.map);
 }
 

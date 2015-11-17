@@ -88,6 +88,7 @@ static bool is_builtin(const char* name) {
         || strcmp(name, "die")==0
         || strcmp(name, "printf")==0
         || strcmp(name, "chan")==0
+        || strcmp(name, "pthread_self")==0
         || strcmp(name, "slurp")==0;
 }
 
@@ -115,7 +116,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 int n = (child)->line_number;
                 const char* filename = ctx->filename;
                 PRINTF("#line %d \"%s\"\n", n, filename);
-                if (ctx->want_return && i==node->children.size-1 && child->type != PVIP_NODE_FOR && child->type != PVIP_NODE_RETURN && child->type != PVIP_NODE_IF) {
+                if (ctx->want_return && i==node->children.size-1 && child->type != PVIP_NODE_FOR && child->type != PVIP_NODE_RETURN && child->type != PVIP_NODE_IF && child->type != PVIP_NODE_WHILE) {
                     PRINTF("return ");
                     COMPILE(child);
                 } else {

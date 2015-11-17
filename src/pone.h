@@ -465,6 +465,7 @@ pone_val* pone_builtin_die(pone_world* world, pone_val* msg);
 void pone_signal_handle(pone_world* world);
 pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...);
 pone_val* pone_builtin_chan(pone_world* world, pone_val* limit);
+pone_val* pone_builtin_pthread_self(pone_world* world);
 
 void pone_val_free(pone_world* world, pone_val* p);
 pone_t pone_type(pone_val* val);
