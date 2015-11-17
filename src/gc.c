@@ -16,6 +16,7 @@ void pone_gc_mark_value(pone_val* val) {
     case PONE_INT:
     case PONE_NUM:
     case PONE_BOOL:
+    case PONE_OPAQUE:
         break; // primitive values.
     case PONE_STRING:
         pone_str_mark(val);
@@ -87,6 +88,9 @@ static void pone_gc_collect(pone_universe* universe) {
                         break;
                     case PONE_INT: // don't need to free heap
                     case PONE_NUM:
+                        break;
+                    case PONE_OPAQUE:
+                        pone_opaque_free(world, val);
                         break;
                     case PONE_NIL:
                     case PONE_BOOL:

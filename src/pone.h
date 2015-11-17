@@ -56,6 +56,7 @@ typedef enum {
     PONE_CODE,
     PONE_OBJ,
     PONE_LEX,
+    PONE_OPAQUE,
 } pone_t;
 
 #define PONE_HEAD \
@@ -63,6 +64,10 @@ typedef enum {
     uint8_t flags
 
 struct pone_val;
+struct pone_world;
+
+typedef struct pone_val* (*pone_funcptr_t)(struct pone_world*, struct pone_val*, int n, va_list);
+typedef void(*pone_finalizer_t)(struct pone_world*, struct pone_val*);
 
 KHASH_MAP_INIT_STR(str, struct pone_val*)
 
@@ -118,6 +123,13 @@ typedef struct {
     // instance variable
     khash_t(str) *ivar;
 } pone_obj;
+
+typedef struct {
+    PONE_HEAD;
+    struct pone_val* klass;
+    void *ptr;
+    pone_finalizer_t finalizer;
+} pone_opaque;
 
 typedef struct pone_lex_t {
     PONE_HEAD;
@@ -182,8 +194,6 @@ typedef struct pone_world {
     struct pone_world* prev;
 } pone_world;
 
-typedef struct pone_val* (*pone_funcptr_t)(pone_world*, struct pone_val*, int n, va_list);
-
 typedef struct {
     PONE_HEAD;
     pone_funcptr_t func;
@@ -206,6 +216,7 @@ typedef struct pone_val {
         pone_num num;
         pone_int integer;
         pone_obj obj;
+        pone_opaque opaque;
         pone_bool boolean;
         pone_lex_t lex;
     } as;
@@ -259,6 +270,8 @@ typedef struct pone_universe {
     struct pone_val* class_io_socket_inet;
     // class of Channel
     struct pone_val* class_channel;
+    // class of Opaque
+    struct pone_val* class_opaque;
 
     khash_t(str) *globals;
 
@@ -540,6 +553,12 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
 // channel.c
 void pone_channel_init(pone_world* world);
 pone_val* pone_chan_new(pone_world* world, pone_int_t limit);
+
+// opaque.c
+void pone_opaque_init(pone_world* world);
+pone_val* pone_opaque_new(pone_world* world, void* ptr, pone_finalizer_t finalizer);
+void pone_opaque_free(pone_world* world, pone_val* v);
+static inline void* pone_opaque_ptr(pone_val* v) { return v->as.opaque.ptr; }
 
 #ifdef DEBUG_THREAD
 #define THREAD_TRACE(fmt, ...) fprintf(stderr, "[pone thread] [%lx] " fmt "\n", pthread_self(), ##__VA_ARGS__)

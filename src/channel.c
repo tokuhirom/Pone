@@ -7,12 +7,13 @@
  * }
  */
 
+
 void pone_chan_send(pone_world* world, pone_val* chan, pone_val* val) {
     pone_val* limit = pone_obj_get_ivar(world, chan, "$!buffer-limit");
     pone_val* buffer = pone_obj_get_ivar(world, chan, "$!buffer");
-    pthread_cond_t* send_cond = (pthread_cond_t*)pone_intify(world, pone_obj_get_ivar(world, chan, "$!send-cond"));
-    pthread_cond_t* recv_cond = (pthread_cond_t*)pone_intify(world, pone_obj_get_ivar(world, chan, "$!recv-cond"));
-    pthread_mutex_t* mutex = (pthread_mutex_t*)pone_intify(world, pone_obj_get_ivar(world, chan, "$!mutex"));
+    pthread_cond_t* send_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!send-cond"));
+    pthread_cond_t* recv_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!recv-cond"));
+    pthread_mutex_t* mutex = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!mutex"));
 
     // if buffer is available
     GC_RD_LOCK(world->universe);
@@ -28,9 +29,9 @@ void pone_chan_send(pone_world* world, pone_val* chan, pone_val* val) {
 
 pone_val* pone_chan_receive(pone_world* world, pone_val* chan, pone_val* val) {
     pone_val* buffer = pone_obj_get_ivar(world, chan, "$!buffer");
-    pthread_cond_t* send_cond = (pthread_cond_t*)pone_intify(world, pone_obj_get_ivar(world, chan, "$!send-cond"));
-    pthread_cond_t* recv_cond = (pthread_cond_t*)pone_intify(world, pone_obj_get_ivar(world, chan, "$!recv-cond"));
-    pthread_mutex_t* mutex = (pthread_mutex_t*)pone_intify(world, pone_obj_get_ivar(world, chan, "$!mutex"));
+    pthread_cond_t* send_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!send-cond"));
+    pthread_cond_t* recv_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!recv-cond"));
+    pthread_mutex_t* mutex = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!mutex"));
 
     GC_RD_LOCK(world->universe);
     CHECK_PTHREAD(pthread_mutex_lock(mutex));
@@ -46,24 +47,32 @@ pone_val* pone_chan_receive(pone_world* world, pone_val* chan, pone_val* val) {
     return retval;
 }
 
+static void finalize_mutex(pone_world* world, pone_val* val) {
+    CHECK_PTHREAD(pthread_mutex_destroy(pone_opaque_ptr(val)));
+    pone_free(world->universe, pone_opaque_ptr(val));
+}
+
+static void finalize_cond(pone_world* world, pone_val* val) {
+    CHECK_PTHREAD(pthread_cond_destroy(pone_opaque_ptr(val)));
+    pone_free(world->universe, pone_opaque_ptr(val));
+}
+
 pone_val* pone_chan_new(pone_world* world, pone_int_t limit) {
     pone_val* obj = pone_obj_new(world, world->universe->class_channel);
     pone_obj_set_ivar(world, obj, "$!buffer-limit", pone_int_new(world, limit));
     pone_obj_set_ivar(world, obj, "$!buffer", pone_ary_new(world, 0));
 
-    // TODO free these values in finalizer
-
     pthread_cond_t* send_cond = pone_malloc(world->universe, sizeof(pthread_cond_t));
     CHECK_PTHREAD(pthread_cond_init(send_cond, NULL));
-    pone_obj_set_ivar(world, obj, "$!send-cond", pone_int_new(world, (pone_int_t)send_cond));
+    pone_obj_set_ivar(world, obj, "$!send-cond", pone_opaque_new(world, send_cond, finalize_cond));
 
     pthread_cond_t* recv_cond = pone_malloc(world->universe, sizeof(pthread_cond_t));
     CHECK_PTHREAD(pthread_cond_init(recv_cond, NULL));
-    pone_obj_set_ivar(world, obj, "$!recv-cond", pone_int_new(world, (pone_int_t)recv_cond));
+    pone_obj_set_ivar(world, obj, "$!recv-cond", pone_opaque_new(world, recv_cond, finalize_cond));
 
     pthread_mutex_t* mutex = pone_malloc(world->universe, sizeof(pthread_mutex_t));
     CHECK_PTHREAD(pthread_mutex_init(mutex, NULL));
-    pone_obj_set_ivar(world, obj, "$!mutex", pone_int_new(world, (pone_int_t)mutex));
+    pone_obj_set_ivar(world, obj, "$!mutex", pone_opaque_new(world, mutex, finalize_mutex));
 
     return obj;
 }

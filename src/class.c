@@ -38,6 +38,8 @@ pone_val* pone_what(pone_world* world, pone_val* obj) {
         return universe->class_hash;
     case PONE_CODE:
         return universe->class_code;
+    case PONE_OPAQUE:
+        return universe->class_opaque;
     case PONE_OBJ:
         if (obj->as.obj.klass == universe->class_class) {
             return obj; // return obj itself if it's a class.

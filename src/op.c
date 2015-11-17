@@ -311,6 +311,7 @@ size_t pone_elems(pone_world* world, pone_val* val) {
     case PONE_NUM:
     case PONE_BOOL:
     case PONE_CODE:
+    case PONE_OPAQUE:
         return 1; // same as perl6
     case PONE_OBJ:
         abort(); // TODO call .elem?
@@ -320,6 +321,7 @@ size_t pone_elems(pone_world* world, pone_val* val) {
     abort();
 }
 
+// TODO rename to pone_type_name
 const char* pone_what_str_c(pone_val* val) {
     assert(pone_alive(val));
     switch (pone_type(val)) {
@@ -343,6 +345,8 @@ const char* pone_what_str_c(pone_val* val) {
         return "Obj"; // TODO return the class name!
     case PONE_LEX:
         return "Lex";
+    case PONE_OPAQUE:
+        return "Opaque";
     }
     abort();
 }
