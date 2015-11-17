@@ -25,7 +25,7 @@ void pone_chan_send(pone_world* world, pone_val* chan, pone_val* val) {
     CHECK_PTHREAD(pthread_mutex_unlock(mutex));
 }
 
-pone_val* pone_chan_receive(pone_world* world, pone_val* chan, pone_val* val) {
+pone_val* pone_chan_receive(pone_world* world, pone_val* chan) {
     pone_val* buffer = pone_obj_get_ivar(world, chan, "$!buffer");
     pthread_cond_t* send_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!send-cond"));
     pthread_cond_t* recv_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!recv-cond"));
@@ -95,10 +95,9 @@ A Channel is a thread-safe queue that helps you to send a series of objects from
  */
 
 static pone_val* meth_chan_receive(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 1);
+    assert(n == 0);
 
-    pone_val*val = va_arg(args, pone_val*);
-    return pone_chan_receive(world, self, val);
+    return pone_chan_receive(world, self);
 }
 
 static pone_val* meth_chan_send(pone_world* world, pone_val* self, int n, va_list args) {
