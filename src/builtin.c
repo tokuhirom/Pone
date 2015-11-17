@@ -32,6 +32,10 @@ pone_val* pone_builtin_slurp(pone_world* world, pone_val* val) {
     return retval;
 }
 
+pone_val* pone_builtin_chan(pone_world* world, pone_val* limit) {
+    return pone_chan_new(world, pone_intify(world, limit));
+}
+
 pone_val* pone_builtin_dd(pone_world* world, pone_val* val) {
     pone_dd(world, val);
     return pone_nil();

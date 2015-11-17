@@ -40,6 +40,7 @@ TODO
  * h2o
  * hiredis
  * libmysqlclient
+ * FFI
 
 ### GC
 

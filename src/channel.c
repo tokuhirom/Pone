@@ -46,13 +46,9 @@ pone_val* pone_chan_receive(pone_world* world, pone_val* chan, pone_val* val) {
     return retval;
 }
 
-static pone_val* meth_chan_new(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 1);
-
-    pone_val*limit = va_arg(args, pone_val*);
-
-    pone_val* obj = pone_obj_new(world, self);
-    pone_obj_set_ivar(world, obj, "$!buffer-limit", limit);
+pone_val* pone_chan_new(pone_world* world, pone_int_t limit) {
+    pone_val* obj = pone_obj_new(world, world->universe->class_channel);
+    pone_obj_set_ivar(world, obj, "$!buffer-limit", pone_int_new(world, limit));
     pone_obj_set_ivar(world, obj, "$!buffer", pone_ary_new(world, 0));
 
     // TODO free these values in finalizer
@@ -68,7 +64,15 @@ static pone_val* meth_chan_new(pone_world* world, pone_val* self, int n, va_list
     pthread_mutex_t* mutex = pone_malloc(world->universe, sizeof(pthread_mutex_t));
     CHECK_PTHREAD(pthread_mutex_init(mutex, NULL));
     pone_obj_set_ivar(world, obj, "$!mutex", pone_int_new(world, (pone_int_t)mutex));
+
     return obj;
+}
+
+static pone_val* meth_chan_new(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n == 1);
+
+    pone_val*limit = va_arg(args, pone_val*);
+    return pone_chan_new(world, pone_intify(world, limit));
 }
 
 /**
@@ -110,6 +114,7 @@ void pone_channel_init(pone_world* world) {
     pone_add_method_c(world, klass, "send", strlen("send"), meth_chan_send);
     pone_class_compose(world, klass);
 
+    universe->class_channel = klass;
     pone_universe_set_global(universe, "Channel", klass);
 }
 

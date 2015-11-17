@@ -89,6 +89,7 @@ static bool is_builtin(const char* name) {
         || strcmp(name, "sleep")==0
         || strcmp(name, "die")==0
         || strcmp(name, "printf")==0
+        || strcmp(name, "chan")==0
         || strcmp(name, "slurp")==0;
 }
 

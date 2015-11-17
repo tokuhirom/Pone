@@ -257,6 +257,8 @@ typedef struct pone_universe {
     struct pone_val* class_pair;
     // class of IO::Socket::INET
     struct pone_val* class_io_socket_inet;
+    // class of Channel
+    struct pone_val* class_channel;
 
     khash_t(str) *globals;
 
@@ -456,6 +458,7 @@ pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* co
 pone_val* pone_builtin_die(pone_world* world, pone_val* msg);
 void pone_signal_handle(pone_world* world);
 pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...);
+pone_val* pone_builtin_chan(pone_world* world, pone_val* limit);
 
 void pone_val_free(pone_world* world, pone_val* p);
 pone_t pone_type(pone_val* val);
@@ -536,6 +539,7 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
 
 // channel.c
 void pone_channel_init(pone_world* world);
+pone_val* pone_chan_new(pone_world* world, pone_int_t limit);
 
 #ifdef DEBUG_THREAD
 #define THREAD_TRACE(fmt, ...) fprintf(stderr, "[pone thread] [%lx] " fmt "\n", pthread_self(), ##__VA_ARGS__)
