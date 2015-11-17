@@ -6,10 +6,8 @@ inline pone_int_t pone_int_val(pone_val* val) {
 }
 
 pone_val* pone_int_new(pone_world* world, pone_int_t i) {
-    GC_RD_LOCK(world->universe);
     pone_int* iv = (pone_int*)pone_obj_alloc(world, PONE_INT);
     iv->i = i;
-    GC_UNLOCK(world->universe);
     return (pone_val*)iv;
 }
 

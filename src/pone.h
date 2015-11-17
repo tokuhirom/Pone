@@ -189,6 +189,9 @@ typedef struct pone_world {
     pthread_mutex_t mutex;
     pthread_cond_t cond;
 
+    // True if GC is requested.
+    bool gc_requested;
+
     // circular linked-list
     struct pone_world* next;
     struct pone_world* prev;
@@ -202,6 +205,7 @@ typedef struct {
 
 typedef struct pone_val {
     union {
+        // list of free'd values.
         // see http://loveruby.net/ja/rhg/book/gc.html
         struct {
             uint64_t flags;
@@ -277,28 +281,13 @@ typedef struct pone_universe {
 
     struct rockre* rockre;
 
-    // GC lock. You must lock this before modifies an object.
-    pthread_rwlock_t gc_rwlock;
-
-    // mutex for gc_cond
-    pthread_mutex_t gc_thread_mutex;
-    // cond to wait GC start
-    pthread_cond_t gc_cond;
-    // thread id of GC thread
-    pthread_t gc_thread;
-
-    // True if GC is requested.
-    bool gc_requested;
-
     // thread.c sends signal at thread termination.
     pthread_cond_t thread_temrinate_cond;
-
-    bool in_global_destruction;
 
     // UNIVERSE lock. You need to lock this before modify this object.
     pthread_mutex_t universe_mutex;
 
-    // list of world for gc
+    // list of world
     pone_world* world_head;
 
     FILE* gc_log;
@@ -312,7 +301,7 @@ typedef struct pone_arena {
 
 
 // pone.c
-void pone_init(pone_world* world);
+void pone_init(pone_universe* universe);
 
 // nil.c
 pone_val* pone_nil();
@@ -343,7 +332,7 @@ pone_val* pone_hash_assign_keys(pone_world* world, pone_val* hash, pone_int_t n,
 void pone_hash_assign_key_c(pone_world* world, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v);
 void pone_hash_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
 size_t pone_hash_elems(pone_val* val);
-void pone_hash_free(pone_universe* universe, pone_val* val);
+void pone_hash_free(pone_world* world, pone_val* val);
 pone_val* pone_hash_at_key_c(pone_universe* universe, pone_val* hash, const char* name);
 void pone_hash_init(pone_world* world);
 bool pone_hash_exists_c(pone_world* world, pone_val* hash, const char* name);
@@ -353,7 +342,7 @@ void pone_hash_mark(pone_val* val);
 // array.c
 pone_val* pone_ary_new(pone_world* world, pone_int_t n, ...);
 pone_int_t pone_ary_elems(pone_val* val);
-void pone_ary_free(pone_universe* universe, pone_val* val);
+void pone_ary_free(pone_world* world, pone_val* val);
 void pone_ary_init(pone_world* world);
 pone_val* pone_ary_at_pos(pone_val* ary, pone_int_t n);
 void pone_ary_append(pone_universe* universe, pone_val* self, pone_val* val);
@@ -366,7 +355,7 @@ pone_val* pone_ary_shift(pone_world* world, pone_val* self);
 // str.c
 pone_val* pone_str_new(pone_world* world, const char*p, size_t len);
 pone_val* pone_str_new_const(pone_world* world, const char*p, size_t len);
-void pone_str_free(pone_universe* universe, pone_val* val);
+void pone_str_free(pone_world* world, pone_val* val);
 pone_val* pone_stringify(pone_world* world, pone_val* val);
 pone_val* pone_str_from_num(pone_world* world, double n);
 const char* pone_str_ptr(pone_val* val);
@@ -388,7 +377,6 @@ pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func);
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func);
 pone_val* pone_code_call(pone_world* world, pone_val* code, pone_val* self, int n, ...);
 pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int n, va_list args);
-void pone_code_free(pone_universe* universe, pone_val* v);
 void pone_code_init(pone_world* world);
 void pone_code_mark(pone_val* val);
 
@@ -411,7 +399,7 @@ bool pone_is_frozen(pone_val* v);
 void pone_push_scope(pone_world* world);
 void pone_pop_scope(pone_world* world);
 pone_val* pone_lex_new(pone_world* world, pone_val* parent);
-void pone_lex_free(pone_universe* universe, pone_val* lex);
+void pone_lex_free(pone_world* world, pone_val* lex);
 void pone_lex_mark(pone_val* lex);
 void pone_lex_dump(pone_val* lex);
 pone_val* pone_save_tmp(pone_world* world, pone_val* val);
@@ -422,6 +410,7 @@ void pone_universe_destroy(pone_universe* universe);
 void pone_universe_default_err_handler(pone_world* world);
 void pone_universe_set_global(pone_universe* universe, const char* key, pone_val* val);
 void pone_universe_mark(pone_universe*);
+void pone_universe_wait_threads(pone_universe* universe);
 void pone_gc_log(pone_universe* unvierse, const char* fmt, ...);
 
 // bool.c
@@ -500,7 +489,7 @@ void pone_class_compose(pone_world* world, pone_val* klass);
 // obj.c
 pone_val* pone_init_mu(pone_world* world);
 pone_val* pone_obj_new(pone_world* world, pone_val* klass);
-void pone_obj_free(pone_universe* universe, pone_val* val);
+void pone_obj_free(pone_world* world, pone_val* val);
 void pone_obj_set_ivar(pone_world* world, pone_val* obj, const char* name, pone_val* val);
 pone_val* pone_obj_get_ivar(pone_world* world, pone_val* obj, const char* name);
 void pone_obj_mark(pone_val* val);
@@ -536,7 +525,7 @@ void pone_match_push(pone_world* world, pone_val* self, pone_int_t from, pone_in
 
 // thread.c
 void pone_thread_init(pone_world* world);
-void pone_thread_join(pone_universe* universe, pthread_t thr);
+void pone_thread_start(pone_universe* universe, pone_val* code);
 
 // pair.c
 void pone_pair_init(pone_world* world);
@@ -545,7 +534,7 @@ pone_val* pone_pair_new(pone_world* world, pone_val* key, pone_val* value);
 // gc.c
 void pone_gc_mark_value(pone_val* val);
 void pone_gc_init(pone_world* world);
-void pone_gc_request(pone_universe* universe);
+void pone_gc_run(pone_world* world);
 
 // signal.c
 void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* code);
@@ -589,18 +578,6 @@ static inline void* pone_opaque_ptr(pone_val* v) { return v->as.opaque.ptr; }
 #else
 #define GC_RD_LOCK_TRACE(fmt, ...)
 #endif
-
-// GC lock is required for the mutable object operation
-#define GC_RD_LOCK(universe) \
-  do { \
-      GC_RD_LOCK_TRACE("thread:%lx(%s %s line %d)", pthread_self(), __func__, __FILE__, __LINE__); \
-      pthread_rwlock_rdlock(&(universe->gc_rwlock)); \
-  } while (0)
-#define GC_UNLOCK(universe) \
-  do { \
-      GC_RD_LOCK_TRACE("thread:%lx", pthread_self()); \
-      pthread_rwlock_unlock(&(universe->gc_rwlock)); \
-  } while(0)
 
 #define UNIVERSE_LOCK(universe) \
   do { \

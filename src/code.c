@@ -10,11 +10,9 @@ void pone_code_mark(pone_val* val) {
  * C level API to create new Code object
  */
 pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func) {
-    GC_RD_LOCK(world->universe);
     pone_code* cv = (pone_code*)pone_obj_alloc(world, PONE_CODE);
     cv->func = func;
     cv->lex = NULL;
-    GC_UNLOCK(world->universe);
 
     return (pone_val*)cv;
 }
@@ -23,35 +21,25 @@ pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func) {
  * pone level API to create new Code object
  */
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func) {
-    GC_RD_LOCK(world->universe);
     pone_code* cv = (pone_code*)pone_obj_alloc(world, PONE_CODE);
     cv->func = func;
     cv->lex = world->lex;
-    GC_UNLOCK(world->universe);
 
     return (pone_val*)cv;
-}
-
-void pone_code_free(pone_universe* universe, pone_val* v) {
-    // printf("pone_code_free: universe:%p code:%p\n", universe, v);
-    assert(pone_type(v) == PONE_CODE);
 }
 
 pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int n, va_list args) {
     assert(pone_type(code) == PONE_CODE);
 
-    if (world->universe->gc_requested) {
-        // THREAD_TRACE("GC requested. yield");
-        pthread_yield();
+    if (world->gc_requested) {
+        pone_gc_run(world);
     }
 
     pone_code* cv = (pone_code*)code;
     if (cv->lex) { //pone level code
         // save original lex.
         pone_val* orig_lex = world->lex;
-        GC_RD_LOCK(world->universe);
         pone_save_tmp(world, orig_lex);
-        GC_UNLOCK(world->universe);
         // create new lex from Code's saved lex.
         world->lex = cv->lex;
 

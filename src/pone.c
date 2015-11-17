@@ -4,12 +4,16 @@
 #include <fcntl.h>
 #endif
 
-void pone_init(pone_world* world) {
+void pone_init(pone_universe* universe) {
 #if defined(_WIN32) || defined(_WIN64)
     setmode(fileno(stdout), O_BINARY);
 #endif
 
-    pone_universe* universe = world->universe;
+    // create new world to initialize built-in classes.
+    pone_world* world = pone_world_new(universe);
+
+    // Do not reuse this world.
+    CHECK_PTHREAD(pthread_mutex_lock(&(world->mutex)));
 
 #ifdef TRACE_UNIVERSE
     printf("initializing class mu\n");
@@ -50,10 +54,6 @@ void pone_init(pone_world* world) {
     printf("initializing value IterationEnd\n");
 #endif
     universe->instance_iteration_end = pone_obj_new(world, universe->class_mu);
-
-    pone_universe_set_global(universe, "Nil", pone_nil());
-    pone_universe_set_global(universe, "IO::Socket::INET", universe->class_io_socket_inet);
-    pone_universe_set_global(universe, "Regex", universe->class_regex);
 
     {
         const char* env = getenv("PONE_GC_LOG");

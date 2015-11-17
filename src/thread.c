@@ -14,18 +14,16 @@ static void* thread_start(void* p) {
         pone_universe_default_err_handler(world);
     } else {
         CHECK_PTHREAD(pthread_mutex_lock(&(world->mutex)));
-        while (!world->universe->in_global_destruction) {
-            while (!world->code && !world->universe->in_global_destruction) {
+        while (true) {
+            while (!world->code) {
                 CHECK_PTHREAD(pthread_cond_wait(&(world->cond), &(world->mutex)));
             }
-            if (world->universe->in_global_destruction) {
-                break;
-            }
+
+            pone_push_scope(world);
 
             pone_val* code = world->code;
             assert(pone_type(code) == PONE_CODE);
             (void) pone_code_call(world, code, pone_nil(), 0);
-
 
             pone_universe* universe = world->universe;
             // move the world to free list
@@ -41,13 +39,13 @@ static void* thread_start(void* p) {
     return NULL;
 }
 
-void pone_thread_start(pone_world* orig_world, pone_val* code) {
+void pone_thread_start(pone_universe* universe, pone_val* code) {
     assert(pone_type(code) == PONE_CODE);
 
     // find waiting thread.
-    pone_universe* universe = orig_world->universe;
-    pone_world* world = universe->world_head->prev;
-    while (world && world != orig_world) {
+    pone_world* start = universe->world_head;
+    pone_world* world = start->prev;
+    while (world && world != start) {
         if (!world->code) {
             if (pthread_mutex_trylock(&(world->mutex)) == 0) {
                 // got mutex lock
@@ -73,7 +71,7 @@ static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_
     pone_val*code = va_arg(args, pone_val*);
     assert(pone_type(code) == PONE_CODE);
 
-    pone_thread_start(world, code);
+    pone_thread_start(world->universe, code);
 
     return pone_nil();
 }

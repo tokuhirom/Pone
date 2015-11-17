@@ -14,4 +14,6 @@ void pone_sock_init(pone_world* world) {
     pone_class_push_parent(world, universe->class_io_socket_inet, universe->class_any);
     pone_add_method_c(world, universe->class_io_socket_inet, "connect", strlen("connect"), meth_sock_connect);
     pone_class_compose(world, universe->class_io_socket_inet);
+
+    pone_universe_set_global(universe, "IO::Socket::INET", universe->class_io_socket_inet);
 }

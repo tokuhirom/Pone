@@ -16,7 +16,6 @@ void pone_chan_send(pone_world* world, pone_val* chan, pone_val* val) {
     pthread_mutex_t* mutex = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!mutex"));
 
     // if buffer is available
-    GC_RD_LOCK(world->universe);
     CHECK_PTHREAD(pthread_mutex_lock(mutex));
     while (pone_intify(world, limit) < pone_ary_elems(buffer)) {
         CHECK_PTHREAD(pthread_cond_wait(recv_cond, mutex));
@@ -24,7 +23,6 @@ void pone_chan_send(pone_world* world, pone_val* chan, pone_val* val) {
     pone_ary_append(world->universe, buffer, val);
     CHECK_PTHREAD(pthread_cond_signal(send_cond));
     CHECK_PTHREAD(pthread_mutex_unlock(mutex));
-    GC_UNLOCK(world->universe);
 }
 
 pone_val* pone_chan_receive(pone_world* world, pone_val* chan, pone_val* val) {
@@ -33,7 +31,6 @@ pone_val* pone_chan_receive(pone_world* world, pone_val* chan, pone_val* val) {
     pthread_cond_t* recv_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!recv-cond"));
     pthread_mutex_t* mutex = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!mutex"));
 
-    GC_RD_LOCK(world->universe);
     CHECK_PTHREAD(pthread_mutex_lock(mutex));
     while (pone_ary_elems(buffer)==0) {
         CHECK_PTHREAD(pthread_cond_wait(send_cond, mutex));
@@ -42,7 +39,6 @@ pone_val* pone_chan_receive(pone_world* world, pone_val* chan, pone_val* val) {
     pone_save_tmp(world, retval);
     CHECK_PTHREAD(pthread_cond_signal(recv_cond));
     CHECK_PTHREAD(pthread_mutex_unlock(mutex));
-    GC_UNLOCK(world->universe);
 
     return retval;
 }

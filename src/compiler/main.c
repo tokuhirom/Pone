@@ -14,8 +14,6 @@
 #define CC cc
 #endif
 
-typedef void (*pone_so_init_t)(pone_world*);
-
 KHASH_SET_INIT_INT64(i64);
 
 static void usage() {
@@ -717,33 +715,12 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, PVIPNode* node, int so_no) {
         fwrite(ctx->subs[i]->buf, 1, ctx->subs[i]->len, fp);
     }
     PRINTF("// --------------- vvvv loader point vvvv -------------------\n");
-    PRINTF("void pone_so_init_%d(pone_world* world) {\n", so_no);
+    PRINTF("void pone_so_init_%d(pone_world* world, pone_val* self, int n, va_list args) {\n", so_no);
     fwrite(ctx->buf->buf, 1, ctx->buf->len, fp);
     PRINTF("}\n");
-    PRINTF("// --------------- vvvv main function vvvv -------------------\n");
-    PRINTF("#ifndef PONE_DYNAMIC\n");
-    PRINTF("int main(int argc, const char **argv) {\n");
-    PRINTF("    pone_universe* universe = pone_universe_init();\n");
-    PRINTF("    pone_world* world = pone_world_new(universe);\n");
-    PRINTF("    world->thread_id = pthread_self();\n");
-    PRINTF("    pone_init(world);\n");
-    PRINTF("    world->err_handler_lexs[0] = world->lex;\n");
-    PRINTF("    if (setjmp(world->err_handlers[0])) {\n");
-    PRINTF("        pone_universe_default_err_handler(world);\n");
-    PRINTF("    } else {\n");
-    PRINTF("        pone_push_scope(world);\n");
-    PRINTF("        pone_so_init_%d(world);\n", so_no);
-    PRINTF("        pone_pop_scope(world);\n");
-    PRINTF("        UNIVERSE_LOCK(world->universe);\n");
-    PRINTF("        pone_world_free(world);\n");
-    PRINTF("        UNIVERSE_UNLOCK(world->universe);\n");
-    PRINTF("        pone_universe_destroy(universe);\n");
-    PRINTF("    }\n");
-    PRINTF("}\n");
-    PRINTF("#endif\n");
 }
 
-static void pone_compile_node(PVIPNode* node, const char* filename, bool compile_only) {
+static void pone_compile_node(pone_universe* universe, PVIPNode* node, const char* filename, bool compile_only) {
     FILE* fp = fopen("pone_generated.c", "w");
     if (!fp) {
         perror("Cannot open pone_generated.c");
@@ -788,8 +765,7 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
             fprintf(stderr, "cannot load dll: %s\n", dlerror());
             exit(EXIT_FAILURE);
         }
-        pone_so_init_t pone_so_init = (pone_so_init_t)dlsym(handle, "pone_so_init_0");
-
+        pone_funcptr_t pone_so_init = dlsym(handle, "pone_so_init_0");
 
         char* error;
         if ((error = dlerror()) != NULL)  {
@@ -797,23 +773,15 @@ static void pone_compile_node(PVIPNode* node, const char* filename, bool compile
             exit(EXIT_FAILURE);
         }
 
+        pone_code code = {
+          .type = PONE_CODE,
+          .flags = PONE_FLAGS_FROZEN,
+          .func = pone_so_init,
+          .lex = NULL,
+        };
 
-        pone_universe* universe = pone_universe_init();
-        pone_world* world = pone_world_new(universe);
-        world->thread_id = pthread_self();
-        pone_init(world);
-        world->err_handler_lexs[0] = world->lex;
-        if (setjmp(world->err_handlers[0])) {
-            pone_universe_default_err_handler(world);
-        } else {
-            pone_push_scope(world);
-            pone_so_init(world);
-            pone_pop_scope(world);
-            UNIVERSE_LOCK(world->universe);
-            pone_world_free(world);
-            UNIVERSE_UNLOCK(universe);
-            pone_universe_destroy(universe);
-        }
+        pone_thread_start(universe, (pone_val*)&code);
+        pone_universe_wait_threads(universe);
 
         dlclose(handle);
     }
@@ -843,6 +811,9 @@ int main(int argc, char** argv) {
     }
 
     pvip_t* pvip = pvip_new();
+
+    pone_universe* universe = pone_universe_init();
+    pone_init(universe);
     if (eval) {
         PVIPString *error;
         PVIPNode *node = PVIP_parse_string(pvip, eval, strlen(eval), false, &error);
@@ -856,7 +827,7 @@ int main(int argc, char** argv) {
         if (dump) {
             PVIP_node_dump_sexp(node);
         } else {
-            pone_compile_node(node, "-e", compile_only);
+            pone_compile_node(universe, node, "-e", compile_only);
         }
     } else if (optind < argc) {
         const char* filename = argv[optind];
@@ -877,7 +848,7 @@ int main(int argc, char** argv) {
         if (dump) {
             PVIP_node_dump_sexp(node);
         } else {
-            pone_compile_node(node, filename, compile_only);
+            pone_compile_node(universe, node, filename, compile_only);
         }
     } else {
         // REPL mode
@@ -906,12 +877,13 @@ int main(int argc, char** argv) {
                 exit(1);
             }
 
-            pone_compile_node(node, "-e", false);
+            pone_compile_node(universe, node, "-e", false);
 
             linenoiseHistoryAdd(line);
             linenoiseHistorySave(history_file);
         }
     }
     pvip_free(pvip);
+    pone_universe_destroy(universe);
 }
 

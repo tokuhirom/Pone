@@ -20,7 +20,7 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
 
 #ifdef STRESS_GC
     pone_gc_log(world->universe, "stress gc\n");
-    pone_gc_request(world->universe);
+    world->gc_requested = true;
 #endif
 
     // check free-ed values
@@ -37,7 +37,7 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
 
             // Run GC.
             pone_gc_log(world->universe, "there's no empty slot in the arena %p\n", world->arena_last);
-            pone_gc_request(world->universe);
+            world->gc_requested = true;
 
             // alloc new arena
             pone_arena* arena = pone_malloc(universe, sizeof(pone_arena));

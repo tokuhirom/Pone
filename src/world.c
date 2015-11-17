@@ -40,6 +40,7 @@ pone_world* pone_world_new(pone_universe* universe) {
         fprintf(stderr, "Cannot make world\n");
         exit(1);
     }
+
     memset(world, 0, sizeof(pone_world));
     world->errvar = pone_nil();
 
@@ -90,10 +91,13 @@ void pone_world_release(pone_world* world) {
     // rewind savestack
     world->savestack.n=0;
 
-    // XXX should we run GC at here?
-
-    // remove code(must be last)
+    // remove code
     world->code = NULL;
+
+    // run gc before reuse
+    if (world->gc_requested) {
+        pone_gc_run(world);
+    }
 }
 
 void pone_world_free(pone_world* world) {
@@ -132,7 +136,9 @@ void pone_world_free(pone_world* world) {
 void pone_world_mark(pone_world* world) {
     pone_gc_log(world->universe, "[pone gc] mark world %p\n", world);
 
-    pone_gc_mark_value(world->lex);
+    if (world->lex) {
+        pone_gc_mark_value(world->lex);
+    }
     pone_gc_mark_value(world->errvar);
 
     if (world->code) {

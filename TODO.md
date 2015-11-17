@@ -41,6 +41,8 @@ TODO
  * hiredis
  * libmysqlclient
  * FFI
+ * CSV reader
+ * JSON reader/writer
 
 ### GC
 

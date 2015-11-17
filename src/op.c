@@ -42,7 +42,6 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
         pone_throw_str(world, "You can't set variable to non-owned lexical variables from other thread");
     }
 
-    GC_RD_LOCK(world->universe);
     int ret;
     khint_t k = kh_put(str, lex->as.lex.map, key, &ret);
     if (ret == -1) {
@@ -50,7 +49,6 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
         abort();
     }
     kh_val(lex->as.lex.map, k) = val;
-    GC_UNLOCK(world->universe);
 
     return val;
 }

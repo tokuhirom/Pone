@@ -17,23 +17,21 @@ pone_val* pone_obj_new(pone_world* world, pone_val* klass) {
     assert(klass);
     assert(pone_type(klass) == PONE_OBJ);
 
-    GC_RD_LOCK(world->universe);
     pone_obj* obj = (pone_obj*)pone_obj_alloc(world, PONE_OBJ);
     obj->klass = klass;
     obj->ivar = kh_init(str);
-    GC_UNLOCK(world->universe);
 
     return (pone_val*)obj;
 }
 
-void pone_obj_free(pone_universe* universe, pone_val* val) {
+inline void pone_obj_free(pone_world* world, pone_val* val) {
     assert(pone_type(val) == PONE_OBJ);
 
     // free instance variables
     const char* k;
     pone_val* v;
     kh_foreach(val->as.obj.ivar, k, v, {
-        pone_free(universe, (void*)k); // k is strdupped.
+        pone_free(world->universe, (void*)k); // k is strdupped.
     });
 
     kh_destroy(str, val->as.obj.ivar);
@@ -43,7 +41,6 @@ void pone_obj_free(pone_universe* universe, pone_val* val) {
 void pone_obj_set_ivar(pone_world* world, pone_val* obj, const char* name, pone_val* val) {
     assert(pone_type(obj) == PONE_OBJ);
 
-    GC_RD_LOCK(world->universe);
     char *ks = pone_strdup(world, name, strlen(name));
     int ret;
     khint_t key = kh_put(str, obj->as.obj.ivar, ks, &ret);
@@ -52,7 +49,6 @@ void pone_obj_set_ivar(pone_world* world, pone_val* obj, const char* name, pone_
         abort();
     }
     kh_val(obj->as.obj.ivar, key) = val;
-    GC_UNLOCK(world->universe);
 }
 
 // get instance variable from the object

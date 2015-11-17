@@ -33,14 +33,10 @@ pone_universe* pone_universe_init() {
     }
     memset(universe, 0, sizeof(pone_universe));
 
-    CHECK_PTHREAD(pthread_mutex_init(&(universe->gc_thread_mutex), NULL));
     CHECK_PTHREAD(pthread_mutex_init(&(universe->universe_mutex), NULL));
-    CHECK_PTHREAD(pthread_cond_init(&(universe->gc_cond), NULL));
-    CHECK_PTHREAD(pthread_rwlock_init(&(universe->gc_rwlock), NULL));
     CHECK_PTHREAD(pthread_cond_init(&(universe->thread_temrinate_cond), NULL));
 
     universe->rockre = rockre_new();
-    universe->gc_requested = false;
     universe->globals = kh_init(str);
 
     return universe;
@@ -55,7 +51,7 @@ void pone_universe_set_global(pone_universe* universe, const char* key, pone_val
     kh_val(universe->globals, k) = val;
 }
 
-static pone_int_t count_alive_worlds(pone_universe* universe) {
+pone_int_t pone_count_alive_threads(pone_universe* universe) {
     pone_world* world;
     pone_int_t r = 0;
     CDL_FOREACH(universe->world_head, world) {
@@ -67,11 +63,11 @@ static pone_int_t count_alive_worlds(pone_universe* universe) {
     return r;
 }
 
-void pone_universe_destroy(pone_universe* universe) {
-    // wait threads.
+// wait until threads finished jobs.
+void pone_universe_wait_threads(pone_universe* universe) {
     UNIVERSE_LOCK(universe);
     while (true) {
-      pone_int_t n = count_alive_worlds(universe);
+      pone_int_t n = pone_count_alive_threads(universe);
       if (n == 0) {
           break;
       }
@@ -79,23 +75,12 @@ void pone_universe_destroy(pone_universe* universe) {
       CHECK_PTHREAD(pthread_cond_wait(&(universe->thread_temrinate_cond), &(universe->universe_mutex)));
     }
     UNIVERSE_UNLOCK(universe);
+}
 
-    if (universe->gc_thread) {
-        // Kill GC thread
-        GC_RD_LOCK(universe);
-        universe->in_global_destruction = true;
-        CHECK_PTHREAD(pthread_cond_signal(&(universe->gc_cond)));
-        GC_UNLOCK(universe);
+void pone_universe_destroy(pone_universe* universe) {
+    pone_universe_wait_threads(universe);
 
-        CHECK_PTHREAD(pthread_join(universe->gc_thread, NULL));
-    } else {
-        universe->in_global_destruction = true;
-    }
-
-    CHECK_PTHREAD(pthread_rwlock_destroy(&(universe->gc_rwlock)));
     CHECK_PTHREAD(pthread_cond_destroy(&(universe->thread_temrinate_cond)));
-    CHECK_PTHREAD(pthread_mutex_destroy(&(universe->gc_thread_mutex)));
-    CHECK_PTHREAD(pthread_cond_destroy(&(universe->gc_cond)));
     CHECK_PTHREAD(pthread_mutex_destroy(&(universe->universe_mutex)));
 
     kh_destroy(str, universe->globals);
@@ -107,35 +92,6 @@ void pone_universe_destroy(pone_universe* universe) {
 
 // gc mark
 void pone_universe_mark(pone_universe* universe) {
-    {
-        const char* k;
-        pone_val* v;
-        kh_foreach(universe->globals, k, v, {
-            pone_gc_mark_value(v);
-        });
-    }
-
-    pone_gc_mark_value(universe->instance_iteration_end);
-
-    pone_gc_mark_value(universe->class_io_socket_inet);
-    pone_gc_mark_value(universe->class_pair);
-    pone_gc_mark_value(universe->class_thread);
-    pone_gc_mark_value(universe->class_match);
-    pone_gc_mark_value(universe->class_regex);
-    pone_gc_mark_value(universe->class_range);
-    pone_gc_mark_value(universe->class_code);
-    pone_gc_mark_value(universe->class_hash);
-    pone_gc_mark_value(universe->class_bool);
-    pone_gc_mark_value(universe->class_num);
-    pone_gc_mark_value(universe->class_int);
-    pone_gc_mark_value(universe->class_str);
-    pone_gc_mark_value(universe->class_nil);
-    pone_gc_mark_value(universe->class_ary);
-    pone_gc_mark_value(universe->class_any);
-    pone_gc_mark_value(universe->class_cool);
-    pone_gc_mark_value(universe->class_class);
-    pone_gc_mark_value(universe->class_mu);
-
     pone_world* world = universe->world_head;
     while (world) {
         pone_world_mark(world);

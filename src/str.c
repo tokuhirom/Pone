@@ -9,23 +9,19 @@ void pone_str_mark(pone_val* val) {
 
 // pone dup p.
 pone_val* pone_str_new(pone_world* world, const char*p, size_t len) {
-    GC_RD_LOCK(world->universe);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->p = pone_strdup(world, p, len);
     pv->len = len;
-    GC_UNLOCK(world->universe);
     return (pone_val*)pv;
 }
 
 // pone doesn't dup p.
 pone_val* pone_str_new_const(pone_world* world, const char*p, size_t len) {
     assert(world);
-    GC_RD_LOCK(world->universe);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->flags |= PONE_FLAGS_STR_CONST | PONE_FLAGS_FROZEN;
     pv->p = (char*)p;
     pv->len = len;
-    GC_UNLOCK(world->universe);
     return (pone_val*)pv;
 }
 
@@ -53,11 +49,9 @@ pone_val* pone_str_new_vprintf(pone_world* world, const char* fmt, va_list args)
         abort();
     }
 
-    GC_RD_LOCK(world->universe);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->p = p;
     pv->len = size;
-    GC_UNLOCK(world->universe);
     return (pone_val*)pv;
 }
 
@@ -65,13 +59,11 @@ pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2) {
     pone_val* s1 = pone_stringify(world, v1);
     pone_val* s2 = pone_stringify(world, v2);
 
-    GC_RD_LOCK(world->universe);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->len = pone_str_len(s1)+pone_str_len(s2);
     pv->p = pone_malloc(world->universe, pv->len);
     memcpy(pv->p, pone_str_ptr(s1), pone_str_len(s1));
     memcpy(pv->p+pone_str_len(s1), pone_str_ptr(s2), pone_str_len(s2));
-    GC_UNLOCK(world->universe);
 
     return (pone_val*)pv;
 }
@@ -79,20 +71,18 @@ pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2) {
 
 pone_val* pone_str_copy(pone_world* world, pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
-    GC_RD_LOCK(world->universe);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->flags |= PONE_FLAGS_STR_COPY | PONE_FLAGS_FROZEN;
     pv->val = val;
     pv->len = 0;
-    GC_UNLOCK(world->universe);
     return (pone_val*)pv;
 }
 
-void pone_str_free(pone_universe* universe, pone_val* val) {
+void pone_str_free(pone_world* world, pone_val* val) {
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) {
         // there's no heap ref.
     } else if (!(pone_flags(val) & PONE_FLAGS_STR_CONST)) {
-        pone_free(universe, (char*)((pone_string*)val)->p);
+        pone_free(world->universe, (char*)((pone_string*)val)->p);
     }
 }
 
@@ -147,13 +137,11 @@ pone_val* pone_str_c_str(pone_world* world, pone_val* val) {
 
 void pone_str_append_c(pone_world* world, pone_val* val, const char* s, pone_int_t s_len) {
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) { // needs CoW
-        GC_RD_LOCK(world->universe);
         pone_val* src = val->as.str.val;
         char* p = pone_strdup(world, pone_str_ptr(src), pone_str_len(src));
         val->as.str.len = pone_str_len(src);
         val->as.basic.flags ^= PONE_FLAGS_STR_COPY;
         val->as.str.p = p;
-        GC_UNLOCK(world->universe);
     } else if (pone_flags(val) & PONE_FLAGS_STR_CONST) {
         pone_throw_str(world, "You can't modify immutable string");
     }
