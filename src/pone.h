@@ -537,25 +537,25 @@ void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* c
 // channel.c
 void pone_channel_init(pone_world* world);
 
-#ifdef THREAD_DEBUG
+#ifdef DEBUG_THREAD
 #define THREAD_TRACE(fmt, ...) fprintf(stderr, "[pone thread] [%lx] " fmt "\n", pthread_self(), ##__VA_ARGS__)
 #else
 #define THREAD_TRACE(fmt, ...)
 #endif
 
-#ifdef GC_DEBUG
+#ifdef DEBUG_GC
 #define GC_TRACE(fmt, ...) fprintf(stderr, "[pone gc] " fmt "\n", ##__VA_ARGS__)
 #else
 #define GC_TRACE(fmt, ...)
 #endif
 
-#ifdef EXC_DEBUG
+#ifdef DEBUG_EXC
 #define EXC_TRACE(fmt, ...) fprintf(stderr, "[pone exc] " fmt "\n", ##__VA_ARGS__)
 #else
 #define EXC_TRACE(fmt, ...)
 #endif
 
-#ifdef WORLD_DEBUG
+#ifdef DEBUG_WORLD
 #define WORLD_TRACE(fmt, ...) fprintf(stderr, "[pone world] " fmt "\n", ##__VA_ARGS__)
 #else
 #define WORLD_TRACE(fmt, ...)
