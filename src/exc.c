@@ -70,8 +70,7 @@ pone_val* pone_try(pone_world* world, pone_val* code) {
     }
 }
 
-// get $!
-// $! is equivalent to $@ in Perl5
+// get $@
 pone_val* pone_errvar(pone_world* world) {
     return world->errvar;
 }

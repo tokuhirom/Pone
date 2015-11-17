@@ -49,6 +49,7 @@ void pone_init(pone_universe* universe) {
     pone_gc_init(world);
     pone_channel_init(world);
     pone_opaque_init(world);
+    pone_errno_init(world);
 
 #ifdef TRACE_UNIVERSE
     printf("initializing value IterationEnd\n");

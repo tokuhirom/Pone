@@ -540,8 +540,12 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF(";\n");
             break;
         }
-        case PVIP_NODE_SPECIAL_VARIABLE_EXCEPTIONS: { // $!
+        case PVIP_NODE_SPECIAL_VARIABLE_EXCEPTIONS: { // $@
             PRINTF("pone_errvar(world)");
+            break;
+        }
+        case PVIP_NODE_SPECIAL_VARIABLE_ERRNO: { // $!
+            PRINTF("pone_errno(world)");
             break;
         }
         case PVIP_NODE_BLOCK: {

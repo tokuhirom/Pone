@@ -26,3 +26,4 @@ tags
 /.ycm_extra_conf.py
 /.ycm_extra_conf.pyc
 /gen.*.c
+/src/gen.node.c

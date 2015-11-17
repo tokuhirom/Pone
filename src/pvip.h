@@ -150,7 +150,8 @@ typedef enum {
     PVIP_NODE_VALUE_IDENTITY, /* '===' operator in S03-operators/value_equivalence.t */
     PVIP_NODE_CMP, /* 'cmp' operator */
     PVIP_NODE_SPECIAL_VARIABLE_REGEXP_MATCH, /* $/ - regex match */
-    PVIP_NODE_SPECIAL_VARIABLE_EXCEPTIONS, /* $! - exceptions */
+    PVIP_NODE_SPECIAL_VARIABLE_EXCEPTIONS, /* $@ - exceptions */
+    PVIP_NODE_SPECIAL_VARIABLE_ERRNO, /* $! - errno */
     PVIP_NODE_ENUM,
     PVIP_NODE_NUM_CMP, /* <=> */
     PVIP_NODE_UNARY_FLATTEN_OBJECT, /* unary | */

@@ -279,6 +279,8 @@ typedef struct pone_universe {
     struct pone_val* class_channel;
     // class of Opaque
     struct pone_val* class_opaque;
+    // class of Opaque
+    struct pone_val* class_errno;
 
     khash_t(str) *globals;
 
@@ -316,6 +318,7 @@ void pone_world_free(pone_world* world);
 void pone_world_release(pone_world* world);
 pone_val* pone_try(pone_world* world, pone_val* code);
 pone_val* pone_errvar(pone_world* world);
+pone_val* pone_errno(pone_world* world);
 void pone_world_mark(pone_world*);
 void pone_world_set_errno(pone_world* world);
 
@@ -556,6 +559,10 @@ static inline void pone_opaque_set_class(pone_world* world, pone_val* v, pone_va
 }
 void pone_opaque_free(pone_world* world, pone_val* v);
 static inline void* pone_opaque_ptr(pone_val* v) { return v->as.opaque.ptr; }
+
+// errno.c
+pone_val* pone_errno(pone_world* world);
+void pone_errno_init(pone_world* world);
 
 #ifdef DEBUG_THREAD
 #define THREAD_TRACE(fmt, ...) fprintf(stderr, "[pone thread] [%lx] " fmt "\n", pthread_self(), ##__VA_ARGS__)

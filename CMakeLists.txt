@@ -62,8 +62,8 @@ SET(serial "0.0.1")
 SET(soserial "1")
 
 SET(SRCS
-    src/opaque.c src/channel.c src/gc.c src/pair.c src/obj.c src/class.c src/alloc.c src/array.c src/bool.c src/builtin.c src/code.c src/hash.c src/int.c src/nil.c src/num.c src/op.c src/pone.c src/scope.c src/str.c src/world.c src/universe.c src/iter.c src/exc.c src/range.c src/mu.c src/any.c src/cool.c src/socket.c src/re.c src/thread.c src/signal.c
-    src/pvip_node.c src/pvip_string.c gen.pone.y.c gen.node.c
+    src/errno.c src/opaque.c src/channel.c src/gc.c src/pair.c src/obj.c src/class.c src/alloc.c src/array.c src/bool.c src/builtin.c src/code.c src/hash.c src/int.c src/nil.c src/num.c src/op.c src/pone.c src/scope.c src/str.c src/world.c src/universe.c src/iter.c src/exc.c src/range.c src/mu.c src/any.c src/cool.c src/socket.c src/re.c src/thread.c src/signal.c
+    src/pvip_node.c src/pvip_string.c gen.pone.y.c src/gen.node.c
     )
 
 add_executable(pone src/compiler/main.c 3rd/linenoise/linenoise.c)
@@ -92,8 +92,8 @@ add_custom_command(
     DEPENDS greg
     )
 add_custom_command(
-    OUTPUT gen.node.c
-    COMMAND perl ${PROJECT_SOURCE_DIR}/build/node.pl ${PROJECT_SOURCE_DIR}/src/pvip.h gen.node.c 
+    OUTPUT src/gen.node.c
+    COMMAND perl ${PROJECT_SOURCE_DIR}/build/node.pl ${PROJECT_SOURCE_DIR}/src/pvip.h src/gen.node.c 
     )
 
 add_subdirectory(3rd/rockre)

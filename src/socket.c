@@ -184,14 +184,16 @@ static pone_val* meth_sock_listen(pone_world* world, pone_val* self, int n, va_l
         close(fd);
     }
 
+    freeaddrinfo(result);           /* No longer needed */
+
     if (rp == NULL) {               /* No address succeeded */
         pone_world_set_errno(world);
+        return pone_nil();
     }
-
-    freeaddrinfo(result);           /* No longer needed */
 
     if (listen(fd, backlog) == -1) {
         pone_world_set_errno(world);
+        return pone_nil();
     }
 
     // set SO_REUSEADDR by default.

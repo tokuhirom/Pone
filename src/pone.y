@@ -961,7 +961,8 @@ hash_var = < '%' !'%' varname > { $$ = PVIP_node_new_string(&(G->data), PVIP_NOD
 scalar =
     '$' s:scalar { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_SCALAR_DEREF, s); }
     | < '$' varname > { assert(yyleng > 0); $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_VARIABLE, yytext, yyleng); }
-    | '$!' ![a-zA-Z0-9_] { $$=PVIP_node_new_children(&(G->data), PVIP_NODE_SPECIAL_VARIABLE_EXCEPTIONS); }
+    | '$!' ![a-zA-Z0-9_] { $$=PVIP_node_new_children(&(G->data), PVIP_NODE_SPECIAL_VARIABLE_ERRNO); }
+    | '$@' ![a-zA-Z0-9_] { $$=PVIP_node_new_children(&(G->data), PVIP_NODE_SPECIAL_VARIABLE_EXCEPTIONS); }
     | '$/' { $$=PVIP_node_new_children(&(G->data), PVIP_NODE_SPECIAL_VARIABLE_REGEXP_MATCH); }
 
 varname = [a-zA-Z_] ( [a-zA-Z0-9_]+ | '-' [a-zA-Z_] [a-zA-Z0-9_]* )*
