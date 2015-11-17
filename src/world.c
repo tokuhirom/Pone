@@ -133,6 +133,10 @@ void pone_world_free(pone_world* world) {
     pone_free(world->universe, world);
 }
 
+void pone_world_set_errno(pone_world* world) {
+    world->errsv = errno;
+}
+
 void pone_world_mark(pone_world* world) {
     pone_gc_log(world->universe, "[pone gc] mark world %p\n", world);
 

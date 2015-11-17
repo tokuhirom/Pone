@@ -1,15 +1,21 @@
 cmake_minimum_required(VERSION 2.8.7)
 project(pone)
 
+INCLUDE(CheckSymbolExists)
+
 enable_testing()
 
 include_directories(3rd/uthash/include/ 3rd/linenoise/ 3rd/rockre/include 3rd/pvip/src/ src/)
+
+list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+check_symbol_exists(accept4 sys/socket.h HAVE_ACCEPT4)
+
 
 SET(CMAKE_C_FLAGS   "-fPIC -D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function -g")
 # -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith
 SET(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS} ")
 SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2 -DNDEBUG")
-SET(CMAKE_BUILD_TYPE Release)
+message("-- type: ${CMAKE_BUILD_TYPE}")
 
 set(WERROR "0" CACHE BOOL "enable -Werror")
 if (WERROR)

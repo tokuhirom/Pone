@@ -34,9 +34,14 @@ TODO
  * `Proc` builtin class
  * implement p5-ish built-in functions
  * remove thread list in universe.
+ * $! vavariable
+ * $@ vavariable
+ * fork pvip and include it in this repository.
 
 ## Bindings
 
+ * URI
+ * HTTP::Parser
  * h2o
  * hiredis
  * libmysqlclient

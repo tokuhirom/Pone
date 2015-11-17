@@ -160,8 +160,11 @@ typedef struct pone_world {
     // lexical value list
     struct pone_val* lex;
 
-    // $!($@ in perl5)
+    // $@
     struct pone_val* errvar;
+
+    // $!(errno)
+    int errsv;
 
     // error handler
     jmp_buf* err_handlers;
@@ -314,6 +317,7 @@ void pone_world_release(pone_world* world);
 pone_val* pone_try(pone_world* world, pone_val* code);
 pone_val* pone_errvar(pone_world* world);
 void pone_world_mark(pone_world*);
+void pone_world_set_errno(pone_world* world);
 
 // exc.c
 jmp_buf* pone_exc_handler_push(pone_world* world);
