@@ -74,7 +74,11 @@ static pone_val* meth_sock_accept(pone_world* world, pone_val* self, int n, va_l
 
     if (csock->fd != -1) {
 #ifndef HAVE_ACCEPT4
-    fcntl(csock->fd, F_SETFD, FD_CLOEXEC);
+        if (fcntl(csock->fd, F_SETFD, FD_CLOEXEC) == -1) {
+            pone_world_set_errno(world);
+            pone_free(world->universe, csock);
+            return pone_nil();
+        }
 #endif
         pone_val* opaque = pone_opaque_new(world, csock, finalizer);
         pone_opaque_set_class(world, opaque, world->universe->class_io_socket_inet);
@@ -122,6 +126,12 @@ static pone_val* meth_sock_connect(pone_world* world, pone_val* self, int n, va_
             pone_world_set_errno(world);
             continue;
         }
+#ifndef SOCK_CLOEXEC
+        if (fcntl(csock->fd, F_SETFD, FD_CLOEXEC) == -1) {
+            pone_world_set_errno(world);
+            continue;
+        }
+#endif
 
         if (connect(fd, rp->ai_addr, rp->ai_addrlen) != -1) {
             break;                  /* Success */
@@ -172,11 +182,20 @@ static pone_val* meth_sock_listen(pone_world* world, pone_val* self, int n, va_l
 
     int fd = 0;
     for (rp = result; rp != NULL; rp = rp->ai_next) {
-        fd = socket(rp->ai_family, rp->ai_socktype|SOCK_CLOEXEC, rp->ai_protocol);
+#ifdef HAVE_SOCK_CLOEXEC
+        rp->ai_socktype |= SOCK_CLOEXEC;
+#endif
+        fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
         if (fd == -1) {
             pone_world_set_errno(world);
             continue;
         }
+#ifndef SOCK_CLOEXEC
+        if (fcntl(csock->fd, F_SETFD, FD_CLOEXEC) == -1) {
+            pone_world_set_errno(world);
+            continue;
+        }
+#endif
 
         if (bind(fd, rp->ai_addr, rp->ai_addrlen) != -1) {
             break;                  /* Success */
