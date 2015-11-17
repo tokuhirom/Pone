@@ -282,7 +282,7 @@ typedef struct pone_universe {
     struct rockre* rockre;
 
     // thread.c sends signal at thread termination.
-    pthread_cond_t thread_temrinate_cond;
+    pthread_cond_t thread_terminate_cond;
 
     // UNIVERSE lock. You need to lock this before modify this object.
     pthread_mutex_t universe_mutex;

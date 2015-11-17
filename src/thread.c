@@ -31,7 +31,7 @@ static void* thread_start(void* p) {
 
             UNIVERSE_LOCK(universe);
             // tell thread termination to thread joiner.
-            CHECK_PTHREAD(pthread_cond_signal(&(universe->thread_temrinate_cond)));
+            CHECK_PTHREAD(pthread_cond_signal(&(universe->thread_terminate_cond)));
             UNIVERSE_UNLOCK(universe);
         }
     }

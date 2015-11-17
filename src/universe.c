@@ -34,7 +34,7 @@ pone_universe* pone_universe_init() {
     memset(universe, 0, sizeof(pone_universe));
 
     CHECK_PTHREAD(pthread_mutex_init(&(universe->universe_mutex), NULL));
-    CHECK_PTHREAD(pthread_cond_init(&(universe->thread_temrinate_cond), NULL));
+    CHECK_PTHREAD(pthread_cond_init(&(universe->thread_terminate_cond), NULL));
 
     universe->rockre = rockre_new();
     universe->globals = kh_init(str);
@@ -72,7 +72,7 @@ void pone_universe_wait_threads(pone_universe* universe) {
           break;
       }
       WORLD_TRACE("There's %ld worlds", n);
-      CHECK_PTHREAD(pthread_cond_wait(&(universe->thread_temrinate_cond), &(universe->universe_mutex)));
+      CHECK_PTHREAD(pthread_cond_wait(&(universe->thread_terminate_cond), &(universe->universe_mutex)));
     }
     UNIVERSE_UNLOCK(universe);
 }
@@ -80,7 +80,7 @@ void pone_universe_wait_threads(pone_universe* universe) {
 void pone_universe_destroy(pone_universe* universe) {
     pone_universe_wait_threads(universe);
 
-    CHECK_PTHREAD(pthread_cond_destroy(&(universe->thread_temrinate_cond)));
+    CHECK_PTHREAD(pthread_cond_destroy(&(universe->thread_terminate_cond)));
     CHECK_PTHREAD(pthread_mutex_destroy(&(universe->universe_mutex)));
 
     kh_destroy(str, universe->globals);
