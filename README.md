@@ -3,7 +3,7 @@
 NAME
 ====
 
-Pone - Perl-ish minimal language
+Pone - There's more than one way to do it
 
 SYNOPSIS
 ========

@@ -112,7 +112,7 @@ inline const char* pone_str_ptr(pone_val* val) {
     }
 }
 
-inline size_t pone_str_len(pone_val* val) {
+inline pone_int_t pone_str_len(pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) {
         return pone_str_len(val->as.str.val);
@@ -135,7 +135,7 @@ pone_val* pone_str_c_str(pone_world* world, pone_val* val) {
     return pone_str_concat(world, val, pone_str_new(world, "\0", 1));
 }
 
-void pone_str_append_c(pone_world* world, pone_val* val, const char* s, pone_int_t s_len) {
+static void mutable(pone_world* world, pone_val* val) {
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) { // needs CoW
         pone_val* src = val->as.str.val;
         char* p = pone_strdup(world, pone_str_ptr(src), pone_str_len(src));
@@ -145,6 +145,10 @@ void pone_str_append_c(pone_world* world, pone_val* val, const char* s, pone_int
     } else if (pone_flags(val) & PONE_FLAGS_STR_CONST) {
         pone_throw_str(world, "You can't modify immutable string");
     }
+}
+
+void pone_str_append_c(pone_world* world, pone_val* val, const char* s, pone_int_t s_len) {
+    mutable(world, val);
 
     assert(pone_type(val) == PONE_STRING);
     val->as.str.p = realloc(val->as.str.p, val->as.str.len + s_len);

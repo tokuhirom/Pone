@@ -359,7 +359,7 @@ void pone_str_free(pone_world* world, pone_val* val);
 pone_val* pone_stringify(pone_world* world, pone_val* val);
 pone_val* pone_str_from_num(pone_world* world, double n);
 const char* pone_str_ptr(pone_val* val);
-size_t pone_str_len(pone_val* val);
+pone_int_t pone_str_len(pone_val* val);
 char* pone_strdup(pone_world* world, const char* src, size_t size);
 void pone_str_append_c(pone_world* world, pone_val* str, const char* s, pone_int_t s_len);
 void pone_str_append(pone_world* world, pone_val* str, pone_val* s);
@@ -546,6 +546,9 @@ pone_val* pone_chan_new(pone_world* world, pone_int_t limit);
 // opaque.c
 void pone_opaque_init(pone_world* world);
 pone_val* pone_opaque_new(pone_world* world, void* ptr, pone_finalizer_t finalizer);
+static inline void pone_opaque_set_class(pone_world* world, pone_val* v, pone_val* klass) {
+    v->as.opaque.klass = klass;
+}
 void pone_opaque_free(pone_world* world, pone_val* v);
 static inline void* pone_opaque_ptr(pone_val* v) { return v->as.opaque.ptr; }
 
