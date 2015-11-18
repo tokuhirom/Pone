@@ -24,7 +24,6 @@ TODO
  * caller
  * __FILE__
  * __LINE__
- * getpid
  * gmtime
  * localtime
  *         "abs", "atan2", "cos", "exp", "hex", "int", "log", "oct", "rand",
