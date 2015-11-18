@@ -636,6 +636,8 @@ void pone_errno_init(pone_world* world);
       } \
   } while (0)
 
+#define PONE_FUNC(name) static pone_val* name(pone_world* world, pone_val* self, int n, va_list args)
+
 #define PONE_DECLARE_GETTER(name, var) \
     static pone_val* name(pone_world* world, pone_val* self, int n, va_list args) { \
         assert(n == 0); \
