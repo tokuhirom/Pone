@@ -11,4 +11,7 @@ addons:
       - valgrind
       - cmake
 sudo: false
+os:
+  - linux
+  - osx
 
