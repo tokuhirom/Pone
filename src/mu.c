@@ -32,7 +32,8 @@ Prints value to $*OUT after stringification using .gist method with newline at e
 static pone_val* meth_mu_say(pone_world* world, pone_val* self, int n, va_list args) {
     assert(n==0);
 
-    pone_val* s = pone_stringify(world, self);
+    pone_val* s = pone_str_copy(world, pone_stringify(world, self));
+    pone_str_append_c(world, s, "\n", 1);
     fwrite(pone_str_ptr(s), sizeof(char), pone_str_len(s), stdout);
     return pone_nil();
 }

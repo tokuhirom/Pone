@@ -229,20 +229,20 @@ PONE_FUNC(meth_printf) {
 
 void pone_builtin_init(pone_world* world) {
     pone_universe* universe = world->universe;
-    pone_universe_set_global(universe, "&slurp", pone_code_new_c(world, meth_slurp));
-    pone_universe_set_global(universe, "&chan", pone_code_new_c(world, meth_chan));
-    pone_universe_set_global(universe, "&dd", pone_code_new_c(world, meth_dd));
-    pone_universe_set_global(universe, "&pthread_self", pone_code_new_c(world, meth_pthread_self));
-    pone_universe_set_global(universe, "&abs", pone_code_new_c(world, meth_abs));
-    pone_universe_set_global(universe, "&print", pone_code_new_c(world, meth_print));
-    pone_universe_set_global(universe, "&say", pone_code_new_c(world, meth_say));
-    pone_universe_set_global(universe, "&elems", pone_code_new_c(world, meth_elems));
-    pone_universe_set_global(universe, "&time", pone_code_new_c(world, meth_time));
-    pone_universe_set_global(universe, "&getenv", pone_code_new_c(world, meth_getenv));
-    pone_universe_set_global(universe, "&getpid", pone_code_new_c(world, meth_getpid));
-    pone_universe_set_global(universe, "&sleep", pone_code_new_c(world, meth_sleep));
-    pone_universe_set_global(universe, "&die", pone_code_new_c(world, meth_die));
-    pone_universe_set_global(universe, "&exit", pone_code_new_c(world, meth_exit));
-    pone_universe_set_global(universe, "&printf", pone_code_new_c(world, meth_printf));
+    pone_universe_set_global(universe, "slurp", pone_code_new_c(world, meth_slurp));
+    pone_universe_set_global(universe, "chan", pone_code_new_c(world, meth_chan));
+    pone_universe_set_global(universe, "dd", pone_code_new_c(world, meth_dd));
+    pone_universe_set_global(universe, "pthread_self", pone_code_new_c(world, meth_pthread_self));
+    pone_universe_set_global(universe, "abs", pone_code_new_c(world, meth_abs));
+    pone_universe_set_global(universe, "print", pone_code_new_c(world, meth_print));
+    pone_universe_set_global(universe, "say", pone_code_new_c(world, meth_say));
+    pone_universe_set_global(universe, "elems", pone_code_new_c(world, meth_elems));
+    pone_universe_set_global(universe, "time", pone_code_new_c(world, meth_time));
+    pone_universe_set_global(universe, "getenv", pone_code_new_c(world, meth_getenv));
+    pone_universe_set_global(universe, "getpid", pone_code_new_c(world, meth_getpid));
+    pone_universe_set_global(universe, "sleep", pone_code_new_c(world, meth_sleep));
+    pone_universe_set_global(universe, "die", pone_code_new_c(world, meth_die));
+    pone_universe_set_global(universe, "exit", pone_code_new_c(world, meth_exit));
+    pone_universe_set_global(universe, "printf", pone_code_new_c(world, meth_printf));
 }
 

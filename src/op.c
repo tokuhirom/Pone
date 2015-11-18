@@ -90,7 +90,9 @@ static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
     pin(indent);
     switch (pone_type(val)) {
         case PONE_STRING:
-            printf("(string: len:" PoneIntFmt " , ", pone_str_len(val));
+            printf("(string: immutable:%d len:" PoneIntFmt " , ",
+                    pone_flags(val) & PONE_FLAGS_FROZEN,
+                    pone_str_len(val));
             fwrite(pone_str_ptr(val), 1, pone_str_len(val), stdout);
             printf(")\n");
             break;

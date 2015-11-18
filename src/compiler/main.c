@@ -507,8 +507,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                     || node->children.nodes[0]->type == PVIP_NODE_VARIABLE
                     );
             const char* name = PVIP_string_c_str(node->children.nodes[0]->pv);
-            PRINTF("pone_code_call(world, pone_get_lex(world, \"%s%s\"), pone_nil(), %d",
-                    node->children.nodes[0]->type == PVIP_NODE_IDENT ? "&" : "",
+            PRINTF("pone_code_call(world, pone_get_lex(world, \"%s\"), pone_nil(), %d",
                     name, node->children.nodes[1]->children.size);
             if (node->children.nodes[1]->children.size > 0) {
                 PRINTF(",");
@@ -742,7 +741,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 PRINTF("pone_code_new(world, pone_user_func_anon_%d)",
                         ctx->anon_sub_no);
             } else {
-                PRINTF("pone_assign(world, 0, \"&%s\", pone_code_new(world, pone_user_func_%s))",
+                PRINTF("pone_assign(world, 0, \"%s\", pone_code_new(world, pone_user_func_%s))",
                         PVIP_string_c_str(name->pv),
                         PVIP_string_c_str(name->pv));
             }

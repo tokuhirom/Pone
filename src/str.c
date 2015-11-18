@@ -72,7 +72,7 @@ pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2) {
 pone_val* pone_str_copy(pone_world* world, pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
-    pv->flags |= PONE_FLAGS_STR_COPY | PONE_FLAGS_FROZEN;
+    pv->flags |= PONE_FLAGS_STR_COPY;
     pv->val = val;
     pv->len = 0;
     return (pone_val*)pv;
