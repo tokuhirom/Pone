@@ -90,8 +90,6 @@ void pone_universe_wait_threads(pone_universe* universe) {
 }
 
 void pone_universe_destroy(pone_universe* universe) {
-    pone_universe_wait_threads(universe);
-
     CHECK_PTHREAD(pthread_cond_destroy(&(universe->thread_terminate_cond)));
     CHECK_PTHREAD(pthread_mutex_destroy(&(universe->universe_mutex)));
 
