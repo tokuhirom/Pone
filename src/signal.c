@@ -45,6 +45,7 @@ static void* signal_thread(void* p) {
     sigset_t set;
     sigfillset(&set);
     pone_world* world = pone_world_new(universe);
+    CHECK_PTHREAD(pthread_mutex_lock(&(world->mutex)));
 
     for (;;) {
         if (sigwait(&set, &sig) != 0) {
