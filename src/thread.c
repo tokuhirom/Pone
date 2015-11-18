@@ -46,25 +46,39 @@ static void* thread_start(void* p) {
 void pone_thread_start(pone_universe* universe, pone_val* code) {
     assert(pone_type(code) == PONE_CODE);
 
+    WORLD_TRACE("pone_thread_start");
+
     // find waiting thread.
-    pone_world* start = universe->world_head;
-    pone_world* world = start->prev;
-    while (world && world != start) {
-        if (!world->code) {
-            if (pthread_mutex_trylock(&(world->mutex)) == 0) {
-                // got mutex lock
-                world->code = code;
-                CHECK_PTHREAD(pthread_cond_signal(&(world->cond)));
-                CHECK_PTHREAD(pthread_mutex_unlock(&(world->mutex)));
-                break;
+    {
+        pone_world* world = universe->normal_worlds;
+        while (world) {
+            if (!world->code) {
+                if (pthread_mutex_trylock(&(world->mutex)) == 0) {
+                    // got mutex lock
+                    WORLD_TRACE("Reuse %p", world);
+                    world->code = code;
+                    CHECK_PTHREAD(pthread_cond_signal(&(world->cond)));
+                    CHECK_PTHREAD(pthread_mutex_unlock(&(world->mutex)));
+                    return;
+                }
             }
+            world = world->next;
         }
-        world = world->prev;
     }
 
     // There's no waiting thread. We'll create new thread.
+
+    UNIVERSE_LOCK(universe);
     pone_world* new_world = pone_world_new(universe);
     new_world->code = code;
+    if (universe->normal_worlds) {
+        new_world->next = universe->normal_worlds;
+        universe->normal_worlds = new_world->next;
+    } else {
+        universe->normal_worlds = new_world;
+    }
+    UNIVERSE_UNLOCK(universe);
+
     CHECK_PTHREAD(pthread_create(&(new_world->thread_id), NULL, &thread_start, new_world));
 }
 

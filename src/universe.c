@@ -1,7 +1,6 @@
 #include "pone.h" /* PONE_INC */
 #include "oniguruma.h"
 #include <errno.h>
-#include "utlist.h"
 #include "kvec.h"
 
 #ifdef __GLIBC__
@@ -58,14 +57,20 @@ void pone_universe_set_global(pone_universe* universe, const char* key, pone_val
 }
 
 pone_int_t pone_count_alive_threads(pone_universe* universe) {
-    pone_world* world;
+    pone_world* world = universe->normal_worlds;
     pone_int_t r = 0;
-    CDL_FOREACH(universe->world_head, world) {
+    pone_int_t d = 0;
+    while (world) {
         if (world->code) {
+            WORLD_TRACE("ALIVE THREAD: %lx", world->thread_id);
             r++;
+        } else {
+            WORLD_TRACE("DEAD THREAD: %lx", world->thread_id);
+            d++;
         }
         world = world->next;
     }
+    WORLD_TRACE("ALIVE THREAD: %ld DEAD THREAD: %ld", r, d);
     return r;
 }
 
@@ -73,12 +78,13 @@ pone_int_t pone_count_alive_threads(pone_universe* universe) {
 void pone_universe_wait_threads(pone_universe* universe) {
     UNIVERSE_LOCK(universe);
     while (true) {
-      pone_int_t n = pone_count_alive_threads(universe);
-      if (n == 0) {
-          break;
-      }
-      WORLD_TRACE("There's %ld worlds", n);
-      CHECK_PTHREAD(pthread_cond_wait(&(universe->thread_terminate_cond), &(universe->universe_mutex)));
+        if (universe->normal_worlds) {
+            pone_int_t n = pone_count_alive_threads(universe);
+            if (n == 0) {
+                break;
+            }
+        }
+        CHECK_PTHREAD(pthread_cond_wait(&(universe->thread_terminate_cond), &(universe->universe_mutex)));
     }
     UNIVERSE_UNLOCK(universe);
 }
@@ -96,13 +102,12 @@ void pone_universe_destroy(pone_universe* universe) {
 
 // gc mark
 void pone_universe_mark(pone_universe* universe) {
-    pone_world* world = universe->world_head;
-    while (world) {
-        pone_world_mark(world);
-        assert(world != world->next);
-        world = world->next;
-    }
-
+//  pone_world* world = universe->normal_worlds;
+//  while (world) {
+//      pone_world_mark(world);
+//      assert(world != world->next);
+//      world = world->next;
+//  }
 
     for (int i=0; i<PONE_SIGNAL_HANDLERS_SIZE; ++i) {
         for (int j=0; j<kv_size(universe->signal_channels[i]); j++) {

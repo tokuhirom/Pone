@@ -1,5 +1,4 @@
 #include "pone.h" /* PONE_INC */
-#include "utlist.h"
 #include "kvec.h"
 
 #define PONE_ERR_HANDLERS_INIT 10
@@ -18,17 +17,6 @@ static inline void pone_world_dump(pone_universe* universe) {
     }
 }
 #endif
-
-// This routine needs GVL
-static inline void pone_world_list_append(pone_universe *universe, pone_world* world) {
-    WORLD_TRACE("ADD %p", world);
-    CDL_PREPEND(universe->world_head, world);
-}
-
-// This routine needs GVL
-static inline void pone_world_list_remove(pone_universe *universe, pone_world* world) {
-    CDL_DELETE(universe->world_head, world);
-}
 
 // This routine needs GVL
 pone_world* pone_world_new(pone_universe* universe) {
@@ -76,10 +64,6 @@ pone_world* pone_world_new(pone_universe* universe) {
 
     pone_gc_log(world->universe, "[pone gc] create new world %p\n", world);
 
-    UNIVERSE_LOCK(world->universe); // This operation modifies universe's structure.
-    pone_world_list_append(universe, world);
-    UNIVERSE_UNLOCK(world->universe);
-
     return world;
 }
 
@@ -121,8 +105,6 @@ void pone_world_free(pone_world* world) {
 //  }
 
     pone_gc_log(world->universe, "[pone gc] freeing world %p\n", world);
-
-    pone_world_list_remove(world->universe, world);
 
     CHECK_PTHREAD(pthread_mutex_destroy(&(world->mutex)));
     CHECK_PTHREAD(pthread_cond_destroy(&(world->cond)));

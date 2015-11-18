@@ -37,6 +37,7 @@ pone_val* pone_builtin_chan(pone_world* world, pone_val* limit) {
 }
 
 pone_val* pone_builtin_dd(pone_world* world, pone_val* val) {
+    THREAD_TRACE("pone_builtin_dd");
     pone_dd(world, val);
     return pone_nil();
 }

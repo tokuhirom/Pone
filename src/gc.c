@@ -39,6 +39,7 @@ void pone_gc_mark_value(pone_val* val) {
 }
 
 static void pone_gc_mark(pone_world* world) {
+    pone_universe_mark(world->universe);
     pone_world_mark(world);
 }
 

@@ -44,10 +44,15 @@ bool pone_chan_trysend(pone_world* world, pone_val* chan, pone_val* val) {
         sent = true;
     }
     CHECK_PTHREAD(pthread_mutex_unlock(mutex));
+
+    THREAD_TRACE("sent channel item");
+
     return sent;
 }
 
 pone_val* pone_chan_receive(pone_world* world, pone_val* chan) {
+    THREAD_TRACE("waiting channel item");
+
     pone_val* buffer = pone_obj_get_ivar(world, chan, "$!buffer");
     pthread_cond_t* send_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!send-cond"));
     pthread_cond_t* recv_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!recv-cond"));
@@ -61,6 +66,7 @@ pone_val* pone_chan_receive(pone_world* world, pone_val* chan) {
     pone_save_tmp(world, retval);
     CHECK_PTHREAD(pthread_cond_signal(recv_cond));
     CHECK_PTHREAD(pthread_mutex_unlock(mutex));
+    THREAD_TRACE("got channel item");
 
     return retval;
 }

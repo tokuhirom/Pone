@@ -194,9 +194,7 @@ typedef struct pone_world {
     // True if GC is requested.
     bool gc_requested;
 
-    // circular linked-list
     struct pone_world* next;
-    struct pone_world* prev;
 } pone_world;
 
 typedef struct {
@@ -291,8 +289,10 @@ typedef struct pone_universe {
     // UNIVERSE lock. You need to lock this before modify this object.
     pthread_mutex_t universe_mutex;
 
-    // list of world
-    pone_world* world_head;
+    // list of normal worlds.
+    // This list contains worlds created by pone_thread_start.
+    // This doesn't include system worlds.
+    pone_world* normal_worlds;
 
     FILE* gc_log;
 } pone_universe;
