@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include "pvip.h"
+#include "pvip_private.h"
 #include "pone.h"
 #include "linenoise.h"
 
@@ -22,6 +23,8 @@ static void usage() {
 }
 
 typedef struct pone_compile_ctx {
+    pvip_t* pvip;
+
     PVIPString* buf;
     PVIPString** subs;
     int sub_idx;
@@ -33,7 +36,6 @@ typedef struct pone_compile_ctx {
     khash_t(i64) *ints;
 
     const char* filename;
-    bool want_return;
     int anon_sub_no;
 } pone_compile_ctx;
 
@@ -59,6 +61,157 @@ static inline void def_lex(pone_compile_ctx* ctx, const char* name) {
         abort(); // TODO better error msg
     }
     kh_val(vars, k) = pone_true();
+}
+
+static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
+    // printf("INJECT RETURN TO %s\n", PVIP_node_name(node->type));
+    // PVIP_node_dump_sexp(node);
+    switch (node->type) {
+    case PVIP_NODE_IF:
+        node->children.nodes[1] = inject_return(ctx, node->children.nodes[1]);
+        if (node->children.size > 2) {
+            node->children.nodes[2] = inject_return(ctx, node->children.nodes[2]);
+        }
+        return node;
+    case PVIP_NODE_ELSE:
+    case PVIP_NODE_BLOCK:
+    case PVIP_NODE_STATEMENTS:
+        if (PVIP_node_category(node->type) == PVIP_CATEGORY_CHILDREN) {
+            if (node->children.size > 0) {
+                node->children.nodes[node->children.size-1] = inject_return(ctx, node->children.nodes[node->children.size-1]);
+            }
+        }
+        return node;
+    case PVIP_NODE_UNDEF:
+    case PVIP_NODE_RANGE:
+    case PVIP_NODE_REDUCE:
+    case PVIP_NODE_INT:
+    case PVIP_NODE_NUMBER:
+    case PVIP_NODE_DIV:
+    case PVIP_NODE_MUL:
+    case PVIP_NODE_ADD:
+    case PVIP_NODE_SUB:
+    case PVIP_NODE_IDENT:
+    case PVIP_NODE_FUNCALL:
+    case PVIP_NODE_STRING:
+    case PVIP_NODE_MOD:
+    case PVIP_NODE_VARIABLE:
+    case PVIP_NODE_MY:
+    case PVIP_NODE_STRING_CONCAT:
+    case PVIP_NODE_EQV:
+    case PVIP_NODE_EQ:
+    case PVIP_NODE_NE:
+    case PVIP_NODE_LT:
+    case PVIP_NODE_LE:
+    case PVIP_NODE_GT:
+    case PVIP_NODE_GE:
+    case PVIP_NODE_ARRAY:
+    case PVIP_NODE_ATPOS:
+    case PVIP_NODE_METHODCALL:
+    case PVIP_NODE_FUNC:
+    case PVIP_NODE_NOT:
+    case PVIP_NODE_CONDITIONAL:
+    case PVIP_NODE_NOP:
+    case PVIP_NODE_STREQ:
+    case PVIP_NODE_STRNE:
+    case PVIP_NODE_STRGT:
+    case PVIP_NODE_STRGE:
+    case PVIP_NODE_STRLT:
+    case PVIP_NODE_STRLE:
+    case PVIP_NODE_POW:
+    case PVIP_NODE_UNARY_BOOLEAN: /* ? */
+    case PVIP_NODE_UNARY_UPTO: /* ^ */
+    case PVIP_NODE_STDOUT: /* $*OUT */
+    case PVIP_NODE_STDERR: /* $*ERR */
+    // DEPRECATE
+    case PVIP_NODE_SCALAR_DEREF: /* $$var */
+    case PVIP_NODE_TW_INC: /* @*INC */
+    case PVIP_NODE_META_METHOD_CALL: /* $foo.^methods */
+    case PVIP_NODE_REGEXP:
+    case PVIP_NODE_SMART_MATCH: /* ~~ */
+    case PVIP_NODE_NOT_SMART_MATCH: /* !~~ */
+    case PVIP_NODE_TRUE:
+    case PVIP_NODE_FALSE:
+    case PVIP_NODE_HAS:
+    case PVIP_NODE_ATTRIBUTE_VARIABLE:  /* $!var: $.var: @.var */
+    case PVIP_NODE_FUNCREF:           /* &var */
+    case PVIP_NODE_TW_PACKAGE: /* $?PACKAGE */
+    case PVIP_NODE_TW_CLASS: /* $?CLASS */
+    // DEPRECATE
+    case PVIP_NODE_TW_MODULE: /* $?MODULE */
+    case PVIP_NODE_TW_OS: /* $*OS */
+    case PVIP_NODE_TW_PID: /* $*PID */
+    case PVIP_NODE_TW_PERLVER: /* $*PPERLVER */
+    case PVIP_NODE_TW_OSVER: /* $*OSVER */
+    case PVIP_NODE_TW_CWD: /* $*CWD */
+    case PVIP_NODE_TW_EXECUTABLE_NAME: /* $*EXECUTABLE_NAME */
+    case PVIP_NODE_TW_ROUTINE: /* &?ROUTINE */
+    case PVIP_NODE_SLANGS: /* $~MAIN */
+    case PVIP_NODE_CMP: /* 'cmp' operator */
+    case PVIP_NODE_SPECIAL_VARIABLE_REGEXP_MATCH: /* $/ - regex match */
+    case PVIP_NODE_SPECIAL_VARIABLE_EXCEPTIONS: /* $@ - exceptions */
+    case PVIP_NODE_SPECIAL_VARIABLE_ERRNO: /* $! - errno */
+    case PVIP_NODE_HASH:
+    case PVIP_NODE_PAIR:
+    case PVIP_NODE_ATKEY:
+    case PVIP_NODE_LOGICAL_AND:
+    case PVIP_NODE_LOGICAL_OR:
+    case PVIP_NODE_LOGICAL_XOR:
+    case PVIP_NODE_DOR: /* '//' */
+    case PVIP_NODE_BIN_AND:
+    case PVIP_NODE_BIN_OR:
+    case PVIP_NODE_BIN_XOR:
+    case PVIP_NODE_LAMBDA:
+    case PVIP_NODE_MODULE:
+    case PVIP_NODE_CLASS:
+    case PVIP_NODE_METHOD:
+    case PVIP_NODE_UNARY_PLUS:
+    case PVIP_NODE_UNARY_MINUS:
+    case PVIP_NODE_IT_METHODCALL:
+    case PVIP_NODE_POSTINC:
+    case PVIP_NODE_POSTDEC:
+    case PVIP_NODE_PREINC:
+    case PVIP_NODE_PREDEC:
+    case PVIP_NODE_UNARY_BITWISE_NEGATION:
+    case PVIP_NODE_BRSHIFT:
+    case PVIP_NODE_BLSHIFT:
+    case PVIP_NODE_CHAIN:
+    case PVIP_NODE_INPLACE_ADD:
+    case PVIP_NODE_INPLACE_SUB:
+    case PVIP_NODE_INPLACE_MUL:
+    case PVIP_NODE_INPLACE_DIV:
+    case PVIP_NODE_INPLACE_POW:
+    case PVIP_NODE_INPLACE_MOD:
+    case PVIP_NODE_INPLACE_BIN_OR:
+    case PVIP_NODE_INPLACE_BIN_AND:
+    case PVIP_NODE_INPLACE_BIN_XOR:
+    case PVIP_NODE_INPLACE_BLSHIFT:
+    case PVIP_NODE_INPLACE_BRSHIFT:
+    case PVIP_NODE_INPLACE_CONCAT_S:
+    case PVIP_NODE_REPEAT_S:
+    case PVIP_NODE_INPLACE_REPEAT_S:
+    case PVIP_NODE_STRINGIFY: /* prefix:<~> */
+    case PVIP_NODE_NUM_CMP: /* <=> */
+    case PVIP_NODE_JUNCTIVE_AND: /* & */
+    case PVIP_NODE_JUNCTIVE_SAND: /* S& */
+    case PVIP_NODE_JUNCTIVE_OR: /* | */
+    case PVIP_NODE_UNICODE_CHAR: /* \c[] */
+    case PVIP_NODE_BITWISE_OR:  /* ~| */
+    case PVIP_NODE_BITWISE_AND: /* ~& */
+    case PVIP_NODE_BITWISE_XOR: /* ~^ */
+    case PVIP_NODE_WHATEVER: /* * */
+    case PVIP_NODE_ROLE: {
+        // printf("NOT A CHILDREN %s\n", PVIP_node_name(node->type));
+        PVIPNode *ret = pvip_node_alloc(ctx->pvip);
+        ret->type = PVIP_NODE_RETURN;
+        ret->children.size  = 0;
+        ret->children.nodes = NULL;
+        PVIP_node_push_child(ret, node);
+        return ret;
+    }
+    default:
+            return node;
+    }
 }
 
 static inline int find_lex(pone_compile_ctx* ctx, const char* name) {
@@ -116,12 +269,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 int n = (child)->line_number;
                 const char* filename = ctx->filename;
                 PRINTF("#line %d \"%s\"\n", n, filename);
-                if (ctx->want_return && i==node->children.size-1 && child->type != PVIP_NODE_FOR && child->type != PVIP_NODE_RETURN && child->type != PVIP_NODE_IF && child->type != PVIP_NODE_WHILE) {
-                    PRINTF("return ");
-                    COMPILE(child);
-                } else {
-                    COMPILE(child);
-                }
+                COMPILE(child);
                 PRINTF(";\n");
             }
             break;
@@ -573,10 +721,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF("pone_val* pone_try_%d(", ctx->anon_sub_no);
             PRINTF("pone_world* world, pone_val* self, int n, va_list args) {\n");
             PUSH_SCOPE();
-            bool orig_want_return = ctx->want_return;
-            ctx->want_return = true;
-            COMPILE(node->children.nodes[0]);
-            ctx->want_return = orig_want_return;
+            COMPILE(inject_return(ctx, node->children.nodes[0]));
             POP_SCOPE();
             PRINTF("  return pone_nil();\n");
             PRINTF("}\n");
@@ -611,10 +756,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF("(pone_world* world, pone_val* self, int n, va_list args) {\n");
             PUSH_SCOPE();
             COMPILE(node->children.nodes[1]);
-            bool orig_want_return = ctx->want_return;
-            ctx->want_return = true;
-            COMPILE(node->children.nodes[3]);
-            ctx->want_return = orig_want_return;
+            COMPILE(inject_return(ctx, node->children.nodes[3]));
             POP_SCOPE();
             PRINTF("  return pone_nil();\n");
             PRINTF("}\n");
@@ -690,6 +832,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             break;
         }
         case PVIP_NODE_NOP:
+            PRINTF("pone_nil();");
             break;
         default:
             fprintf(stderr, "unsupported node '%s'\n", PVIP_node_name(node->type));
@@ -724,7 +867,7 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, PVIPNode* node, int so_no) {
     PRINTF("}\n");
 }
 
-static void pone_compile_node(pone_universe* universe, PVIPNode* node, const char* filename, bool compile_only) {
+static void pone_compile_node(pone_universe* universe, PVIPNode* node, const char* filename, bool compile_only, pvip_t* pvip) {
     FILE* fp = fopen("pone_generated.c", "w");
     if (!fp) {
         perror("Cannot open pone_generated.c");
@@ -741,6 +884,7 @@ static void pone_compile_node(pone_universe* universe, PVIPNode* node, const cha
         abort();
     }
     ctx.vars_max = 1;
+    ctx.pvip = pvip;
     push_vars_stack(&ctx);
     int so_no = 0;
     pone_compile(&ctx, fp, node, so_no);
@@ -831,7 +975,7 @@ int main(int argc, char** argv) {
         if (dump) {
             PVIP_node_dump_sexp(node);
         } else {
-            pone_compile_node(universe, node, "-e", compile_only);
+            pone_compile_node(universe, node, "-e", compile_only, pvip);
         }
     } else if (optind < argc) {
         const char* filename = argv[optind];
@@ -852,7 +996,7 @@ int main(int argc, char** argv) {
         if (dump) {
             PVIP_node_dump_sexp(node);
         } else {
-            pone_compile_node(universe, node, filename, compile_only);
+            pone_compile_node(universe, node, filename, compile_only, pvip);
         }
     } else {
         // REPL mode
@@ -881,7 +1025,7 @@ int main(int argc, char** argv) {
                 exit(1);
             }
 
-            pone_compile_node(universe, node, "-e", false);
+            pone_compile_node(universe, node, "-e", false, pvip);
 
             linenoiseHistoryAdd(line);
             linenoiseHistorySave(history_file);

@@ -42,5 +42,6 @@ PVIPNode* PVIP_node_append_string_from_hex(PVIPParserContext *parser, PVIPNode *
 PVIPNode* PVIP_node_append_string_from_oct(PVIPParserContext *parser, PVIPNode * node, const char *str, size_t len);
 PVIPNode* PVIP_node_append_string_from_dec(PVIPParserContext *parser, PVIPNode * node, const char *str, size_t len);
 PVIPNode* PVIP_node_append_string_node(PVIPParserContext *parser, PVIPNode*node, PVIPNode*stuff);
+PVIPNode* pvip_node_alloc(struct pvip_t* pvip);
 
 #endif /* PVIP_PRIVATE_H_ */

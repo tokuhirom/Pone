@@ -4,6 +4,30 @@
 0
 
 ===
+--- input
+sub x() { for 1..5 { say $_ };  }; say x(); say 9999
+--- expected
+1
+2
+3
+4
+5
+
+9999
+
+===
+--- input
+sub x() { for 1..5 { say $_ }; 643 }; say x(); say 9999
+--- expected
+1
+2
+3
+4
+5
+643
+9999
+
+===
 --- input: say(1)
 --- expected
 1
