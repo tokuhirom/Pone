@@ -133,7 +133,6 @@ typedef enum {
     PVIP_NODE_HAS,
     PVIP_NODE_ATTRIBUTE_VARIABLE,  /* $!var, $.var, @.var */
     PVIP_NODE_FUNCREF,           /* &var */
-    PVIP_NODE_PATH, /* qp{}, IO::Path literal */
     PVIP_NODE_TW_PACKAGE, /* $?PACKAGE */
     PVIP_NODE_TW_CLASS, /* $?CLASS */
     PVIP_NODE_TW_MODULE, /* $?MODULE */
@@ -144,8 +143,6 @@ typedef enum {
     PVIP_NODE_TW_CWD, /* $*CWD */
     PVIP_NODE_TW_EXECUTABLE_NAME, /* $*EXECUTABLE_NAME */
     PVIP_NODE_TW_ROUTINE, /* &?ROUTINE */
-    PVIP_NODE_SLANGS, /* $~MAIN */
-    PVIP_NODE_LOGICAL_ANDTHEN, /* andthen operator */
     PVIP_NODE_VALUE_IDENTITY, /* '===' operator in S03-operators/value_equivalence.t */
     PVIP_NODE_CMP, /* 'cmp' operator */
     PVIP_NODE_SPECIAL_VARIABLE_REGEXP_MATCH, /* $/ - regex match */
@@ -163,7 +160,6 @@ typedef enum {
     PVIP_NODE_JUNCTIVE_OR, /* | */
     PVIP_NODE_UNICODE_CHAR, /* \c[] */
     PVIP_NODE_STUB, /* ... */
-    PVIP_NODE_EXPORT, /* is export */
     PVIP_NODE_PARAM,
     PVIP_NODE_BITWISE_OR,  /* ~| */
     PVIP_NODE_BITWISE_AND, /* ~& */
@@ -171,42 +167,13 @@ typedef enum {
     PVIP_NODE_VARGS, /* sub foo (*@a) { } */
     PVIP_NODE_WHATEVER, /* * */
     PVIP_NODE_TW_ENV, /* %*ENV */
-    PVIP_NODE_ARRAY_DEREF, /* @$v */
-    PVIP_NODE_RAND, /* rand */
     PVIP_NODE_END, /* END { } */
     PVIP_NODE_BEGIN, /* BEGIN { } */
-    PVIP_NODE_IS_DIVISIBLE_BY, /* %% */
-    PVIP_NODE_NOT_DIVISIBLE_BY, /* !%% */
-    PVIP_NODE_CONTAINER_IDENTITY, /* =:= */
-    PVIP_NODE_Z, /* Z operator */
-    PVIP_NODE_SUBMETHOD, /* submethod */
     PVIP_NODE_BINDAND_MAKE_READONLY, /* ::= */
     PVIP_NODE_LIST_ASSIGNMENT, /* = */
     PVIP_NODE_TW_A, /* $^a */
     PVIP_NODE_TW_B, /* $^b */
     PVIP_NODE_TW_C, /* $^c */
-    PVIP_NODE_SO, /* so */
-    PVIP_NODE_GCD, /* gcd */
-    PVIP_NODE_KEEP, /* KEEP */
-    PVIP_NODE_UNDO, /* UNDO */
-    PVIP_NODE_NOW, /* now */
-    PVIP_NODE_UNTIL, /* until */
-    PVIP_NODE_TIME, /* time */
-    PVIP_NODE_AUGMENT, /* augment */
-    PVIP_NODE_IS_COPY, /* is copy */
-    PVIP_NODE_LEG, /* leg operator */
-    PVIP_NODE_NEED, /* need */
-    PVIP_NODE_INTEGER_DIVISION, /* div */
-    PVIP_NODE_LCM, /* lcm */
-    PVIP_NODE_PACKAGE, /* package */
-    PVIP_NODE_MINMAX, /* minmax */
-    PVIP_NODE_SEQUENCE, /* ... */
-    PVIP_NODE_CONTEXTUALIZER_SCALAR, /* $() */
-    PVIP_NODE_CONTEXTUALIZER_ARRAY, /* @() */
-    PVIP_NODE_CONTEXTUALIZER_HASH, /* %() */
-    PVIP_NODE_TW_TMPDIR, /* $*TMPDIR */
-    PVIP_NODE_IS_RW, /* is rw */
-    PVIP_NODE_IS_REF, /* is ref */
 } PVIP_node_type_t;
 
 typedef enum {

@@ -146,7 +146,6 @@ static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
     case PVIP_NODE_TW_CWD: /* $*CWD */
     case PVIP_NODE_TW_EXECUTABLE_NAME: /* $*EXECUTABLE_NAME */
     case PVIP_NODE_TW_ROUTINE: /* &?ROUTINE */
-    case PVIP_NODE_SLANGS: /* $~MAIN */
     case PVIP_NODE_CMP: /* 'cmp' operator */
     case PVIP_NODE_SPECIAL_VARIABLE_REGEXP_MATCH: /* $/ - regex match */
     case PVIP_NODE_SPECIAL_VARIABLE_EXCEPTIONS: /* $@ - exceptions */
