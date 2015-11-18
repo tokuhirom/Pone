@@ -1,5 +1,6 @@
 #include "pone.h" /* PONE_INC */
 #include "oniguruma.h"
+#include <math.h>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <fcntl.h>
@@ -54,6 +55,9 @@ void pone_init(pone_universe* universe) {
     pone_opaque_init(world);
     pone_errno_init(world);
     pone_signal_init(world);
+
+    // TODO
+    // pone_universe_set_global(universe, "pi", pone_num_new(world, M_PI));
 
 #ifdef TRACE_UNIVERSE
     printf("initializing value IterationEnd\n");
