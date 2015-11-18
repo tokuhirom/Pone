@@ -27,6 +27,8 @@ TODO
  * getpid
  * gmtime
  * localtime
+ *         "abs", "atan2", "cos", "exp", "hex", "int", "log", "oct", "rand",
+         "sin", "sqrt", "srand"
 
 ## Builtin classes
 

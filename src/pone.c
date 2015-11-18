@@ -56,6 +56,8 @@ void pone_init(pone_universe* universe) {
     pone_errno_init(world);
     pone_signal_init(world);
 
+    pone_builtin_init(world);
+
     // TODO
     // pone_universe_set_global(universe, "pi", pone_num_new(world, M_PI));
 

@@ -33,7 +33,7 @@ static pone_val* meth_mu_say(pone_world* world, pone_val* self, int n, va_list a
     assert(n==0);
 
     pone_val* s = pone_stringify(world, self);
-    pone_builtin_say(world, s);
+    fwrite(pone_str_ptr(s), sizeof(char), pone_str_len(s), stdout);
     return pone_nil();
 }
 

@@ -452,23 +452,6 @@ pone_val* pone_assign_key(pone_world* world, pone_val* self, pone_val* key, pone
 pone_val* pone_iter_init(pone_world* world, pone_val* val);
 pone_val* pone_iter_next(pone_world* world, pone_val* iter);
 
-// builtin.c
-pone_val* pone_builtin_slurp(pone_world* world, pone_val* val);
-pone_val* pone_builtin_dd(pone_world* world, pone_val* val);
-pone_val* pone_builtin_abs(pone_world* world, pone_val* val);
-pone_val* pone_builtin_print(pone_world* world, pone_val* val);
-pone_val* pone_builtin_say(pone_world* world, pone_val* val);
-pone_val* pone_builtin_elems(pone_world* world, pone_val* val);
-pone_val* pone_builtin_time(pone_world* world);
-pone_val* pone_builtin_getenv(pone_world* world, pone_val* key);
-pone_val* pone_builtin_sleep(pone_world* world, pone_val* vi);
-pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* code);
-pone_val* pone_builtin_die(pone_world* world, pone_val* msg);
-pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...);
-pone_val* pone_builtin_chan(pone_world* world, pone_val* limit);
-pone_val* pone_builtin_pthread_self(pone_world* world);
-pone_val* pone_builtin_exit(pone_world* world);
-
 void pone_val_free(pone_world* world, pone_val* p);
 pone_t pone_type(pone_val* val);
 void* pone_malloc(pone_universe* universe, size_t size);
@@ -565,6 +548,9 @@ static inline void* pone_opaque_ptr(pone_val* v) { return v->as.opaque.ptr; }
 // errno.c
 pone_val* pone_errno(pone_world* world);
 void pone_errno_init(pone_world* world);
+
+// builtin.c
+void pone_builtin_init(pone_world* world);
 
 #ifdef DEBUG_THREAD
 #define THREAD_TRACE(fmt, ...) fprintf(stderr, "[pone thread] [%lx] " fmt "\n", pthread_self(), ##__VA_ARGS__)

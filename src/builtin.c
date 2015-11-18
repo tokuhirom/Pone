@@ -4,7 +4,9 @@
 #include <unistd.h>
 #include <errno.h>
 
-pone_val* pone_builtin_slurp(pone_world* world, pone_val* val) {
+PONE_FUNC(meth_slurp) {
+    pone_val* val;
+    PONE_ARG("slurp", "o", &val);
     if (pone_str_contains_null(world->universe, val)) {
         pone_throw_str(world, "You can't slurp file. Because file name contains \\0.");
     }
@@ -32,21 +34,28 @@ pone_val* pone_builtin_slurp(pone_world* world, pone_val* val) {
     return retval;
 }
 
-pone_val* pone_builtin_chan(pone_world* world, pone_val* limit) {
-    return pone_chan_new(world, pone_intify(world, limit));
+PONE_FUNC(meth_chan) {
+    pone_int_t limit;
+    PONE_ARG("chan", ":i", &limit);
+    return pone_chan_new(world, limit);
 }
 
-pone_val* pone_builtin_dd(pone_world* world, pone_val* val) {
+PONE_FUNC(meth_dd) {
+    pone_val* val;
+    PONE_ARG("dd", "o", &val);
     THREAD_TRACE("pone_builtin_dd");
     pone_dd(world, val);
     return pone_nil();
 }
 
-pone_val* pone_builtin_pthread_self(pone_world* world) {
+PONE_FUNC(meth_pthread_self) {
+    PONE_ARG("pthread_self", "");
     return pone_int_new(world, pthread_self());
 }
 
-pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
+PONE_FUNC(meth_abs) {
+    pone_val* val;
+    PONE_ARG("abs", "o", &val);
     switch (pone_type(val)) {
     case PONE_INT: {
         pone_int_t i = pone_int_val(val);
@@ -65,30 +74,38 @@ pone_val*  pone_builtin_abs(pone_world* world, pone_val* val) {
     }
 }
 
-pone_val* pone_builtin_print(pone_world* world, pone_val* val) {
+PONE_FUNC(meth_print) {
+    pone_val* val;
+    PONE_ARG("print", "o", &val);
     pone_val* str = pone_stringify(world, val);
     fwrite(pone_str_ptr(str), sizeof(char), pone_str_len(str), stdout);
     return pone_nil();
 }
 
-pone_val* pone_builtin_say(pone_world* world, pone_val* val) {
+PONE_FUNC(meth_say) {
+    pone_val* val;
+    PONE_ARG("say", "o", &val);
     pone_val* str = pone_str_copy(world, pone_stringify(world, val));
     pone_str_append_c(world, str, "\n", 1);
     fwrite(pone_str_ptr(str), sizeof(char), pone_str_len(str), stdout);
     return pone_nil();
 }
 
-pone_val* pone_builtin_elems(pone_world* world, pone_val* val) {
+PONE_FUNC(meth_elems) {
+    pone_val* val;
+    PONE_ARG("elems", "o", &val);
     return pone_int_new(world, pone_elems(world, val));
 }
 
-pone_val* pone_builtin_time(pone_world* world) {
+PONE_FUNC(meth_time) {
+    PONE_ARG("time", "");
     return pone_int_new(world, time(NULL));
 }
 
-pone_val* pone_builtin_getenv(pone_world* world, pone_val* key) {
-    pone_val* str = pone_stringify(world, key);
-    const char* len = getenv(pone_str_ptr(str));
+PONE_FUNC(meth_getenv) {
+    const char* key;
+    PONE_ARG("getenv", "s", &key);
+    const char* len = getenv(key);
     if (len) {
         return pone_str_new(world, len, strlen(len));
     } else {
@@ -96,32 +113,36 @@ pone_val* pone_builtin_getenv(pone_world* world, pone_val* key) {
     }
 }
 
-pone_val* pone_builtin_sleep(pone_world* world, pone_val* vi) {
+PONE_FUNC(meth_sleep) {
+    pone_val* val;
+    PONE_ARG("sleep", "o", &val);
     // TODO Time::HiRes
-    pone_int_t i = pone_intify(world, vi);
+    pone_int_t i = pone_intify(world, val);
     sleep(i);
     return pone_nil();
 }
 
 
-pone_val* pone_builtin_die(pone_world* world, pone_val* msg) {
+PONE_FUNC(meth_die) {
+    pone_val* msg;
+    PONE_ARG("die", "o", &msg);
     pone_throw(world, msg);
     return pone_nil();
 }
 
-pone_val* pone_builtin_exit(pone_world* world) {
-    exit(0);
+PONE_FUNC(meth_exit) {
+    pone_int_t e = EXIT_SUCCESS;
+    PONE_ARG("exit", ":i", &e);
+    exit(e);
 }
 
-pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...) {
+PONE_FUNC(meth_printf) {
+    pone_val* fmt = va_arg(args, pone_val*);
     fmt = pone_stringify(world, fmt);
 
 #define PRINTF_BUFSIZ 256
     char fmt_buf[PRINTF_BUFSIZ];
     char dst_buf[PRINTF_BUFSIZ];
-
-    va_list args;
-    va_start(args, fmt);
 
     const char* p = pone_str_ptr(fmt);
     const char* end = p+pone_str_len(fmt);
@@ -198,7 +219,24 @@ pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...) {
         }
     }
 
-    va_end(args);
     return pone_nil();
+}
+
+void pone_builtin_init(pone_world* world) {
+    pone_universe* universe = world->universe;
+    pone_universe_set_global(universe, "&slurp", pone_code_new_c(world, meth_slurp));
+    pone_universe_set_global(universe, "&chan", pone_code_new_c(world, meth_chan));
+    pone_universe_set_global(universe, "&dd", pone_code_new_c(world, meth_dd));
+    pone_universe_set_global(universe, "&pthread_self", pone_code_new_c(world, meth_pthread_self));
+    pone_universe_set_global(universe, "&abs", pone_code_new_c(world, meth_abs));
+    pone_universe_set_global(universe, "&print", pone_code_new_c(world, meth_print));
+    pone_universe_set_global(universe, "&say", pone_code_new_c(world, meth_say));
+    pone_universe_set_global(universe, "&elems", pone_code_new_c(world, meth_elems));
+    pone_universe_set_global(universe, "&time", pone_code_new_c(world, meth_time));
+    pone_universe_set_global(universe, "&getenv", pone_code_new_c(world, meth_getenv));
+    pone_universe_set_global(universe, "&sleep", pone_code_new_c(world, meth_sleep));
+    pone_universe_set_global(universe, "&die", pone_code_new_c(world, meth_die));
+    pone_universe_set_global(universe, "&exit", pone_code_new_c(world, meth_exit));
+    pone_universe_set_global(universe, "&printf", pone_code_new_c(world, meth_printf));
 }
 
