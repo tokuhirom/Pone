@@ -22,8 +22,6 @@
 typedef long pone_int_t;
 #define PoneIntFmt "%ld"
 
-struct rockre;
-
 // TODO: NaN boxing
 
 // This variable is global var.
@@ -284,8 +282,6 @@ typedef struct pone_universe {
     struct pone_val* class_errno;
 
     khash_t(str) *globals;
-
-    struct rockre* rockre;
 
     // thread.c sends signal at thread termination.
     pthread_cond_t thread_terminate_cond;

@@ -1,4 +1,5 @@
 #include "pone.h" /* PONE_INC */
+#include "oniguruma.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <fcntl.h>
@@ -8,6 +9,8 @@ void pone_init(pone_universe* universe) {
 #if defined(_WIN32) || defined(_WIN64)
     setmode(fileno(stdout), O_BINARY);
 #endif
+
+    onig_init();
 
     // create new world to initialize built-in classes.
     pone_world* world = pone_world_new(universe);

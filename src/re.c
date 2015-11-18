@@ -1,12 +1,29 @@
 #include "pone.h" /* PONE_INC */
-#include "rockre.h"
+#include "oniguruma.h"
+
+static void re_finalizer(pone_world* world, pone_val* val) {
+    pone_free(world->universe, pone_opaque_ptr(val));
+}
+
+static void region_finalizer(pone_world* world, pone_val* val) {
+    OnigRegion* region = pone_opaque_ptr(val);
+    onig_region_free(region, 1);
+}
 
 pone_val* pone_regex_new(pone_world* world, const char* str, size_t len) {
     pone_universe* universe = world->universe;
     pone_val* obj = pone_obj_new(world, universe->class_regex);
-    rockre_regexp* re = rockre_compile(universe->rockre, str, len, true);
-    pone_obj_set_ivar(world, obj, "$!re", pone_int_new(world, (long)re));
-    pone_obj_set_ivar(world, obj, "$!str", pone_str_new_const(world, str, len));
+    OnigErrorInfo errinfo;
+    regex_t* re = pone_malloc(world->universe, sizeof(regex_t));
+    int err_code;
+    if ((err_code=onig_new_without_alloc(re, (const OnigUChar*)str, (const OnigUChar*)str+len, ONIG_OPTION_NONE, ONIG_ENCODING_UTF8, ONIG_SYNTAX_PERL, &errinfo)) != ONIG_NORMAL) {
+        char buf[ONIG_MAX_ERROR_MESSAGE_LEN];
+        int errsize = onig_error_code_to_str((OnigUChar*)buf, err_code, errinfo);
+        pone_throw(world, pone_str_new(world, buf, errsize));
+        // TODO create X::Regexp
+    }
+    pone_obj_set_ivar(world, obj, "$!re", pone_opaque_new(world, re, re_finalizer));
+    pone_obj_set_ivar(world, obj, "$!str", pone_str_new(world, str, len));
     return obj;
 }
 
@@ -16,19 +33,25 @@ static pone_val* meth_regex_accepts(pone_world* world, pone_val* self, int n, va
 
     pone_val* obj = pone_stringify(world, va_arg(args, pone_val*));
 
-    pone_val* re_ptr = pone_obj_get_ivar(world, self, "$!re");
-    rockre_region* region = rockre_region_new(world->universe->rockre);
-    rockre_regexp* re = (rockre_regexp*)pone_int_val(re_ptr);
-    bool b = rockre_partial_match(world->universe->rockre, re, region, pone_str_ptr(obj), pone_str_len(obj));
-    if (b) {
+    regex_t* re = pone_opaque_ptr(pone_obj_get_ivar(world, self, "$!re"));
+    OnigRegion* region = onig_region_new();
+    OnigPosition pos = onig_search(
+            re,
+            (const OnigUChar*)pone_str_ptr(obj),
+            (const OnigUChar*)pone_str_ptr(obj)+pone_str_len(obj),
+            (const OnigUChar*)pone_str_ptr(obj),
+            (const OnigUChar*)pone_str_ptr(obj)+pone_str_len(obj),
+            region,
+            0);
+    if (pos >= 0) {
         pone_val* match = pone_match_new(world, obj, region->beg[0], region->end[0]);
         for (int i=1; i<region->num_regs; ++i) {
             pone_match_push(world, match, region->beg[i], region->end[i]);
         }
-        rockre_region_destroy(world->universe->rockre, region);
+        onig_region_free(region, 1);
         return match;
     } else {
-        rockre_region_destroy(world->universe->rockre, region);
+        onig_region_free(region, 1);
         return pone_nil();
     }
 }

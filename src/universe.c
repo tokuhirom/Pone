@@ -1,5 +1,5 @@
 #include "pone.h" /* PONE_INC */
-#include "rockre.h"
+#include "oniguruma.h"
 #include <errno.h>
 #include "utlist.h"
 
@@ -36,7 +36,6 @@ pone_universe* pone_universe_init() {
     CHECK_PTHREAD(pthread_mutex_init(&(universe->universe_mutex), NULL));
     CHECK_PTHREAD(pthread_cond_init(&(universe->thread_terminate_cond), NULL));
 
-    universe->rockre = rockre_new();
     universe->globals = kh_init(str);
 
     return universe;
@@ -84,8 +83,6 @@ void pone_universe_destroy(pone_universe* universe) {
     CHECK_PTHREAD(pthread_mutex_destroy(&(universe->universe_mutex)));
 
     kh_destroy(str, universe->globals);
-
-    rockre_destroy(universe->rockre);
 
     free(universe);
 }

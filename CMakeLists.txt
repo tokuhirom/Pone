@@ -5,7 +5,7 @@ INCLUDE(CheckSymbolExists)
 
 enable_testing()
 
-include_directories(3rd/uthash/include/ 3rd/linenoise/ 3rd/rockre/include 3rd/pvip/src/ src/ include)
+include_directories(3rd/uthash/include/ 3rd/linenoise/ 3rd/onigmo/ 3rd/pvip/src/ src/ include)
 
 list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 check_symbol_exists(accept4 sys/socket.h HAVE_ACCEPT4)
@@ -68,7 +68,7 @@ SET(SRCS
     )
 
 add_executable(pone src/compiler/main.c 3rd/linenoise/linenoise.c)
-target_link_libraries(pone libpone rockre-static dl pthread)
+target_link_libraries(pone m libpone onigmo dl pthread)
 set_target_properties(pone
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "bin/")
@@ -97,5 +97,4 @@ add_custom_command(
     COMMAND perl ${PROJECT_SOURCE_DIR}/build/node.pl ${PROJECT_SOURCE_DIR}/src/pvip.h src/gen.node.c 
     )
 
-add_subdirectory(3rd/rockre)
-
+add_subdirectory(3rd/onigmo-cmake)

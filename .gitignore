@@ -29,3 +29,7 @@ tags
 /src/gen.node.c
 /include/pone_config.h
 /greg
+/3rd/onigmo-cmake/CMakeFiles/
+/3rd/onigmo-cmake/cmake_install.cmake
+/3rd/onigmo-cmake/CTestTestfile.cmake
+/3rd/onigmo-cmake/Makefile

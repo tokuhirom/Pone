@@ -1,9 +1,9 @@
 [submodule "3rd/linenoise"]
 	path = 3rd/linenoise
 	url = git://github.com/antirez/linenoise.git
-[submodule "3rd/rockre"]
-	path = 3rd/rockre
-	url = git://github.com/tokuhirom/rockre.git
 [submodule "3rd/uthash"]
 	path = 3rd/uthash
 	url = https://github.com/troydhanson/uthash
+[submodule "3rd/onigmo"]
+	path = 3rd/onigmo
+	url = https://github.com/k-takata/Onigmo.git
