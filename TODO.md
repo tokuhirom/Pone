@@ -9,17 +9,61 @@ TODO
    * mutable objects
  * Channel
 
+
+## Builtin functions
+
+ * rand
+ * open
+ * `system` builtin function
+ * chomp
+ * chr
+ * ord
+ * hex
+ * sprintf
+ * rewrite printf
+ * caller
+ * __FILE__
+ * __LINE__
+ * getpid
+
+## Builtin classes
+
+ * File
+ * IO::Socket::UNIX
+ * `Proc` builtin class
+ * Regex.quote
+ * Str#index
+ * Str#lc
+ * Str#uc
+ * Str#lcfirst
+ * Str#ucfirst
+ * Str#chars
+ * Str#bytes
+ * Str#split
+ * Str#reverse
+ * Array#reverse
+ * Array#grep
+ * Dir.open
+ * File#close
+ * File#say
+ * File#print
+ * File#readline
+ * File#lines
+ * Path::Dir
+ * Path::File
+ * Path::File#stat
+ * IO::Socket::INET#setsockopt
+ * IO::Socket::INET#getsockopt
+ * Time
+ * URI
+
 ## Basic features
 
  * `class A { }`
  * `class A is B { }`
- * `fork()`
- * socket i/o
  * file i/o
  * str methods
  * bytes literal/class
- * `system` builtin function
- * Implement `%*ENV` and deprecate `getenv()` builtin function
  * // operator
  * bit ops
  * -p
@@ -31,8 +75,6 @@ TODO
  * `&&`
  * `||`
  * `s///`
- * `Proc` builtin class
- * implement p5-ish built-in functions
  * remove thread list in universe.
  * `while True { last; }`
  * `sub x() { for 1..10 { say 3; } }; say 5`
