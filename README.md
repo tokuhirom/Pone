@@ -1,9 +1,9 @@
 [![Build Status](https://travis-ci.org/tokuhirom/Pone.svg?branch=master)](https://travis-ci.org/tokuhirom/Pone)
 
-NAME
-====
+The  ( д)  ﾟPone Programming Language
+=============================
 
-Pone - There's more than one way to do it
+There's more than one way to do it
 
 SYNOPSIS
 ========
