@@ -815,8 +815,7 @@ param =
     }
 
 param_term =
-    '*' v:array_var { $$ = CHILDREN1(PVIP_NODE_VARGS, v); }
-    | term
+    term
 
 param_defaults =
     '=' - e:expr { $$=e; }
@@ -860,15 +859,10 @@ bare_variables =
         - ',' - v2:variable { PVIP_node_push_child(v1, v2); }
     )* { $$=v1; }
 
-variable = scalar | array_var | hash_var | twvars | funcref | attr_vars
-
-array_var = < '@' varname > { $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_VARIABLE, yytext, yyleng); }
-
-hash_var = < '%' !'%' varname > { $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_VARIABLE, yytext, yyleng); }
+variable = scalar | twvars | funcref | attr_vars
 
 scalar =
-    '$' s:scalar { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_SCALAR_DEREF, s); }
-    | < '$' varname > { assert(yyleng > 0); $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_VARIABLE, yytext, yyleng); }
+    < '$' varname > { assert(yyleng > 0); $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_VARIABLE, yytext, yyleng); }
     | '$!' ![a-zA-Z0-9_] { $$=PVIP_node_new_children(&(G->data), PVIP_NODE_SPECIAL_VARIABLE_ERRNO); }
     | '$@' ![a-zA-Z0-9_] { $$=PVIP_node_new_children(&(G->data), PVIP_NODE_SPECIAL_VARIABLE_EXCEPTIONS); }
     | '$/' { $$=PVIP_node_new_children(&(G->data), PVIP_NODE_SPECIAL_VARIABLE_REGEXP_MATCH); }

@@ -25,6 +25,8 @@ TODO
  * __FILE__
  * __LINE__
  * getpid
+ * gmtime
+ * localtime
 
 ## Builtin classes
 
@@ -55,6 +57,7 @@ TODO
  * IO::Socket::INET#setsockopt
  * IO::Socket::INET#getsockopt
  * Time
+ * Time#strftime
  * URI
 
 ## Basic features

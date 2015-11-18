@@ -124,7 +124,6 @@ static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
     case PVIP_NODE_STDOUT: /* $*OUT */
     case PVIP_NODE_STDERR: /* $*ERR */
     // DEPRECATE
-    case PVIP_NODE_SCALAR_DEREF: /* $$var */
     case PVIP_NODE_TW_INC: /* @*INC */
     case PVIP_NODE_META_METHOD_CALL: /* $foo.^methods */
     case PVIP_NODE_REGEXP:
