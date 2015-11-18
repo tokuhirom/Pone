@@ -90,11 +90,12 @@ add_custom_command(
     OUTPUT gen.pone.y.c
     COMMAND echo $(PROJECT_BINARY_DIR)
     COMMAND ./greg -o gen.pone.y.c ${PROJECT_SOURCE_DIR}/src/pone.y
-    DEPENDS greg
+    DEPENDS greg src/pone.y
     )
 add_custom_command(
     OUTPUT src/gen.node.c
     COMMAND perl ${PROJECT_SOURCE_DIR}/build/node.pl ${PROJECT_SOURCE_DIR}/src/pvip.h src/gen.node.c 
+    DEPENDS src/pvip.h build/node.pl
     )
 
 add_subdirectory(3rd/onigmo-cmake)
