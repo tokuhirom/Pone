@@ -102,14 +102,14 @@ pone_val* pone_builtin_sleep(pone_world* world, pone_val* vi) {
     return pone_nil();
 }
 
-pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* code) {
-    pone_signal_register_handler(world, pone_intify(world, sig_val), code);
-    return pone_nil();
-}
 
 pone_val* pone_builtin_die(pone_world* world, pone_val* msg) {
     pone_throw(world, msg);
     return pone_nil();
+}
+
+pone_val* pone_builtin_exit(pone_world* world) {
+    exit(0);
 }
 
 pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...) {

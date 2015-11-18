@@ -25,6 +25,28 @@ void pone_chan_send(pone_world* world, pone_val* chan, pone_val* val) {
     CHECK_PTHREAD(pthread_mutex_unlock(mutex));
 }
 
+/*
+ * try to send value to the channel.
+ * If the channel have enough buffer, send value and return true.
+ * Return false otherwise.
+ */
+bool pone_chan_trysend(pone_world* world, pone_val* chan, pone_val* val) {
+    pone_val* limit = pone_obj_get_ivar(world, chan, "$!buffer-limit");
+    pone_val* buffer = pone_obj_get_ivar(world, chan, "$!buffer");
+    pthread_cond_t* send_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!send-cond"));
+    pthread_mutex_t* mutex = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!mutex"));
+
+    bool sent = false;
+    CHECK_PTHREAD(pthread_mutex_lock(mutex));
+    if (pone_intify(world, limit) > pone_ary_elems(buffer)) {
+        pone_ary_push(world->universe, buffer, val);
+        CHECK_PTHREAD(pthread_cond_signal(send_cond));
+        sent = true;
+    }
+    CHECK_PTHREAD(pthread_mutex_unlock(mutex));
+    return sent;
+}
+
 pone_val* pone_chan_receive(pone_world* world, pone_val* chan) {
     pone_val* buffer = pone_obj_get_ivar(world, chan, "$!buffer");
     pthread_cond_t* send_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!send-cond"));

@@ -83,11 +83,11 @@ static bool is_builtin(const char* name) {
         || strcmp(name, "elems")==0
         || strcmp(name, "getenv")==0
         || strcmp(name, "time")==0
-        || strcmp(name, "signal")==0
         || strcmp(name, "sleep")==0
         || strcmp(name, "die")==0
         || strcmp(name, "printf")==0
         || strcmp(name, "chan")==0
+        || strcmp(name, "exit")==0
         || strcmp(name, "pthread_self")==0
         || strcmp(name, "slurp")==0;
 }
@@ -123,7 +123,6 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                     COMPILE(child);
                 }
                 PRINTF(";\n");
-                PRINTF("pone_signal_handle(world);\n");
             }
             break;
         case PVIP_NODE_NUMBER:

@@ -2,6 +2,7 @@
 #include "oniguruma.h"
 #include <errno.h>
 #include "utlist.h"
+#include "kvec.h"
 
 #ifdef __GLIBC__
 #include <execinfo.h>
@@ -36,11 +37,17 @@ pone_universe* pone_universe_init() {
     CHECK_PTHREAD(pthread_mutex_init(&(universe->universe_mutex), NULL));
     CHECK_PTHREAD(pthread_cond_init(&(universe->thread_terminate_cond), NULL));
 
+    // initialize signal channels.
+    for (int i=0; i<PONE_SIGNAL_HANDLERS_SIZE; ++i) {
+        kv_init(universe->signal_channels[i]);
+    }
+
     universe->globals = kh_init(str);
 
     return universe;
 }
 
+// Do not call this from C extensions. C extension should use EXPORT instead.
 void pone_universe_set_global(pone_universe* universe, const char* key, pone_val* val) {
     int ret;
     khint_t k = kh_put(str, universe->globals, key, &ret);
@@ -98,9 +105,8 @@ void pone_universe_mark(pone_universe* universe) {
 
 
     for (int i=0; i<PONE_SIGNAL_HANDLERS_SIZE; ++i) {
-        pone_val* handler = universe->signal_handlers[i];
-        if (handler) {
-            pone_gc_mark_value(handler);
+        for (int j=0; j<kv_size(universe->signal_channels[i]); j++) {
+            pone_gc_mark_value(kv_A(universe->signal_channels[i], j));
         }
     }
 }

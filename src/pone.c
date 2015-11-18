@@ -53,6 +53,7 @@ void pone_init(pone_universe* universe) {
     pone_channel_init(world);
     pone_opaque_init(world);
     pone_errno_init(world);
+    pone_signal_init(world);
 
 #ifdef TRACE_UNIVERSE
     printf("initializing value IterationEnd\n");
@@ -68,5 +69,8 @@ void pone_init(pone_universe* universe) {
             }
         }
     }
+
+    // start signal thread
+    pone_signal_start_thread(world);
 }
 

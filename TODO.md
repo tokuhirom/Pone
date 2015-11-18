@@ -34,10 +34,6 @@ TODO
  * `Proc` builtin class
  * implement p5-ish built-in functions
  * remove thread list in universe.
- * $! vavariable
- * $@ vavariable
- * fork pvip and include it in this repository.
- * `pthread_self()`
  * `while True { last; }`
  * `sub x() { for 1..10 { say 3; } }; say 5`
 

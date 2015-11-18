@@ -230,10 +230,12 @@ typedef struct pone_val {
 
 #define PONE_SIGNAL_HANDLERS_SIZE 32
 
+typedef struct { pone_int_t n, m; pone_val **a; } pone_val_vec;
+
 // VM context
 typedef struct pone_universe {
     // signal handlers
-    struct pone_val *signal_handlers[PONE_SIGNAL_HANDLERS_SIZE];
+    pone_val_vec signal_channels[PONE_SIGNAL_HANDLERS_SIZE];
 
     // 無("Mu")
     struct pone_val* class_mu;
@@ -462,10 +464,10 @@ pone_val* pone_builtin_getenv(pone_world* world, pone_val* key);
 pone_val* pone_builtin_sleep(pone_world* world, pone_val* vi);
 pone_val* pone_builtin_signal(pone_world* world, pone_val* sig_val, pone_val* code);
 pone_val* pone_builtin_die(pone_world* world, pone_val* msg);
-void pone_signal_handle(pone_world* world);
 pone_val* pone_builtin_printf(pone_world* world, pone_val* fmt, ...);
 pone_val* pone_builtin_chan(pone_world* world, pone_val* limit);
 pone_val* pone_builtin_pthread_self(pone_world* world);
+pone_val* pone_builtin_exit(pone_world* world);
 
 void pone_val_free(pone_world* world, pone_val* p);
 pone_t pone_type(pone_val* val);
@@ -542,11 +544,14 @@ void pone_gc_init(pone_world* world);
 void pone_gc_run(pone_world* world);
 
 // signal.c
-void pone_signal_register_handler(pone_world* world, pone_int_t sig, pone_val* code);
+void pone_signal_notify(pone_world* world, pone_int_t sig, pone_val* code);
+void pone_signal_start_thread(pone_world* world);
+void pone_signal_init(pone_world* world);
 
 // channel.c
 void pone_channel_init(pone_world* world);
 pone_val* pone_chan_new(pone_world* world, pone_int_t limit);
+bool pone_chan_trysend(pone_world* world, pone_val* chan, pone_val* val);
 
 // opaque.c
 void pone_opaque_init(pone_world* world);

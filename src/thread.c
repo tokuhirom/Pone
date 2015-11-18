@@ -5,9 +5,13 @@
 static void* thread_start(void* p) {
     THREAD_TRACE("NEW %lx", pthread_self());
 
-    // extract values to stack
     pone_world* world = (pone_world*)p;
     assert(world->universe);
+
+    // mask all signals
+    sigset_t set;
+    sigfillset(&set);
+    CHECK_PTHREAD(pthread_sigmask(SIG_BLOCK, &set, NULL));
 
     world->err_handler_lexs[0] = world->lex;
     if (setjmp(world->err_handlers[0])) {
