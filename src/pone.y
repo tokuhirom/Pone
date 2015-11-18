@@ -677,8 +677,6 @@ term =
     | 'e' ![-a-zA-Z0-9_] { $$ = CHILDREN(PVIP_NODE_E); }
     | 'try' ws - b:block { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_TRY, b); }
     | 'try' ws+ b:expr { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_TRY, b); }
-    | perl5_regexp
-    | 'm:P5/./' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_NOP); }
     | regexp
     | 'True' ![-a-zA-Z0-9] { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TRUE); }
     | 'False' ![-a-zA-Z0-9] { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_FALSE); }
@@ -1081,14 +1079,6 @@ dq_string_inner =
         )* ']'
         | esc esc { APPEND_S("\\", 1) }
     )
-
-perl5_regexp_start = 'm:P5/' { $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_PERL5_REGEXP, "", 0); }
-
-perl5_regexp =
-    r:perl5_regexp_start (
-        <[^/]+> { r=PVIP_node_append_string(&(G->data), r, yytext, yyleng); }
-       | esc '/' { r=PVIP_node_append_string(&(G->data), r, "/", 1); }
-    )+ '/' { $$=r; }
 
 regexp_start = ( 'm/' | '/' ) { $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_REGEXP, "", 0); }
 

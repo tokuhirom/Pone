@@ -91,7 +91,7 @@ PVIPNode * PVIP_node_new_int(PVIPParserContext* parser, PVIP_node_type_t type, i
 PVIPNode * PVIP_node_new_intf(PVIPParserContext* parser, PVIP_node_type_t type, const char *str, size_t len, int base) {
     char * buf = malloc(len+1);
     char *bufp = buf;
-    int i;
+    size_t i;
     for (i=0; i<len; i++) {
         if (str[i] != '_') {
             *bufp++ = str[i];
@@ -284,7 +284,6 @@ PVIP_category_t PVIP_node_category(PVIP_node_type_t type) {
     case PVIP_NODE_VARIABLE:
     case PVIP_NODE_IDENT:
     case PVIP_NODE_REGEXP:
-    case PVIP_NODE_PERL5_REGEXP:
     case PVIP_NODE_ATTRIBUTE_VARIABLE:
     case PVIP_NODE_PATH:
     case PVIP_NODE_SLANGS:
