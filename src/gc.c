@@ -116,8 +116,8 @@ void pone_gc_run(pone_world* world) {
     pone_gc_log(world->universe, "[pone gc] finished gc\n");
 }
 
-static pone_val* meth_gc_request(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_gc_request) {
+    PONE_ARG("GC#request", "");
 
     world->gc_requested = true;
 

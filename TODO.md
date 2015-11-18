@@ -81,7 +81,6 @@ TODO
 
 ## Bindings
 
- * URI
  * HTTP::Parser
  * h2o
  * hiredis

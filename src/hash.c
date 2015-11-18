@@ -114,8 +114,8 @@ Get the number of elements.
 =cut
 
 */
-static pone_val* meth_hash_elems(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_hash_elems) {
+    PONE_ARG("Hash#elems", "");
     return pone_int_new(world, pone_hash_elems(self));
 }
 
@@ -128,10 +128,10 @@ Get the number of elements.
 =cut
 
 */
-static pone_val* meth_hash_assign_key(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 2);
-    pone_val* key = va_arg(args, pone_val*);
-    pone_val* value = va_arg(args, pone_val*);
+PONE_FUNC(meth_hash_assign_key) {
+    pone_val* key;
+    pone_val* value;
+    PONE_ARG("Hash#ASSIGN-KEY", "oo", &key, &value);
     pone_hash_assign_key(world, self, key, value);
     return value;
 }

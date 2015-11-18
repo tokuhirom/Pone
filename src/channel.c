@@ -101,11 +101,11 @@ pone_val* pone_chan_new(pone_world* world, pone_int_t limit) {
     return obj;
 }
 
-static pone_val* meth_chan_new(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 1);
+PONE_FUNC(meth_chan_new) {
+    pone_int_t limit;
+    PONE_ARG("Channel#new", ":i", &limit);
 
-    pone_val*limit = va_arg(args, pone_val*);
-    return pone_chan_new(world, pone_intify(world, limit));
+    return pone_chan_new(world, limit);
 }
 
 /**
@@ -122,16 +122,15 @@ A Channel is a thread-safe queue that helps you to send a series of objects from
 
  */
 
-static pone_val* meth_chan_receive(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_chan_receive) {
+    PONE_ARG("Channel#receive", "");
 
     return pone_chan_receive(world, self);
 }
 
-static pone_val* meth_chan_send(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 1);
-
-    pone_val*val = va_arg(args, pone_val*);
+PONE_FUNC(meth_chan_send) {
+    pone_val* val;
+    PONE_ARG("Channel#send", "o", &val);
     pone_chan_send(world, self, val);
     return pone_nil();
 }

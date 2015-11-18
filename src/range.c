@@ -29,8 +29,8 @@ pone_val* pone_range_new(pone_world* world, pone_val* min, pone_val* max) {
 =cut
 
 */
-static pone_val* meth_range_min(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_range_min) {
+    PONE_ARG("Range#min", "");
 
     return pone_obj_get_ivar(world, world->universe->class_range, "$!min");
 }
@@ -44,8 +44,8 @@ Get a string notation of Range object.
 =cut
 
  */
-static pone_val* meth_range_str(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_range_str) {
+    PONE_ARG("Range#Str", "");
 
     pone_val* min = pone_obj_get_ivar(world, self, "$!min");
     pone_val* max = pone_obj_get_ivar(world, self, "$!max");
@@ -63,14 +63,14 @@ static pone_val* meth_range_str(pone_world* world, pone_val* self, int n, va_lis
 =cut
 
 */
-static pone_val* meth_range_max(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_range_max) {
+    PONE_ARG("Range#Max", "");
 
     return pone_obj_get_ivar(world, world->universe->class_range, "$!max");
 }
 
-static pone_val* meth_range_iterator(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_range_iterator) {
+    PONE_ARG("Range#iterator", "");
 
     assert(pone_type(self) == PONE_OBJ);
 
@@ -85,8 +85,8 @@ static pone_val* meth_range_iterator(pone_world* world, pone_val* self, int n, v
     return iter;
 }
 
-static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_pull_one) {
+    PONE_ARG("Range::Iterator#pull-one", "");
     assert(pone_type(self) == PONE_OBJ);
 
     pone_val* i_val = pone_obj_get_ivar(world, self, "$!i");

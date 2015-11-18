@@ -9,25 +9,25 @@ pone_val* pone_nil() {
     return (pone_val*)&pone_nil_val;
 }
 
-static pone_val* meth_nil_gist(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_nil_gist) {
+    PONE_ARG("Nil#gist", "");
     return pone_str_new_const(world, "Nil", 3);
 }
 
-static pone_val* meth_nil_str(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_nil_str) {
+    PONE_ARG("Nil#Str", "");
     pone_warn_str(world, "Use of Nil in string context");
     return pone_str_new_const(world, "", 0);
 }
 
-static pone_val* meth_nil_int(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_nil_int) {
+    PONE_ARG("Nil#Int", "");
     pone_warn_str(world, "Use of Nil in numeric context");
     return pone_int_new(world, 0);
 }
 
-static pone_val* meth_nil_num(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_nil_num) {
+    PONE_ARG("Nil#Num", "");
     pone_warn_str(world, "Use of Nil in numeric context");
     return pone_num_new(world, 0);
 }

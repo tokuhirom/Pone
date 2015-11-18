@@ -23,16 +23,16 @@ static void finalizer(pone_world* world, pone_val* val) {
     pone_free(world->universe, sock);
 }
 
-static pone_val* meth_sock_close(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_sock_close) {
+    PONE_ARG("Socket#close", "");
     struct pone_sock* sock = pone_opaque_ptr(self);
     sock_close(sock);
     return pone_nil();
 }
 
-static pone_val* meth_sock_write(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 1);
-    pone_val* buf = va_arg(args, pone_val*);
+PONE_FUNC(meth_sock_write) {
+    pone_val* buf;
+    PONE_ARG("Socket#write", "o", &buf);
     assert(buf);
 
     struct pone_sock* sock = pone_opaque_ptr(self);
@@ -40,9 +40,9 @@ static pone_val* meth_sock_write(pone_world* world, pone_val* self, int n, va_li
     return pone_int_new(world, len);
 }
 
-static pone_val* meth_sock_read(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 1);
-    pone_int_t length = pone_intify(world, va_arg(args, pone_val*));
+PONE_FUNC(meth_sock_read) {
+    pone_int_t length;
+    PONE_ARG("Socket#read", "i", &length);
 
     char* buf = pone_malloc(world->universe, length);
 
@@ -59,8 +59,8 @@ static pone_val* meth_sock_read(pone_world* world, pone_val* self, int n, va_lis
     }
 }
 
-static pone_val* meth_sock_accept(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_sock_accept) {
+    PONE_ARG("Socket#accept", "");
 
     struct pone_sock* sock = pone_opaque_ptr(self);
 
@@ -92,13 +92,10 @@ static pone_val* meth_sock_accept(pone_world* world, pone_val* self, int n, va_l
 
 }
 
-static pone_val* meth_sock_connect(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 2);
-
-    pone_val* addr_v = va_arg(args, pone_val*);
-    const char* addr = pone_str_ptr(pone_str_c_str(world, addr_v));
-    pone_val* port_v = va_arg(args, pone_val*);
-    const char* port = pone_str_ptr(pone_str_c_str(world, pone_stringify(world, port_v)));
+PONE_FUNC(meth_sock_connect) {
+    const char* addr;
+    const char* port;
+    PONE_ARG("Socket#connect", "ss", &addr, &port);
 
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -155,14 +152,11 @@ static pone_val* meth_sock_connect(pone_world* world, pone_val* self, int n, va_
     return opaque;
 }
 
-static pone_val* meth_sock_listen(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 2 || n == 3);
-
-    pone_val* addr_v = va_arg(args, pone_val*);
-    const char* addr = pone_str_ptr(pone_str_c_str(world, addr_v));
-    pone_val* port_v = va_arg(args, pone_val*);
-    const char* port = pone_str_ptr(pone_str_c_str(world, pone_stringify(world, port_v)));
-    pone_int_t backlog = n==3 ? pone_intify(world, port_v) : SOMAXCONN;
+PONE_FUNC(meth_sock_listen) {
+    const char* addr;
+    const char* port;
+    pone_int_t backlog = SOMAXCONN;
+    PONE_ARG("Socket#listen", "ss:i", &addr, &port, &backlog);
 
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -173,7 +167,6 @@ static pone_val* meth_sock_listen(pone_world* world, pone_val* self, int n, va_l
     hints.ai_protocol = IPPROTO_TCP;          /* Any protocol */
 
     struct addrinfo *result, *rp;
-    printf("%s:%s\n", addr, port);
 
     int s = getaddrinfo(addr, port, &hints, &result);
     if (s != 0) {

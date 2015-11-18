@@ -27,11 +27,9 @@ pone_val* pone_regex_new(pone_world* world, const char* str, size_t len) {
     return obj;
 }
 
-static pone_val* meth_regex_accepts(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 1);
-    assert(sizeof(pone_int_t) == sizeof(void*));
-
-    pone_val* obj = pone_stringify(world, va_arg(args, pone_val*));
+PONE_FUNC(meth_regex_accepts) {
+    pone_val* obj;
+    PONE_ARG("Regex#ACCEPTS", "o", &obj);
 
     regex_t* re = pone_opaque_ptr(pone_obj_get_ivar(world, self, "$!re"));
     OnigRegion* region = onig_region_new();
@@ -111,8 +109,8 @@ static pone_val* match_str(pone_world* world,  pone_val* self, int n, int indent
 }
 
 // Match#Str
-static pone_val* meth_match_str(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_match_str) {
+    PONE_ARG("Match#Str", "");
 
     return match_str(world, self, -1, 0);
 }

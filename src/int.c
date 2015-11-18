@@ -23,9 +23,8 @@ pone_val* pone_int_incr(pone_world* world, pone_val* i) {
     return i;
 }
 
-static pone_val* meth_int_is_prime(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n==0);
-
+PONE_FUNC(meth_int_is_prime) {
+    PONE_ARG("Int#is_prime", "");
     pone_int_t num = pone_intify(world, self);
 
     if (num <= 1) return pone_false();
@@ -39,24 +38,26 @@ static pone_val* meth_int_is_prime(pone_world* world, pone_val* self, int n, va_
     return pone_true();
 }
 
-static pone_val* meth_int_str(pone_world* world, pone_val* self, int n, va_list args) {
+PONE_FUNC(meth_int_str) {
+    PONE_ARG("Int#Str", "");
     return pone_str_from_int(world, pone_int_val(self));
 }
 
-static pone_val* meth_int_int(pone_world* world, pone_val* self, int n, va_list args) {
+PONE_FUNC(meth_int_int) {
+    PONE_ARG("Int#Int", "");
     return pone_int_new(world, pone_int_val(self));
 }
 
-static pone_val* meth_int_accepts(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 1);
+PONE_FUNC(meth_int_accepts) {
+    pone_val* rhs;
+    PONE_ARG("Int#accepts", "o", &rhs);
 
-    pone_val* rhs = va_arg(args, pone_val*);
     bool b = pone_eq(world, self, rhs);
-
     return b ? pone_true() : pone_false();
 }
 
-static pone_val* meth_int_num(pone_world* world, pone_val* self, int n, va_list args) {
+PONE_FUNC(meth_int_num) {
+    PONE_ARG("Int#Num", "");
     return pone_num_new(world, pone_int_val(self));
 }
 

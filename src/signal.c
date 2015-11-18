@@ -73,11 +73,10 @@ void pone_signal_start_thread(pone_world* world) {
     pthread_setname_np(thread, "pone signal ^^;");
 }
 
-static pone_val* meth_signal_notify(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 2);
-
-    pone_val* chan   = va_arg(args, pone_val*);
-    pone_int_t sig = pone_intify(world, va_arg(args, pone_val*));
+PONE_FUNC(meth_signal_notify) {
+    pone_val* chan;
+    pone_int_t sig;
+    PONE_ARG("Signal#notify", "oi", &chan, &sig);
 
     if (sig >= PONE_SIGNAL_HANDLERS_SIZE) {
         pone_throw_str(world, "Invalid signal code: " PoneIntFmt, sig);
@@ -90,19 +89,13 @@ static pone_val* meth_signal_notify(pone_world* world, pone_val* self, int n, va
     return pone_nil();
 }
 
-#define DEFINE_CONST_INT(name, val) \
-    static pone_val* meth_signal_sigint(pone_world* world, pone_val* self, int n, va_list args) { \
-        assert(n == 0); \
-        return pone_int_new(world, SIGINT); \
-    }
-
-static pone_val* meth_signal_sigint(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_signal_sigint) {
+    PONE_ARG("Signal#SIGINT", "");
     return pone_int_new(world, SIGINT);
 }
 
-static pone_val* meth_signal_sigterm(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_signal_sigterm) {
+    PONE_ARG("Signal#SIGTERM", "");
     return pone_int_new(world, SIGTERM);
 }
 

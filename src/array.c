@@ -90,8 +90,8 @@ void pone_ary_assign_pos(pone_world* world, pone_val* self, pone_val* pos, pone_
 }
 
 // this method is *not* thread safe.
-static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_pull_one) {
+    PONE_ARG("Array::Iterator#pull-one", "");
 
     assert(pone_type(self) == PONE_OBJ);
     pone_val* ary = pone_obj_get_ivar(world, self, "$!val");
@@ -107,10 +107,8 @@ static pone_val* meth_pull_one(pone_world* world, pone_val* self, int n, va_list
     }
 }
 
-static pone_val* meth_ary_iterator(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
-
-    assert(pone_type(self) == PONE_ARRAY);
+PONE_FUNC(meth_ary_iterator) {
+    PONE_ARG("Array#iterator", "");
 
     // self!iterator-class.bless(i => 0, val => self)
     pone_val* iterator_class = pone_obj_get_ivar(world, pone_what(world, self), "$!iterator-class");
@@ -120,8 +118,8 @@ static pone_val* meth_ary_iterator(pone_world* world, pone_val* self, int n, va_
     return iter;
 }
 
-static pone_val* meth_ary_elems(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_ary_elems) {
+    PONE_ARG("Array#elems", "");
     assert(pone_type(self) == PONE_ARRAY);
     return pone_int_new(world, pone_ary_elems(self));
 }
@@ -145,10 +143,10 @@ void pone_ary_push(pone_universe* universe, pone_val* self, pone_val* val) {
     self->as.ary.a[self->as.ary.len++] = val;
 }
 
-static pone_val* meth_ary_push(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 1);
+PONE_FUNC(meth_ary_push) {
+    pone_val* val;
+    PONE_ARG("Array#push", "o", &val);
 
-    pone_val* val = va_arg(args, pone_val*);
     pone_ary_push(world->universe, self, val);
 
     return pone_nil();
@@ -165,10 +163,10 @@ void pone_ary_unshift(pone_world* world, pone_val* self, pone_val* val) {
     self->as.ary.len++;
 }
 
-static pone_val* meth_ary_unshift(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 1);
+PONE_FUNC(meth_ary_unshift) {
+    pone_val* val;
+    PONE_ARG("Array#unshift", "o", &val);
 
-    pone_val* val = va_arg(args, pone_val*);
     pone_ary_unshift(world, self, val);
     return pone_nil();
 }
@@ -208,20 +206,19 @@ pone_val* pone_ary_shift(pone_world* world, pone_val* self) {
     return retval;
 }
 
-static pone_val* meth_ary_pop(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_ary_pop) {
+    PONE_ARG("Array#pop", "");
     return pone_ary_pop(world, self);
 }
 
-static pone_val* meth_ary_shift(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_ary_shift) {
+    PONE_ARG("Array#shift", "");
     return pone_ary_shift(world, self);
 }
 
-static pone_val* meth_ary_join(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 1);
-
-    pone_val* separator = va_arg(args, pone_val*);
+PONE_FUNC(meth_ary_join) {
+    pone_val* separator;
+    PONE_ARG("Array#join", "o", &separator);
 
     pone_val* v = pone_str_new(world, "", 0);
     pone_int_t len = pone_ary_elems(self);
@@ -234,8 +231,8 @@ static pone_val* meth_ary_join(pone_world* world, pone_val* self, int n, va_list
     return v;
 }
 
-static pone_val* meth_ary_str(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_ary_str) {
+    PONE_ARG("Array#Str", "");
 
     pone_val* v = pone_str_new(world, "", 0);
     pone_str_append_c(world, v, "[", 1);
@@ -247,11 +244,9 @@ static pone_val* meth_ary_str(pone_world* world, pone_val* self, int n, va_list 
     return v;
 }
 
-static pone_val* meth_ary_assign_pos(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 2);
-
-    pone_val*pos = va_arg(args, pone_val*);
-    pone_val*value = va_arg(args, pone_val*);
+PONE_FUNC(meth_ary_assign_pos) {
+    pone_val*pos, *value;
+    PONE_ARG("Array#ASSIGN-POS", "oo", &pos, &value);
 
     pone_ary_assign_pos(world, self, pos, value);
     return value;

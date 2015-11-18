@@ -32,9 +32,8 @@ inline double pone_num_val(pone_val* val) {
 
 */
 
-static pone_val* meth_num_floor(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n==0);
-    assert(pone_type(self) == PONE_NUM);
+PONE_FUNC(meth_num_floor) {
+    PONE_ARG("Num#floor", "");
 
     double num = self->as.num.n;
     if (num > INT_MAX) {
@@ -43,11 +42,13 @@ static pone_val* meth_num_floor(pone_world* world, pone_val* self, int n, va_lis
     return pone_int_new(world, (int)floor(num));
 }
 
-static pone_val* meth_num_str(pone_world* world, pone_val* self, int n, va_list args) {
+PONE_FUNC(meth_num_str) {
+    PONE_ARG("Num#Str", "");
     return pone_str_from_num(world, pone_num_val(self));
 }
 
-static pone_val* meth_num_num(pone_world* world, pone_val* self, int n, va_list args) {
+PONE_FUNC(meth_num_num) {
+    PONE_ARG("Num#Num", "");
     return pone_num_new(world, pone_num_val(self));
 }
 

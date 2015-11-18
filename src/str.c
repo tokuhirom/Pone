@@ -169,16 +169,21 @@ void pone_str_appendf(pone_world* world, pone_val* str, const char* fmt, ...) {
     va_end(args);
 }
 
-static pone_val* meth_str_str(pone_world* world, pone_val* self, int n, va_list args) {
+PONE_FUNC(meth_str_str) {
+    PONE_ARG("Str#Str", "");
     return pone_str_copy(world, self);
 }
 
-static pone_val* meth_str_int(pone_world* world, pone_val* self, int n, va_list args) {
+PONE_FUNC(meth_str_int) {
+    PONE_ARG("Str#Int", "");
+
     char *end = (char*)pone_str_ptr(self) + pone_str_len(self);
     return pone_int_new(world, strtol(pone_str_ptr(self), &end, 10));
 }
 
 PONE_FUNC(meth_str_num) {
+    PONE_ARG("Str#Num", "");
+
     char *end = (char*)pone_str_ptr(self) + pone_str_len(self);
     return pone_num_new(world, strtod(pone_str_ptr(self), &end));
 }

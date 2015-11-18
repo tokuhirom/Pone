@@ -10,15 +10,15 @@ pone_val* pone_errno(pone_world* world) {
     return pone_errno_new(world, world->errsv);
 }
 
-static pone_val* meth_errno_str(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_errno_str) {
+    PONE_ARG("Errno#Str", "");
     pone_int_t errsv = pone_intify(world, pone_obj_get_ivar(world, self, "$!errno"));
     const char * e = strerror(errsv);
     return pone_str_new_const(world, e, strlen(e));
 }
 
-static pone_val* meth_errno_int(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n == 0);
+PONE_FUNC(meth_errno_int) {
+    PONE_ARG("Errno#Int", "");
     return pone_obj_get_ivar(world, self, "$!errno");
 }
 

@@ -17,7 +17,8 @@ inline pone_val* pone_false() {
     return (pone_val*)&pone_false_val;
 }
 
-static pone_val* meth_bool_int(pone_world* world, pone_val* self, int n, va_list args) {
+PONE_FUNC(meth_bool_int) {
+    PONE_ARG("Bool#Int", "");
     if (pone_bool_val(self)) {
         return pone_int_new(world, 1);
     } else {
@@ -25,7 +26,9 @@ static pone_val* meth_bool_int(pone_world* world, pone_val* self, int n, va_list
     }
 }
 
-static pone_val* meth_bool_str(pone_world* world, pone_val* self, int n, va_list args) {
+PONE_FUNC(meth_bool_str) {
+    PONE_ARG("Bool#Str", "");
+
     if (pone_bool_val(self)) {
         return pone_str_new_const(world, "True", strlen("True"));
     } else {

@@ -12,11 +12,11 @@ pone_val* pone_pair_new(pone_world* world, pone_val* key, pone_val* value) {
 PONE_DECLARE_GETTER(meth_pair_key, "$!key")
 PONE_DECLARE_GETTER(meth_pair_value, "$!value")
 
-static pone_val* meth_pair_str(pone_world* world, pone_val* self, int n, va_list args) {
-    assert(n==0);
+PONE_FUNC(meth_pair_str) {
+    PONE_ARG("Pair#Str", "");
 
     pone_val* buf = pone_str_copy(world, pone_stringify(world, pone_obj_get_ivar(world, self, "$!key")));
-    pone_str_append_c(world, buf, "\t", 1);
+    pone_str_append_c(world, buf, "=>", 1);
     pone_str_append(world, buf, pone_obj_get_ivar(world, self, "$!value"));
     return buf;
 }
