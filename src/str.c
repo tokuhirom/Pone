@@ -15,6 +15,14 @@ pone_val* pone_str_new(pone_world* world, const char*p, size_t len) {
     return (pone_val*)pv;
 }
 
+// create new pone_string object by p. p must allocated by pone_malloc.
+pone_val* pone_str_new_allocd(pone_world* world, char*p, size_t len) {
+    pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
+    pv->p = p;
+    pv->len = len;
+    return (pone_val*)pv;
+}
+
 // pone doesn't dup p.
 pone_val* pone_str_new_const(pone_world* world, const char*p, size_t len) {
     assert(world);
