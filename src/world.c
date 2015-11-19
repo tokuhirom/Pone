@@ -85,8 +85,6 @@ void pone_world_release(pone_world* world) {
 }
 
 void pone_world_free(pone_world* world) {
-    ASSERT_UNIVERSE_LOCK(world->universe);
-
     GC_TRACE("freeing world! %p", world);
 
 #ifndef NDEBUG

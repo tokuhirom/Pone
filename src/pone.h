@@ -234,6 +234,8 @@ typedef struct { pone_int_t n, m; pone_val **a; } pone_val_vec;
 typedef struct pone_universe {
     // signal handlers
     pone_val_vec signal_channels[PONE_SIGNAL_HANDLERS_SIZE];
+    // mutex for signal_channels.
+    pthread_mutex_t signal_channels_mutex;
 
     // 無("Mu")
     struct pone_val* class_mu;
@@ -284,15 +286,17 @@ typedef struct pone_universe {
     khash_t(str) *globals;
 
     // thread.c sends signal at thread termination.
-    pthread_cond_t thread_terminate_cond;
-
-    // UNIVERSE lock. You need to lock this before modify this object.
-    pthread_mutex_t universe_mutex;
+    pthread_cond_t worker_fin_cond;
+    // mutex for above
+    pthread_mutex_t worker_fin_cond_mutex;
 
     // list of normal worlds.
     // This list contains worlds created by pone_thread_start.
     // This doesn't include system worlds.
-    pone_world* normal_worlds;
+    pone_world* worker_worlds;
+
+    // mutex for above
+    pthread_mutex_t worker_worlds_mutex;
 
     FILE* gc_log;
 } pone_universe;
@@ -582,17 +586,6 @@ void pone_builtin_init(pone_world* world);
 #define GC_RD_LOCK_TRACE(fmt, ...)
 #endif
 
-#define UNIVERSE_LOCK(universe) \
-  do { \
-      THREAD_TRACE("UNIVERSE LOCK: thread:%lx(%s line %d)", pthread_self(), __func__, __LINE__); \
-      pthread_mutex_lock(&((universe)->universe_mutex)); \
-  } while (0)
-#define UNIVERSE_UNLOCK(universe) \
-  do { \
-      THREAD_TRACE("UNIVERSE UNLOCK: thread:%lx", pthread_self()); \
-      pthread_mutex_unlock(&((universe)->universe_mutex)); \
-  } while(0)
-
 #define PONE_ALLOC_CHECK(v) \
   do { \
     if (!v) { \
@@ -608,8 +601,6 @@ void pone_builtin_init(pone_world* world);
 #else
 #define ASSERT_LOCK(lock)
 #endif
-
-#define ASSERT_UNIVERSE_LOCK(universe) ASSERT_LOCK((universe)->universe_mutex)
 
 #define CHECK_PTHREAD(code) \
   do { \

@@ -33,8 +33,10 @@ pone_universe* pone_universe_init() {
     }
     memset(universe, 0, sizeof(pone_universe));
 
-    CHECK_PTHREAD(pthread_mutex_init(&(universe->universe_mutex), NULL));
-    CHECK_PTHREAD(pthread_cond_init(&(universe->thread_terminate_cond), NULL));
+    CHECK_PTHREAD(pthread_mutex_init(&(universe->signal_channels_mutex), NULL));
+    CHECK_PTHREAD(pthread_mutex_init(&(universe->worker_fin_cond_mutex), NULL));
+    CHECK_PTHREAD(pthread_mutex_init(&(universe->worker_worlds_mutex), NULL));
+    CHECK_PTHREAD(pthread_cond_init(&(universe->worker_fin_cond), NULL));
 
     // initialize signal channels.
     for (int i=0; i<PONE_SIGNAL_HANDLERS_SIZE; ++i) {
@@ -57,7 +59,7 @@ void pone_universe_set_global(pone_universe* universe, const char* key, pone_val
 }
 
 pone_int_t pone_count_alive_threads(pone_universe* universe) {
-    pone_world* world = universe->normal_worlds;
+    pone_world* world = universe->worker_worlds;
     pone_int_t r = 0;
     pone_int_t d = 0;
     while (world) {
@@ -76,22 +78,24 @@ pone_int_t pone_count_alive_threads(pone_universe* universe) {
 
 // wait until threads finished jobs.
 void pone_universe_wait_threads(pone_universe* universe) {
-    UNIVERSE_LOCK(universe);
+    CHECK_PTHREAD(pthread_mutex_lock(&(universe->worker_fin_cond_mutex)));
     while (true) {
-        if (universe->normal_worlds) {
+        if (universe->worker_worlds) {
             pone_int_t n = pone_count_alive_threads(universe);
             if (n == 0) {
                 break;
             }
         }
-        CHECK_PTHREAD(pthread_cond_wait(&(universe->thread_terminate_cond), &(universe->universe_mutex)));
+        CHECK_PTHREAD(pthread_cond_wait(&(universe->worker_fin_cond), &(universe->worker_fin_cond_mutex)));
     }
-    UNIVERSE_UNLOCK(universe);
+    CHECK_PTHREAD(pthread_mutex_unlock(&(universe->worker_fin_cond_mutex)));
 }
 
 void pone_universe_destroy(pone_universe* universe) {
-    CHECK_PTHREAD(pthread_cond_destroy(&(universe->thread_terminate_cond)));
-    CHECK_PTHREAD(pthread_mutex_destroy(&(universe->universe_mutex)));
+    CHECK_PTHREAD(pthread_cond_destroy(&(universe->worker_fin_cond)));
+    CHECK_PTHREAD(pthread_mutex_destroy(&(universe->worker_fin_cond_mutex)));
+    CHECK_PTHREAD(pthread_mutex_destroy(&(universe->signal_channels_mutex)));
+    CHECK_PTHREAD(pthread_mutex_destroy(&(universe->worker_worlds_mutex)));
 
     kh_destroy(str, universe->globals);
 
@@ -100,7 +104,7 @@ void pone_universe_destroy(pone_universe* universe) {
 
 // gc mark
 void pone_universe_mark(pone_universe* universe) {
-//  pone_world* world = universe->normal_worlds;
+//  pone_world* world = universe->worker_worlds;
 //  while (world) {
 //      pone_world_mark(world);
 //      assert(world != world->next);

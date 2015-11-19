@@ -24,7 +24,8 @@ static inline void handle(pone_world* world, int sig) {
         CHECK_PTHREAD(pthread_sigmask(SIG_BLOCK, &set, NULL));
     }
 
-    UNIVERSE_LOCK(universe);
+    // Send signal to channels.
+    CHECK_PTHREAD(pthread_mutex_lock(&(universe->signal_channels_mutex)));
     pone_push_scope(world);
     pone_val* sig_v = pone_int_new(world, sig);
     for (pone_int_t i=0; i<kv_size(universe->signal_channels[sig]); i++) {
@@ -36,7 +37,7 @@ static inline void handle(pone_world* world, int sig) {
         }
     }
     pone_pop_scope(world);
-    UNIVERSE_UNLOCK(universe);
+    CHECK_PTHREAD(pthread_mutex_unlock(&(universe->signal_channels_mutex)));
 }
 
 static void* signal_thread(void* p) {
@@ -82,9 +83,9 @@ PONE_FUNC(meth_signal_notify) {
         pone_throw_str(world, "Invalid signal code: " PoneIntFmt, sig);
     }
 
-    UNIVERSE_LOCK(world->universe);
+    CHECK_PTHREAD(pthread_mutex_lock(&(world->universe->signal_channels_mutex)));
     kv_push(pone_val*, world->universe->signal_channels[sig], chan);
-    UNIVERSE_UNLOCK(world->universe);
+    CHECK_PTHREAD(pthread_mutex_unlock(&(world->universe->signal_channels_mutex)));
 
     return pone_nil();
 }

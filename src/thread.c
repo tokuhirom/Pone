@@ -33,10 +33,10 @@ static void* thread_start(void* p) {
             // move the world to free list
             pone_world_release(world);
 
-            UNIVERSE_LOCK(universe);
-            // tell thread termination to thread joiner.
-            CHECK_PTHREAD(pthread_cond_signal(&(universe->thread_terminate_cond)));
-            UNIVERSE_UNLOCK(universe);
+            // tell thread termination to pone_universe_wait_threads.
+            CHECK_PTHREAD(pthread_mutex_lock(&(universe->worker_fin_cond_mutex)));
+            CHECK_PTHREAD(pthread_cond_signal(&(universe->worker_fin_cond)));
+            CHECK_PTHREAD(pthread_mutex_unlock(&(universe->worker_fin_cond_mutex)));
         }
     }
 
@@ -50,7 +50,7 @@ void pone_thread_start(pone_universe* universe, pone_val* code) {
 
     // find waiting thread.
     {
-        pone_world* world = universe->normal_worlds;
+        pone_world* world = universe->worker_worlds;
         while (world) {
             if (!world->code) {
                 if (pthread_mutex_trylock(&(world->mutex)) == 0) {
@@ -68,16 +68,16 @@ void pone_thread_start(pone_universe* universe, pone_val* code) {
 
     // There's no waiting thread. We'll create new thread.
 
-    UNIVERSE_LOCK(universe);
+    CHECK_PTHREAD(pthread_mutex_lock(&(universe->worker_worlds_mutex)));
     pone_world* new_world = pone_world_new(universe);
     new_world->code = code;
-    if (universe->normal_worlds) {
-        new_world->next = universe->normal_worlds;
-        universe->normal_worlds = new_world->next;
+    if (universe->worker_worlds) {
+        new_world->next = universe->worker_worlds;
+        universe->worker_worlds = new_world->next;
     } else {
-        universe->normal_worlds = new_world;
+        universe->worker_worlds = new_world;
     }
-    UNIVERSE_UNLOCK(universe);
+    CHECK_PTHREAD(pthread_mutex_unlock(&(universe->worker_worlds_mutex)));
 
     CHECK_PTHREAD(pthread_create(&(new_world->thread_id), NULL, &thread_start, new_world));
 }
