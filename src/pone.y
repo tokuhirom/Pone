@@ -650,7 +650,6 @@ twvars =
     | '$*PID' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_PID); }
     | '$*PERLVER' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_PERLVER); }
     | '$?PERLVER' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_PERLVER); }
-    | '$*CWD' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_CWD); }
     | '$*EXECUTABLE_NAME' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_EXECUTABLE_NAME); }
     | '&?ROUTINE' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_ROUTINE); }
     | '%*ENV' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_ENV); }

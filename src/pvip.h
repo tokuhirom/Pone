@@ -139,7 +139,6 @@ typedef enum {
     PVIP_NODE_TW_PID, /* $*PID */
     PVIP_NODE_TW_PERLVER, /* $*PPERLVER */
     PVIP_NODE_TW_OSVER, /* $*OSVER */
-    PVIP_NODE_TW_CWD, /* $*CWD */
     PVIP_NODE_TW_EXECUTABLE_NAME, /* $*EXECUTABLE_NAME */
     PVIP_NODE_TW_ROUTINE, /* &?ROUTINE */
     PVIP_NODE_VALUE_IDENTITY, /* '===' operator in S03-operators/value_equivalence.t */

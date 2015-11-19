@@ -27,7 +27,13 @@ run {
         waitpid $pid, 0;
         open my $fh, '<', $filename;
         my $res = do { local $/; <$fh> };
-        like $res, qr/@{[ $block->re ]}/;
+        note $res;
+        if ($block->text) {
+            eval $block->test;
+            die $@ if $@;
+        } else {
+            like $res, qr/@{[ $block->re ]}/;
+        }
     }
     unlink $filename;
 };
@@ -41,4 +47,12 @@ __END__
 === 
 --- code: say 1000000000000000000000000000000
 --- re: overflow
+
+=== 
+--- code: say OS.getwd();
+--- test
+use Cwd;
+my $wd = Cwd::getcwd();
+note $wd;
+like $res, qr/$wd/;
 

@@ -173,7 +173,6 @@ static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
     case PVIP_NODE_TW_PID: /* $*PID */
     case PVIP_NODE_TW_PERLVER: /* $*PPERLVER */
     case PVIP_NODE_TW_OSVER: /* $*OSVER */
-    case PVIP_NODE_TW_CWD: /* $*CWD */
     case PVIP_NODE_TW_EXECUTABLE_NAME: /* $*EXECUTABLE_NAME */
     case PVIP_NODE_TW_ROUTINE: /* &?ROUTINE */
     case PVIP_NODE_CMP: /* 'cmp' operator */

@@ -6,3 +6,8 @@ This class provides platform-independent interface to operating system functiona
 
 Get the process ID.
 
+## `OS.getwd() --> Str`
+
+Get the current working directry.
+
+
