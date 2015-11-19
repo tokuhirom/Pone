@@ -12,13 +12,13 @@ check_symbol_exists(accept4 sys/socket.h HAVE_ACCEPT4)
 check_symbol_exists(SOCK_CLOEXEC sys/socket.h HAVE_SOCK_CLOEXEC)
 configure_file(include/pone_config.h.in include/pone_config.h)
 
-SET(CMAKE_C_FLAGS   "-D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function -g")
+SET(CMAKE_C_FLAGS   "-g")
 # -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith
 SET(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS} ")
 SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2 -DNDEBUG")
 message("-- type: ${CMAKE_BUILD_TYPE}")
 
-set(PONE_COMPILE_FLAGS "")
+set(PONE_COMPILE_FLAGS "-D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function")
 
 set(WERROR "0" CACHE BOOL "enable -Werror")
 if (WERROR)
