@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <limits.h>
 #include "pvip.h"
 #include "pvip_private.h"
 
@@ -98,7 +99,11 @@ PVIPNode * PVIP_node_new_intf(PVIPParserContext* parser, PVIP_node_type_t type, 
         }
     }
     *bufp++ = '\0';
-    int64_t n = strtoll(buf, NULL, base);
+    long long n = strtoll(buf, NULL, base);
+    if (n == LONG_LONG_MAX) {
+        fprintf(stderr, "integer overflow\n");
+        abort();
+    }
     free(buf);
     return PVIP_node_new_int(parser, type, n);
 }
