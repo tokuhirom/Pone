@@ -170,6 +170,7 @@ typedef enum {
     PVIP_NODE_TW_A, /* $^a */
     PVIP_NODE_TW_B, /* $^b */
     PVIP_NODE_TW_C, /* $^c */
+    PVIP_NODE_BYTES, /* b'' */
 } PVIP_node_type_t;
 
 typedef enum {

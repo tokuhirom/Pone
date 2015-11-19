@@ -868,3 +868,9 @@ say("あいう".length)
 --- expected
 3
 
+===
+--- input
+say(b"あいう".length)
+--- expected
+9
+

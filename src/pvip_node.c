@@ -292,6 +292,7 @@ PVIP_category_t PVIP_node_category(PVIP_node_type_t type) {
     case PVIP_NODE_REGEXP:
     case PVIP_NODE_ATTRIBUTE_VARIABLE:
     case PVIP_NODE_UNICODE_CHAR:
+    case PVIP_NODE_BYTES:
         return PVIP_CATEGORY_STRING;
     case PVIP_NODE_INT:
         return PVIP_CATEGORY_INT;

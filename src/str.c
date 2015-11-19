@@ -7,10 +7,16 @@ void pone_str_mark(pone_val* val) {
     }
 }
 
+static void validate_utf8(pone_world* world, const char* p, pone_int_t len) {
+    // TODO validate malformed utf8
+}
 
 // pone dup p.
 pone_val* pone_str_new_strdup(pone_world* world, const char*p, size_t len) {
+    validate_utf8(world, p, len);
+
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
+    pv->flags = PONE_FLAGS_STR_UTF8;
     pv->p = pone_strdup(world, p, len);
     pv->len = len;
     return (pone_val*)pv;
@@ -18,14 +24,38 @@ pone_val* pone_str_new_strdup(pone_world* world, const char*p, size_t len) {
 
 // create new pone_string object by p. p must allocated by pone_malloc.
 pone_val* pone_str_new_allocd(pone_world* world, char*p, size_t len) {
+    validate_utf8(world, p, len);
+
+    pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
+    pv->flags = PONE_FLAGS_STR_UTF8;
+    pv->p = p;
+    pv->len = len;
+    return (pone_val*)pv;
+}
+
+pone_val* pone_bytes_new_allocd(pone_world* world, char*p, size_t len) {
+    validate_utf8(world, p, len);
+
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->p = p;
     pv->len = len;
     return (pone_val*)pv;
 }
 
-// pone doesn't dup p.
+/**
+ * Create new pone string object from C string.
+ * pone will not dup string.
+ * pone mark return value as decoded string.
+ */
 pone_val* pone_str_new_const(pone_world* world, const char*p, size_t len) {
+    validate_utf8(world, p, len);
+
+    pone_val* pv = pone_bytes_new_const(world, p, len);
+    pv->as.basic.flags |= PONE_FLAGS_STR_UTF8;
+    return pv;
+}
+
+pone_val* pone_bytes_new_const(pone_world* world, const char*p, size_t len) {
     assert(world);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->flags |= PONE_FLAGS_STR_CONST | PONE_FLAGS_FROZEN;
@@ -58,7 +88,9 @@ pone_val* pone_str_new_vprintf(pone_world* world, const char* fmt, va_list args)
         abort();
     }
 
+    validate_utf8(world, p, size);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
+    pv->flags = PONE_FLAGS_STR_UTF8;
     pv->p = p;
     pv->len = size;
     return (pone_val*)pv;
@@ -69,6 +101,7 @@ pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2) {
     pone_val* s2 = pone_stringify(world, v2);
 
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
+    pv->flags = PONE_FLAGS_STR_UTF8;
     pv->len = pone_str_len(s1)+pone_str_len(s2);
     pv->p = pone_malloc(world->universe, pv->len);
     memcpy(pv->p, pone_str_ptr(s1), pone_str_len(s1));
@@ -81,7 +114,7 @@ pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2) {
 pone_val* pone_str_copy(pone_world* world, pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
-    pv->flags |= PONE_FLAGS_STR_COPY;
+    pv->flags |= PONE_FLAGS_STR_COPY | PONE_FLAGS_STR_UTF8;
     pv->val = val;
     pv->len = 0;
     return (pone_val*)pv;
@@ -204,28 +237,45 @@ PONE_FUNC(meth_str_num) {
 }
 
 PONE_FUNC(meth_str_length) {
-    PONE_ARG("Str#Num", "");
+    PONE_ARG("Str#length", "");
 
-    if (pone_flags(self) & PONE_FLAGS_STR_UTF8) {
-        // Note: ongenc_strlen should support long?
-        int i = onigenc_strlen(ONIG_ENCODING_UTF8, (OnigUChar*)pone_str_ptr(self), (OnigUChar*)pone_str_ptr(self)+pone_str_len(self));
-        return pone_int_new(world, i);
-    } else {
-        return pone_int_new(world, pone_str_len(self));
-    }
+    // Note: ongenc_strlen should support long?
+    int i = onigenc_strlen(ONIG_ENCODING_UTF8, (OnigUChar*)pone_str_ptr(self), (OnigUChar*)pone_str_ptr(self)+pone_str_len(self));
+    return pone_int_new(world, i);
+}
+
+PONE_FUNC(meth_bytes_str) {
+    PONE_ARG("Bytes#Str", "");
+    return pone_str_copy(world, self);
+}
+
+PONE_FUNC(meth_bytes_length) {
+    PONE_ARG("Bytes#length", "");
+    return pone_int_new(world, pone_str_len(self));
 }
 
 void pone_str_init(pone_world* world) {
     pone_universe * universe = world->universe;
     assert(universe->class_str == NULL);
 
-    universe->class_str = pone_class_new(world, "Str", strlen("Str"));
-    pone_class_push_parent(world, universe->class_str, universe->class_cool);
-    pone_add_method_c(world, universe->class_str, "Str", strlen("Str"), meth_str_str);
-    pone_add_method_c(world, universe->class_str, "Int", strlen("Int"), meth_str_int);
-    pone_add_method_c(world, universe->class_str, "Num", strlen("Num"), meth_str_num);
-    pone_add_method_c(world, universe->class_str, "length", strlen("length"), meth_str_length);
-    pone_class_compose(world, universe->class_str);
+    {
+        universe->class_str = pone_class_new(world, "Str", strlen("Str"));
+        pone_class_push_parent(world, universe->class_str, universe->class_cool);
+        pone_add_method_c(world, universe->class_str, "Str", strlen("Str"), meth_str_str);
+        pone_add_method_c(world, universe->class_str, "Int", strlen("Int"), meth_str_int);
+        pone_add_method_c(world, universe->class_str, "Num", strlen("Num"), meth_str_num);
+        pone_add_method_c(world, universe->class_str, "length", strlen("length"), meth_str_length);
+        pone_class_compose(world, universe->class_str);
+        pone_universe_set_global(world->universe, "Str", universe->class_str);
+    }
+    {
+        universe->class_bytes = pone_class_new(world, "Str", strlen("Str"));
+        pone_class_push_parent(world, universe->class_bytes, universe->class_cool);
+        pone_add_method_c(world, universe->class_bytes, "Str", strlen("Str"), meth_bytes_str);
+        pone_add_method_c(world, universe->class_bytes, "length", strlen("length"), meth_bytes_length);
+        pone_class_compose(world, universe->class_bytes);
+        pone_universe_set_global(world->universe, "Bytes", universe->class_bytes);
+    }
 }
 
 

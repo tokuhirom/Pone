@@ -49,10 +49,7 @@ PONE_FUNC(meth_sock_read) {
     struct pone_sock* sock = pone_opaque_ptr(self);
     ssize_t len = read(sock->fd, buf, length);
     if (len >= 0) {
-        // TODO do not copy the buffer
-        pone_val* retval = pone_str_new_strdup(world, buf, len);
-        pone_free(world->universe, buf);
-        return retval;
+        return pone_bytes_new_allocd(world, buf, len);
     } else {
         pone_world_set_errno(world);
         return pone_nil();

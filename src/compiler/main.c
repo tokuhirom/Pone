@@ -125,6 +125,7 @@ static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
     case PVIP_NODE_IDENT:
     case PVIP_NODE_FUNCALL:
     case PVIP_NODE_STRING:
+    case PVIP_NODE_BYTES:
     case PVIP_NODE_MOD:
     case PVIP_NODE_VARIABLE:
     case PVIP_NODE_MY:
@@ -338,6 +339,26 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF(")");
             break;
         }
+        case PVIP_NODE_BYTES:
+            PRINTF("pone_bytes_new_const(world, \"");
+            for (size_t i=0; i<node->pv->len; ++i) {
+                switch (node->pv->buf[i]) {
+                case '\a': PRINTF("\\a"); break;
+                case '\b': PRINTF("\\b"); break;
+                case '\t': PRINTF("\\t"); break;
+                case '\n': PRINTF("\\n"); break;
+                case '\v': PRINTF("\\v"); break;
+                case '\f': PRINTF("\\f"); break;
+                case '\r': PRINTF("\\r"); break;
+                case '\\': PRINTF("\\\\"); break;
+                case '\"': PRINTF("\""); break;
+                default:
+                    PRINTF("%c", node->pv->buf[i]);
+                    break;
+                }
+            }
+            PRINTF("\", %ld)", node->pv->len);
+            break;
         case PVIP_NODE_STRING:
             PRINTF("pone_str_new_const(world, \"");
             for (size_t i=0; i<node->pv->len; ++i) {

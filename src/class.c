@@ -28,7 +28,11 @@ pone_val* pone_what(pone_world* world, pone_val* obj) {
     case PONE_NUM:
         return universe->class_num;
     case PONE_STRING:
-        return universe->class_str;
+        if (obj->as.basic.flags & PONE_FLAGS_STR_UTF8) {
+            return universe->class_str;
+        } else {
+            return universe->class_bytes;
+        }
     case PONE_ARRAY:
         return universe->class_ary;
     case PONE_BOOL:
