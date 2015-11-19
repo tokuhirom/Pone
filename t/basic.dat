@@ -856,3 +856,9 @@ say False ? 1 : 2;
 1
 2
 
+===
+--- input
+say((3 ** 2).Int)
+--- expected
+9
+

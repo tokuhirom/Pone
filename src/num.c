@@ -52,6 +52,11 @@ PONE_FUNC(meth_num_num) {
     return pone_num_new(world, pone_num_val(self));
 }
 
+PONE_FUNC(meth_num_int) {
+    PONE_ARG("Num#Int", "");
+    return pone_int_new(world, (pone_int_t)pone_num_val(self));
+}
+
 void pone_num_init(pone_world* world) {
     pone_universe* universe = world->universe;
     assert(universe->class_num == NULL);
@@ -61,6 +66,7 @@ void pone_num_init(pone_world* world) {
     pone_add_method_c(world, universe->class_num, "floor", strlen("floor"), meth_num_floor);
     pone_add_method_c(world, universe->class_num, "Str", strlen("Str"), meth_num_str);
     pone_add_method_c(world, universe->class_num, "Num", strlen("Num"), meth_num_num);
+    pone_add_method_c(world, universe->class_num, "Int", strlen("Int"), meth_num_int);
     pone_class_compose(world, universe->class_num);
 }
 

@@ -1,4 +1,5 @@
 #include "pone.h" /* PONE_INC */
+#include <math.h>
 #include <setjmp.h>
 
 pone_val* pone_get_lex(pone_world* world, const char* key) {
@@ -245,6 +246,14 @@ pone_val* pone_mod(pone_world* world, pone_val* v1, pone_val* v2) {
     pone_int_t i1 = pone_intify(world, v1);
     pone_int_t i2 = pone_intify(world, v2);
     return pone_int_new(world, i1 % i2); // TODO: We should upgrade value to NV
+}
+
+pone_val* pone_pow(pone_world* world, pone_val* v1, pone_val* v2) {
+    pone_num_t n1 = pone_numify(world, v1);
+    pone_num_t n2 = pone_numify(world, v2);
+    pone_num_t n3 = pow(n1, n2);
+    pone_world_set_errno(world);
+    return pone_num_new(world, n3);
 }
 
 #define CMP_OP(op) \

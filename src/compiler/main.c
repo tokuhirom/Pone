@@ -378,6 +378,9 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
         case PVIP_NODE_MOD:
             INFIX("pone_mod");
             break;
+        case PVIP_NODE_POW:
+            INFIX("pone_pow");
+            break;
         case PVIP_NODE_STRING_CONCAT:
             INFIX("pone_str_concat");
             break;
