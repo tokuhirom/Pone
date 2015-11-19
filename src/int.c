@@ -67,12 +67,11 @@ void pone_int_init(pone_world* world) {
 
     universe->class_int = pone_class_new(world, "Int", strlen("Int"));
     pone_class_push_parent(world, universe->class_int, universe->class_cool);
-    pone_add_method_c(world, universe->class_int, "is-prime", strlen("is-prime"), meth_int_is_prime);
-    pone_add_method_c(world, universe->class_int, "Str", strlen("Str"), meth_int_str);
-    pone_add_method_c(world, universe->class_int, "Int", strlen("Int"), meth_int_int);
-    pone_add_method_c(world, universe->class_int, "Num", strlen("Num"), meth_int_num);
-    pone_add_method_c(world, universe->class_int, "ACCEPTS", strlen("ACCEPTS"), meth_int_accepts);
-
+    PONE_REG_METHOD(universe->class_int, "is-prime", meth_int_is_prime);
+    PONE_REG_METHOD(universe->class_int, "Str", meth_int_str);
+    PONE_REG_METHOD(universe->class_int, "Int", meth_int_int);
+    PONE_REG_METHOD(universe->class_int, "Num", meth_int_num);
+    PONE_REG_METHOD(universe->class_int, "ACCEPTS", meth_int_accepts);
     pone_class_compose(world, universe->class_int);
 }
 

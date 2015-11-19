@@ -58,11 +58,10 @@ pone_val* pone_init_mu(pone_world* world) {
     obj->as.obj.klass = pone_nil();
 
     pone_obj_set_ivar(world, (pone_val*)obj, "$!name", pone_str_new_const(world, "Mu", strlen("Mu")));
-    pone_obj_set_ivar(world, (pone_val*)obj, "$!methods", pone_hash_new(world));
     pone_obj_set_ivar(world, (pone_val*)obj, "@!parents", pone_ary_new(world, 0));
 
-    pone_add_method_c(world, obj, "Str", strlen("Str"), meth_mu_str);
-    pone_add_method_c(world, obj, "say", strlen("say"), meth_mu_say);
+    PONE_REG_METHOD(obj, "Str", meth_mu_str);
+    PONE_REG_METHOD(obj, "say", meth_mu_say);
 
     return obj;
 }

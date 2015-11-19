@@ -27,9 +27,9 @@ void pone_pair_init(pone_world* world) {
 
     universe->class_pair = pone_class_new(world, "Pair", strlen("Pair"));
     pone_class_push_parent(world, universe->class_pair, universe->class_any);
-    pone_add_method_c(world, universe->class_pair, "key", strlen("key"), meth_pair_key);
-    pone_add_method_c(world, universe->class_pair, "value", strlen("value"), meth_pair_value);
-    pone_add_method_c(world, universe->class_pair, "Str", strlen("Str"), meth_pair_str);
+    PONE_REG_METHOD(universe->class_pair, "key", meth_pair_key);
+    PONE_REG_METHOD(universe->class_pair, "value", meth_pair_value);
+    PONE_REG_METHOD(universe->class_pair, "Str", meth_pair_str);
     pone_class_compose(world, universe->class_pair);
     pone_universe_set_global(universe, "Pair", universe->class_pair);
 }

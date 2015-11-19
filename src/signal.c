@@ -142,10 +142,10 @@ void pone_signal_init(pone_world* world) {
 
     pone_val* klass = pone_class_new(world, "Signal", strlen("Signal"));
     pone_class_push_parent(world, klass, universe->class_mu);
-    pone_add_method_c(world, universe->class_thread, "notify", strlen("notify"), meth_signal_notify);
-    pone_add_method_c(world, universe->class_thread, "kill", strlen("kill"), meth_signal_kill);
+    PONE_REG_METHOD(universe->class_thread, "notify", meth_signal_notify);
+    PONE_REG_METHOD(universe->class_thread, "kill", meth_signal_kill);
 #define SETSIG(sig) \
-    pone_add_method_c(world, universe->class_thread, #sig, strlen(#sig), meth_signal_##sig);
+    pone_obj_set_ivar(world, universe->class_thread, #sig, pone_int_new(world, sig));
 
 SETSIG(SIGHUP);
 SETSIG(SIGINT);

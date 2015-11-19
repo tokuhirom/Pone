@@ -60,6 +60,7 @@ TODO
  * Time
  * Time#strftime
  * URI
+ * Code#Str
 
 ## Basic features
 

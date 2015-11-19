@@ -38,10 +38,10 @@ void pone_nil_init(pone_world* world) {
 
     universe->class_nil = pone_class_new(world, "Nil", strlen("Nil"));
     pone_class_push_parent(world, universe->class_nil, universe->class_cool);
-    pone_add_method_c(world, universe->class_nil, "gist", strlen("gist"), meth_nil_gist);
-    pone_add_method_c(world, universe->class_nil, "Str", strlen("Str"), meth_nil_str);
-    pone_add_method_c(world, universe->class_nil, "Int", strlen("Int"), meth_nil_int);
-    pone_add_method_c(world, universe->class_nil, "Num", strlen("Num"), meth_nil_num);
+    PONE_REG_METHOD(universe->class_nil, "gist", meth_nil_gist);
+    PONE_REG_METHOD(universe->class_nil, "Str", meth_nil_str);
+    PONE_REG_METHOD(universe->class_nil, "Int", meth_nil_int);
+    PONE_REG_METHOD(universe->class_nil, "Num", meth_nil_num);
     pone_class_compose(world, universe->class_nil);
 
     pone_universe_set_global(universe, "Nil", pone_nil());

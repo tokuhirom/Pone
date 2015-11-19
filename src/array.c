@@ -257,19 +257,19 @@ void pone_ary_init(pone_world* world) {
     assert(universe->class_ary == NULL);
 
     pone_val* iter_class = pone_class_new(world, "Array::Iterator", strlen("Array::Iterator"));
-    pone_add_method_c(world, iter_class, "pull-one", strlen("pull-one"), meth_pull_one);
+    PONE_REG_METHOD(iter_class, "pull-one", meth_pull_one);
 
     universe->class_ary = pone_class_new(world, "Array", strlen("Array"));
     pone_class_push_parent(world, universe->class_ary, universe->class_any);
-    pone_add_method_c(world, universe->class_ary, "iterator", strlen("iterator"), meth_ary_iterator);
-    pone_add_method_c(world, universe->class_ary, "elems", strlen("elems"), meth_ary_elems);
-    pone_add_method_c(world, universe->class_ary, "push", strlen("push"), meth_ary_push);
-    pone_add_method_c(world, universe->class_ary, "pop", strlen("pop"), meth_ary_pop);
-    pone_add_method_c(world, universe->class_ary, "unshift", strlen("unshift"), meth_ary_unshift);
-    pone_add_method_c(world, universe->class_ary, "shift", strlen("shift"), meth_ary_shift);
-    pone_add_method_c(world, universe->class_ary, "join", strlen("join"), meth_ary_join);
-    pone_add_method_c(world, universe->class_ary, "Str", strlen("Str"), meth_ary_str);
-    pone_add_method_c(world, universe->class_ary, "ASSIGN-POS", strlen("ASSIGN-POS"), meth_ary_assign_pos);
+    PONE_REG_METHOD(universe->class_ary, "iterator", meth_ary_iterator);
+    PONE_REG_METHOD(universe->class_ary, "elems", meth_ary_elems);
+    PONE_REG_METHOD(universe->class_ary, "push", meth_ary_push);
+    PONE_REG_METHOD(universe->class_ary, "pop", meth_ary_pop);
+    PONE_REG_METHOD(universe->class_ary, "unshift", meth_ary_unshift);
+    PONE_REG_METHOD(universe->class_ary, "shift", meth_ary_shift);
+    PONE_REG_METHOD(universe->class_ary, "join", meth_ary_join);
+    PONE_REG_METHOD(universe->class_ary, "Str", meth_ary_str);
+    PONE_REG_METHOD(universe->class_ary, "ASSIGN-POS", meth_ary_assign_pos);
     pone_obj_set_ivar(world, universe->class_ary, "$!iterator-class", iter_class);
 
     pone_class_compose(world, universe->class_ary);

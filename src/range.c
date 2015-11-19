@@ -108,13 +108,13 @@ void pone_range_init(pone_world* world) {
     assert(universe->class_range == NULL);
 
     pone_val* iter_class = pone_class_new(world, "Range::Iterator", strlen("Range::Iterator"));
-    pone_add_method_c(world, iter_class, "pull-one", strlen("pull-one"), meth_pull_one);
+    PONE_REG_METHOD(iter_class, "pull-one", meth_pull_one);
 
     universe->class_range = pone_class_new(world, "Range", strlen("Range"));
-    pone_add_method_c(world, universe->class_range, "iterator", strlen("iterator"), meth_range_iterator);
-    pone_add_method_c(world, universe->class_range, "min", strlen("min"), meth_range_min);
-    pone_add_method_c(world, universe->class_range, "max", strlen("max"), meth_range_max);
-    pone_add_method_c(world, universe->class_range, "Str", strlen("Str"), meth_range_str);
+    PONE_REG_METHOD(universe->class_range, "iterator", meth_range_iterator);
+    PONE_REG_METHOD(universe->class_range, "min", meth_range_min);
+    PONE_REG_METHOD(universe->class_range, "max", meth_range_max);
+    PONE_REG_METHOD(universe->class_range, "Str", meth_range_str);
     pone_obj_set_ivar(world, universe->class_range, "$!iterator-class", iter_class);
 
     pone_class_compose(world, universe->class_range);

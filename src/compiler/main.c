@@ -484,6 +484,13 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             }
             PRINTF(")");
             break;
+        case PVIP_NODE_FIND_METHOD:
+            PRINTF("pone_find_method(world, ");
+            COMPILE(node->children.nodes[0]);
+            PRINTF(", \"");
+            WRITE_PV(node->children.nodes[1]->pv);
+            PRINTF("\")");
+            break;
         case PVIP_NODE_METHODCALL:
             // (methodcall (variable "$a") (ident "pop") (args))
             // (atpos (variable "$a") (int 0))

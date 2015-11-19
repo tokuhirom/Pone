@@ -42,8 +42,8 @@ void pone_bool_init(pone_world* world) {
 
     universe->class_bool = pone_class_new(world, "Bool", strlen("Bool"));
     pone_class_push_parent(world, universe->class_bool, universe->class_cool);
-    pone_add_method_c(world, universe->class_bool, "Str", strlen("Str"), meth_bool_str);
-    pone_add_method_c(world, universe->class_bool, "Int", strlen("Int"), meth_bool_int);
+    PONE_REG_METHOD(universe->class_bool, "Str", meth_bool_str);
+    PONE_REG_METHOD(universe->class_bool, "Int", meth_bool_int);
 
     pone_class_compose(world, universe->class_bool);
 }

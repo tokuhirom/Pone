@@ -58,9 +58,10 @@ void pone_num_init(pone_world* world) {
 
     universe->class_num = pone_class_new(world, "Num", strlen("Num"));
     pone_class_push_parent(world, universe->class_num, universe->class_cool);
-    pone_add_method_c(world, universe->class_num, "floor", strlen("floor"), meth_num_floor);
-    pone_add_method_c(world, universe->class_num, "Str", strlen("Str"), meth_num_str);
-    pone_add_method_c(world, universe->class_num, "Num", strlen("Num"), meth_num_num);
+    PONE_REG_METHOD(universe->class_num, "floor", meth_num_floor);
+    // TODO Num#ceil
+    PONE_REG_METHOD(universe->class_num, "Str", meth_num_str);
+    PONE_REG_METHOD(universe->class_num, "Num", meth_num_num);
     pone_class_compose(world, universe->class_num);
 }
 

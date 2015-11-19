@@ -472,8 +472,6 @@ pone_val* pone_init_any(pone_world* world);
 pone_val* pone_init_class(pone_world* world);
 pone_val* pone_class_new(pone_world* world, const char* name, size_t name_len);
 void pone_class_push_parent(pone_world* world, pone_val* obj, pone_val* klass);
-void pone_add_method(pone_world* world, pone_val* klass, const char* name, size_t name_len, pone_val* method);
-void pone_add_method_c(pone_world* world, pone_val* klass, const char* name, size_t name_len, pone_funcptr_t funcptr);
 pone_val* pone_find_method(pone_world* world, pone_val* klass, const char* name);
 pone_val* pone_what(pone_world* world, pone_val* obj);
 pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...);
@@ -620,8 +618,7 @@ void pone_os_init(pone_world* world);
 #define PONE_ARG(name, spec, ...) pone_arg(world, name, nargs, args, spec, ##__VA_ARGS__)
 void pone_arg(pone_world* world, const char*name, int nargs, va_list args, const char* spec, ...);
 
-#define PONE_REG_METHOD(name, meth)  \
-    pone_add_method_c(world, klass, name, strlen(name), meth);
+#define PONE_REG_METHOD(klass, name, meth) pone_obj_set_ivar(world, klass, name, pone_code_new_c(world, meth))
 
 #define PONE_DECLARE_GETTER(name, var) \
     static pone_val* name(pone_world* world, pone_val* self, int n, va_list args) { \

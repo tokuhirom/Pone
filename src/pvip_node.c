@@ -311,7 +311,7 @@ static void _PVIP_node_as_sexp(PVIPNode * node, PVIPString *buf, int indent) {
     PVIP_string_concat(buf, name, strlen(name));
     switch (PVIP_node_category(node->type)) {
     case PVIP_CATEGORY_STRING: {
-        int i;
+        size_t i;
         PVIP_string_concat(buf, " ", 1);
         PVIP_string_concat(buf, "\"", 1);
         for (i=0; i<node->pv->len; i++) {
