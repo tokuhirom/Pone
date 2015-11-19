@@ -583,12 +583,7 @@ method_postfix_expr =
                 f1=$$;
             }
             | '.' f2:ident (
-                ':' - f3:bare_args {
-                    /* @*INC.push: '/etc' */
-                    $$ = PVIP_node_new_children3(&(G->data), PVIP_NODE_METHODCALL, f1, f2, f3);
-                    f1=$$;
-                }
-                | f3:paren_args {
+                f3:paren_args {
                     $$ = PVIP_node_new_children3(&(G->data), PVIP_NODE_METHODCALL, f1, f2, f3);
                     f1=$$;
                 }
