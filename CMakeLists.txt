@@ -12,7 +12,7 @@ check_symbol_exists(accept4 sys/socket.h HAVE_ACCEPT4)
 check_symbol_exists(SOCK_CLOEXEC sys/socket.h HAVE_SOCK_CLOEXEC)
 configure_file(include/pone_config.h.in include/pone_config.h)
 
-SET(CMAKE_C_FLAGS   "-fPIC -D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function -g")
+SET(CMAKE_C_FLAGS   "-D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function -g")
 # -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith
 SET(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS} ")
 SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2 -DNDEBUG")
@@ -78,6 +78,10 @@ set_target_properties(pone
 set_target_properties(pone
     PROPERTIES
     COMPILE_FLAGS "${PONE_COMPILE_FLAGS}"
+    )
+set_target_properties(pone
+    PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
     )
 
 ADD_LIBRARY(linenoise STATIC 3rd/linenoise/linenoise.c)
