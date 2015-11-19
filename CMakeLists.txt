@@ -18,44 +18,46 @@ SET(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS} ")
 SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2 -DNDEBUG")
 message("-- type: ${CMAKE_BUILD_TYPE}")
 
+set(PONE_COMPILE_FLAGS "")
+
 set(WERROR "0" CACHE BOOL "enable -Werror")
 if (WERROR)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+    SET(PONE_COMPILE_FLAGS "${PONE_COMPILE_FLAGS} -Werror")
 endif()
 
 set(DEBUG_THREAD "0" CACHE BOOL "enable thread debugging")
 if (DEBUG_THREAD)
-    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG_THREAD")
+    SET(PONE_COMPILE_FLAGS "${PONE_COMPILE_FLAGS} -DDEBUG_THREAD")
 endif()
 
 set(DEBUG_EXC "0" CACHE BOOL "enable EXC debugging")
 if (DEBUG_EXC)
-    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG_EXC")
+    SET(PONE_COMPILE_FLAGS "${PONE_COMPILE_FLAGS} -DDEBUG_EXC")
 endif()
 
 set(DEBUG_GC "0" CACHE BOOL "enable GC debugging")
 if (DEBUG_GC)
-    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG_GC")
+    SET(PONE_COMPILE_FLAGS "${PONE_COMPILE_FLAGS} -DDEBUG_GC")
 endif()
 
 set(DEBUG_WORLD "0" CACHE BOOL "enable world tracing")
 if (DEBUG_WORLD)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDEBUG_WORLD")
+    SET(PONE_COMPILE_FLAGS "${PONE_COMPILE_FLAGS} -DDEBUG_WORLD")
 endif()
 
 set(GC_RD_LOCK_DEBUG "0" CACHE BOOL "enable GC rd lock tracing")
 if (GC_RD_LOCK_DEBUG)
-    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DGC_RD_LOCK_DEBUG")
+    SET(PONE_COMPILE_FLAGS "${PONE_COMPILE_FLAGS} -DGC_RD_LOCK_DEBUG")
 endif()
 
 set(NO_REUSE "0" CACHE BOOL "do not reuse free'd value")
 if (NO_REUSE)
-    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DNO_REUSE")
+    SET(PONE_COMPILE_FLAGS "${PONE_COMPILE_FLAGS} -DNO_REUSE")
 endif()
 
 set(STRESS_GC "0" CACHE BOOL "stress gc")
 if (STRESS_GC)
-    SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DSTRESS_GC")
+    SET(PONE_COMPILE_FLAGS "${PONE_COMPILE_FLAGS} -DSTRESS_GC")
 endif()
 
 
@@ -67,16 +69,16 @@ SET(SRCS
     src/pvip_node.c src/pvip_string.c gen.pone.y.c src/gen.node.c
     )
 
-add_executable(pone src/compiler/main.c 3rd/linenoise/linenoise.c)
-target_link_libraries(pone m libpone onigmo dl pthread)
+add_executable(pone src/compiler/main.c 3rd/linenoise/linenoise.c ${SRCS})
+target_link_libraries(pone m onigmo dl pthread)
 set_target_properties(pone
     PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "bin/")
-
-ADD_LIBRARY(libpone STATIC ${SRCS})
-set_target_properties(libpone
+    RUNTIME_OUTPUT_DIRECTORY "bin/"
+    )
+set_target_properties(pone
     PROPERTIES
-    OUTPUT_NAME "pone")
+    COMPILE_FLAGS "${PONE_COMPILE_FLAGS}"
+    )
 
 ADD_LIBRARY(linenoise STATIC 3rd/linenoise/linenoise.c)
 set_source_files_properties(3rd/linenoise/linenoise.c PROPERTIES COMPILE_FLAGS "-g -Wno-implicit-function-declaration")
