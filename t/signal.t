@@ -24,13 +24,10 @@ Thread.start(sub {
 });
 say "hehhL";
 Signal.notify($chan, Signal.SIGINT);
+Signal.kill(getpid(), Signal.SIGINT);
 sleep 100
 ...
 } else {
-    while (-s $filename == 0) {
-        sleep 1;
-    }
-    kill "SIGINT", $pid;
     waitpid $pid, 0;
     open my $fh, '<', $filename;
     my $res = do { local $/; <$fh> };

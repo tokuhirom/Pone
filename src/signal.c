@@ -90,6 +90,16 @@ PONE_FUNC(meth_signal_notify) {
     return pone_nil();
 }
 
+PONE_FUNC(meth_signal_kill) {
+    pone_int_t pid;
+    pone_int_t sig;
+    PONE_ARG("Signal#kill", "ii", &pid, &sig);
+
+    kill(pid, sig);
+
+    return pone_nil();
+}
+
 PONE_FUNC(meth_signal_sigint) {
     PONE_ARG("Signal#SIGINT", "");
     return pone_int_new(world, SIGINT);
@@ -100,14 +110,21 @@ PONE_FUNC(meth_signal_sigterm) {
     return pone_int_new(world, SIGTERM);
 }
 
+PONE_FUNC(meth_signal_sigABRT) {
+    PONE_ARG("Signal#SIGABRT", "");
+    return pone_int_new(world, SIGABRT);
+}
+
 void pone_signal_init(pone_world* world) {
     pone_universe* universe = world->universe;
 
     pone_val* klass = pone_class_new(world, "Signal", strlen("Signal"));
     pone_class_push_parent(world, klass, universe->class_mu);
     pone_add_method_c(world, universe->class_thread, "notify", strlen("notify"), meth_signal_notify);
+    pone_add_method_c(world, universe->class_thread, "kill", strlen("kill"), meth_signal_kill);
     pone_add_method_c(world, universe->class_thread, "SIGINT", strlen("SIGINT"), meth_signal_sigint);
     pone_add_method_c(world, universe->class_thread, "SIGTERM", strlen("SIGTERM"), meth_signal_sigint);
+    pone_add_method_c(world, universe->class_thread, "SIGABRT", strlen("SIGABRT"), meth_signal_sigABRT);
     pone_class_compose(world, universe->class_thread);
     pone_universe_set_global(universe, "Signal", universe->class_thread);
 }
