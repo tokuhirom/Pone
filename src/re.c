@@ -19,11 +19,11 @@ pone_val* pone_regex_new(pone_world* world, const char* str, size_t len) {
     if ((err_code=onig_new_without_alloc(re, (const OnigUChar*)str, (const OnigUChar*)str+len, ONIG_OPTION_NONE, ONIG_ENCODING_UTF8, ONIG_SYNTAX_PERL, &errinfo)) != ONIG_NORMAL) {
         char buf[ONIG_MAX_ERROR_MESSAGE_LEN];
         int errsize = onig_error_code_to_str((OnigUChar*)buf, err_code, errinfo);
-        pone_throw(world, pone_str_new(world, buf, errsize));
+        pone_throw(world, pone_str_new_strdup(world, buf, errsize));
         // TODO create X::Regexp
     }
     pone_obj_set_ivar(world, obj, "$!re", pone_opaque_new(world, re, re_finalizer));
-    pone_obj_set_ivar(world, obj, "$!str", pone_str_new(world, str, len));
+    pone_obj_set_ivar(world, obj, "$!str", pone_str_new_strdup(world, str, len));
     return obj;
 }
 
@@ -91,7 +91,7 @@ static pone_val* match_str(pone_world* world,  pone_val* self, int n, int indent
     pone_val* list = pone_obj_get_ivar(world, self, "@!list");
 
 
-    pone_val* buf = pone_str_new(world, "", 0);
+    pone_val* buf = pone_str_new_strdup(world, "", 0);
     for (int i=0; i<indent; ++i) {
         pone_str_append_c(world, buf, " ", strlen(" "));
     }

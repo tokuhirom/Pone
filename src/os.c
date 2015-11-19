@@ -7,7 +7,7 @@ PONE_FUNC(meth_getwd) {
         pone_world_set_errno(world);
         return pone_nil();
     }
-    return pone_str_new(world, buf, strlen(buf));
+    return pone_str_new_strdup(world, buf, strlen(buf));
 }
 
 #define PONE_REG_METHOD(name, meth)  \

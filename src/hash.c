@@ -99,7 +99,7 @@ pone_val* pone_hash_keys(pone_world* world, pone_val* val) {
     const char* k;
     pone_val* v;
     kh_foreach(h->h, k, v, {
-        pone_ary_push(world->universe, retval, pone_str_new(world, k, strlen(k)));
+        pone_ary_push(world->universe, retval, pone_str_new_strdup(world, k, strlen(k)));
     });
 
     return retval;

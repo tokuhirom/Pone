@@ -86,7 +86,7 @@ PONE_FUNC(meth_file_getc) {
     int c = fgetc(SELF_FH);
     if (EOF != c) {
         char cc = (char)c;
-        return pone_str_new(world, &cc, 1);
+        return pone_str_new_strdup(world, &cc, 1);
     } else {
         pone_world_set_errno(world);
         return pone_nil();

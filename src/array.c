@@ -220,7 +220,7 @@ PONE_FUNC(meth_ary_join) {
     pone_val* separator;
     PONE_ARG("Array#join", "o", &separator);
 
-    pone_val* v = pone_str_new(world, "", 0);
+    pone_val* v = pone_str_new_strdup(world, "", 0);
     pone_int_t len = pone_ary_elems(self);
     for (pone_int_t i=0; i<len; ++i) {
         pone_str_append(world, v, pone_ary_at_pos(self, i));
@@ -234,7 +234,7 @@ PONE_FUNC(meth_ary_join) {
 PONE_FUNC(meth_ary_str) {
     PONE_ARG("Array#Str", "");
 
-    pone_val* v = pone_str_new(world, "", 0);
+    pone_val* v = pone_str_new_strdup(world, "", 0);
     pone_str_append_c(world, v, "[", 1);
     for (pone_int_t i=0; i<pone_ary_elems(self); ++i) {
         pone_str_append(world, v, pone_ary_at_pos(self, i));

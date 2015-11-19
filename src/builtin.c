@@ -17,7 +17,7 @@ PONE_FUNC(meth_slurp) {
         pone_throw_str(world, "Cannot open '%s': %s", pone_str_ptr(str), strerror(errno));
     }
 
-    pone_val* retval = pone_str_new(world, "", 0);
+    pone_val* retval = pone_str_new_strdup(world, "", 0);
 
     char buf[512];
     while (!feof(fp)) {
@@ -107,7 +107,7 @@ PONE_FUNC(meth_getenv) {
     PONE_ARG("getenv", "s", &key);
     const char* len = getenv(key);
     if (len) {
-        return pone_str_new(world, len, strlen(len));
+        return pone_str_new_strdup(world, len, strlen(len));
     } else {
         return pone_nil();
     }

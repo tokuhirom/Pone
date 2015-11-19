@@ -50,7 +50,7 @@ PONE_FUNC(meth_sock_read) {
     ssize_t len = read(sock->fd, buf, length);
     if (len >= 0) {
         // TODO do not copy the buffer
-        pone_val* retval = pone_str_new(world, buf, len);
+        pone_val* retval = pone_str_new_strdup(world, buf, len);
         pone_free(world->universe, buf);
         return retval;
     } else {

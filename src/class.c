@@ -60,7 +60,7 @@ pone_val* pone_what(pone_world* world, pone_val* obj) {
  */
 pone_val* pone_class_new(pone_world* world, const char* name, size_t name_len) {
     pone_val* obj = pone_obj_new(world, world->universe->class_class);
-    pone_obj_set_ivar(world, (pone_val*)obj, "$!name", pone_str_new(world, name, name_len));
+    pone_obj_set_ivar(world, (pone_val*)obj, "$!name", pone_str_new_strdup(world, name, name_len));
     pone_obj_set_ivar(world, (pone_val*)obj, "$!methods", pone_hash_new(world));
     pone_obj_set_ivar(world, (pone_val*)obj, "@!parents", pone_ary_new(world, 0));
 

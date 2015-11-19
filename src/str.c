@@ -9,7 +9,7 @@ void pone_str_mark(pone_val* val) {
 
 
 // pone dup p.
-pone_val* pone_str_new(pone_world* world, const char*p, size_t len) {
+pone_val* pone_str_new_strdup(pone_world* world, const char*p, size_t len) {
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->p = pone_strdup(world, p, len);
     pv->len = len;
@@ -99,13 +99,13 @@ pone_val* pone_str_from_int(pone_world* world, pone_int_t i) {
     // LONG_MAX=9223372036854775807. "9223372036854775807".elems = 19
     char buf[19+1];
     int size = snprintf(buf, 19+1, PoneIntFmt, i);
-    return pone_str_new(world, buf, size);
+    return pone_str_new_strdup(world, buf, size);
 }
 
 pone_val* pone_str_from_num(pone_world* world, double n) {
     char buf[512+1];
     int size = snprintf(buf, 512+1, "%f", n);
-    return pone_str_new(world, buf, size);
+    return pone_str_new_strdup(world, buf, size);
 }
 
 pone_val* pone_stringify(pone_world* world, pone_val* val) {
@@ -141,7 +141,7 @@ pone_val* pone_str_c_str(pone_world* world, pone_val* val) {
         pone_throw_str(world, "You can't convert string to c-string. Since it contains \\0.");
     }
 
-    return pone_str_concat(world, val, pone_str_new(world, "\0", 1));
+    return pone_str_concat(world, val, pone_str_new_strdup(world, "\0", 1));
 }
 
 static void mutable(pone_world* world, pone_val* val) {
