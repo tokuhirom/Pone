@@ -113,11 +113,6 @@ PONE_FUNC(meth_getenv) {
     }
 }
 
-PONE_FUNC(meth_getpid) {
-    PONE_ARG("getpid", "");
-    return pone_int_new(world, getpid());
-}
-
 PONE_FUNC(meth_sleep) {
     pone_val* val;
     PONE_ARG("sleep", "o", &val);
@@ -239,7 +234,6 @@ void pone_builtin_init(pone_world* world) {
     pone_universe_set_global(universe, "elems", pone_code_new_c(world, meth_elems));
     pone_universe_set_global(universe, "time", pone_code_new_c(world, meth_time));
     pone_universe_set_global(universe, "getenv", pone_code_new_c(world, meth_getenv));
-    pone_universe_set_global(universe, "getpid", pone_code_new_c(world, meth_getpid));
     pone_universe_set_global(universe, "sleep", pone_code_new_c(world, meth_sleep));
     pone_universe_set_global(universe, "die", pone_code_new_c(world, meth_die));
     pone_universe_set_global(universe, "exit", pone_code_new_c(world, meth_exit));

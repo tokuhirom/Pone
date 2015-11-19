@@ -556,6 +556,9 @@ void pone_errno_init(pone_world* world);
 // builtin.c
 void pone_builtin_init(pone_world* world);
 
+// os.c
+void pone_os_init(pone_world* world);
+
 #ifdef DEBUG_THREAD
 #define THREAD_TRACE(fmt, ...) fprintf(stderr, "[pone thread] [%lx] " fmt "\n", pthread_self(), ##__VA_ARGS__)
 #else
@@ -616,6 +619,9 @@ void pone_builtin_init(pone_world* world);
 #define PONE_FUNC(name) static pone_val* name(pone_world* world, pone_val* self, int nargs, va_list args)
 #define PONE_ARG(name, spec, ...) pone_arg(world, name, nargs, args, spec, ##__VA_ARGS__)
 void pone_arg(pone_world* world, const char*name, int nargs, va_list args, const char* spec, ...);
+
+#define PONE_REG_METHOD(name, meth)  \
+    pone_add_method_c(world, klass, name, strlen(name), meth);
 
 #define PONE_DECLARE_GETTER(name, var) \
     static pone_val* name(pone_world* world, pone_val* self, int n, va_list args) { \
