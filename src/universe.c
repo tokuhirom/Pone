@@ -18,7 +18,7 @@ void pone_universe_default_err_handler(pone_world* world) {
     {
         void *trace[128];
         int n = backtrace(trace, sizeof(trace) / sizeof(trace[0]));
-        backtrace_symbols_fd(trace, n, 1);
+        backtrace_symbols_fd(trace, n, fileno(stderr));
     }
 #endif
 

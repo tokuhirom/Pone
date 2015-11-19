@@ -6,6 +6,9 @@
 #include <fcntl.h>
 #endif
 
+void pone_os_init(pone_world* world);
+void pone_file_init(pone_world* world);
+
 void pone_init(pone_universe* universe) {
 #if defined(_WIN32) || defined(_WIN64)
     setmode(fileno(stdout), O_BINARY);
@@ -57,6 +60,7 @@ void pone_init(pone_universe* universe) {
     pone_signal_init(world);
     pone_os_init(world);
     pone_runtime_init(world);
+    pone_file_init(world);
 
     pone_builtin_init(world);
 

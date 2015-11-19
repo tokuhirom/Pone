@@ -16,11 +16,13 @@
 #include <errno.h>
 #include <setjmp.h>
 #include <pthread.h>
+#include <limits.h>
 #include "khash.h"
 #include "pone_config.h"
 
 typedef long pone_int_t;
 #define PoneIntFmt "%ld"
+#define PONE_INT_MAX LONG_MAX
 
 // TODO: NaN boxing
 
@@ -282,6 +284,8 @@ typedef struct pone_universe {
     struct pone_val* class_opaque;
     // class of Opaque
     struct pone_val* class_errno;
+    // class of File
+    struct pone_val* class_file;
 
     khash_t(str) *globals;
 
@@ -556,9 +560,6 @@ void pone_errno_init(pone_world* world);
 
 // builtin.c
 void pone_builtin_init(pone_world* world);
-
-// os.c
-void pone_os_init(pone_world* world);
 
 #ifdef DEBUG_THREAD
 #define THREAD_TRACE(fmt, ...) fprintf(stderr, "[pone thread] [%lx] " fmt "\n", pthread_self(), ##__VA_ARGS__)

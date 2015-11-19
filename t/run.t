@@ -63,4 +63,3 @@ like $res, qr/$wd/;
 ===
 --- code: say OS.is_win;
 --- re: True|False
-

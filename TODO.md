@@ -31,7 +31,6 @@ TODO
 
 ## Builtin classes
 
- * File
  * IO::Socket::UNIX
  * `Proc` builtin class
  * Regex.quote
@@ -47,9 +46,7 @@ TODO
  * Array#reverse
  * Array#grep
  * Dir.open
- * File#close
  * File#say
- * File#print
  * File#readline
  * File#lines
  * Path::Dir
@@ -65,7 +62,6 @@ TODO
 
  * `class A { }`
  * `class A is B { }`
- * file i/o
  * str methods
  * bytes literal/class
  * // operator
