@@ -147,7 +147,6 @@ statement =
             | for_stmt
             | unless_stmt
             | module_stmt
-            | multi_method_stmt
             | has_stmt
             | '...' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_STUB); }
             | funcdef - ';'*
@@ -191,10 +190,6 @@ attr_vars =
         $$=PVIP_node_new_string(&(G->data), PVIP_NODE_ATTRIBUTE_VARIABLE, yytext, yyleng);
     }
     | scalar
-
-multi_method_stmt =
-    'multi' ws - m:method_stmt { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_MULTI, m); }
-    | method_stmt
 
 method_stmt =
     { p=NULL; } 'method' ws - i:ident ( - '(' - p:params? - ')' )? - b:block { $$ = PVIP_node_new_children3(&(G->data), PVIP_NODE_METHOD, i, MAYBE(p), b); }
@@ -762,9 +757,6 @@ funcdef =
     | 'sub' ws+ i:ident - b:block {
         PVIPNode* pp = PVIP_node_new_children(&(G->data), PVIP_NODE_PARAMS);
         $$ = PVIP_node_new_children4(&(G->data), PVIP_NODE_FUNC, i, pp, NOP(), b);
-    }
-    | 'multi' ws+ f:funcdef {
-        $$ = CHILDREN1(PVIP_NODE_MULTI, f);
     }
 
 lambda =

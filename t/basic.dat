@@ -844,7 +844,7 @@ say STDERR.fileno
 
 ===
 --- input
-fdopen(STDOUT.fileno).write("HELLO")
+fdopen(STDOUT.fileno, "wb").write("HELLO\n")
 --- expected
 HELLO
 
