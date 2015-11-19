@@ -614,6 +614,8 @@ void pone_os_init(pone_world* world);
       } \
   } while (0)
 
+void pone_runtime_init(pone_world* world);
+
 #define PONE_FUNC(name) static pone_val* name(pone_world* world, pone_val* self, int nargs, va_list args)
 #define PONE_ARG(name, spec, ...) pone_arg(world, name, nargs, args, spec, ##__VA_ARGS__)
 void pone_arg(pone_world* world, const char*name, int nargs, va_list args, const char* spec, ...);

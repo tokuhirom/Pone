@@ -56,3 +56,7 @@ my $wd = Cwd::getcwd();
 note $wd;
 like $res, qr/$wd/;
 
+===
+--- code: say Runtime.version;
+--- re: alpha
+
