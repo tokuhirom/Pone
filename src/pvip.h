@@ -135,10 +135,8 @@ typedef enum {
     PVIP_NODE_TW_PACKAGE, /* $?PACKAGE */
     PVIP_NODE_TW_CLASS, /* $?CLASS */
     PVIP_NODE_TW_MODULE, /* $?MODULE */
-    PVIP_NODE_TW_OS, /* $*OS */
     PVIP_NODE_TW_PID, /* $*PID */
     PVIP_NODE_TW_PERLVER, /* $*PPERLVER */
-    PVIP_NODE_TW_OSVER, /* $*OSVER */
     PVIP_NODE_TW_EXECUTABLE_NAME, /* $*EXECUTABLE_NAME */
     PVIP_NODE_TW_ROUTINE, /* &?ROUTINE */
     PVIP_NODE_VALUE_IDENTITY, /* '===' operator in S03-operators/value_equivalence.t */
