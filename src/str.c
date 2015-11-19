@@ -178,7 +178,13 @@ PONE_FUNC(meth_str_int) {
     PONE_ARG("Str#Int", "");
 
     char *end = (char*)pone_str_ptr(self) + pone_str_len(self);
-    return pone_int_new(world, strtol(pone_str_ptr(self), &end, 10));
+    pone_int_t i = strtol(pone_str_ptr(self), &end, 10);
+    if (i == LONG_MAX) {
+        if (errno == ERANGE) {
+            pone_throw_str(world, "long value over flow");
+        }
+    }
+    return pone_int_new(world, i);
 }
 
 PONE_FUNC(meth_str_num) {
