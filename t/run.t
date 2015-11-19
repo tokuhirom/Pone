@@ -60,3 +60,7 @@ like $res, qr/$wd/;
 --- code: say Runtime.version;
 --- re: alpha
 
+===
+--- code: say OS.is_win;
+--- re: True|False
+

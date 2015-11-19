@@ -10,4 +10,7 @@ Get the process ID.
 
 Get the current working directry.
 
+## `OS.is_win() --> Bool`
+
+True if pone runs on windows. False otherwise.
 
