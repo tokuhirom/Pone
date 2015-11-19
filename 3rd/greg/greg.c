@@ -148,7 +148,7 @@ typedef struct _GREG {
   YYSTYPE ss;
   YYSTYPE *val;
   YYSTYPE *vals;
-  int valslen;
+  size_t valslen;
   YY_XTYPE data;
 #ifdef YY_DEBUG
   int debug;
