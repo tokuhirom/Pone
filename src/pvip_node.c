@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdint.h>
+#include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
 #include "pvip.h"
@@ -100,7 +101,7 @@ PVIPNode * PVIP_node_new_intf(PVIPParserContext* parser, PVIP_node_type_t type, 
     }
     *bufp++ = '\0';
     long long n = strtoll(buf, NULL, base);
-    if (n == LONG_LONG_MAX) {
+    if (n == LONG_LONG_MAX && errno==ERANGE) {
         fprintf(stderr, "integer overflow\n");
         abort();
     }

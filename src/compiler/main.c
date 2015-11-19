@@ -22,6 +22,35 @@ static void usage() {
             "    pone src.pone\n");
 }
 
+typedef struct pone_int_vec {
+    int *a;
+    size_t n; // current index
+    size_t m; // sizeof a
+} pone_int_vec;
+
+static inline void pone_int_vec_init(pone_int_vec* vec) {
+    vec->a = NULL;
+    vec->n = 0;
+    vec->m = 0;
+}
+
+static inline void pone_int_vec_push(pone_int_vec* vec, int v) {
+    if (vec->n==vec->m) {
+        vec->m = vec->m == 0 ? 2 : vec->m<<1;
+        vec->a = realloc(vec->a, sizeof(int)*vec->m);
+    }
+    vec->a[vec->n++] = v;
+}
+
+static inline int pone_int_vec_last(pone_int_vec* vec) {
+    return vec->a[vec->n-1];
+}
+
+static inline void pone_int_vec_pop(pone_int_vec* vec) {
+    assert(vec->n > 0);
+    vec->n--;
+}
+
 typedef struct pone_compile_ctx {
     pvip_t* pvip;
 
@@ -34,6 +63,8 @@ typedef struct pone_compile_ctx {
     int vars_max;
 
     khash_t(i64) *ints;
+
+    pone_int_vec loop_stack;
 
     const char* filename;
     int anon_sub_no;
@@ -241,6 +272,8 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
         PRINTF("  pone_pop_scope(world);\n"); \
         pop_vars_stack(ctx); \
     } while (0)
+#define PUSH_LOOP_STACK() pone_int_vec_push(&(ctx->loop_stack), ctx->vars_idx)
+#define POP_LOOP_STACK() pone_int_vec_pop(&(ctx->loop_stack))
 
     switch (node->type) {
         case PVIP_NODE_STATEMENTS:
@@ -392,6 +425,18 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                     abort();
             }
             break;
+        case PVIP_NODE_NEXT:
+            for (int i=0; i<ctx->vars_idx-pone_int_vec_last(&(ctx->loop_stack)); i++) {
+                PRINTF("  pone_pop_scope(world);\n"); \
+            }
+            PRINTF("continue;");
+            break;
+        case PVIP_NODE_LAST:
+            for (int i=0; i<ctx->vars_idx-pone_int_vec_last(&(ctx->loop_stack)); i++) {
+                PRINTF("  pone_pop_scope(world);\n"); \
+            }
+            PRINTF("break;");
+            break;
         case PVIP_NODE_ATPOS:
             // (atpos (variable "$a") (int 0))
             PRINTF("pone_at_pos(world, ");
@@ -463,6 +508,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             COMPILE(node->children.nodes[0]);
             PRINTF(");\n");
             PRINTF("    while (true) {\n");
+            PUSH_LOOP_STACK();
             PUSH_SCOPE();
             PRINTF("        pone_val* next = pone_iter_next(world, iter);\n");
             PRINTF("        if (next == world->universe->instance_iteration_end) {\n");
@@ -473,6 +519,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             COMPILE(node->children.nodes[1]);
             PRINTF(";\n");
             POP_SCOPE();
+            POP_LOOP_STACK();
             PRINTF("    }\n");
             PRINTF("}\n");
             break;
@@ -481,7 +528,9 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF("while (pone_so(");
             COMPILE(node->children.nodes[0]);
             PRINTF(")) {\n");
+            PUSH_LOOP_STACK();
             COMPILE(node->children.nodes[1]);
+            POP_LOOP_STACK();
             PRINTF("}\n");
             break;
         }
@@ -853,6 +902,7 @@ static void pone_compile_node(pone_universe* universe, PVIPNode* node, const cha
     ctx.buf = PVIP_string_new();
     ctx.filename = filename;
     ctx.vars_stack = malloc(sizeof(khash_t(str)*) * 1);
+    pone_int_vec_init(&(ctx.loop_stack));
     ctx.ints = kh_init(i64);
     if (!ctx.vars_stack) {
         abort();
