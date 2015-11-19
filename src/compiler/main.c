@@ -177,6 +177,7 @@ static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
     case PVIP_NODE_SPECIAL_VARIABLE_REGEXP_MATCH: /* $/ - regex match */
     case PVIP_NODE_SPECIAL_VARIABLE_EXCEPTIONS: /* $@ - exceptions */
     case PVIP_NODE_SPECIAL_VARIABLE_ERRNO: /* $! - errno */
+    case PVIP_NODE_SPECIAL_VARIABLE_PID: /* $$ - pid */
     case PVIP_NODE_HASH:
     case PVIP_NODE_PAIR:
     case PVIP_NODE_ATKEY:
@@ -720,6 +721,10 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
         }
         case PVIP_NODE_SPECIAL_VARIABLE_ERRNO: { // $!
             PRINTF("pone_errno(world)");
+            break;
+        }
+        case PVIP_NODE_SPECIAL_VARIABLE_PID: { // $$
+            PRINTF("pone_int_new(world, getpid())");
             break;
         }
         case PVIP_NODE_BLOCK: {

@@ -24,7 +24,7 @@ Thread.start(sub {
 });
 say "hehhL";
 Signal.notify($chan, Signal.SIGINT);
-Signal.kill(OS.getpid(), Signal.SIGINT);
+Signal.kill($$, Signal.SIGINT);
 sleep 100
 ...
 } else {
