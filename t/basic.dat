@@ -862,3 +862,9 @@ say((3 ** 2).Int)
 --- expected
 9
 
+===
+--- input
+say("あいう".length)
+--- expected
+3
+

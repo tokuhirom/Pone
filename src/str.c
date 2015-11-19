@@ -1,7 +1,8 @@
 #include "pone.h" /* PONE_INC */
+#include "oniguruma.h"
 
 void pone_str_mark(pone_val* val) {
-    if (pone_type(val) == PONE_FLAGS_STR_COPY) {
+    if (pone_flags(val) & PONE_FLAGS_STR_COPY) {
         pone_gc_mark_value(val->as.str.val);
     }
 }
@@ -202,6 +203,18 @@ PONE_FUNC(meth_str_num) {
     return pone_num_new(world, strtod(pone_str_ptr(self), &end));
 }
 
+PONE_FUNC(meth_str_length) {
+    PONE_ARG("Str#Num", "");
+
+    if (pone_flags(self) & PONE_FLAGS_STR_UTF8) {
+        // Note: ongenc_strlen should support long?
+        int i = onigenc_strlen(ONIG_ENCODING_UTF8, (OnigUChar*)pone_str_ptr(self), (OnigUChar*)pone_str_ptr(self)+pone_str_len(self));
+        return pone_int_new(world, i);
+    } else {
+        return pone_int_new(world, pone_str_len(self));
+    }
+}
+
 void pone_str_init(pone_world* world) {
     pone_universe * universe = world->universe;
     assert(universe->class_str == NULL);
@@ -211,6 +224,7 @@ void pone_str_init(pone_world* world) {
     pone_add_method_c(world, universe->class_str, "Str", strlen("Str"), meth_str_str);
     pone_add_method_c(world, universe->class_str, "Int", strlen("Int"), meth_str_int);
     pone_add_method_c(world, universe->class_str, "Num", strlen("Num"), meth_str_num);
+    pone_add_method_c(world, universe->class_str, "length", strlen("length"), meth_str_length);
     pone_class_compose(world, universe->class_str);
 }
 

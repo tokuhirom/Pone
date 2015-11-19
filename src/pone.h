@@ -43,6 +43,8 @@ typedef long pone_int_t;
 #define PONE_FLAGS_STR_CONST  PONE_FLAGS_TYPE_1
 // This string has copied buffer
 #define PONE_FLAGS_STR_COPY   PONE_FLAGS_TYPE_2
+// This string is UTF-8 decoded string
+#define PONE_FLAGS_STR_UTF8   PONE_FLAGS_TYPE_3
 
 typedef double pone_num_t;
 
