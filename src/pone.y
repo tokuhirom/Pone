@@ -49,7 +49,7 @@
     C  Chaining infix    != == < <= > >= eq ne lt le gt ge ~~ === eqv !eqv (<) (elem)
     X  Tight and         &&
     X  Tight or          || ^^ // min max
-    R  Conditional       ?? !! ff fff
+    R  Conditional       ? :
     R  Item assignment   = => += -= **= xx= .=
     L  Loose unary       so not
     X  Comma operator    , :
@@ -383,7 +383,7 @@ item_assignment_expr =
         )
     )* { $$=a; }
 
-conditional_expr = e1:tight_or - '??' - e2:tight_or - '!!' - e3:tight_or { $$ = PVIP_node_new_children3(&(G->data), PVIP_NODE_CONDITIONAL, e1, e2, e3); }
+conditional_expr = e1:tight_or - '?' - e2:tight_or - ':' - e3:tight_or { $$ = PVIP_node_new_children3(&(G->data), PVIP_NODE_CONDITIONAL, e1, e2, e3); }
                 | tight_or
 
 tight_or = f1:tight_and (

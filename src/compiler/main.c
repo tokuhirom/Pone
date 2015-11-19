@@ -381,6 +381,17 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
         case PVIP_NODE_STRING_CONCAT:
             INFIX("pone_str_concat");
             break;
+        case PVIP_NODE_CONDITIONAL:
+            // True ? 1 : 2
+            // (conditional (true) (int 1) (int 2))
+            PRINTF("pone_so(");
+            COMPILE(node->children.nodes[0]);
+            PRINTF(") ? (");
+            COMPILE(node->children.nodes[1]);
+            PRINTF(") : (");
+            COMPILE(node->children.nodes[2]);
+            PRINTF(")");
+            break;
 #undef INFIX
         case PVIP_NODE_CHAIN:
             // (statements (funcall (ident "say") (args (chain (int 1) (eq (int 1))))))

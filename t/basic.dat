@@ -848,3 +848,11 @@ fdopen(STDOUT.fileno).write("HELLO")
 --- expected
 HELLO
 
+===
+--- input
+say True ? 1 : 2;
+say False ? 1 : 2;
+--- expected
+1
+2
+
