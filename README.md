@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/tokuhirom/Pone.svg?branch=master)](https://travis-ci.org/tokuhirom/Pone)
 
-The  ( д)  ﾟPone Programming Language
+The  ( д)  ﾟﾟPone Programming Language
 =============================
 
 There's more than one way to do it
