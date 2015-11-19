@@ -100,20 +100,42 @@ PONE_FUNC(meth_signal_kill) {
     return pone_nil();
 }
 
-PONE_FUNC(meth_signal_sigint) {
-    PONE_ARG("Signal#SIGINT", "");
-    return pone_int_new(world, SIGINT);
-}
+#define DEFSIG(sig) \
+    PONE_FUNC(meth_signal_##sig) { \
+        PONE_ARG("Signal#" #sig, ""); \
+        return pone_int_new(world, sig); \
+    }
 
-PONE_FUNC(meth_signal_sigterm) {
-    PONE_ARG("Signal#SIGTERM", "");
-    return pone_int_new(world, SIGTERM);
-}
+DEFSIG(SIGHUP);
+DEFSIG(SIGINT);
+DEFSIG(SIGQUIT);
+DEFSIG(SIGILL);
+DEFSIG(SIGABRT);
+DEFSIG(SIGFPE);
+DEFSIG(SIGKILL);
+DEFSIG(SIGSEGV);
+DEFSIG(SIGPIPE);
+DEFSIG(SIGALRM);
+DEFSIG(SIGTERM);
+DEFSIG(SIGUSR1);
+DEFSIG(SIGUSR2);
+DEFSIG(SIGCHLD);
+DEFSIG(SIGCONT);
+DEFSIG(SIGSTOP);
+DEFSIG(SIGTSTP);
+DEFSIG(SIGTTIN);
+DEFSIG(SIGTTOU);
+DEFSIG(SIGBUS);
+DEFSIG(SIGPOLL);
+DEFSIG(SIGPROF);
+DEFSIG(SIGSYS);
+DEFSIG(SIGTRAP);
+DEFSIG(SIGURG);
+DEFSIG(SIGVTALRM);
+DEFSIG(SIGXCPU);
+DEFSIG(SIGXFSZ);
 
-PONE_FUNC(meth_signal_sigABRT) {
-    PONE_ARG("Signal#SIGABRT", "");
-    return pone_int_new(world, SIGABRT);
-}
+#undef DEFSIG
 
 void pone_signal_init(pone_world* world) {
     pone_universe* universe = world->universe;
@@ -122,9 +144,39 @@ void pone_signal_init(pone_world* world) {
     pone_class_push_parent(world, klass, universe->class_mu);
     pone_add_method_c(world, universe->class_thread, "notify", strlen("notify"), meth_signal_notify);
     pone_add_method_c(world, universe->class_thread, "kill", strlen("kill"), meth_signal_kill);
-    pone_add_method_c(world, universe->class_thread, "SIGINT", strlen("SIGINT"), meth_signal_sigint);
-    pone_add_method_c(world, universe->class_thread, "SIGTERM", strlen("SIGTERM"), meth_signal_sigint);
-    pone_add_method_c(world, universe->class_thread, "SIGABRT", strlen("SIGABRT"), meth_signal_sigABRT);
+#define SETSIG(sig) \
+    pone_add_method_c(world, universe->class_thread, #sig, strlen(#sig), meth_signal_##sig);
+
+SETSIG(SIGHUP);
+SETSIG(SIGINT);
+SETSIG(SIGQUIT);
+SETSIG(SIGILL);
+SETSIG(SIGABRT);
+SETSIG(SIGFPE);
+SETSIG(SIGKILL);
+SETSIG(SIGSEGV);
+SETSIG(SIGPIPE);
+SETSIG(SIGALRM);
+SETSIG(SIGTERM);
+SETSIG(SIGUSR1);
+SETSIG(SIGUSR2);
+SETSIG(SIGCHLD);
+SETSIG(SIGCONT);
+SETSIG(SIGSTOP);
+SETSIG(SIGTSTP);
+SETSIG(SIGTTIN);
+SETSIG(SIGTTOU);
+SETSIG(SIGBUS);
+SETSIG(SIGPOLL);
+SETSIG(SIGPROF);
+SETSIG(SIGSYS);
+SETSIG(SIGTRAP);
+SETSIG(SIGURG);
+SETSIG(SIGVTALRM);
+SETSIG(SIGXCPU);
+SETSIG(SIGXFSZ);
+
+#undef SETSIG
     pone_class_compose(world, universe->class_thread);
     pone_universe_set_global(universe, "Signal", universe->class_thread);
 }
