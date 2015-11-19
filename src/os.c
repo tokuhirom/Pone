@@ -10,16 +10,22 @@ PONE_FUNC(meth_getwd) {
     return pone_str_new(world, buf, strlen(buf));
 }
 
+#define PONE_REG_METHOD(name, meth)  \
+    pone_add_method_c(world, klass, name, strlen(name), meth);
+
+PONE_FUNC(meth_is_win) {
+    PONE_ARG("OS#is_win", "");
+#if defined(_WIN32) || defined(_WIN64)
+    return pone_true();
+#else
+    return pone_false();
+#endif
+}
+
 void pone_os_init(pone_world* world) {
     pone_val* klass = pone_class_new(world, "OS", strlen("OS"));
-    PONE_REG_METHOD(klass, "getwd", meth_getwd);
-    pone_obj_set_ivar(world, klass, "is_win",
-#if defined(_WIN32) || defined(_WIN64)
-            pone_true()
-#else
-            pone_false()
-#endif
-            );
+    pone_add_method_c(world, klass, "getwd", strlen("getwd"), meth_getwd);
+    pone_add_method_c(world, klass, "is_win", strlen("is_win"), meth_is_win);
     pone_universe_set_global(world->universe, "OS", klass);
 }
 

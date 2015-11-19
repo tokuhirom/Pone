@@ -235,12 +235,12 @@ void pone_sock_init(pone_world* world) {
 
     universe->class_io_socket_inet = pone_class_new(world, "IO::Socket::INET", strlen("IO::Socket::INET"));
     pone_class_push_parent(world, universe->class_io_socket_inet, universe->class_any);
-    PONE_REG_METHOD(universe->class_io_socket_inet, "listen", meth_sock_listen);
-    PONE_REG_METHOD(universe->class_io_socket_inet, "connect", meth_sock_connect);
-    PONE_REG_METHOD(universe->class_io_socket_inet, "accept", meth_sock_accept);
-    PONE_REG_METHOD(universe->class_io_socket_inet, "close", meth_sock_close);
-    PONE_REG_METHOD(universe->class_io_socket_inet, "write", meth_sock_write);
-    PONE_REG_METHOD(universe->class_io_socket_inet, "read", meth_sock_read);
+    pone_add_method_c(world, universe->class_io_socket_inet, "listen", strlen("listen"), meth_sock_listen);
+    pone_add_method_c(world, universe->class_io_socket_inet, "connect", strlen("connect"), meth_sock_connect);
+    pone_add_method_c(world, universe->class_io_socket_inet, "accept", strlen("accept"), meth_sock_accept);
+    pone_add_method_c(world, universe->class_io_socket_inet, "close", strlen("close"), meth_sock_close);
+    pone_add_method_c(world, universe->class_io_socket_inet, "write", strlen("write"), meth_sock_write);
+    pone_add_method_c(world, universe->class_io_socket_inet, "read", strlen("read"), meth_sock_read);
     pone_class_compose(world, universe->class_io_socket_inet);
 
     pone_universe_set_global(universe, "IO::Socket::INET", universe->class_io_socket_inet);

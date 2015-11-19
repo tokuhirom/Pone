@@ -587,7 +587,7 @@ method_postfix_expr =
                     f1=$$;
                 }
             )
-            | '.' f2:ident { $$=PVIP_node_new_children2(&(G->data), PVIP_NODE_FIND_METHOD, f1, f2); f1=$$; }
+            | '.' f2:ident { $$=PVIP_node_new_children2(&(G->data), PVIP_NODE_METHODCALL, f1, f2); f1=$$; }
             | '.' f2:string f3:paren_args {
                 /* Rakudo says "Quoted method name requires parenthesized arguments" */
                 $$ = PVIP_node_new_children3(&(G->data), PVIP_NODE_METHODCALL, f1, f2, f3);

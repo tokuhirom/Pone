@@ -27,10 +27,10 @@ void pone_errno_init(pone_world* world) {
     pone_universe* universe = world->universe;
     assert(universe->class_errno == NULL);
 
-    pone_val* klass = pone_class_new(world, "Errno", strlen("Errno"));
-    PONE_REG_METHOD(klass, "Str", meth_errno_str);
-    PONE_REG_METHOD(klass, "Int", meth_errno_int);
-    pone_class_compose(world, klass);
-    universe->class_errno = klass;
+    universe->class_errno = pone_class_new(world, "Errno", strlen("Errno"));
+    pone_add_method_c(world, universe->class_errno, "Str", strlen("Str"), meth_errno_str);
+    pone_add_method_c(world, universe->class_errno, "Int", strlen("Int"), meth_errno_int);
+
+    pone_class_compose(world, universe->class_errno);
 }
 

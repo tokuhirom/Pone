@@ -200,9 +200,9 @@ void pone_str_init(pone_world* world) {
 
     universe->class_str = pone_class_new(world, "Str", strlen("Str"));
     pone_class_push_parent(world, universe->class_str, universe->class_cool);
-    PONE_REG_METHOD(universe->class_str, "Str", meth_str_str);
-    PONE_REG_METHOD(universe->class_str, "Int", meth_str_int);
-    PONE_REG_METHOD(universe->class_str, "Num", meth_str_num);
+    pone_add_method_c(world, universe->class_str, "Str", strlen("Str"), meth_str_str);
+    pone_add_method_c(world, universe->class_str, "Int", strlen("Int"), meth_str_int);
+    pone_add_method_c(world, universe->class_str, "Num", strlen("Num"), meth_str_num);
     pone_class_compose(world, universe->class_str);
 }
 

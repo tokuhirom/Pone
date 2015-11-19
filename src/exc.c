@@ -27,8 +27,6 @@ void pone_exc_handler_pop(pone_world* world) {
 }
 
 void pone_throw_str(pone_world* world, const char* fmt, ...) {
-    EXC_TRACE("throwing exc: %s", fmt);
-
     va_list args;
     va_start(args, fmt);
     pone_val* v = pone_str_new_vprintf(world, fmt, args);

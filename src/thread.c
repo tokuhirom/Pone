@@ -101,7 +101,7 @@ void pone_thread_init(pone_world* world) {
 
     universe->class_thread = pone_class_new(world, "Thread", strlen("Thread"));
     pone_class_push_parent(world, universe->class_thread, universe->class_any);
-    PONE_REG_METHOD(universe->class_thread, "start", meth_thread_start);
+    pone_add_method_c(world, universe->class_thread, "start", strlen("start"), meth_thread_start);
     pone_class_compose(world, universe->class_thread);
     pone_universe_set_global(universe, "Thread", universe->class_thread);
     assert(universe->class_thread->as.obj.klass);
