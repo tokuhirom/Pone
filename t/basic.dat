@@ -883,3 +883,83 @@ say 200 >> 1; say 200 << 1
 100
 400
 
+===
+--- input
+sub x() { say "X"; "XX" }
+sub y() { say "Y"; "YY" }
+sub z() { say "Z"; False }
+say x() || y();
+say z() || y();
+say 0 || 0;
+say False || False;
+--- expected
+X
+XX
+Z
+Y
+YY
+0
+False
+
+===
+--- input
+sub x() { say "X"; "XX" }
+sub y() { say "Y"; "YY" }
+sub z() { say "Z"; False }
+say x() && y();
+say z() && y();
+say 0 && 0;
+say False && False;
+say 0 && False;
+say False && 0;
+--- expected
+X
+Y
+YY
+Z
+False
+0
+False
+0
+False
+
+===
+--- input
+sub x() { say "X"; "XX" }
+sub y() { say "Y"; "YY" }
+sub z() { say "Z"; False }
+say x() or y();
+say z() or y();
+say 0 or 0;
+say False or False;
+--- expected
+X
+XX
+Z
+Y
+YY
+0
+False
+
+===
+--- input
+sub x() { say "X"; "XX" }
+sub y() { say "Y"; "YY" }
+sub z() { say "Z"; False }
+say x() and y();
+say z() and y();
+say 0 and 0;
+say False and False;
+say 0 and False;
+say False and 0;
+--- expected
+X
+Y
+YY
+Z
+False
+0
+False
+0
+False
+

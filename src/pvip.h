@@ -149,9 +149,9 @@ typedef enum {
     PVIP_NODE_UNICODE_CHAR, /* \c[] */
     PVIP_NODE_STUB, /* ... */
     PVIP_NODE_PARAM,
-    PVIP_NODE_BITWISE_OR,  /* ~| */
-    PVIP_NODE_BITWISE_AND, /* ~& */
-    PVIP_NODE_BITWISE_XOR, /* ~^ */
+    PVIP_NODE_BITWISE_OR,  /* | */
+    PVIP_NODE_BITWISE_AND, /* & */
+    PVIP_NODE_BITWISE_XOR, /* ^ */
     PVIP_NODE_VARGS, /* sub foo (*@a) { } */
     PVIP_NODE_WHATEVER, /* * */
     PVIP_NODE_TW_ENV, /* %*ENV */

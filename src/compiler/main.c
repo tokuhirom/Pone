@@ -66,6 +66,8 @@ typedef struct pone_compile_ctx {
 
     pone_int_vec loop_stack;
 
+    pone_int_t logical_op_counter;
+
     const char* filename;
     int anon_sub_no;
 } pone_compile_ctx;
@@ -424,6 +426,27 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             COMPILE(node->children.nodes[2]);
             PRINTF(")");
             break;
+        // See http://c-faq.com/expr/seqpoints.html
+        case PVIP_NODE_LOGICAL_OR: {
+            // x or y compile to:
+            // (logical_scope(),logical_set(x) || logical_set(y), logical_pop())
+            pone_int_t id = ctx->logical_op_counter++;
+            PRINTF("(pone_so(pone_assign(world, 0, \"$<LOGICAL_OR%d\", ", id);
+            COMPILE(node->children.nodes[0]);
+            PRINTF(")) || pone_assign(world, 0, \"$<LOGICAL_OR%d\", ", id);
+            COMPILE(node->children.nodes[1]);
+            PRINTF("), pone_get_lex(world, \"$<LOGICAL_OR%d\"))", id);
+            break;
+        }
+        case PVIP_NODE_LOGICAL_AND: {
+            pone_int_t id = ctx->logical_op_counter++;
+            PRINTF("(pone_so(pone_assign(world, 0, \"$<LOGICAL_AND%d\", ", id);
+            COMPILE(node->children.nodes[0]);
+            PRINTF(")) && pone_assign(world, 0, \"$<LOGICAL_AND%d\", ", id);
+            COMPILE(node->children.nodes[1]);
+            PRINTF("), pone_get_lex(world, \"$<LOGICAL_AND%d\"))", id);
+            break;
+        }
 #undef INFIX
         case PVIP_NODE_CHAIN:
             // (statements (funcall (ident "say") (args (chain (int 1) (eq (int 1))))))

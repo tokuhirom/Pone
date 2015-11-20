@@ -149,6 +149,36 @@ typedef struct pone_lex_t {
 struct pone_arena;
 struct pone_universe;
 
+typedef struct { pone_int_t n, m; struct pone_val **a; } pone_val_vec;
+
+static inline void pone_val_vec_init(pone_val_vec* vec) {
+    vec->a = NULL;
+    vec->n = 0;
+    vec->m = 0;
+}
+
+static inline void pone_val_vec_push(pone_val_vec* vec, struct pone_val* v) {
+    if (vec->n==vec->m) {
+        vec->m = vec->m == 0 ? 2 : vec->m<<1;
+        vec->a = realloc(vec->a, sizeof(struct pone_val*)*vec->m);
+    }
+    vec->a[vec->n++] = v;
+}
+
+static inline void pone_val_vec_destroy(pone_val_vec* vec) {
+    free(vec->a);
+}
+
+static inline struct pone_val* pone_val_vec_last(pone_val_vec* vec) {
+    return vec->a[vec->n-1];
+}
+
+static inline void pone_val_vec_pop(pone_val_vec* vec) {
+    assert(vec->n > 0);
+    vec->n--;
+}
+
+
 // thread context
 typedef struct pone_world {
     struct pone_arena* arena_head;
@@ -232,8 +262,6 @@ typedef struct pone_val {
 } pone_val;
 
 #define PONE_SIGNAL_HANDLERS_SIZE 32
-
-typedef struct { pone_int_t n, m; pone_val **a; } pone_val_vec;
 
 // VM context
 typedef struct pone_universe {
