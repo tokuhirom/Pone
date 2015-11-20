@@ -25,7 +25,7 @@
         nonassoc    list operators (rightward)
         right       not
         left        and
-        left        or xor
+        left        or
 
 ## Difference from perl5
 
