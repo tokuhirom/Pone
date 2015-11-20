@@ -1,4 +1,5 @@
 #include "pone.h"
+#include "pone_module.h"
 #include "kvec.h"
 
 #include <signal.h>
@@ -77,7 +78,7 @@ void pone_signal_start_thread(pone_world* world) {
 PONE_FUNC(meth_signal_notify) {
     pone_val* chan;
     pone_int_t sig;
-    PONE_ARG("Signal#notify", "oi", &chan, &sig);
+    PONE_ARG("signal.notify", "oi", &chan, &sig);
 
     if (sig >= PONE_SIGNAL_HANDLERS_SIZE) {
         pone_throw_str(world, "Invalid signal code: " PoneIntFmt, sig);
@@ -93,59 +94,20 @@ PONE_FUNC(meth_signal_notify) {
 PONE_FUNC(meth_signal_kill) {
     pone_int_t pid;
     pone_int_t sig;
-    PONE_ARG("Signal#kill", "ii", &pid, &sig);
+    PONE_ARG("signal.kill", "ii", &pid, &sig);
 
     kill(pid, sig);
 
     return pone_nil();
 }
 
-#define DEFSIG(sig) \
-    PONE_FUNC(meth_signal_##sig) { \
-        PONE_ARG("Signal#" #sig, ""); \
-        return pone_int_new(world, sig); \
-    }
-
-DEFSIG(SIGHUP);
-DEFSIG(SIGINT);
-DEFSIG(SIGQUIT);
-DEFSIG(SIGILL);
-DEFSIG(SIGABRT);
-DEFSIG(SIGFPE);
-DEFSIG(SIGKILL);
-DEFSIG(SIGSEGV);
-DEFSIG(SIGPIPE);
-DEFSIG(SIGALRM);
-DEFSIG(SIGTERM);
-DEFSIG(SIGUSR1);
-DEFSIG(SIGUSR2);
-DEFSIG(SIGCHLD);
-DEFSIG(SIGCONT);
-DEFSIG(SIGSTOP);
-DEFSIG(SIGTSTP);
-DEFSIG(SIGTTIN);
-DEFSIG(SIGTTOU);
-DEFSIG(SIGBUS);
-DEFSIG(SIGPOLL);
-DEFSIG(SIGPROF);
-DEFSIG(SIGSYS);
-DEFSIG(SIGTRAP);
-DEFSIG(SIGURG);
-DEFSIG(SIGVTALRM);
-DEFSIG(SIGXCPU);
-DEFSIG(SIGXFSZ);
-
-#undef DEFSIG
-
 void pone_signal_init(pone_world* world) {
-    pone_universe* universe = world->universe;
+    pone_val* module = pone_module_new(world, "signal");
+    pone_module_put(world, module, "notify", pone_code_new_c(world, meth_signal_notify));
+    pone_module_put(world, module, "kill", pone_code_new_c(world, meth_signal_kill));
 
-    pone_val* klass = pone_class_new(world, "Signal", strlen("Signal"));
-    pone_class_push_parent(world, klass, universe->class_mu);
-    pone_add_method_c(world, klass, "notify", strlen("notify"), meth_signal_notify);
-    pone_add_method_c(world, klass, "kill", strlen("kill"), meth_signal_kill);
 #define SETSIG(sig) \
-    pone_add_method_c(world, klass, #sig, strlen(#sig), meth_signal_##sig);
+    pone_module_put(world, module, #sig, pone_int_new(world, sig))
 
 SETSIG(SIGHUP);
 SETSIG(SIGINT);
@@ -177,7 +139,7 @@ SETSIG(SIGXCPU);
 SETSIG(SIGXFSZ);
 
 #undef SETSIG
-    pone_class_compose(world, klass);
-    pone_universe_set_global(universe, "Signal", klass);
+
+    pone_universe_set_global(world->universe, "signal", module);
 }
 

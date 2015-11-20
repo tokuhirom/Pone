@@ -173,7 +173,11 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
     if (klass == world->universe->class_module) {
         // Module
         pone_val* method = pone_obj_get_ivar(world, obj, name);
-        return method;
+        if (pone_defined(method)) {
+            return method;
+        } else {
+            return NULL;
+        }
     } else {
         // Normal object
         pone_val* methods = pone_obj_get_ivar(world, klass, "$!methods");
@@ -184,7 +188,7 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
         if (pone_defined(method)) {
             return method;
         } else {
-            return pone_nil();
+            return NULL;
         }
     }
 }
@@ -200,8 +204,8 @@ pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_
 #endif
 
     pone_val* method = pone_find_method(world, obj, method_name);
-    if (pone_type(method) == PONE_CODE) {
-        if (pone_defined(method)) {
+    if (method) {
+        if (pone_type(method) == PONE_CODE) {
             va_list args;
 
             va_start(args, n);
@@ -211,11 +215,11 @@ pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_
             va_end(args);
             return retval;
         } else {
-            pone_throw_str(world, "Method '%s' not found for invocant of class '%s'", method_name, pone_what_str_c(world, obj));
-            abort();
+            return method;
         }
     } else {
-        return method;
+        pone_throw_str(world, "Method '%s' not found for invocant of class '%s'", method_name, pone_what_str_c(world, obj));
+        abort();
     }
 }
 

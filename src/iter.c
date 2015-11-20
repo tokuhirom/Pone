@@ -4,7 +4,7 @@ pone_val* pone_iter_init(pone_world* world, pone_val* obj) {
     assert(pone_alive(obj));
 
     pone_val* method = pone_find_method(world, obj, "iterator");
-    if (pone_defined(method)) {
+    if (method && pone_defined(method)) {
         // call it.
         return pone_code_call(world, method, obj, 0);
     } else {

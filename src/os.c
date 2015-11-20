@@ -1,7 +1,8 @@
 #include "pone.h"
+#include "pone_module.h"
 
 PONE_FUNC(meth_getwd) {
-    PONE_ARG("OS#getwd", "");
+    PONE_ARG("getcwd", "");
     char buf[PATH_MAX];
     if (getcwd(buf, PATH_MAX) == NULL) {
         pone_world_set_errno(world);
@@ -23,9 +24,11 @@ PONE_FUNC(meth_is_win) {
 }
 
 void pone_os_init(pone_world* world) {
-    pone_val* klass = pone_class_new(world, "OS", strlen("OS"));
-    pone_add_method_c(world, klass, "getwd", strlen("getwd"), meth_getwd);
-    pone_add_method_c(world, klass, "is_win", strlen("is_win"), meth_is_win);
-    pone_universe_set_global(world->universe, "OS", klass);
+    pone_val* module = pone_module_new(world, "os");
+    pone_module_put(world, module, "is_win", pone_code_new(world, meth_is_win));
+    pone_universe_set_global(world->universe, "os", module);
+
+    // builtin getcwd() function
+    pone_universe_set_global(world->universe, "getcwd", pone_code_new(world, meth_getwd));
 }
 

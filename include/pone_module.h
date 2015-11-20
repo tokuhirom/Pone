@@ -4,6 +4,7 @@
 #include "pone.h"
 
 void pone_module_put(pone_world* world, pone_val* self, const char *name, pone_val* val);
+pone_val* pone_module_new(pone_world* world, const char *name);
 
 #endif // PONE_MODULE_H_
 

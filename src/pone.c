@@ -57,12 +57,12 @@ void pone_init(pone_universe* universe) {
     pone_channel_init(world);
     pone_opaque_init(world);
     pone_errno_init(world);
-    pone_signal_init(world);
-    pone_os_init(world);
     pone_runtime_init(world);
     pone_file_init(world);
     pone_module_init(world);
 
+    pone_signal_init(world);
+    pone_os_init(world);
     pone_builtin_init(world);
 
     // init $*INC

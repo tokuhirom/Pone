@@ -17,14 +17,14 @@ if ($pid == 0) {
 
     exec './bin/pone', '-e', <<'...';
 my $chan = chan(1);
-Thread.start(sub {
+async(sub {
     my $sig = $chan.receive;
     say "GOT SIGNAL";
     exit();
 });
 say "hehhL";
-Signal.notify($chan, Signal.SIGINT);
-Signal.kill($$, Signal.SIGINT);
+signal.notify($chan, signal.SIGINT);
+signal.kill($$, signal.SIGINT);
 sleep 100
 ...
 } else {
