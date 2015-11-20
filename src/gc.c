@@ -58,13 +58,13 @@ static void pone_gc_collect(pone_world* world) {
             if (pone_flags(val) & PONE_FLAGS_GC_MARK) {
                 // marked.
                 // remove marked flag.
-                GC_TRACE("marked obj: %p %s", val, pone_what_str_c(val));
+                GC_TRACE("marked obj: %p %s", val, pone_type_name(val));
                 val->as.basic.flags ^= PONE_FLAGS_GC_MARK;
             } else {
 #ifndef NDEBUG
                 freed_cnt++;
 #endif
-                GC_TRACE("free: %p %s", val, pone_what_str_c(val));
+                GC_TRACE("free: %p %s", val, pone_type_name(val));
                 switch (pone_type(val)) {
                 case PONE_STRING:
                     pone_str_free(world, val);

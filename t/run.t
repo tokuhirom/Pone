@@ -63,3 +63,12 @@ like $res, qr/$wd/;
 ===
 --- code: say OS.is_win;
 --- re: True|False
+
+===
+--- code: say 3.hoge
+--- re: Method 'hoge' not found for invocant of class 'Int'
+
+===
+--- code: say IO::Socket::INET.hoge
+--- re: Method 'hoge' not found for invocant of class 'IO::Socket::INET'
+

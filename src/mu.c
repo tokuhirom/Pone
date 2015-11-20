@@ -52,6 +52,12 @@ static pone_val* meth_mu_str(pone_world* world, pone_val* self, int n, va_list a
     return pone_str_new_const(world, "Nil", strlen("Nil"));
 }
 
+static pone_val* meth_mu_what(pone_world* world, pone_val* self, int n, va_list args) {
+    assert(n==0);
+    pone_dd(world, pone_what(world, self));
+    return pone_what(world, self);
+}
+
 pone_val* pone_init_mu(pone_world* world) {
     pone_val* obj = pone_obj_alloc(world, PONE_OBJ);
     obj->as.obj.ivar = kh_init(str);
@@ -62,6 +68,7 @@ pone_val* pone_init_mu(pone_world* world) {
     pone_obj_set_ivar(world, (pone_val*)obj, "@!parents", pone_ary_new(world, 0));
 
     pone_add_method_c(world, obj, "Str", strlen("Str"), meth_mu_str);
+    pone_add_method_c(world, obj, "WHAT", strlen("WHAT"), meth_mu_what);
     pone_add_method_c(world, obj, "say", strlen("say"), meth_mu_say);
 
     return obj;

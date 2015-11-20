@@ -342,7 +342,8 @@ void pone_warn_str(pone_world* world, const char* fmt, ...);
 
 // op.c
 void pone_dd(pone_world* world, pone_val* val);
-const char* pone_what_str_c(pone_val* val);
+const char* pone_what_str_c(pone_world* world, pone_val* val);
+const char* pone_type_name(pone_val* val);
 
 // hash.c
 pone_val* pone_hash_new(pone_world* world);

@@ -330,32 +330,20 @@ size_t pone_elems(pone_world* world, pone_val* val) {
     abort();
 }
 
-// TODO rename to pone_type_name
-const char* pone_what_str_c(pone_val* val) {
+const char* pone_type_name(pone_val* val) {
     assert(pone_alive(val));
     switch (pone_type(val)) {
-    case PONE_NIL:
-        return "Any"; // remove this branch. pone_call_method(pone_what(), "name") should work.
-    case PONE_INT:
-        return "Int";
-    case PONE_NUM:
-        return "Num";
-    case PONE_STRING:
-        return "Str";
-    case PONE_ARRAY:
-        return "Array";
-    case PONE_BOOL:
-        return "Bool";
-    case PONE_HASH:
-        return "Hash";
-    case PONE_CODE:
-        return "Code";
-    case PONE_OBJ:
-        return "Obj"; // TODO return the class name!
-    case PONE_LEX:
-        return "Lex";
-    case PONE_OPAQUE:
-        return "Opaque";
+    case PONE_NIL:    return "PONE_NIL";
+    case PONE_INT:    return "PONE_INT";
+    case PONE_NUM:    return "PONE_NUM";
+    case PONE_STRING: return "PONE_STRING";
+    case PONE_ARRAY:  return "PONE_ARRAY";
+    case PONE_BOOL:   return "PONE_BOOL";
+    case PONE_HASH:   return "PONE_HASH";
+    case PONE_CODE:   return "PONE_CODE";
+    case PONE_OBJ:    return "PONE_OBJ";
+    case PONE_LEX:    return "PONE_LEX";
+    case PONE_OPAQUE: return "PONE_OPAQUE";
     }
     abort();
 }
