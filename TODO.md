@@ -1,19 +1,9 @@
 TODO
 ====
 
-## Concurrency
-
- * GVL is required for
-   * lex operation
-   * world operation
-   * mutable objects
- * Channel
-
-
 ## Builtin functions
 
  * rand
- * open
  * `system` builtin function
  * chomp
  * chr
@@ -61,9 +51,9 @@ TODO
 ## Basic features
 
  * `class A { }`
- * `class A is B { }`
+ * `class A does B { }`
+ * `role A { }`
  * str methods
- * bytes literal/class
  * // operator
  * bit ops
  * -p
@@ -75,7 +65,7 @@ TODO
  * `&&`
  * `||`
  * `s///`
- * remove thread list in universe.
+ * `"hoge"[0]`
  * `while True { last; }`
  * `sub x() { for 1..10 { say 3; } }; say 5`
 
@@ -93,16 +83,10 @@ TODO
 
  * bitmap marking?
  * incremental GC?
+ * generational GC
 
 ### Syntax
 
  * Switch to C like operators
 
-### Regexp
-
- * Use onigmo
-
-## Known bugs
-
- * Exception from thread case segv.
 
