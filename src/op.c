@@ -278,6 +278,19 @@ bool pone_gt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(>);  }
 
 #undef CMP_OP
 
+#define BIT_OP(op) \
+    do { \
+        pone_int_t i1 = pone_intify(world, v1); \
+        pone_int_t i2 = pone_intify(world, v2); \
+        return pone_int_new(world, i1 op i2); \
+    } while (0)
+
+pone_val* pone_bitwise_or(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(|);  }
+pone_val* pone_bitwise_and(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(&);  }
+pone_val* pone_bitwise_xor(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(^);  }
+
+#undef BIT_OP
+
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
 pone_int_t pone_str_cmp(pone_world* world, pone_val* v1, pone_val* v2) {

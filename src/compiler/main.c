@@ -221,9 +221,9 @@ static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
     case PVIP_NODE_STRINGIFY: /* prefix:<~> */
     case PVIP_NODE_NUM_CMP: /* <=> */
     case PVIP_NODE_UNICODE_CHAR: /* \c[] */
-    case PVIP_NODE_BITWISE_OR:  /* ~| */
-    case PVIP_NODE_BITWISE_AND: /* ~& */
-    case PVIP_NODE_BITWISE_XOR: /* ~^ */
+    case PVIP_NODE_BITWISE_OR:  /* | */
+    case PVIP_NODE_BITWISE_AND: /* & */
+    case PVIP_NODE_BITWISE_XOR: /* ^ */
     case PVIP_NODE_WHATEVER: /* * */
     case PVIP_NODE_ROLE: {
         // printf("NOT A CHILDREN %s\n", PVIP_node_name(node->type));
@@ -401,6 +401,15 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             break;
         case PVIP_NODE_STRING_CONCAT:
             INFIX("pone_str_concat");
+            break;
+        case PVIP_NODE_BITWISE_OR:  /* | */
+            INFIX("pone_bitwise_or");
+            break;
+        case PVIP_NODE_BITWISE_AND: /* & */
+            INFIX("pone_bitwise_and");
+            break;
+        case PVIP_NODE_BITWISE_XOR: /* ^ */
+            INFIX("pone_bitwise_xor");
             break;
         case PVIP_NODE_CONDITIONAL:
             // True ? 1 : 2

@@ -146,7 +146,6 @@ typedef enum {
     PVIP_NODE_SPECIAL_VARIABLE_PID, /* $$ - pid */
     PVIP_NODE_ENUM,
     PVIP_NODE_NUM_CMP, /* <=> */
-    PVIP_NODE_UNARY_FLATTEN_OBJECT, /* unary | */
     PVIP_NODE_COMPLEX, /* 2i */
     PVIP_NODE_ROLE,
     PVIP_NODE_IS,

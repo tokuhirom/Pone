@@ -37,7 +37,7 @@
     L  Method postfix    .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^ .:
     N  Autoincrement     ++ --
     R  Exponentiation    **
-    L  Symbolic unary    ! + - ~ ? | || +^ ~^ ?^ ^
+    L  Symbolic unary    ! + - ~ ? || +^ ~^ ?^ ^
     L  Multiplicative    * / % %% +& +< +> ~& ~< ~> ?& div mod gcd lcm
     L  Additive          + - +| +^ ~| ~^ ?| ?^
     L  Replication       x xx
@@ -462,15 +462,15 @@ additive_expr =
             $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_STRING_CONCAT, l, r2);
             l = $$;
           }
-        | - '~|' ![<>=] - r1:multiplicative_expr {
+        | - '|' ![<>=] - r1:multiplicative_expr {
             $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_BITWISE_OR, l, r1);
             l = $$;
           }
-        | - '~&' ![<>=] - r1:multiplicative_expr {
+        | - '&' ![<>=] - r1:multiplicative_expr {
             $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_BITWISE_AND, l, r1);
             l = $$;
           }
-        | - '~^' ![<>=] - r1:multiplicative_expr {
+        | - '^' ![<>=] - r1:multiplicative_expr {
             $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_BITWISE_XOR, l, r1);
             l = $$;
           }
@@ -517,7 +517,6 @@ symbolic_unary =
     | '~' - f1:exponentiation_expr { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_STRINGIFY, f1); }
     | '?' - f1:exponentiation_expr { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_UNARY_BOOLEAN, f1); }
     | '^' - f1:exponentiation_expr { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_UNARY_UPTO, f1); }
-    | '|' !'|' - f1:exponentiation_expr { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_UNARY_FLATTEN_OBJECT, f1); }
     | exponentiation_expr
 
 exponentiation_expr = 
