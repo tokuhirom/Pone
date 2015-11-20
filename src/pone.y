@@ -200,7 +200,9 @@ return_stmt = 'return' ws e:expr { $$ = PVIP_node_new_children1(&(G->data), PVIP
 
 module_stmt = 'module' ws pkg:pkg_name eat_terminator { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_MODULE, pkg); }
 
-# use "io/socket/inet";
+# use inet io/socket/inet;
+# use io/socket/inet;
+# use . io/socket/inet;
 use_stmt =
     'use' - id:ident - pkg:pkg_name {
         $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_USE, MAYBE(id), pkg); 

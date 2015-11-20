@@ -89,24 +89,24 @@ set_target_properties(pone
     POSITION_INDEPENDENT_CODE ON
     )
 
-add_library(ext_io_socket_inet SHARED ext/socket.c)
-set_target_properties(ext_io_socket_inet
+add_library(ext_socket SHARED ext/socket.c)
+set_target_properties(ext_socket
     PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "blib/io/socket"
+    LIBRARY_OUTPUT_DIRECTORY "blib/"
     )
-set_target_properties(ext_io_socket_inet
+set_target_properties(ext_socket
     PROPERTIES
     PREFIX ""
     )
-set_target_properties(ext_io_socket_inet
+set_target_properties(ext_socket
     PROPERTIES
-    OUTPUT_NAME "inet"
+    OUTPUT_NAME "socket"
     )
-set_target_properties(ext_io_socket_inet
+set_target_properties(ext_socket
     PROPERTIES
     COMPILE_FLAGS "${PONE_COMPILE_FLAGS}"
     )
-set_target_properties(ext_io_socket_inet
+set_target_properties(ext_socket
     PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     )

@@ -1,5 +1,5 @@
-use inet io/socket/inet;
-# TODO `use io/socket/inet;`
+use socket socket;
+# TODO use socket
 
 my $chan = chan(9);
 
@@ -17,7 +17,7 @@ async(sub {
     }
 });
 
-my $sock = inet.listen("127.0.0.1", 10084);
+my $sock = socket.listen("127.0.0.1", 10084);
 
 # TODO listen or die
 while True {
