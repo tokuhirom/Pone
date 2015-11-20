@@ -200,23 +200,14 @@ return_stmt = 'return' ws e:expr { $$ = PVIP_node_new_children1(&(G->data), PVIP
 
 module_stmt = 'module' ws pkg:pkg_name eat_terminator { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_MODULE, pkg); }
 
-# use Perl:ver<6.*>;
+# use "io/socket/inet";
 use_stmt =
-    'use '
-    - pkg:pkg_name { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_USE, pkg); } 
-    (
-        ':ver<' < [^>]+ > {
-            PVIP_node_push_child($$,
-                PVIP_node_new_children2(&(G->data), PVIP_NODE_PAIR,
-                    PVIP_node_new_string(&(G->data), PVIP_NODE_STRING, "ver", 3),
-                    PVIP_node_new_string(&(G->data), PVIP_NODE_STRING, yytext, yyleng)
-                )
-            );
-        } '>'
-    )?
-    eat_terminator
+    'use' - id:ident - pkg:pkg_name {
+        $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_USE, MAYBE(id), pkg); 
+    }
+      eat_terminator
 
-pkg_name = < [a-zA-Z] [a-zA-Z0-9_]* ( '::' [a-zA-Z0-9_]+ )* > {
+pkg_name = < [a-zA-Z] [a-zA-Z0-9_]* ( '/' [a-zA-Z0-9_]+ )* > {
     $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_IDENT, yytext, yyleng);
 }
 
@@ -648,7 +639,7 @@ twvars =
     | '$^b' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_B); }
     | '$^c' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_C); }
 
-reserved = ( 'True' | 'False' | 'my' | 'our' | 'while' | 'unless' | 'if' | 'elsif' | 'else' | 'role' | 'class' | 'try' | 'has' | 'sub' | 'cmp' | 'enum' | 'END' | 'BEGIN' | 'not' | 'and' | 'or' ) ![-A-Za-z0-9]
+reserved = ( 'True' | 'False' | 'my' | 'our' | 'while' | 'unless' | 'if' | 'elsif' | 'else' | 'role' | 'class' | 'try' | 'has' | 'sub' | 'cmp' | 'enum' | 'END' | 'BEGIN' | 'not' | 'and' | 'or' | 'use' ) ![-A-Za-z0-9]
 
 role =
     'role' ws+ i:ident - b:block { $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_ROLE, i, b); }

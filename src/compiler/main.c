@@ -891,6 +891,18 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             }
             break;
         }
+        case PVIP_NODE_USE: {
+            // (statements (use (ident "io\/socket\/inet")))
+            // TODO use . io/socket/inet;
+            // TODO use inet io/socket/inet;
+            // TODO use io/socket/inet;
+            PRINTF("pone_use(world, \"");
+            WRITE_PV(node->children.nodes[1]->pv);
+            PRINTF("\", \"");
+            WRITE_PV(node->children.nodes[0]->pv);
+            PRINTF("\")");
+            break;
+        }
         case PVIP_NODE_NOP:
             PRINTF("pone_nil();");
             break;
@@ -1002,7 +1014,8 @@ int main(int argc, char** argv) {
     bool dump = false;
     bool compile_only = false;
     const char* eval = NULL;
-    while ((opt = getopt(argc, argv, "cde:")) != -1) {
+    bool yy_debug = false;
+    while ((opt = getopt(argc, argv, "ycde:")) != -1) {
         switch (opt) {
             case 'c':
                 compile_only = true;
@@ -1012,6 +1025,13 @@ int main(int argc, char** argv) {
                 break;
             case 'd':
                 dump = true;
+                break;
+            case 'y':
+#ifndef YY_DEBUG
+                printf("You must recompile pone with -DYY_DEBUG");
+                abort();
+#endif
+                yy_debug = true;
                 break;
             default:
                 usage();
@@ -1025,7 +1045,7 @@ int main(int argc, char** argv) {
     pone_init(universe);
     if (eval) {
         PVIPString *error;
-        PVIPNode *node = PVIP_parse_string(pvip, eval, strlen(eval), false, &error);
+        PVIPNode *node = PVIP_parse_string(pvip, eval, strlen(eval), yy_debug, &error);
         if (!node) {
             PVIP_string_say(error);
             PVIP_string_destroy(error);
@@ -1047,7 +1067,7 @@ int main(int argc, char** argv) {
             exit(1);
         }
         PVIPString *error;
-        PVIPNode *node = PVIP_parse_fp(pvip, fp, false, &error);
+        PVIPNode *node = PVIP_parse_fp(pvip, fp, yy_debug, &error);
         if (!node) {
             PVIP_string_say(error);
             PVIP_string_destroy(error);
@@ -1078,7 +1098,7 @@ int main(int argc, char** argv) {
         const char* line;
         while((line = linenoise("pone> ")) != NULL) {
             PVIPString *error;
-            PVIPNode *node = PVIP_parse_string(pvip, line, strlen(line), false, &error);
+            PVIPNode *node = PVIP_parse_string(pvip, line, strlen(line), yy_debug, &error);
             if (!node) {
                 PVIP_string_say(error);
                 PVIP_string_destroy(error);

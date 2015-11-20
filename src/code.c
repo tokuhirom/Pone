@@ -1,4 +1,5 @@
 #include "pone.h" /* PONE_INC */
+#include "khash.h"
 
 void pone_code_mark(pone_val* val) {
     if (val->as.code.lex) {
@@ -15,6 +16,16 @@ pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func) {
     cv->lex = NULL;
 
     return (pone_val*)cv;
+}
+
+void pone_code_bind(pone_world* world, pone_val* code, const char* key, pone_val* val) {
+    khash_t(str) *lex = code->as.code.lex->as.lex.map;
+    int ret;
+    khint_t k = kh_put(str, lex, pone_strdup(world, key, strlen(key)), &ret);
+    if (ret == -1) {
+        abort(); // TODO better error msg
+    }
+    kh_val(lex, k) = val;
 }
 
 /**

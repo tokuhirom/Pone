@@ -1,4 +1,5 @@
 #include "pone.h"
+#include "pone_module.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -78,7 +79,7 @@ PONE_FUNC(meth_sock_accept) {
         }
 #endif
         pone_val* opaque = pone_opaque_new(world, csock, finalizer);
-        pone_opaque_set_class(world, opaque, world->universe->class_io_socket_inet);
+        pone_opaque_set_class(world, opaque, pone_what(world, self));
         return opaque;
     } else {
         // got error
@@ -145,7 +146,7 @@ PONE_FUNC(meth_sock_connect) {
     sock->fd = fd;
 
     pone_val* opaque = pone_opaque_new(world, sock, finalizer);
-    pone_opaque_set_class(world, opaque, world->universe->class_io_socket_inet);
+    pone_opaque_set_class(world, opaque, pone_get_lex(world, "klass"));
     return opaque;
 }
 
@@ -219,27 +220,35 @@ PONE_FUNC(meth_sock_listen) {
     sock->fd = fd;
 
     pone_val* opaque = pone_opaque_new(world, sock, finalizer);
-    pone_opaque_set_class(world, opaque, world->universe->class_io_socket_inet);
+    pone_opaque_set_class(world, opaque, pone_get_lex(world, "klass"));
     return opaque;
 }
 
-void pone_sock_init(pone_world* world) {
+void PONE_DLL_io_socket_inet(pone_world* world, pone_val* module) {
     pone_universe* universe = world->universe;
-    assert(universe->class_io_socket_inet == NULL);
 
     // TODO setsockopt
     // TODO getsockopt
 
-    universe->class_io_socket_inet = pone_class_new(world, "IO::Socket::INET", strlen("IO::Socket::INET"));
-    pone_class_push_parent(world, universe->class_io_socket_inet, universe->class_any);
-    pone_add_method_c(world, universe->class_io_socket_inet, "listen", strlen("listen"), meth_sock_listen);
-    pone_add_method_c(world, universe->class_io_socket_inet, "connect", strlen("connect"), meth_sock_connect);
-    pone_add_method_c(world, universe->class_io_socket_inet, "accept", strlen("accept"), meth_sock_accept);
-    pone_add_method_c(world, universe->class_io_socket_inet, "close", strlen("close"), meth_sock_close);
-    pone_add_method_c(world, universe->class_io_socket_inet, "write", strlen("write"), meth_sock_write);
-    pone_add_method_c(world, universe->class_io_socket_inet, "read", strlen("read"), meth_sock_read);
-    pone_class_compose(world, universe->class_io_socket_inet);
+    pone_val* klass = pone_class_new(world, "Socket", strlen("Socket"));
+    pone_class_push_parent(world, klass, universe->class_any);
+    pone_add_method_c(world, klass, "accept", strlen("accept"), meth_sock_accept);
+    pone_add_method_c(world, klass, "close", strlen("close"), meth_sock_close);
+    pone_add_method_c(world, klass, "write", strlen("write"), meth_sock_write);
+    pone_add_method_c(world, klass, "read", strlen("read"), meth_sock_read);
+    pone_class_compose(world, klass);
 
-    pone_universe_set_global(universe, "IO::Socket::INET", universe->class_io_socket_inet);
+    pone_module_put(world, module, "Socket", klass);
+
+    {
+        pone_val* code_listen = pone_code_new(world, meth_sock_listen);
+        pone_code_bind(world, code_listen, "klass", klass);
+        pone_module_put(world, module, "listen", code_listen);
+    }
+    {
+        pone_val* code_connect = pone_code_new(world,  meth_sock_connect);
+        pone_code_bind(world, code_connect, "klass", klass);
+        pone_module_put(world, module, "connect", code_connect);
+    }
 }
 

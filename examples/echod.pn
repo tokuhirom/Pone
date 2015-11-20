@@ -1,3 +1,6 @@
+use inet io/socket/inet;
+# TODO `use io/socket/inet;`
+
 my $chan = chan(9);
 
 Thread.start(sub {
@@ -15,7 +18,7 @@ Thread.start(sub {
     }
 });
 
-my $sock = IO::Socket::INET.listen("127.0.0.1", 10084);
+my $sock = inet.listen("127.0.0.1", 10084);
 
 # TODO listen or die
 while True {

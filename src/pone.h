@@ -70,6 +70,7 @@ struct pone_val;
 struct pone_world;
 
 typedef struct pone_val* (*pone_funcptr_t)(struct pone_world*, struct pone_val*, int n, va_list);
+typedef struct pone_val* (*pone_loadfunc_t)(struct pone_world*, struct pone_val*);
 typedef void(*pone_finalizer_t)(struct pone_world*, struct pone_val*);
 
 KHASH_MAP_INIT_STR(str, struct pone_val*)
@@ -280,8 +281,6 @@ typedef struct pone_universe {
     struct pone_val* class_thread;
     // class of Pair
     struct pone_val* class_pair;
-    // class of IO::Socket::INET
-    struct pone_val* class_io_socket_inet;
     // class of Channel
     struct pone_val* class_channel;
     // class of Opaque
@@ -290,6 +289,11 @@ typedef struct pone_universe {
     struct pone_val* class_errno;
     // class of File
     struct pone_val* class_file;
+    // class of Module
+    struct pone_val* class_module;
+
+    // $*INC
+    struct pone_val* inc;
 
     khash_t(str) *globals;
 
@@ -332,6 +336,7 @@ pone_val* pone_errvar(pone_world* world);
 pone_val* pone_errno(pone_world* world);
 void pone_world_mark(pone_world*);
 void pone_world_set_errno(pone_world* world);
+void pone_use(pone_world* world, const char* pkg, const char* as);
 
 // exc.c
 jmp_buf* pone_exc_handler_push(pone_world* world);
@@ -396,6 +401,7 @@ void pone_str_mark(pone_val* val);
 
 // code.c
 pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func);
+void pone_code_bind(pone_world* world, pone_val* code, const char* key, pone_val* val);
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func);
 pone_val* pone_code_call(pone_world* world, pone_val* code, pone_val* self, int n, ...);
 pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int n, va_list args);
@@ -520,9 +526,6 @@ bool pone_str_gt(pone_world* world, pone_val* v1, pone_val* v2);
 // range.c
 pone_val* pone_range_new(pone_world* world, pone_val* min, pone_val* max);
 void pone_range_init(pone_world* world);
-
-// socket.c
-void pone_sock_init(pone_world* world);
 
 // re.c
 pone_val* pone_regex_new(pone_world* world, const char* str, size_t len);

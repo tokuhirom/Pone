@@ -25,6 +25,11 @@ if (WERROR)
     SET(PONE_COMPILE_FLAGS "${PONE_COMPILE_FLAGS} -Werror")
 endif()
 
+set(YY_DEBUG "0" CACHE BOOL "YY_DEBUG")
+if (YY_DEBUG)
+    SET(PONE_COMPILE_FLAGS "${PONE_COMPILE_FLAGS} -DYY_DEBUG")
+endif()
+
 set(DEBUG_THREAD "0" CACHE BOOL "enable thread debugging")
 if (DEBUG_THREAD)
     SET(PONE_COMPILE_FLAGS "${PONE_COMPILE_FLAGS} -DDEBUG_THREAD")
@@ -65,7 +70,7 @@ SET(serial "0.0.1")
 SET(soserial "1")
 
 SET(SRCS
-    src/file.c src/runtime.c src/os.c src/arg.c src/errno.c src/opaque.c src/channel.c src/gc.c src/pair.c src/obj.c src/class.c src/alloc.c src/array.c src/bool.c src/builtin.c src/code.c src/hash.c src/int.c src/nil.c src/num.c src/op.c src/pone.c src/scope.c src/str.c src/world.c src/universe.c src/iter.c src/exc.c src/range.c src/mu.c src/any.c src/cool.c src/socket.c src/re.c src/thread.c src/signal.c
+    src/module.c src/file.c src/runtime.c src/os.c src/arg.c src/errno.c src/opaque.c src/channel.c src/gc.c src/pair.c src/obj.c src/class.c src/alloc.c src/array.c src/bool.c src/builtin.c src/code.c src/hash.c src/int.c src/nil.c src/num.c src/op.c src/pone.c src/scope.c src/str.c src/world.c src/universe.c src/iter.c src/exc.c src/range.c src/mu.c src/any.c src/cool.c src/re.c src/thread.c src/signal.c
     src/pvip_node.c src/pvip_string.c gen.pone.y.c src/gen.node.c
     )
 
@@ -80,6 +85,28 @@ set_target_properties(pone
     COMPILE_FLAGS "${PONE_COMPILE_FLAGS}"
     )
 set_target_properties(pone
+    PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    )
+
+add_library(ext_io_socket_inet SHARED ext/socket.c)
+set_target_properties(ext_io_socket_inet
+    PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY "blib/io/socket"
+    )
+set_target_properties(ext_io_socket_inet
+    PROPERTIES
+    PREFIX ""
+    )
+set_target_properties(ext_io_socket_inet
+    PROPERTIES
+    OUTPUT_NAME "inet"
+    )
+set_target_properties(ext_io_socket_inet
+    PROPERTIES
+    COMPILE_FLAGS "${PONE_COMPILE_FLAGS}"
+    )
+set_target_properties(ext_io_socket_inet
     PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     )

@@ -8,6 +8,7 @@
 
 void pone_os_init(pone_world* world);
 void pone_file_init(pone_world* world);
+void pone_module_init(pone_world* world);
 
 void pone_init(pone_universe* universe) {
 #if defined(_WIN32) || defined(_WIN64)
@@ -52,7 +53,6 @@ void pone_init(pone_universe* universe) {
     pone_regex_init(world);
     pone_thread_init(world);
     pone_pair_init(world);
-    pone_sock_init(world);
     pone_gc_init(world);
     pone_channel_init(world);
     pone_opaque_init(world);
@@ -61,15 +61,16 @@ void pone_init(pone_universe* universe) {
     pone_os_init(world);
     pone_runtime_init(world);
     pone_file_init(world);
+    pone_module_init(world);
 
     pone_builtin_init(world);
+
+    // init $*INC
+    universe->inc = pone_ary_new(world, 1, pone_str_new_const(world, "blib", strlen("blib")));
 
     // TODO
     // pone_universe_set_global(universe, "pi", pone_num_new(world, M_PI));
 
-#ifdef TRACE_UNIVERSE
-    printf("initializing value IterationEnd\n");
-#endif
     universe->instance_iteration_end = pone_obj_new(world, universe->class_mu);
 
     {

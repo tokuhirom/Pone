@@ -68,7 +68,3 @@ like $res, qr/$wd/;
 --- code: say 3.hoge
 --- re: Method 'hoge' not found for invocant of class 'Int'
 
-===
---- code: say IO::Socket::INET.hoge
---- re: Method 'hoge' not found for invocant of class 'IO::Socket::INET'
-
