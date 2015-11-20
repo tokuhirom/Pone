@@ -891,7 +891,7 @@ integer =
 integer_int =
     <[0-9]+> { $$ = PVIP_node_new_intf(&(G->data), PVIP_NODE_INT, yytext, yyleng, 10); }
 
-string = dq_string | sq_string | bytes
+string = dq_string | sq_string
 
 dq_string =
     (
@@ -1047,14 +1047,6 @@ sq_string = "'" { $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_STRING, "", 0)
         | esc esc { $$=PVIP_node_append_string(&(G->data), $$, "\\", 1); }
         | < esc . > { $$=PVIP_node_append_string(&(G->data), $$, yytext, yyleng); }
     )* ']'
-
-bytes = "b'" { $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_BYTES, "", 0); } (
-        "\n" { G->data.line_number++; $$=PVIP_node_append_string(&(G->data), $$, "\n", 1); }
-        | < [^'\\\n]+ > { $$=PVIP_node_append_string(&(G->data), $$, yytext, yyleng); }
-        | esc "'" { $$=PVIP_node_append_string(&(G->data), $$, "'", 1); }
-        | esc esc { $$=PVIP_node_append_string(&(G->data), $$, "\\", 1); }
-        | < esc . > { $$=PVIP_node_append_string(&(G->data), $$, yytext, yyleng); }
-    )* "'"
 
 comment =
     '#`[' [^\]]* ']'
