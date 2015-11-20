@@ -954,10 +954,11 @@ say 0 and False;
 say False and 0;
 --- expected
 X
+XX
 Y
-YY
 Z
 False
+Y
 0
 False
 0
