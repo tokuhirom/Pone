@@ -426,24 +426,33 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF(")");
             break;
         // See http://c-faq.com/expr/seqpoints.html
+        // x or y compile to:
+        // (assign(x) || assign(y), get_lex())
         case PVIP_NODE_LOGICAL_OR: {
-            // x or y compile to:
-            // (logical_scope(),logical_set(x) || logical_set(y), logical_pop())
             pone_int_t id = ctx->logical_op_counter++;
-            PRINTF("(pone_so(pone_assign(world, 0, \"$<LOGICAL_OR%d\", ", id);
+            PRINTF("(pone_so(pone_assign(world, 0, \"$<LOGICAL_OR%ld\", ", id);
             COMPILE(node->children.nodes[0]);
-            PRINTF(")) || pone_assign(world, 0, \"$<LOGICAL_OR%d\", ", id);
+            PRINTF(")) || pone_assign(world, 0, \"$<LOGICAL_OR%ld\", ", id);
             COMPILE(node->children.nodes[1]);
-            PRINTF("), pone_get_lex(world, \"$<LOGICAL_OR%d\"))", id);
+            PRINTF("), pone_get_lex(world, \"$<LOGICAL_OR%ld\"))", id);
+            break;
+        }
+        case PVIP_NODE_DOR: {
+            pone_int_t id = ctx->logical_op_counter++;
+            PRINTF("(pone_defined(pone_assign(world, 0, \"$<LOGICAL_DOR%ld\", ", id);
+            COMPILE(node->children.nodes[0]);
+            PRINTF(")) || pone_assign(world, 0, \"$<LOGICAL_DOR%ld\", ", id);
+            COMPILE(node->children.nodes[1]);
+            PRINTF("), pone_get_lex(world, \"$<LOGICAL_DOR%ld\"))", id);
             break;
         }
         case PVIP_NODE_LOGICAL_AND: {
             pone_int_t id = ctx->logical_op_counter++;
-            PRINTF("(pone_so(pone_assign(world, 0, \"$<LOGICAL_AND%d\", ", id);
+            PRINTF("(pone_so(pone_assign(world, 0, \"$<LOGICAL_AND%ld\", ", id);
             COMPILE(node->children.nodes[0]);
-            PRINTF(")) && pone_assign(world, 0, \"$<LOGICAL_AND%d\", ", id);
+            PRINTF(")) && pone_assign(world, 0, \"$<LOGICAL_AND%ld\", ", id);
             COMPILE(node->children.nodes[1]);
-            PRINTF("), pone_get_lex(world, \"$<LOGICAL_AND%d\"))", id);
+            PRINTF("), pone_get_lex(world, \"$<LOGICAL_AND%ld\"))", id);
             break;
         }
 #undef INFIX
