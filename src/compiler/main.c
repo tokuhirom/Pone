@@ -197,7 +197,6 @@ static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
     case PVIP_NODE_POSTDEC:
     case PVIP_NODE_PREINC:
     case PVIP_NODE_PREDEC:
-    case PVIP_NODE_UNARY_BITWISE_NEGATION:
     case PVIP_NODE_BRSHIFT:
     case PVIP_NODE_BLSHIFT:
     case PVIP_NODE_CHAIN:
