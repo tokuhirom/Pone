@@ -59,11 +59,6 @@ TODO
  * -p
  * -lane
  * -i
- * `and`
- * `or`
- * `xor`
- * `&&`
- * `||`
  * `s///`
  * `"hoge"[0]`
  * `while True { last; }`
