@@ -121,7 +121,6 @@ void pone_regex_init(pone_world* world) {
 
     universe->class_regex = pone_class_new(world, "Regex", strlen("Regex"));
     // TODO inherit from routine
-    pone_class_push_parent(world, universe->class_regex, universe->class_any);
     pone_add_method_c(world, universe->class_regex, "ACCEPTS", strlen("ACCEPTS"), meth_regex_accepts);
     pone_add_method_c(world, universe->class_regex, "Str", strlen("Str"), meth_regex_str);
     pone_class_compose(world, universe->class_regex);
@@ -133,7 +132,6 @@ void pone_regex_init(pone_world* world) {
     pone_add_method_c(world, universe->class_match, "to", strlen("to"), meth_match_to);
     pone_add_method_c(world, universe->class_match, "orig", strlen("orig"), meth_match_orig);
     pone_add_method_c(world, universe->class_match, "list", strlen("list"), meth_match_list);
-    pone_class_push_parent(world, universe->class_match, universe->class_any);
     pone_class_compose(world, universe->class_match);
 
     pone_universe_set_global(universe, "Regex", universe->class_regex);

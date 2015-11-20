@@ -242,8 +242,6 @@ typedef struct pone_universe {
     // mutex for signal_channels.
     pthread_mutex_t signal_channels_mutex;
 
-    // 無("Mu")
-    struct pone_val* class_mu;
     // class of class
     struct pone_val* class_class;
     // class of Int
@@ -254,10 +252,6 @@ typedef struct pone_universe {
     struct pone_val* class_str;
     // class of Bytes
     struct pone_val* class_bytes;
-    // class of Cool
-    struct pone_val* class_cool;
-    // class of Any
-    struct pone_val* class_any;
     // class of Array
     struct pone_val* class_ary;
     // class of Bool
@@ -477,16 +471,9 @@ void* pone_malloc(pone_universe* universe, size_t size);
 pone_val* pone_obj_alloc(pone_world* world, pone_t type);
 void pone_free(pone_universe* universe, void* p);
 
-// cool.c
-pone_val* pone_init_cool(pone_world* world);
-
-// any.c
-pone_val* pone_init_any(pone_world* world);
-
 // class.c
 pone_val* pone_init_class(pone_world* world);
 pone_val* pone_class_new(pone_world* world, const char* name, size_t name_len);
-void pone_class_push_parent(pone_world* world, pone_val* obj, pone_val* klass);
 void pone_add_method(pone_world* world, pone_val* klass, const char* name, size_t name_len, pone_val* method);
 void pone_add_method_c(pone_world* world, pone_val* klass, const char* name, size_t name_len, pone_funcptr_t funcptr);
 pone_val* pone_find_method(pone_world* world, pone_val* klass, const char* name);

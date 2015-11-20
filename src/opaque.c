@@ -20,7 +20,6 @@ void pone_opaque_init(pone_world* world) {
     pone_universe* universe = world->universe;
 
     pone_val* klass = pone_class_new(world, "Opaque", strlen("Opaque"));
-    pone_class_push_parent(world, klass, universe->class_any);
     pone_class_compose(world, klass);
 
     universe->class_opaque = klass;

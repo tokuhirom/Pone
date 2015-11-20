@@ -26,15 +26,11 @@ void pone_init(pone_universe* universe) {
 #ifdef TRACE_UNIVERSE
     printf("initializing class mu\n");
 #endif
-    universe->class_mu = pone_init_mu(world);
 
 #ifdef TRACE_UNIVERSE
     printf("initializing class Class\n");
 #endif
     universe->class_class = pone_init_class(world);
-
-    universe->class_any = pone_init_any(world);
-    universe->class_cool = pone_init_cool(world);
 
 #ifdef TRACE_UNIVERSE
     printf("initializing class Array\n");
@@ -71,7 +67,10 @@ void pone_init(pone_universe* universe) {
     // TODO
     // pone_universe_set_global(universe, "pi", pone_num_new(world, M_PI));
 
-    universe->instance_iteration_end = pone_obj_new(world, universe->class_mu);
+    {
+        pone_val* klass = pone_class_new(world, "IterationEnd", strlen("IterationEnd"));
+        universe->instance_iteration_end = pone_obj_new(world, klass);
+    }
 
     {
         const char* env = getenv("PONE_GC_LOG");

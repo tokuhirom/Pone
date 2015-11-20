@@ -260,7 +260,6 @@ void pone_ary_init(pone_world* world) {
     pone_add_method_c(world, iter_class, "pull-one", strlen("pull-one"), meth_pull_one);
 
     universe->class_ary = pone_class_new(world, "Array", strlen("Array"));
-    pone_class_push_parent(world, universe->class_ary, universe->class_any);
     pone_add_method_c(world, universe->class_ary, "iterator", strlen("iterator"), meth_ary_iterator);
     pone_add_method_c(world, universe->class_ary, "elems", strlen("elems"), meth_ary_elems);
     pone_add_method_c(world, universe->class_ary, "push", strlen("push"), meth_ary_push);
@@ -271,7 +270,6 @@ void pone_ary_init(pone_world* world) {
     pone_add_method_c(world, universe->class_ary, "Str", strlen("Str"), meth_ary_str);
     pone_add_method_c(world, universe->class_ary, "ASSIGN-POS", strlen("ASSIGN-POS"), meth_ary_assign_pos);
     pone_obj_set_ivar(world, universe->class_ary, "$!iterator-class", iter_class);
-
     pone_class_compose(world, universe->class_ary);
 }
 

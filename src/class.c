@@ -15,6 +15,26 @@ PONE_FUNC(meth_Str) {
     return v;
 }
 
+PONE_FUNC(mu_say) {
+    PONE_ARG("#say", "");
+
+    pone_val* s = pone_str_copy(world, pone_stringify(world, self));
+    pone_str_append_c(world, s, "\n", 1);
+    fwrite(pone_str_ptr(s), sizeof(char), pone_str_len(s), stdout);
+    return pone_nil();
+}
+
+PONE_FUNC(mu_what) {
+    PONE_ARG("#WHAT", "");
+    return pone_what(world, self);
+}
+
+PONE_FUNC(class_what) {
+    PONE_ARG("Class#WHAT", "");
+    // TODO return class of class
+    return pone_nil();
+}
+
 // initialize Class class
 pone_val* pone_init_class(pone_world* world) {
     pone_val* val = pone_obj_alloc(world, PONE_OBJ);
@@ -23,9 +43,12 @@ pone_val* pone_init_class(pone_world* world) {
 
     pone_obj_set_ivar(world, val, "$!name", pone_str_new_const(world, "Class", strlen("Class")));
     pone_obj_set_ivar(world, val, "$!methods", pone_hash_new(world));
-    pone_obj_set_ivar(world, val, "@!parents", pone_ary_new(world, 0));
     pone_add_method_c(world, val, "name", strlen("name"), meth_name);
     pone_add_method_c(world, val, "Str", strlen("Str"), meth_Str);
+    pone_add_method_c(world, val, "say", strlen("say"), mu_say);
+    pone_add_method_c(world, val, "WHAT", strlen("WHAT"), class_what);
+    pone_class_compose(world, val);
+
     return val;
 }
 
@@ -73,16 +96,13 @@ pone_val* pone_what(pone_world* world, pone_val* obj) {
  */
 pone_val* pone_class_new(pone_world* world, const char* name, size_t name_len) {
     pone_val* obj = pone_obj_new(world, world->universe->class_class);
-    pone_obj_set_ivar(world, (pone_val*)obj, "$!name", pone_str_new_strdup(world, name, name_len));
-    pone_obj_set_ivar(world, (pone_val*)obj, "$!methods", pone_hash_new(world));
-    pone_obj_set_ivar(world, (pone_val*)obj, "@!parents", pone_ary_new(world, 0));
+    pone_obj_set_ivar(world, obj, "$!name", pone_str_new_strdup(world, name, name_len));
+    pone_obj_set_ivar(world, obj, "$!methods", pone_hash_new(world));
+
+    pone_add_method_c(world, obj, "say", strlen("say"), mu_say);
+    pone_add_method_c(world, obj, "WHAT", strlen("WHAT"), mu_what);
 
     return (pone_val*)obj;
-}
-
-void pone_class_push_parent(pone_world* world, pone_val* obj, pone_val* klass) {
-    pone_val* parents = pone_obj_get_ivar(world, obj, "@!parents");
-    pone_ary_push(world->universe, parents, klass);
 }
 
 void pone_add_method_c(pone_world* world, pone_val* klass, const char* name, size_t name_len, pone_funcptr_t funcptr) {
@@ -112,13 +132,6 @@ static void _compose(pone_world* world, pone_val* target_methods, pone_val* klas
             pone_hash_assign_key_c(world, target_methods, k, strlen(k), v);
         }
     });
-
-    pone_val* parents = pone_obj_get_ivar(world, klass, "@!parents");
-    assert(pone_type(parents) == PONE_ARRAY);
-    pone_int_t l = pone_ary_elems(parents);
-    for (pone_int_t i=0; i<l; ++i) {
-        _compose(world, target_methods, pone_ary_at_pos(parents, i));
-    }
 }
 
 // .^compose

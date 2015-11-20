@@ -225,13 +225,10 @@ PONE_FUNC(meth_sock_listen) {
 }
 
 void PONE_DLL_io_socket_inet(pone_world* world, pone_val* module) {
-    pone_universe* universe = world->universe;
-
     // TODO setsockopt
     // TODO getsockopt
 
     pone_val* klass = pone_class_new(world, "Socket", strlen("Socket"));
-    pone_class_push_parent(world, klass, universe->class_any);
     pone_add_method_c(world, klass, "accept", strlen("accept"), meth_sock_accept);
     pone_add_method_c(world, klass, "close", strlen("close"), meth_sock_close);
     pone_add_method_c(world, klass, "write", strlen("write"), meth_sock_write);

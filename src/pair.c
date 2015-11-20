@@ -26,7 +26,6 @@ void pone_pair_init(pone_world* world) {
     assert(universe->class_pair == NULL);
 
     universe->class_pair = pone_class_new(world, "Pair", strlen("Pair"));
-    pone_class_push_parent(world, universe->class_pair, universe->class_any);
     pone_add_method_c(world, universe->class_pair, "key", strlen("key"), meth_pair_key);
     pone_add_method_c(world, universe->class_pair, "value", strlen("value"), meth_pair_value);
     pone_add_method_c(world, universe->class_pair, "Str", strlen("Str"), meth_pair_str);

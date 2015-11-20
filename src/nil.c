@@ -37,7 +37,6 @@ void pone_nil_init(pone_world* world) {
     assert(universe->class_nil == NULL);
 
     universe->class_nil = pone_class_new(world, "Nil", strlen("Nil"));
-    pone_class_push_parent(world, universe->class_nil, universe->class_cool);
     pone_add_method_c(world, universe->class_nil, "gist", strlen("gist"), meth_nil_gist);
     pone_add_method_c(world, universe->class_nil, "Str", strlen("Str"), meth_nil_str);
     pone_add_method_c(world, universe->class_nil, "Int", strlen("Int"), meth_nil_int);
