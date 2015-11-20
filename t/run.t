@@ -49,7 +49,7 @@ __END__
 --- re: overflow
 
 === 
---- code: say OS.getwd();
+--- code: say getcwd();
 --- test
 use Cwd;
 my $wd = Cwd::getcwd();
@@ -57,11 +57,11 @@ note $wd;
 like $res, qr/$wd/;
 
 ===
---- code: say Runtime.version;
+--- code: say $PONE_VERSION;
 --- re: alpha
 
 ===
---- code: say OS.is_win;
+--- code: say os.is_win;
 --- re: True|False
 
 ===

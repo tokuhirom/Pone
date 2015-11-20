@@ -2,7 +2,7 @@
 
 Runtime information.
 
-## `Runtime.version`
+## `$PONE_VERSION`
 
 Get the pone runtime version.
 
