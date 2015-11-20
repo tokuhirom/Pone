@@ -42,8 +42,6 @@
     L  Additive          + - +| +^ ~| ~^ ?| ?^
     L  Replication       x xx
     X  Concatenation     ~
-    X  Junctive and      & (&) ∩
-    X  Junctive or       | ^ (|) (^) ∪ (-)
     L  Named unary       temp let
     N  Structural infix  but does <=> leg cmp .. ..^ ^.. ^..^
     C  Chaining infix    != == < <= > >= eq ne lt le gt ge ~~ === eqv !eqv (<) (elem)
@@ -421,25 +419,10 @@ funcall =
 
 #  L  Named unary       temp let
 named_unary_expr =
-    {type=NULL; } 'my' ws+ type:ident? - a:junctive_or_expr { $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_MY, MAYBE(type), a); }
-    | 'our' ws+ a:junctive_or_expr { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_OUR, a); }
+    {type=NULL; } 'my' ws+ type:ident? - a:concatenation_expr { $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_MY, MAYBE(type), a); }
+    | 'our' ws+ a:concatenation_expr { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_OUR, a); }
     | !reserved i:ident ws+ a:bare_args { $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_FUNCALL, i, a); }
-    | junctive_or_expr
-
-junctive_or_expr =
-    a:junctive_and_expr (
-        - (
-            '|' ![|] - b:junctive_and_expr { a = PVIP_node_new_children2(&(G->data), PVIP_NODE_JUNCTIVE_OR, a, b); }
-        )
-    )* { $$ = a; }
-
-junctive_and_expr =
-    a:concatenation_expr (
-        - (
-            '&' ![&] - b:concatenation_expr { a = PVIP_node_new_children2(&(G->data), PVIP_NODE_JUNCTIVE_AND, a, b); }
-            | 'S&' ![&] - b:concatenation_expr { a = PVIP_node_new_children2(&(G->data), PVIP_NODE_JUNCTIVE_SAND, a, b); }
-        )
-    )* { $$ = a; }
+    | concatenation_expr
 
 #  X  Concatenation     ~
 concatenation_expr =

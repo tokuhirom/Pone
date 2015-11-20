@@ -151,9 +151,6 @@ typedef enum {
     PVIP_NODE_ROLE,
     PVIP_NODE_IS,
     PVIP_NODE_DOES,
-    PVIP_NODE_JUNCTIVE_AND, /* & */
-    PVIP_NODE_JUNCTIVE_SAND, /* S& */
-    PVIP_NODE_JUNCTIVE_OR, /* | */
     PVIP_NODE_UNICODE_CHAR, /* \c[] */
     PVIP_NODE_STUB, /* ... */
     PVIP_NODE_PARAM,

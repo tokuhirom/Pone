@@ -220,9 +220,6 @@ static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
     case PVIP_NODE_INPLACE_REPEAT_S:
     case PVIP_NODE_STRINGIFY: /* prefix:<~> */
     case PVIP_NODE_NUM_CMP: /* <=> */
-    case PVIP_NODE_JUNCTIVE_AND: /* & */
-    case PVIP_NODE_JUNCTIVE_SAND: /* S& */
-    case PVIP_NODE_JUNCTIVE_OR: /* | */
     case PVIP_NODE_UNICODE_CHAR: /* \c[] */
     case PVIP_NODE_BITWISE_OR:  /* ~| */
     case PVIP_NODE_BITWISE_AND: /* ~& */
