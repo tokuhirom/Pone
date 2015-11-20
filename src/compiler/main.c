@@ -408,6 +408,12 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
         case PVIP_NODE_BITWISE_XOR: /* ^ */
             INFIX("pone_bitwise_xor");
             break;
+        case PVIP_NODE_BRSHIFT: /* >> */
+            INFIX("pone_brshift");
+            break;
+        case PVIP_NODE_BLSHIFT: /* << */
+            INFIX("pone_blshift");
+            break;
         case PVIP_NODE_CONDITIONAL:
             // True ? 1 : 2
             // (conditional (true) (int 1) (int 2))

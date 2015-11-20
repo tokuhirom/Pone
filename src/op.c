@@ -288,6 +288,8 @@ bool pone_gt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(>);  }
 pone_val* pone_bitwise_or(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(|);  }
 pone_val* pone_bitwise_and(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(&);  }
 pone_val* pone_bitwise_xor(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(^);  }
+pone_val* pone_brshift(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(>>);  }
+pone_val* pone_blshift(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(<<);  }
 
 #undef BIT_OP
 
