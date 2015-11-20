@@ -30,7 +30,6 @@
 
 /*
 
-
     A  Level             Examples
     =  =====             ========
     N  Terms             42 3.14 "eek" qq["foo"] $x :!verbose @$array
@@ -38,8 +37,8 @@
     N  Autoincrement     ++ --
     R  Exponentiation    **
     L  Symbolic unary    ! + - ~ ? || +^ ~^ ?^ ^
-    L  Multiplicative    * / % %% +& +< +> ~& ~< ~> ?& div mod gcd lcm
-    L  Additive          + - +| +^ ~| ~^ ?| ?^
+    L  Multiplicative    * / % %% & +< +> ~< ~> ?& div mod gcd lcm
+    L  Additive          + - | ^
     L  Replication       x xx
     X  Concatenation     ~
     L  Named unary       temp let
@@ -51,11 +50,9 @@
     R  Item assignment   = => += -= **= xx= .=
     L  Loose unary       so not
     X  Comma operator    , :
-    X  List infix        Z minmax X X~ X* Xeqv ...
     R  List prefix       print push say die map substr ... [+] [*] any Z=
     X  Loose and         and andthen
     X  Loose or          or xor orelse
-    X  Sequencer         <== ==> <<== ==>>
     N  Terminator        ; {...} unless extra ) ] }
 
 */
@@ -280,10 +277,7 @@ bare_args = a:loose_unary_expr {
         }
     )*
 
-expr = sequencer_expr
-
-# TODO
-sequencer_expr = loose_or_expr
+expr = loose_or_expr
 
 loose_or_expr =
     f1:loose_and_expr (
@@ -297,8 +291,8 @@ loose_and_expr =
     )* { $$=f1; }
 
 list_prefix_expr =
-    '[' a:reduce_operator ']' - b:list_infix_expr { $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_REDUCE, a, b); }
-    | l:list_infix_expr { $$=l; } (
+    '[' a:reduce_operator ']' - b:comma_operator_expr { $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_REDUCE, a, b); }
+    | l:comma_operator_expr { $$=l; } (
         # infix:<=>, list assignment
         - '=' !'=' - r:list_prefix_expr {
             l = CHILDREN2(PVIP_NODE_LIST_ASSIGNMENT, l, r);
@@ -315,9 +309,6 @@ list_prefix_expr =
             $$=l;
         }
     )*
-
-list_infix_expr =
-    a:comma_operator_expr {$$=a;}
 
 reduce_operator =
     < '*' > { $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_STRING, yytext, yyleng); }
@@ -442,15 +433,7 @@ replication_expr =
 
 additive_expr =
     l:multiplicative_expr (
-          - '+|' - r:exponentiation_expr {
-            $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_BIN_OR, l, r);
-            l = $$;
-        }
-        | - '+^' - r:exponentiation_expr {
-            $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_BIN_XOR, l, r);
-            l = $$;
-        }
-        | - '+' ![|<>=] - r1:multiplicative_expr {
+        - '+' ![|<>=] - r1:multiplicative_expr {
             $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_ADD, l, r1);
             l = $$;
           }
@@ -466,14 +449,10 @@ additive_expr =
             $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_BITWISE_OR, l, r1);
             l = $$;
           }
-        | - '&' ![<>=] - r1:multiplicative_expr {
-            $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_BITWISE_AND, l, r1);
-            l = $$;
-          }
         | - '^' ![<>=] - r1:multiplicative_expr {
             $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_BITWISE_XOR, l, r1);
             l = $$;
-          }
+        }
     )* {
         $$ = l;
     }
@@ -492,16 +471,16 @@ multiplicative_expr =
             $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_MOD, l, r);
             l = $$;
         }
-        | - '+&' - r:symbolic_unary {
-            $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_BIN_AND, l, r);
-            l = $$;
-        }
         | - '+>' - r:symbolic_unary {
             $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_BRSHIFT, l, r);
             l = $$;
         }
         | - '+<' - r:symbolic_unary {
             $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_BLSHIFT, l, r);
+            l = $$;
+        }
+        | - '&' ![<>=] - r1:multiplicative_expr {
+            $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_BITWISE_AND, l, r1);
             l = $$;
         }
     )* {

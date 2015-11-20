@@ -186,9 +186,6 @@ static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
     case PVIP_NODE_LOGICAL_OR:
     case PVIP_NODE_LOGICAL_XOR:
     case PVIP_NODE_DOR: /* '//' */
-    case PVIP_NODE_BIN_AND:
-    case PVIP_NODE_BIN_OR:
-    case PVIP_NODE_BIN_XOR:
     case PVIP_NODE_LAMBDA:
     case PVIP_NODE_MODULE:
     case PVIP_NODE_CLASS:
