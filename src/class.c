@@ -61,11 +61,7 @@ pone_val* pone_what(pone_world* world, pone_val* obj) {
             return universe->class_opaque;
         }
     case PONE_OBJ:
-        if (obj->as.obj.klass == universe->class_class) {
-            return obj; // return obj itself if it's a class.
-        } else {
-            return obj->as.obj.klass;
-        }
+        return obj->as.obj.klass;
     case PONE_LEX:
         abort();
     }
