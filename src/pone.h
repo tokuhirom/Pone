@@ -277,8 +277,6 @@ typedef struct pone_universe {
     struct pone_val* class_regex;
     // class of Match
     struct pone_val* class_match;
-    // class of Thread
-    struct pone_val* class_thread;
     // class of Pair
     struct pone_val* class_pair;
     // class of Channel
@@ -299,8 +297,6 @@ typedef struct pone_universe {
 
     // thread.c sends signal at thread termination.
     pthread_cond_t worker_fin_cond;
-    // mutex for above
-    pthread_mutex_t worker_fin_cond_mutex;
 
     // list of normal worlds.
     // This list contains worlds created by pone_thread_start.

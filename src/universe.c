@@ -34,7 +34,6 @@ pone_universe* pone_universe_init() {
     memset(universe, 0, sizeof(pone_universe));
 
     CHECK_PTHREAD(pthread_mutex_init(&(universe->signal_channels_mutex), NULL));
-    CHECK_PTHREAD(pthread_mutex_init(&(universe->worker_fin_cond_mutex), NULL));
     CHECK_PTHREAD(pthread_mutex_init(&(universe->worker_worlds_mutex), NULL));
     CHECK_PTHREAD(pthread_cond_init(&(universe->worker_fin_cond), NULL));
 
@@ -78,7 +77,7 @@ pone_int_t pone_count_alive_threads(pone_universe* universe) {
 
 // wait until threads finished jobs.
 void pone_universe_wait_threads(pone_universe* universe) {
-    CHECK_PTHREAD(pthread_mutex_lock(&(universe->worker_fin_cond_mutex)));
+    CHECK_PTHREAD(pthread_mutex_lock(&(universe->worker_worlds_mutex)));
     while (true) {
         if (universe->worker_worlds) {
             pone_int_t n = pone_count_alive_threads(universe);
@@ -86,14 +85,13 @@ void pone_universe_wait_threads(pone_universe* universe) {
                 break;
             }
         }
-        CHECK_PTHREAD(pthread_cond_wait(&(universe->worker_fin_cond), &(universe->worker_fin_cond_mutex)));
+        CHECK_PTHREAD(pthread_cond_wait(&(universe->worker_fin_cond), &(universe->worker_worlds_mutex)));
     }
-    CHECK_PTHREAD(pthread_mutex_unlock(&(universe->worker_fin_cond_mutex)));
+    CHECK_PTHREAD(pthread_mutex_unlock(&(universe->worker_worlds_mutex)));
 }
 
 void pone_universe_destroy(pone_universe* universe) {
     CHECK_PTHREAD(pthread_cond_destroy(&(universe->worker_fin_cond)));
-    CHECK_PTHREAD(pthread_mutex_destroy(&(universe->worker_fin_cond_mutex)));
     CHECK_PTHREAD(pthread_mutex_destroy(&(universe->signal_channels_mutex)));
     CHECK_PTHREAD(pthread_mutex_destroy(&(universe->worker_worlds_mutex)));
 

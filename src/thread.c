@@ -34,14 +34,16 @@ static void* thread_start(void* p) {
             pone_world_release(world);
 
             // tell thread termination to pone_universe_wait_threads.
-            CHECK_PTHREAD(pthread_mutex_lock(&(universe->worker_fin_cond_mutex)));
+            CHECK_PTHREAD(pthread_mutex_lock(&(universe->worker_worlds_mutex)));
             CHECK_PTHREAD(pthread_cond_signal(&(universe->worker_fin_cond)));
-            CHECK_PTHREAD(pthread_mutex_unlock(&(universe->worker_fin_cond_mutex)));
+            CHECK_PTHREAD(pthread_mutex_unlock(&(universe->worker_worlds_mutex)));
         }
     }
 
     return NULL;
 }
+
+pone_int_t pone_count_alive_threads(pone_universe* universe);
 
 void pone_thread_start(pone_universe* universe, pone_val* code) {
     assert(pone_type(code) == PONE_CODE);
@@ -73,7 +75,7 @@ void pone_thread_start(pone_universe* universe, pone_val* code) {
     new_world->code = code;
     if (universe->worker_worlds) {
         new_world->next = universe->worker_worlds;
-        universe->worker_worlds = new_world->next;
+        universe->worker_worlds = new_world;
     } else {
         universe->worker_worlds = new_world;
     }
@@ -86,6 +88,8 @@ static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_
     assert(n == 1);
     assert(world->universe);
 
+    THREAD_TRACE("meth_thread_start");
+
     pone_val*code = va_arg(args, pone_val*);
     assert(pone_type(code) == PONE_CODE);
 
@@ -94,16 +98,9 @@ static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_
     return pone_nil();
 }
 
-// TODO Add builtin 'async' method and remove this.
 void pone_thread_init(pone_world* world) {
     pone_universe* universe = world->universe;
-    assert(universe->class_thread == NULL);
 
-    universe->class_thread = pone_class_new(world, "Thread", strlen("Thread"));
-    pone_class_push_parent(world, universe->class_thread, universe->class_any);
-    pone_add_method_c(world, universe->class_thread, "start", strlen("start"), meth_thread_start);
-    pone_class_compose(world, universe->class_thread);
-    pone_universe_set_global(universe, "Thread", universe->class_thread);
-    assert(universe->class_thread->as.obj.klass);
+    pone_universe_set_global(universe, "async", pone_code_new_c(world, meth_thread_start));
 }
 
