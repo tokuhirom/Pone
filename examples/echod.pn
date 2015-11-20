@@ -3,12 +3,11 @@ use inet io/socket/inet;
 
 my $chan = chan(9);
 
-Thread.start(sub {
+async(sub {
     # TODO loop
     while True {
         my $csock = $chan.receive();
         for 1..10 {
-            dd "READ!";
             my $buf = $csock.read(1000);
             $csock.write($buf);
             say "done read";
