@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 3.0.0)
 project(pone)
 
 INCLUDE(CheckSymbolExists)
@@ -18,7 +18,7 @@ SET(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS} ")
 SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2 -DNDEBUG")
 message("-- type: ${CMAKE_BUILD_TYPE}")
 
-set(PONE_COMPILE_FLAGS "-D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L -pthread -std=c99 -Wall -W -Wextra -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-function")
+set(PONE_COMPILE_FLAGS "-D_GNU_SOURCE -pthread -std=c99 -Wall -W -Wextra -Wno-unused-parameter -Wno-unused-function")
 
 set(WERROR "0" CACHE BOOL "enable -Werror")
 if (WERROR)
@@ -74,8 +74,8 @@ SET(SRCS
     src/pvip_node.c src/pvip_string.c gen.pone.y.c src/gen.node.c
     )
 
-add_executable(pone src/compiler/main.c 3rd/linenoise/linenoise.c ${SRCS})
-target_link_libraries(pone m onigmo dl pthread)
+add_executable(pone src/compiler/main.c 3rd/linenoise/linenoise.c)
+target_link_libraries(pone libpone m onigmo dl pthread)
 set_target_properties(pone
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "bin/"
@@ -89,7 +89,19 @@ set_target_properties(pone
     POSITION_INDEPENDENT_CODE ON
     )
 
+add_library(libpone STATIC ${SRCS})
+target_link_libraries(libpone m onigmo dl pthread)
+set_target_properties(libpone
+    PROPERTIES
+    COMPILE_FLAGS "${PONE_COMPILE_FLAGS}"
+    )
+set_target_properties(libpone
+    PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    )
+
 add_library(ext_socket SHARED ext/socket.c)
+target_link_libraries(ext_socket libpone)
 set_target_properties(ext_socket
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "blib/"
@@ -118,11 +130,15 @@ add_test(NAME prove COMMAND prove t xt)
 
 add_executable(greg 3rd/greg/greg.c 3rd/greg/tree.c 3rd/greg/compile.c)
 set_target_properties(greg PROPERTIES COMPILE_FLAGS "-g -Wno-sign-compare")
+set_target_properties(greg
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_BINARY_DIR}
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_BINARY_DIR}
+    )
 
 add_custom_command(
     OUTPUT gen.pone.y.c
-    COMMAND echo $(PROJECT_BINARY_DIR)
-    COMMAND ./greg -o gen.pone.y.c ${PROJECT_SOURCE_DIR}/src/pone.y
+    COMMAND ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/greg -o gen.pone.y.c ${PROJECT_SOURCE_DIR}/src/pone.y
     DEPENDS greg src/pone.y
     )
 add_custom_command(
