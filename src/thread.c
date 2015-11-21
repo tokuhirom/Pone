@@ -2,6 +2,35 @@
 #include <errno.h>
 #include <signal.h>
 
+/*
+ * Copy all values to the new world.
+ * Because we need to copy values from another thread.
+ */
+static void copy_lex_values(pone_world* world, pone_val* code) {
+    pone_val* dst = pone_lex_new(world, NULL);
+    pone_val* lex = code->as.code.lex;
+    while (lex) {
+        const char *k;
+        pone_val* v;
+        kh_foreach(lex->as.lex.map, k, v, {
+            int ret;
+            pone_val* key = pone_str_new_strdup(world, k, strlen(k));
+            khint_t k = kh_put(str, dst->as.lex.map, pone_str_ptr(key), &ret);
+            if (ret == -1) {
+                abort(); // TODO better error msg
+            }
+            kh_val(dst->as.lex.map, k) = v;
+
+            // if the value is channel, we need to add this value to the channel list.
+            if (v->as.basic.type == PONE_OBJ && v->as.obj.klass == world->universe->class_channel) {
+                pone_val_vec_push(&(world->channels), v);
+            }
+        });
+        lex = lex->as.lex.parent;
+    }
+    code->as.code.lex = dst;
+}
+
 static void* thread_start(void* p) {
     THREAD_TRACE("NEW %lx", pthread_self());
 
@@ -26,6 +55,8 @@ static void* thread_start(void* p) {
             pone_push_scope(world);
 
             pone_val* code = world->code;
+            // deep copy lex vars.
+            copy_lex_values(world, code);
             assert(pone_type(code) == PONE_CODE);
             (void) pone_code_call(world, code, pone_nil(), 0);
 

@@ -211,7 +211,7 @@ pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_
     assert(obj);
 #ifndef NDEBUG
     if (!pone_alive(obj)) {
-        fprintf(stderr, "value %p is already free'd\n", obj);
+        fprintf(stderr, "PONE BUG [%lx] value %p is already free'd\n", pthread_self(), obj);
         abort();
     }
 #endif

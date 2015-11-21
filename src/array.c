@@ -7,6 +7,15 @@ void pone_ary_mark(pone_val* val) {
     }
 }
 
+// deep copy
+pone_val* pone_ary_copy(pone_world* world, pone_val* obj) {
+    pone_val* retval = pone_ary_new(world, 0);
+    for (pone_int_t i=0; i<pone_ary_elems(obj); ++i) {
+        pone_ary_push(world->universe, retval, pone_val_copy(world, pone_ary_at_pos(obj, i)));
+    }
+    return retval;
+}
+
 pone_val* pone_ary_new(pone_world* world, pone_int_t n, ...) {
     va_list list;
 

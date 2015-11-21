@@ -178,6 +178,28 @@ static inline void pone_val_vec_pop(pone_val_vec* vec) {
     vec->n--;
 }
 
+static inline struct pone_val* pone_val_vec_get(pone_val_vec* vec, pone_int_t i) {
+    assert(vec->n > i);
+    return vec->a[i];
+}
+
+static inline pone_int_t pone_val_vec_size(pone_val_vec* vec) {
+    return vec->n;
+}
+
+// delete item at i.
+static inline void pone_val_vec_delete(pone_val_vec* vec, pone_int_t i) {
+    assert(vec->n > i);
+    // i=0
+    // before: x a a a
+    // after:  a a a
+    //
+    // i=1
+    // before: a x a a
+    // after:  a a a
+    memmove(vec->a + i, vec->a + i + 1, vec->n - i - 1);
+    vec->n--;
+}
 
 // thread context
 typedef struct pone_world {
@@ -222,6 +244,9 @@ typedef struct pone_world {
     } savestack;
 
     pthread_t thread_id;
+
+    // captured channels.
+    pone_val_vec channels;
 
     pthread_mutex_t mutex;
     pthread_cond_t cond;
@@ -385,6 +410,7 @@ void pone_hash_init(pone_world* world);
 bool pone_hash_exists_c(pone_world* world, pone_val* hash, const char* name);
 pone_val* pone_hash_keys(pone_world* world, pone_val* val);
 void pone_hash_mark(pone_val* val);
+pone_val* pone_hash_copy(pone_world* world, pone_val* obj);
 
 // array.c
 pone_val* pone_ary_new(pone_world* world, pone_int_t n, ...);
@@ -398,11 +424,13 @@ void pone_ary_mark(pone_val* val);
 pone_val* pone_ary_pop(pone_world* world, pone_val* self);
 pone_val* pone_ary_last(pone_world* world, pone_val* self);
 pone_val* pone_ary_shift(pone_world* world, pone_val* self);
+pone_val* pone_ary_copy(pone_world* world, pone_val* obj);
 
 // str.c
 pone_val* pone_bytes_new_const(pone_world* world, const char*p, size_t len);
 pone_val* pone_bytes_new_allocd(pone_world* world, char*p, size_t len);
 pone_val* pone_str_new_strdup(pone_world* world, const char*p, size_t len);
+pone_val* pone_bytes_new_strdup(pone_world* world, const char*p, size_t len);
 pone_val* pone_str_new_allocd(pone_world* world, char*p, size_t len);
 pone_val* pone_str_new_const(pone_world* world, const char*p, size_t len);
 void pone_str_free(pone_world* world, pone_val* val);
@@ -522,6 +550,7 @@ void pone_obj_free(pone_world* world, pone_val* val);
 void pone_obj_set_ivar(pone_world* world, pone_val* obj, const char* name, pone_val* val);
 pone_val* pone_obj_get_ivar(pone_world* world, pone_val* obj, const char* name);
 void pone_obj_mark(pone_val* val);
+pone_val* pone_val_copy(pone_world* world, pone_val* obj);
 
 // op.c
 pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos);
@@ -571,6 +600,7 @@ void pone_signal_init(pone_world* world);
 void pone_channel_init(pone_world* world);
 pone_val* pone_chan_new(pone_world* world, pone_int_t limit);
 bool pone_chan_trysend(pone_world* world, pone_val* chan, pone_val* val);
+void pone_chan_mark_queue(pone_world* world, pone_val* chan);
 
 // opaque.c
 void pone_opaque_init(pone_world* world);
@@ -595,7 +625,7 @@ void pone_builtin_init(pone_world* world);
 #endif
 
 #ifdef DEBUG_GC
-#define GC_TRACE(fmt, ...) fprintf(stderr, "[pone gc] " fmt "\n", ##__VA_ARGS__)
+#define GC_TRACE(fmt, ...) fprintf(stderr, "[pone gc] [%lx] " fmt "\n", pthread_self(), ##__VA_ARGS__)
 #else
 #define GC_TRACE(fmt, ...)
 #endif

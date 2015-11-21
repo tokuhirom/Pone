@@ -7,6 +7,20 @@
  * }
  */
 
+/*
+ * Mark items in channel queue.
+ * (This function don't mark channel itself)
+ */
+void pone_chan_mark_queue(pone_world* world, pone_val* chan) {
+    THREAD_TRACE("pone_chan_mark_queue %p", chan);
+    pthread_mutex_t* mutex = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!mutex"));
+    pone_val* buffer = pone_obj_get_ivar(world, chan, "$!buffer");
+    CHECK_PTHREAD(pthread_mutex_lock(mutex));
+    for (pone_int_t i=0; i<pone_ary_elems(buffer); ++i) {
+        pone_gc_mark_value(pone_ary_at_pos(buffer, i));
+    }
+    CHECK_PTHREAD(pthread_mutex_unlock(mutex));
+}
 
 void pone_chan_send(pone_world* world, pone_val* chan, pone_val* val) {
     pone_val* limit = pone_obj_get_ivar(world, chan, "$!buffer-limit");
@@ -20,6 +34,7 @@ void pone_chan_send(pone_world* world, pone_val* chan, pone_val* val) {
     while (pone_intify(world, limit) < pone_ary_elems(buffer)) {
         CHECK_PTHREAD(pthread_cond_wait(recv_cond, mutex));
     }
+    THREAD_TRACE("pone_chan_send chan:%p val:%p", chan, val);
     pone_ary_push(world->universe, buffer, val);
     CHECK_PTHREAD(pthread_cond_signal(send_cond));
     CHECK_PTHREAD(pthread_mutex_unlock(mutex));
@@ -62,7 +77,7 @@ pone_val* pone_chan_receive(pone_world* world, pone_val* chan) {
     while (pone_ary_elems(buffer)==0) {
         CHECK_PTHREAD(pthread_cond_wait(send_cond, mutex));
     }
-    pone_val* retval = pone_ary_shift(world, buffer);
+    pone_val* retval = pone_val_copy(world, pone_ary_shift(world, buffer));
     pone_save_tmp(world, retval);
     CHECK_PTHREAD(pthread_cond_signal(recv_cond));
     CHECK_PTHREAD(pthread_mutex_unlock(mutex));

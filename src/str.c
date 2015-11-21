@@ -14,9 +14,14 @@ static void validate_utf8(pone_world* world, const char* p, pone_int_t len) {
 // pone dup p.
 pone_val* pone_str_new_strdup(pone_world* world, const char*p, size_t len) {
     validate_utf8(world, p, len);
+    pone_val* v = pone_bytes_new_strdup(world, p, len);
+    v->as.basic.flags |= PONE_FLAGS_STR_UTF8;
+    return v;
+}
+
+pone_val* pone_bytes_new_strdup(pone_world* world, const char*p, size_t len) {
 
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
-    pv->flags = PONE_FLAGS_STR_UTF8;
     pv->p = pone_strdup(world, p, len);
     pv->len = len;
     return (pone_val*)pv;

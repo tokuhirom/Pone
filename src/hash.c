@@ -8,6 +8,19 @@ void pone_hash_mark(pone_val* val) {
     });
 }
 
+pone_val* pone_hash_copy(pone_world* world, pone_val* obj) {
+    pone_val* retval = pone_hash_new(world);
+    const char* k;
+    pone_val* v;
+    kh_foreach(obj->as.hash.h, k, v, {
+        pone_hash_assign_key(world,
+            retval,
+            pone_str_new_strdup(world, k, strlen(k)),
+            pone_val_copy(world, v));
+    });
+    return retval;
+}
+
 // TODO: delete key
 // TODO: push key
 // TODO: exists key

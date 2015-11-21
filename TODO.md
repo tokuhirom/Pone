@@ -16,6 +16,7 @@ TODO
  * __LINE__
  * gmtime
  * localtime
+ * LEAVE block
  *         "abs", "atan2", "cos", "exp", "hex", "int", "log", "oct", "rand",
          "sin", "sqrt", "srand"
 
@@ -82,6 +83,9 @@ TODO
 
 ### Syntax
 
- * Switch to C like operators
+ * given-when
 
+## Core
+
+ * remove opaque's finalizer
 
