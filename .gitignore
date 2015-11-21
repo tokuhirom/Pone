@@ -42,3 +42,5 @@ tags
 /pone.build/
 /pone.xcodeproj/
 /rules.ninja
+/libpone.dylib
+/pone_generated.so.dSYM/
