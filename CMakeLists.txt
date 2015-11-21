@@ -89,11 +89,15 @@ set_target_properties(pone
     POSITION_INDEPENDENT_CODE ON
     )
 
-add_library(libpone STATIC ${SRCS})
+add_library(libpone SHARED ${SRCS})
 target_link_libraries(libpone m onigmo dl pthread)
 set_target_properties(libpone
     PROPERTIES
     COMPILE_FLAGS "${PONE_COMPILE_FLAGS}"
+    )
+set_target_properties(libpone
+    PROPERTIES
+    PREFIX ""
     )
 set_target_properties(libpone
     PROPERTIES

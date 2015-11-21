@@ -1013,7 +1013,7 @@ static void pone_compile_node(pone_universe* universe, PVIPNode* node, const cha
 
     fclose(fp);
 
-    int retval = system("clang -D_POSIX_C_SOURCE=200809L -rdynamic -DPONE_DYNAMIC -fPIC -shared -lstdc++ -Iinclude/ -I src/ -g -lm -std=c99 -o pone_generated.so pone_generated.c");
+    int retval = system("clang -D_POSIX_C_SOURCE=200809L -rdynamic -DPONE_DYNAMIC -fPIC -shared -lstdc++ -Iinclude/ -I src/ -g -lm -std=c99 -o pone_generated.so pone_generated.c -L. -lpone");
     if (retval != 0) {
         fprintf(stderr, "cannot compile code\n");
         exit(EXIT_FAILURE);
