@@ -9,6 +9,7 @@
 void pone_os_init(pone_world* world);
 void pone_file_init(pone_world* world);
 void pone_module_init(pone_world* world);
+void pone_time_init(pone_world* world);
 
 void pone_init(pone_universe* universe) {
 #if defined(_WIN32) || defined(_WIN64)
@@ -60,6 +61,7 @@ void pone_init(pone_universe* universe) {
     pone_signal_init(world);
     pone_os_init(world);
     pone_builtin_init(world);
+    pone_time_init(world);
 
     // init $*INC
     universe->inc = pone_ary_new(world, 1, pone_str_new_const(world, "blib", strlen("blib")));

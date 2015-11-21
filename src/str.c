@@ -19,8 +19,14 @@ pone_val* pone_str_new_strdup(pone_world* world, const char*p, size_t len) {
     return v;
 }
 
-pone_val* pone_bytes_new_strdup(pone_world* world, const char*p, size_t len) {
+pone_val* pone_bytes_new_malloc(pone_world* world, pone_int_t len) {
+    pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
+    pv->p = pone_malloc(world->universe, len);
+    pv->len = len;
+    return (pone_val*)pv;
+}
 
+pone_val* pone_bytes_new_strdup(pone_world* world, const char*p, size_t len) {
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->p = pone_strdup(world, p, len);
     pv->len = len;

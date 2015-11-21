@@ -55,8 +55,6 @@ TODO
  * `class A does B { }`
  * `role A { }`
  * str methods
- * // operator
- * bit ops
  * -p
  * -lane
  * -i

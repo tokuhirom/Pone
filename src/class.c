@@ -15,6 +15,18 @@ PONE_FUNC(meth_Str) {
     return v;
 }
 
+PONE_FUNC(mu_str) {
+    PONE_ARG("#Str", "");
+
+    // TODO include class name
+    pone_val* v = pone_str_new_strdup(world, "", 0);
+    pone_str_append(world, v, pone_obj_get_ivar(world, pone_what(world, self), "$!name"));
+    pone_str_append_c(world, v, "<", strlen("<"));
+    pone_str_append(world, v, pone_str_new_printf(world, "%p", self));
+    pone_str_append_c(world, v, ">", strlen(">"));
+    return v;
+}
+
 PONE_FUNC(mu_say) {
     PONE_ARG("#say", "");
 
@@ -100,6 +112,7 @@ pone_val* pone_class_new(pone_world* world, const char* name, size_t name_len) {
     pone_obj_set_ivar(world, obj, "$!methods", pone_hash_new(world));
 
     pone_add_method_c(world, obj, "say", strlen("say"), mu_say);
+    pone_add_method_c(world, obj, "Str", strlen("Str"), mu_str);
     pone_add_method_c(world, obj, "WHAT", strlen("WHAT"), mu_what);
 
     return (pone_val*)obj;
