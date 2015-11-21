@@ -2,10 +2,6 @@
 
 #define PONE_H_
 
-#ifndef _POSIX_SOURCE
-#define _POSIX_SOURCE
-#endif
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
