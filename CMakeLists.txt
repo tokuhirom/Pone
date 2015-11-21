@@ -18,7 +18,7 @@ SET(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS} ")
 SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2 -DNDEBUG")
 message("-- type: ${CMAKE_BUILD_TYPE}")
 
-set(PONE_COMPILE_FLAGS "-D_GNU_SOURCE -pthread -std=c99 -Wall -W -Wextra -Wno-unused-parameter -Wno-unused-function")
+set(PONE_COMPILE_FLAGS "-D_GNU_SOURCE -pthread -std=c99 -Wall -W -Wextra -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-unused-function")
 
 set(WERROR "0" CACHE BOOL "enable -Werror")
 if (WERROR)
@@ -138,7 +138,7 @@ set_target_properties(greg
 
 add_custom_command(
     OUTPUT gen.pone.y.c
-    COMMAND ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/greg -o gen.pone.y.c ${PROJECT_SOURCE_DIR}/src/pone.y
+    COMMAND ${PROJECT_BINARY_DIR}/greg -o gen.pone.y.c ${PROJECT_SOURCE_DIR}/src/pone.y
     DEPENDS greg src/pone.y
     )
 add_custom_command(
