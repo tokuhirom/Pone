@@ -33,3 +33,12 @@ tags
 /3rd/onigmo-cmake/cmake_install.cmake
 /3rd/onigmo-cmake/CTestTestfile.cmake
 /3rd/onigmo-cmake/Makefile
+/.ninja_deps
+/.ninja_log
+/3rd/onigmo-cmake/pone.build/
+/CMakeScripts/
+/Debug/
+/build.ninja
+/pone.build/
+/pone.xcodeproj/
+/rules.ninja
