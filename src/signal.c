@@ -46,6 +46,11 @@ static void* signal_thread(void* p) {
     int sig;
     sigset_t set;
     sigfillset(&set);
+#ifdef __APPLE__
+    pthread_setname_np("pone signal ^^;");
+#else
+    pthread_setname_np(pthread_self(), "pone signal ^^;");
+#endif
     pone_world* world = pone_world_new(universe);
     CHECK_PTHREAD(pthread_mutex_lock(&(world->mutex)));
 
@@ -72,7 +77,6 @@ void pone_signal_start_thread(pone_world* world) {
 
     pthread_t thread;
     CHECK_PTHREAD(pthread_create(&thread, NULL, signal_thread, world->universe));
-    pthread_setname_np(thread, "pone signal ^^;");
 }
 
 PONE_FUNC(meth_signal_notify) {
