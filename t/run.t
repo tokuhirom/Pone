@@ -68,3 +68,11 @@ like $res, qr/$wd/;
 --- code: say 3.hoge
 --- re: Method 'hoge' not found for invocant of class 'Int'
 
+===
+--- code: say localtime()
+--- re: \d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d\d\d
+
+===
+--- code: say gmtime()
+--- re: \d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d\d\d
+

@@ -14,8 +14,6 @@ TODO
  * caller
  * __FILE__
  * __LINE__
- * gmtime
- * localtime
  * LEAVE block
  *         "abs", "atan2", "cos", "exp", "hex", "int", "log", "oct", "rand",
          "sin", "sqrt", "srand"
