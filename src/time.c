@@ -19,6 +19,36 @@ PONE_FUNC(meth_year) {
     return pone_int_new(world, GET_TM()->tm_year + 1900);
 }
 
+PONE_FUNC(meth_month) {
+    PONE_ARG("Time#month", "");
+    return pone_int_new(world, GET_TM()->tm_mon + 1);
+}
+
+PONE_FUNC(meth_mday) {
+    PONE_ARG("Time#mday", "");
+    return pone_int_new(world, GET_TM()->tm_mday);
+}
+
+PONE_FUNC(meth_wday) {
+    PONE_ARG("Time#wday", "");
+    return pone_int_new(world, GET_TM()->tm_wday);
+}
+
+PONE_FUNC(meth_hour) {
+    PONE_ARG("Time#hour", "");
+    return pone_int_new(world, GET_TM()->tm_hour);
+}
+
+PONE_FUNC(meth_min) {
+    PONE_ARG("Time#min", "");
+    return pone_int_new(world, GET_TM()->tm_min);
+}
+
+PONE_FUNC(meth_sec) {
+    PONE_ARG("Time#sec", "");
+    return pone_int_new(world, GET_TM()->tm_sec);
+}
+
 PONE_FUNC(builtin_gmtime) {
     PONE_ARG("gmtime", "");
     time_t     current_time;
@@ -50,6 +80,12 @@ void pone_time_init(pone_world* world) {
     pone_val* klass = pone_class_new(world, "Time", strlen("Time"));
     pone_add_method_c(world, klass, "Str", strlen("Str"), meth_str);
     pone_add_method_c(world, klass, "year", strlen("year"), meth_year);
+    pone_add_method_c(world, klass, "month", strlen("month"), meth_month);
+    pone_add_method_c(world, klass, "mday", strlen("mday"), meth_mday);
+    pone_add_method_c(world, klass, "wday", strlen("wday"), meth_wday);
+    pone_add_method_c(world, klass, "hour", strlen("hour"), meth_hour);
+    pone_add_method_c(world, klass, "min", strlen("min"), meth_min);
+    pone_add_method_c(world, klass, "sec", strlen("sec"), meth_sec);
     pone_class_compose(world, klass);
 
     {

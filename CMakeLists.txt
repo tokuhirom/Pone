@@ -18,7 +18,7 @@ SET(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS} ")
 SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2 -DNDEBUG")
 message("-- type: ${CMAKE_BUILD_TYPE}")
 
-set(PONE_COMPILE_FLAGS "-D_GNU_SOURCE -pthread -std=c99 -Wall -W -Wextra -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-unused-function")
+set(PONE_COMPILE_FLAGS "-D_GNU_SOURCE -pthread -std=c99 -Wall -W -Wextra -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-unused-function -Wno-unknown-warning-option")
 
 set(WERROR "0" CACHE BOOL "enable -Werror")
 if (WERROR)
