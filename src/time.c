@@ -1,7 +1,10 @@
 #include "pone.h"
 #include <time.h>
 
+// TODO Time#strftime
 // TODO we need portable strftime implementation.
+
+#define GET_TM() ((struct tm*)pone_str_ptr(pone_obj_get_ivar(world, self, "$!tm")))
 
 PONE_FUNC(meth_str) {
     PONE_ARG("Time#Str", "");
@@ -9,6 +12,11 @@ PONE_FUNC(meth_str) {
     char buf[30];
     size_t len = strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S%z", t);
     return pone_str_new_strdup(world, buf, len);
+}
+
+PONE_FUNC(meth_year) {
+    PONE_ARG("Time#year", "");
+    return pone_int_new(world, GET_TM()->tm_year + 1900);
 }
 
 PONE_FUNC(builtin_gmtime) {
@@ -41,6 +49,8 @@ PONE_FUNC(builtin_localtime) {
 void pone_time_init(pone_world* world) {
     pone_val* klass = pone_class_new(world, "Time", strlen("Time"));
     pone_add_method_c(world, klass, "Str", strlen("Str"), meth_str);
+    pone_add_method_c(world, klass, "year", strlen("year"), meth_year);
+    pone_class_compose(world, klass);
 
     {
         pone_val* code = pone_code_new(world, builtin_gmtime);
