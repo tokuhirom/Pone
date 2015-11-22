@@ -54,6 +54,28 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
     return val;
 }
 
+#define INFIX(funcname, op_func) \
+    pone_val* funcname(pone_world* world, int level, const char* varname, pone_val* val) { \
+        pone_val* lhs = pone_get_lex(world, varname); \
+        pone_val* result = op_func(world, lhs, val); \
+        return pone_assign(world, level, varname, result); \
+    }
+
+INFIX(pone_inplace_add, pone_add)
+INFIX(pone_inplace_sub, pone_subtract)
+INFIX(pone_inplace_mul, pone_multiply)
+INFIX(pone_inplace_mod, pone_mod)
+INFIX(pone_inplace_div, pone_divide)
+INFIX(pone_inplace_pow, pone_pow)
+INFIX(pone_inplace_bin_or, pone_bitwise_or)
+INFIX(pone_inplace_bin_and, pone_bitwise_and)
+INFIX(pone_inplace_bin_xor, pone_bitwise_xor)
+INFIX(pone_inplace_blshift, pone_blshift)
+INFIX(pone_inplace_brshift, pone_brshift)
+INFIX(pone_inplace_concat_s, pone_str_concat)
+
+#undef INFIX
+
 // This function is used by following Perl6 code:
 //
 //     $var[$pos] = $rhs

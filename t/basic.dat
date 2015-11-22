@@ -973,3 +973,11 @@ say Nil//1;
 2
 1
 
+===
+--- input
+my $x = 3;
+$x += 4;
+say $x;
+--- expected
+7
+

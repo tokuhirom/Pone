@@ -393,6 +393,18 @@ pone_val* pone_bitwise_and(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_bitwise_xor(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_brshift(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_blshift(pone_world* world, pone_val* v1, pone_val* v2);
+pone_val* pone_inplace_add(pone_world* world, int level, const char* varname, pone_val* val);
+pone_val* pone_inplace_sub(pone_world* world, int level, const char* varname, pone_val* val);
+pone_val* pone_inplace_mul(pone_world* world, int level, const char* varname, pone_val* val);
+pone_val* pone_inplace_mod(pone_world* world, int level, const char* varname, pone_val* val);
+pone_val* pone_inplace_div(pone_world* world, int level, const char* varname, pone_val* val);
+pone_val* pone_inplace_pow(pone_world* world, int level, const char* varname, pone_val* val);
+pone_val* pone_inplace_bin_or(pone_world* world, int level, const char* varname, pone_val* val);
+pone_val* pone_inplace_bin_and(pone_world* world, int level, const char* varname, pone_val* val);
+pone_val* pone_inplace_bin_xor(pone_world* world, int level, const char* varname, pone_val* val);
+pone_val* pone_inplace_blshift(pone_world* world, int level, const char* varname, pone_val* val);
+pone_val* pone_inplace_brshift(pone_world* world, int level, const char* varname, pone_val* val);
+pone_val* pone_inplace_concat_s(pone_world* world, int level, const char* varname, pone_val* val);
 
 // hash.c
 pone_val* pone_hash_new(pone_world* world);

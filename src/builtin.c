@@ -50,7 +50,7 @@ PONE_FUNC(meth_dd) {
 
 PONE_FUNC(meth_pthread_self) {
     PONE_ARG("pthread_self", "");
-    return pone_int_new(world, pthread_self());
+    return pone_int_new(world, (pone_int_t)pthread_self());
 }
 
 PONE_FUNC(meth_abs) {

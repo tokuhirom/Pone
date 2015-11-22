@@ -214,7 +214,6 @@ static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
     case PVIP_NODE_INPLACE_BRSHIFT:
     case PVIP_NODE_INPLACE_CONCAT_S:
     case PVIP_NODE_REPEAT_S:
-    case PVIP_NODE_INPLACE_REPEAT_S:
     case PVIP_NODE_STRINGIFY: /* prefix:<~> */
     case PVIP_NODE_NUM_CMP: /* <=> */
     case PVIP_NODE_UNICODE_CHAR: /* \c[] */
@@ -373,11 +372,59 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             }
             PRINTF("\", %ld)", node->pv->len);
             break;
+#define SYNTAX_ERROR(msg) do { printf("%s\n", msg); abort(); } while (0)
+#define INPLACE(func) do { \
+        if (node->children.nodes[0]->type != PVIP_NODE_VARIABLE) { \
+            SYNTAX_ERROR("left hand of inplace operator should be variable."); \
+        } \
+        int idx = find_lex(ctx, PVIP_string_c_str(node->children.nodes[0]->pv)); \
+        PRINTF("%s(world, %d, \"", func, idx); \
+        WRITE_PV(node->children.nodes[0]->pv); \
+        PRINTF("\","); \
+        COMPILE(node->children.nodes[1]); \
+        PRINTF(")"); \
+    } while (0)
+        case PVIP_NODE_INPLACE_ADD:
+            INPLACE("pone_inplace_add");
+            break;
+        case PVIP_NODE_INPLACE_SUB:
+            INPLACE("pone_inplace_sub");
+            break;
+        case PVIP_NODE_INPLACE_MUL:
+            INPLACE("pone_inplace_mul");
+            break;
+        case PVIP_NODE_INPLACE_DIV:
+            INPLACE("pone_inplace_div");
+            break;
+        case PVIP_NODE_INPLACE_MOD:
+            INPLACE("pone_inplace_mod");
+            break;
+        case PVIP_NODE_INPLACE_POW:
+            INPLACE("pone_inplace_pow");
+            break;
+        case PVIP_NODE_INPLACE_BIN_OR:
+            INPLACE("pone_inplace_bin_or");
+            break;
+        case PVIP_NODE_INPLACE_BIN_AND:
+            INPLACE("pone_inplace_bin_and");
+            break;
+        case PVIP_NODE_INPLACE_BIN_XOR:
+            INPLACE("pone_inplace_bin_xor");
+            break;
+        case PVIP_NODE_INPLACE_BLSHIFT:
+            INPLACE("pone_inplace_blshift");
+            break;
+        case PVIP_NODE_INPLACE_BRSHIFT:
+            INPLACE("pone_inplace_brshift");
+            break;
+        case PVIP_NODE_INPLACE_CONCAT_S:
+            INPLACE("pone_inplace_concat_s");
+            break;
+#undef INPLACE
 #define INFIX(func) do { PRINTF("%s(world, ", func); COMPILE(node->children.nodes[0]);  PRINTF(","); COMPILE(node->children.nodes[1]); PRINTF(")"); } while (0)
         case PVIP_NODE_MY:
             // (my (nop) (variable "$inc"))
             def_lex(ctx, PVIP_string_c_str(node->children.nodes[1]->pv));
-            break;
         case PVIP_NODE_ADD:
             INFIX("pone_add");
             break;
