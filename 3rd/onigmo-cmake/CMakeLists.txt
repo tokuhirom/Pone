@@ -112,7 +112,7 @@
     "${ONIGMO_SOURCE_DIR}/enc/cp1251.c"
     )
 
-  set(ONIGMO_C_COMPILE_FLAGS "")
+set(ONIGMO_C_COMPILE_FLAGS "-fPIC")
 
   add_library(onigmo STATIC ${ONIGMO_SOURCES})
   set_source_files_properties(${ONIGMO_SOURCES}
