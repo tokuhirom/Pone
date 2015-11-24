@@ -9,6 +9,7 @@
 #include "pvip.h"
 #include "pvip_private.h"
 #include "pone.h"
+#include "pone_tmpfile.h"
 #include "linenoise.h"
 
 #ifndef CC
@@ -1031,11 +1032,11 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, pone_node* node, int so_no) {
 }
 
 pone_val* pone_load_dll(pone_world* world, const char* so_path, const char* funcname) {
-    void* handle = dlopen("./pone_generated.so", RTLD_LAZY);
+    void* handle = dlopen(so_path, RTLD_LAZY);
     if (!handle) {
         pone_throw_str(world, "dlopen: %s", dlerror());
     }
-    pone_funcptr_t pone_so_init = dlsym(handle, "pone_so_init_0");
+    pone_funcptr_t pone_so_init = dlsym(handle, funcname);
 
     char* error;
     if ((error = dlerror()) != NULL)  {
@@ -1045,11 +1046,11 @@ pone_val* pone_load_dll(pone_world* world, const char* so_path, const char* func
     return pone_code_new(world, pone_so_init);
 }
 
-static void pone_compile_node(pone_world* world, pone_node* node, const char* filename, bool compile_only, pvip_t* pvip) {
-    FILE* fp = fopen("pone_generated.c", "w");
+static void pone_compile_node(pone_world* world, pone_node* node, const char* filename, bool compile_only, pvip_t* pvip, const char* c_filename, const char* so_filename, const char* so_funcname) {
+
+    FILE* fp = fopen(c_filename, "w");
     if (!fp) {
-        perror("Cannot open pone_generated.c");
-        exit(EXIT_FAILURE);
+        pone_throw_str(world, "cannot open generated C source file: %s", c_filename);
     }
 
     pone_compile_ctx ctx;
@@ -1080,7 +1081,7 @@ static void pone_compile_node(pone_world* world, pone_node* node, const char* fi
 
     fclose(fp);
 
-    pone_val* cmdline = pone_str_c_str(world, pone_str_new_printf(world, "clang -D_POSIX_C_SOURCE=200809L -rdynamic -fPIC -shared -Iinclude/ -I src/ -g -lm -std=c99 -o %s %s -L. -lpone", "pone_generated.so", "pone_generated.c"));
+    pone_val* cmdline = pone_str_c_str(world, pone_str_new_printf(world, "clang -x c -D_POSIX_C_SOURCE=200809L -rdynamic -fPIC -shared -Iinclude/ -I src/ -g -lm -std=c99 -o %s %s -L. -lpone", so_filename, c_filename));
 
     int retval = system(pone_str_ptr(cmdline));
     if (retval != 0) {
@@ -1088,11 +1089,16 @@ static void pone_compile_node(pone_world* world, pone_node* node, const char* fi
     }
 
     if (!compile_only) {
-        pone_val* code = pone_load_dll(world, "./pone_generated.c", "pone_so_init_0");
+        pone_val* code = pone_load_dll(world, so_filename, so_funcname);
 
         pone_thread_start(world->universe, code);
         pone_universe_wait_threads(world->universe);
     }
+}
+
+static const char* gen_tmpfile(pone_world* world) {
+    pone_val* c_tmpfile_v = pone_tmpfile_new(world);
+    return pone_tmpfile_path_c(world, c_tmpfile_v);
 }
 
 int main(int argc, char** argv) {
@@ -1149,7 +1155,10 @@ int main(int argc, char** argv) {
             if (dump) {
                 PVIP_node_dump_sexp(node);
             } else {
-                pone_compile_node(world, node, "-e", compile_only, pvip);
+                const char* c_filename = gen_tmpfile(world);
+                const char* so_filename = gen_tmpfile(world);
+                const char* so_funcname = "pone_so_init_0";
+                pone_compile_node(world, node, "-e", compile_only, pvip, c_filename, so_filename, so_funcname);
             }
         } else if (optind < argc) {
             const char* filename = argv[optind];
@@ -1170,7 +1179,10 @@ int main(int argc, char** argv) {
             if (dump) {
                 PVIP_node_dump_sexp(node);
             } else {
-                pone_compile_node(world, node, filename, compile_only, pvip);
+                const char* c_filename = "pone_generated.c";
+                const char* so_filename = "pone_generated.so";
+                const char* so_funcname = "pone_so_init_0";
+                pone_compile_node(world, node, filename, compile_only, pvip, c_filename, so_filename, so_funcname);
             }
         } else {
             // REPL mode
@@ -1190,6 +1202,8 @@ int main(int argc, char** argv) {
 
             const char* line;
             while((line = linenoise("pone> ")) != NULL) {
+                pone_push_scope(world);
+
                 PVIPString *error;
                 pone_node *node = PVIP_parse_string(pvip, line, strlen(line), yy_debug, &error);
                 if (!node) {
@@ -1199,10 +1213,15 @@ int main(int argc, char** argv) {
                     exit(1);
                 }
 
-                pone_compile_node(world, node, "-e", false, pvip);
+                const char* c_filename = gen_tmpfile(world);
+                const char* so_filename = gen_tmpfile(world);
+                const char* so_funcname = "pone_so_init_0";
+                pone_compile_node(world, node, "-e", false, pvip, c_filename, so_filename, so_funcname);
 
                 linenoiseHistoryAdd(line);
                 linenoiseHistorySave(history_file);
+
+                pone_pop_scope(world);
 
                 if (world->gc_requested) {
                     pone_gc_run(world);

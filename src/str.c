@@ -176,7 +176,11 @@ inline pone_int_t pone_str_len(pone_val* val) {
 
 bool pone_str_contains_null(pone_universe* universe, pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
-    return memchr(pone_str_ptr(val), 0, pone_str_len(val)) != NULL;
+    if (pone_str_len(val) == 0) {
+        return false;
+    } else {
+        return memchr(pone_str_ptr(val), 0, pone_str_len(val)-1) != NULL;
+    }
 }
 
 pone_val* pone_str_c_str(pone_world* world, pone_val* val) {

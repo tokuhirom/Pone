@@ -1,7 +1,6 @@
 #include "pone.h"
 #include "pone_file.h"
-
-#define TEMPLATE "pone_XXXXXX"
+#include "pone_tmpfile.h"
 
 // TODO unlink file
 
@@ -23,15 +22,17 @@ pone_val* pone_tmpfile_new(pone_world* world) {
     const char* tmp = get_tmpdir();
     pone_val* path  =  pone_str_new_strdup(world, tmp, strlen(tmp));
     pone_str_append_c(world, path, "/pone_XXXXXX", strlen("/pone_XXXXXX"));
+    path = pone_str_c_str(world, path);
     // mkstemp: POSIX.1-2001.
-    int fd = mkstemp(pone_str_ptr(path));
+    char* ptr= pone_str_ptr(path);
+    int fd = mkstemp(ptr);
     if (fd < 0) {
-        pone_throw_str(world, "cannot create tmpfile: %s", strerror(errno));
+        pone_throw_str(world, "mkstemp: cannot create tmpfile: %s", strerror(errno));
     }
     pone_obj_set_ivar(world, self, "$!path", path);
     FILE* fp = fdopen(fd, "rw");
     if (!fp) {
-        pone_throw_str(world, "cannot create tmpfile: %s", strerror(errno));
+        pone_throw_str(world, "fdopen: cannot create tmpfile: %s", strerror(errno));
     }
 
     pone_obj_set_ivar(world, self, "$!file", pone_file_new(world, fp, true));
