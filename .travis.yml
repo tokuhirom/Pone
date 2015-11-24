@@ -3,7 +3,7 @@ install:
   - cpanm -nv Capture::Tiny Test::Base
 script:
   - cmake -DCMAKE_BUILD_TYPE=Debug .
-  - make all
+  - make all VERBOSE=1
   - prove -v -r t xt
 addons:
   apt:
