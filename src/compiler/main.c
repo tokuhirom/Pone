@@ -96,7 +96,7 @@ static inline void def_lex(pone_compile_ctx* ctx, const char* name) {
     kh_val(vars, k) = pone_true();
 }
 
-static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
+static inline pone_node* inject_return(pone_compile_ctx* ctx, pone_node* node) {
     // printf("INJECT RETURN TO %s\n", PVIP_node_name(node->type));
     // PVIP_node_dump_sexp(node);
     switch (node->type) {
@@ -223,7 +223,7 @@ static inline PVIPNode* inject_return(pone_compile_ctx* ctx, PVIPNode* node) {
     case PVIP_NODE_WHATEVER: /* * */
     case PVIP_NODE_ROLE: {
         // printf("NOT A CHILDREN %s\n", PVIP_node_name(node->type));
-        PVIPNode *ret = pvip_node_alloc(ctx->pvip);
+        pone_node *ret = pvip_node_alloc(ctx->pvip);
         ret->type = PVIP_NODE_RETURN;
         ret->children.size  = 0;
         ret->children.nodes = NULL;
@@ -248,7 +248,7 @@ static inline int find_lex(pone_compile_ctx* ctx, const char* name) {
     abort();
 }
 
-void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
+void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
 #define PRINTF(fmt, ...) PVIP_string_printf(ctx->buf, fmt,  ##__VA_ARGS__)
 #define WRITE_PV(pv) PVIP_string_concat(ctx->buf, pv->buf, pv->len)
 #define LINE(node) PRINTF("#line %d \"%s\"\n", (node)->line_number, ctx->filename);
@@ -270,7 +270,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
     switch (node->type) {
         case PVIP_NODE_STATEMENTS:
             for (int i=0; i<node->children.size; ++i) {
-                PVIPNode* child = node->children.nodes[i];
+                pone_node* child = node->children.nodes[i];
                 int n = (child)->line_number;
                 const char* filename = ctx->filename;
                 PRINTF("#line %d \"%s\"\n", n, filename);
@@ -320,8 +320,8 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             break;
         case PVIP_NODE_PAIR: {
             // (pair (ident "a") (int 3))
-            PVIPNode* key = node->children.nodes[0];
-            PVIPNode* value = node->children.nodes[1];
+            pone_node* key = node->children.nodes[0];
+            pone_node* value = node->children.nodes[1];
             PRINTF("pone_pair_new(world, ");
             if (key->type == PVIP_NODE_IDENT) {
                 key->type = PVIP_NODE_STRING;
@@ -734,7 +734,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             PRINTF(")");
             break;
         case PVIP_NODE_LIST_ASSIGNMENT: {
-            PVIPNode* varnode = node->children.nodes[0];
+            pone_node* varnode = node->children.nodes[0];
             PVIPString *var;
             switch (varnode->type) {
             case PVIP_NODE_MY: {
@@ -759,8 +759,8 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 break;
             }
             case PVIP_NODE_ATPOS: {
-                PVIPNode* var = varnode->children.nodes[0];
-                PVIPNode* pos = varnode->children.nodes[1];
+                pone_node* var = varnode->children.nodes[0];
+                pone_node* pos = varnode->children.nodes[1];
                 PRINTF("pone_assign_pos(world, pone_get_lex(world, \"");
                 WRITE_PV(var->pv);
                 PRINTF("\"), ");
@@ -771,8 +771,8 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
                 break;
             }
             case PVIP_NODE_ATKEY: {
-                PVIPNode* var = varnode->children.nodes[0];
-                PVIPNode* key = varnode->children.nodes[1];
+                pone_node* var = varnode->children.nodes[0];
+                pone_node* key = varnode->children.nodes[1];
                 PRINTF("pone_assign_key(world, pone_get_lex(world, \"");
                 WRITE_PV(var->pv);
                 PRINTF("\"), ");
@@ -803,7 +803,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
         }
         case PVIP_NODE_ARGS:
             for (int i=0; i<node->children.size; ++i) {
-                PVIPNode* child = node->children.nodes[i];
+                pone_node* child = node->children.nodes[i];
                 COMPILE(child);
                 if (i!=node->children.size-1) {
                     PRINTF(",");
@@ -816,7 +816,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             for (int i=0; i<node->children.size; ++i) {
                 PRINTF(",");
 
-                PVIPNode* child = node->children.nodes[i];
+                pone_node* child = node->children.nodes[i];
                 if (child->children.nodes[0]->type == PVIP_NODE_IDENT) {
                     WRITE_PV(child->children.nodes[0]->pv);
                 } else {
@@ -886,7 +886,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
         case PVIP_NODE_FUNC: {
             // (func (ident "x") (params) (nop) (block (statements (funcall (ident "say") (args (int 3))))))
             // (func (ident "x") (params (param (nop) (variable "$n") (nop) (int 0))) (nop) (block (statements (funcall (ident "say") (args (variable "$n"))))))
-            PVIPNode* name = node->children.nodes[0];
+            pone_node* name = node->children.nodes[0];
             // int argcnt = node->children.nodes[1]->children.size;
 
             bool is_anon = false;
@@ -1004,7 +1004,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
 #undef COMPILE
 }
 
-void pone_compile(pone_compile_ctx* ctx, FILE* fp, PVIPNode* node, int so_no) {
+void pone_compile(pone_compile_ctx* ctx, FILE* fp, pone_node* node, int so_no) {
     _pone_compile(ctx, node);
 
 #define PRINTF(fmt, ...) fprintf(fp, (fmt), ##__VA_ARGS__)
@@ -1029,7 +1029,7 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, PVIPNode* node, int so_no) {
     PRINTF("}\n");
 }
 
-static void pone_compile_node(pone_universe* universe, PVIPNode* node, const char* filename, bool compile_only, pvip_t* pvip) {
+static void pone_compile_node(pone_universe* universe, pone_node* node, const char* filename, bool compile_only, pvip_t* pvip) {
     FILE* fp = fopen("pone_generated.c", "w");
     if (!fp) {
         perror("Cannot open pone_generated.c");
@@ -1135,7 +1135,7 @@ int main(int argc, char** argv) {
     pone_init(universe);
     if (eval) {
         PVIPString *error;
-        PVIPNode *node = PVIP_parse_string(pvip, eval, strlen(eval), yy_debug, &error);
+        pone_node *node = PVIP_parse_string(pvip, eval, strlen(eval), yy_debug, &error);
         if (!node) {
             PVIP_string_say(error);
             PVIP_string_destroy(error);
@@ -1157,7 +1157,7 @@ int main(int argc, char** argv) {
             exit(1);
         }
         PVIPString *error;
-        PVIPNode *node = PVIP_parse_fp(pvip, fp, yy_debug, &error);
+        pone_node *node = PVIP_parse_fp(pvip, fp, yy_debug, &error);
         if (!node) {
             PVIP_string_say(error);
             PVIP_string_destroy(error);
@@ -1188,7 +1188,7 @@ int main(int argc, char** argv) {
         const char* line;
         while((line = linenoise("pone> ")) != NULL) {
             PVIPString *error;
-            PVIPNode *node = PVIP_parse_string(pvip, line, strlen(line), yy_debug, &error);
+            pone_node *node = PVIP_parse_string(pvip, line, strlen(line), yy_debug, &error);
             if (!node) {
                 PVIP_string_say(error);
                 PVIP_string_destroy(error);

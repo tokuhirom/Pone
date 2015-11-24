@@ -184,7 +184,7 @@ typedef struct {
     size_t buflen;
 } PVIPString;
 
-typedef struct _PVIPNode {
+typedef struct _pone_node {
     PVIP_node_type_t type;
     int line_number;
     union {
@@ -193,10 +193,10 @@ typedef struct _PVIPNode {
         PVIPString *pv;
         struct {
             int size;
-            struct _PVIPNode **nodes;
+            struct _pone_node **nodes;
         } children;
     };
-} PVIPNode;
+} pone_node;
 
 // memory pool
 struct pvip_t;
@@ -205,18 +205,18 @@ struct pvip_t* pvip_new();
 void pvip_free(struct pvip_t* pvip);
 
 /* parser related public apis */
-PVIPNode * PVIP_parse_string(struct pvip_t* pvip, const char *string, int len, int debug, PVIPString **error);
-PVIPNode * PVIP_parse_fp(struct pvip_t* pvip, FILE *fp, int debug, PVIPString **error);
+pone_node * PVIP_parse_string(struct pvip_t* pvip, const char *string, int len, int debug, PVIPString **error);
+pone_node * PVIP_parse_fp(struct pvip_t* pvip, FILE *fp, int debug, PVIPString **error);
 
 
 /* node related public apis */
 const char* PVIP_node_name(PVIP_node_type_t t);
 PVIP_category_t PVIP_node_category(PVIP_node_type_t type);
-void PVIP_node_as_sexp(PVIPNode * node, PVIPString *buf);
+void PVIP_node_as_sexp(pone_node * node, PVIPString *buf);
 
-void PVIP_node_change_type(PVIPNode *node, PVIP_node_type_t type);
+void PVIP_node_change_type(pone_node *node, PVIP_node_type_t type);
 
-void PVIP_node_dump_sexp(PVIPNode * node);
+void PVIP_node_dump_sexp(pone_node * node);
 
 /* string */
 PVIPString *PVIP_string_new();

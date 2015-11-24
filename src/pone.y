@@ -4,7 +4,7 @@
 #include "pvip_private.h"
 #include <assert.h>
 
-#define YYSTYPE PVIPNode*
+#define YYSTYPE pone_node*
 #define YY_NAME(n) PVIP_##n
 #define YY_XTYPE PVIPParserContext
 #define NOP() PVIP_node_new_children(&(G->data), PVIP_NODE_NOP)
@@ -57,7 +57,7 @@
 
 */
 
-static int node_all_children_are(PVIPNode * node, PVIP_node_type_t type) {
+static int node_all_children_are(pone_node * node, PVIP_node_type_t type) {
     int i;
     for (i=0; i<node->children.size; ++i) {
         if (node->children.nodes[i]->type != type) {
@@ -371,22 +371,22 @@ tight_and = f1:chaining_infix_expr (
 
 #  C  Chaining infix    != == < <= > >= eq ne lt le gt ge ~~ === eqv !eqv (<) (elem)
 chaining_infix_expr = f1:structural_infix_expr { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_CHAIN, f1); f1=$$; } (
-          - '==='  - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_VALUE_IDENTITY,          f2); PVIP_node_push_child(f1, tmp); }
-        | - '==' !'=' - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_EQ,          f2); PVIP_node_push_child(f1, tmp); }
-        | - '!='  - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_NE,          f2); PVIP_node_push_child(f1, tmp); }
-        | - '<'   - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_LT,          f2); PVIP_node_push_child(f1, tmp); }
-        | - '<='  - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_LE,          f2); PVIP_node_push_child(f1, tmp); }
-        | - '>'   - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_GT,          f2); PVIP_node_push_child(f1, tmp); }
-        | - '>='  - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_GE,          f2); PVIP_node_push_child(f1, tmp); }
-        | - '~~'  - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_SMART_MATCH, f2); PVIP_node_push_child(f1, tmp); }
-        | - '!~~' - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_NOT_SMART_MATCH, f2); PVIP_node_push_child(f1, tmp); }
-        | - 'eqv' - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_EQV,         f2); PVIP_node_push_child(f1, tmp); }
-        | - 'eq'  - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_STREQ,       f2); PVIP_node_push_child(f1, tmp); }
-        | - 'ne'  - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_STRNE,       f2); PVIP_node_push_child(f1, tmp); }
-        | - 'gt'  - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_STRGT,       f2); PVIP_node_push_child(f1, tmp); }
-        | - 'ge'  - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_STRGE,       f2); PVIP_node_push_child(f1, tmp); }
-        | - 'lt'  - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_STRLT,       f2); PVIP_node_push_child(f1, tmp); }
-        | - 'le'  - f2:structural_infix_expr { PVIPNode* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_STRLE,       f2); PVIP_node_push_child(f1, tmp); }
+          - '==='  - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_VALUE_IDENTITY,          f2); PVIP_node_push_child(f1, tmp); }
+        | - '==' !'=' - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_EQ,          f2); PVIP_node_push_child(f1, tmp); }
+        | - '!='  - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_NE,          f2); PVIP_node_push_child(f1, tmp); }
+        | - '<'   - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_LT,          f2); PVIP_node_push_child(f1, tmp); }
+        | - '<='  - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_LE,          f2); PVIP_node_push_child(f1, tmp); }
+        | - '>'   - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_GT,          f2); PVIP_node_push_child(f1, tmp); }
+        | - '>='  - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_GE,          f2); PVIP_node_push_child(f1, tmp); }
+        | - '~~'  - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_SMART_MATCH, f2); PVIP_node_push_child(f1, tmp); }
+        | - '!~~' - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_NOT_SMART_MATCH, f2); PVIP_node_push_child(f1, tmp); }
+        | - 'eqv' - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_EQV,         f2); PVIP_node_push_child(f1, tmp); }
+        | - 'eq'  - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_STREQ,       f2); PVIP_node_push_child(f1, tmp); }
+        | - 'ne'  - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_STRNE,       f2); PVIP_node_push_child(f1, tmp); }
+        | - 'gt'  - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_STRGT,       f2); PVIP_node_push_child(f1, tmp); }
+        | - 'ge'  - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_STRGE,       f2); PVIP_node_push_child(f1, tmp); }
+        | - 'lt'  - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_STRLT,       f2); PVIP_node_push_child(f1, tmp); }
+        | - 'le'  - f2:structural_infix_expr { pone_node* tmp = PVIP_node_new_children1(&(G->data), PVIP_NODE_STRLE,       f2); PVIP_node_push_child(f1, tmp); }
     )* { if (f1->children.size==1) { $$=f1->children.nodes[0]; } else { $$=f1; } }
 
 structural_infix_expr =
@@ -704,7 +704,7 @@ funcdef =
         $$ = PVIP_node_new_children4(&(G->data), PVIP_NODE_FUNC, i, p, NOP(), b);
     }
     | 'sub' ws+ i:ident - b:block {
-        PVIPNode* pp = PVIP_node_new_children(&(G->data), PVIP_NODE_PARAMS);
+        pone_node* pp = PVIP_node_new_children(&(G->data), PVIP_NODE_PARAMS);
         $$ = PVIP_node_new_children4(&(G->data), PVIP_NODE_FUNC, i, pp, NOP(), b);
     }
 
@@ -1038,8 +1038,8 @@ end-of-file = !'\0'
 
 %%
 
-PVIPNode * PVIP_parse_string(pvip_t* pvip, const char *string, int len, int debug, PVIPString **error) {
-    PVIPNode *root = NULL;
+pone_node * PVIP_parse_string(pvip_t* pvip, const char *string, int len, int debug, PVIPString **error) {
+    pone_node *root = NULL;
 
     GREG g;
     YY_NAME(init)(&g);
@@ -1121,7 +1121,7 @@ finished:
 XXX Output error message to stderr is ugly.
 XXX We need to add APIs for getting error message.
  */
-PVIPNode * PVIP_parse_fp(pvip_t* pvip, FILE *fp, int debug, PVIPString **error) {
+pone_node * PVIP_parse_fp(pvip_t* pvip, FILE *fp, int debug, PVIPString **error) {
     GREG g;
     YY_NAME(init)(&g);
 
@@ -1183,7 +1183,7 @@ PVIPNode * PVIP_parse_fp(pvip_t* pvip, FILE *fp, int debug, PVIPString **error) 
     }
     free(g.data.line_number_stack);
     free(g.data.str);
-    PVIPNode *root = g.data.root;
+    pone_node *root = g.data.root;
     assert(g.data.root);
     YY_NAME(deinit)(&g);
     return root;
