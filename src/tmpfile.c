@@ -3,6 +3,8 @@
 
 #define TEMPLATE "pone_XXXXXX"
 
+// TODO unlink file
+
 static const char* get_tmpdir() {
     const char * t = getenv("TMPDIR");
     if (t) {
