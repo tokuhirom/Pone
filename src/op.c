@@ -1,6 +1,7 @@
 #include "pone.h" /* PONE_INC */
 #include <math.h>
 #include <setjmp.h>
+#include <ctype.h>
 
 pone_val* pone_get_lex(pone_world* world, const char* key) {
     pone_val* lex = world->lex;
@@ -112,13 +113,21 @@ static void pin(pone_int_t indent) {
 static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
     pin(indent);
     switch (pone_type(val)) {
-        case PONE_STRING:
+        case PONE_STRING: {
             printf("(string: immutable:%d len:" PoneIntFmt " , ",
                     pone_flags(val) & PONE_FLAGS_FROZEN,
                     pone_str_len(val));
-            fwrite(pone_str_ptr(val), 1, pone_str_len(val), stdout);
+            for (pone_int_t i=0; i<pone_str_len(val); ++i) {
+                if (isprint(*(pone_str_ptr(val)+i))) {
+                    fwrite(pone_str_ptr(val) + i, 1, 1, stdout);
+                } else {
+                    char* p = pone_str_ptr(val);
+                    printf("\\x%02x", *(p + i));
+                }
+            }
             printf(")\n");
             break;
+        }
         case PONE_INT:
             printf("(int: flags:%d " PoneIntFmt ")\n", pone_flags(val), pone_int_val(val));
             break;
