@@ -366,7 +366,7 @@ void PVIP_node_as_sexp(pone_node * node, PVIPString *buf) {
     _PVIP_node_as_sexp(node, buf, 0);
 }
 
-void PVIP_node_dump_sexp(pone_node * node) {
+void pone_node_dump_sexp(pone_node * node) {
     PVIPString*buf = PVIP_string_new();
     PVIP_node_as_sexp(node, buf);
     PVIP_string_say(buf);

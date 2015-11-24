@@ -205,8 +205,8 @@ struct pvip_t* pvip_new();
 void pvip_free(struct pvip_t* pvip);
 
 /* parser related public apis */
-pone_node * PVIP_parse_string(struct pvip_t* pvip, const char *string, int len, int debug, PVIPString **error);
-pone_node * PVIP_parse_fp(struct pvip_t* pvip, FILE *fp, int debug, PVIPString **error);
+pone_node * pone_parse_string(struct pvip_t* pvip, const char *string, int len, int debug, PVIPString **error);
+pone_node * pone_parse_fp(struct pvip_t* pvip, FILE *fp, int debug, PVIPString **error);
 
 
 /* node related public apis */
@@ -216,7 +216,7 @@ void PVIP_node_as_sexp(pone_node * node, PVIPString *buf);
 
 void PVIP_node_change_type(pone_node *node, PVIP_node_type_t type);
 
-void PVIP_node_dump_sexp(pone_node * node);
+void pone_node_dump_sexp(pone_node * node);
 
 /* string */
 PVIPString *PVIP_string_new();

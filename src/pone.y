@@ -1038,7 +1038,7 @@ end-of-file = !'\0'
 
 %%
 
-pone_node * PVIP_parse_string(pvip_t* pvip, const char *string, int len, int debug, PVIPString **error) {
+pone_node * pone_parse_string(pvip_t* pvip, const char *string, int len, int debug, PVIPString **error) {
     pone_node *root = NULL;
 
     GREG g;
@@ -1121,7 +1121,7 @@ finished:
 XXX Output error message to stderr is ugly.
 XXX We need to add APIs for getting error message.
  */
-pone_node * PVIP_parse_fp(pvip_t* pvip, FILE *fp, int debug, PVIPString **error) {
+pone_node * pone_parse_fp(pvip_t* pvip, FILE *fp, int debug, PVIPString **error) {
     GREG g;
     YY_NAME(init)(&g);
 

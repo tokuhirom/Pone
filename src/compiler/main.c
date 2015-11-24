@@ -99,7 +99,7 @@ static inline void def_lex(pone_compile_ctx* ctx, const char* name) {
 
 static inline pone_node* inject_return(pone_compile_ctx* ctx, pone_node* node) {
     // printf("INJECT RETURN TO %s\n", PVIP_node_name(node->type));
-    // PVIP_node_dump_sexp(node);
+    // pone_node_dump_sexp(node);
     switch (node->type) {
     case PVIP_NODE_IF:
         node->children.nodes[1] = inject_return(ctx, node->children.nodes[1]);
@@ -1144,7 +1144,7 @@ int main(int argc, char** argv) {
     } else {
         if (eval) {
             PVIPString *error;
-            pone_node *node = PVIP_parse_string(pvip, eval, strlen(eval), yy_debug, &error);
+            pone_node *node = pone_parse_string(pvip, eval, strlen(eval), yy_debug, &error);
             if (!node) {
                 PVIP_string_say(error);
                 PVIP_string_destroy(error);
@@ -1153,7 +1153,7 @@ int main(int argc, char** argv) {
             }
 
             if (dump) {
-                PVIP_node_dump_sexp(node);
+                pone_node_dump_sexp(node);
             } else {
                 const char* c_filename = gen_tmpfile(world);
                 const char* so_filename = gen_tmpfile(world);
@@ -1169,7 +1169,7 @@ int main(int argc, char** argv) {
                 exit(1);
             }
             PVIPString *error;
-            pone_node *node = PVIP_parse_fp(pvip, fp, yy_debug, &error);
+            pone_node *node = pone_parse_fp(pvip, fp, yy_debug, &error);
             if (!node) {
                 PVIP_string_say(error);
                 PVIP_string_destroy(error);
@@ -1177,7 +1177,7 @@ int main(int argc, char** argv) {
                 exit(1);
             }
             if (dump) {
-                PVIP_node_dump_sexp(node);
+                pone_node_dump_sexp(node);
             } else {
                 const char* c_filename = "pone_generated.c";
                 const char* so_filename = "pone_generated.so";
@@ -1205,7 +1205,7 @@ int main(int argc, char** argv) {
                 pone_push_scope(world);
 
                 PVIPString *error;
-                pone_node *node = PVIP_parse_string(pvip, line, strlen(line), yy_debug, &error);
+                pone_node *node = pone_parse_string(pvip, line, strlen(line), yy_debug, &error);
                 if (!node) {
                     PVIP_string_say(error);
                     PVIP_string_destroy(error);
