@@ -112,7 +112,7 @@
     "${ONIGMO_SOURCE_DIR}/enc/cp1251.c"
     )
 
-  set(ONIGMO_C_COMPILE_FLAGS "${GRN_C_COMPILE_FLAGS}")
+  set(ONIGMO_C_COMPILE_FLAGS "")
 
   add_library(onigmo STATIC ${ONIGMO_SOURCES})
   set_source_files_properties(${ONIGMO_SOURCES}
@@ -125,8 +125,3 @@
 
   configure_file(config.h.cmake "${ONIGMO_BINARY_DIR}/config.h")
 
-  install(FILES
-    "${ONIGMO_SOURCE_DIR}/AUTHORS"
-    "${ONIGMO_SOURCE_DIR}/COPYING"
-    "${ONIGMO_SOURCE_DIR}/README"
-    DESTINATION "${GRN_DATA_DIR}/onigmo")
