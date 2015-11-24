@@ -20,7 +20,8 @@ TODO
 
 ## Builtin classes
 
- * IO::Socket::UNIX
+ * `Socket#listen_un`
+ * `Socket#connect_un`
  * `Proc` builtin class
  * Regex.quote
  * Str#index
@@ -43,7 +44,6 @@ TODO
  * Path::File#stat
  * IO::Socket::INET#setsockopt
  * IO::Socket::INET#getsockopt
- * Time
  * Time#strftime
  * URI
 
@@ -58,7 +58,6 @@ TODO
  * -i
  * `s///`
  * `"hoge"[0]`
- * `while True { last; }`
  * `sub x() { for 1..10 { say 3; } }; say 5`
 
 ## Bindings
