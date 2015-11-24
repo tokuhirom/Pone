@@ -425,6 +425,10 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
         case PVIP_NODE_MY:
             // (my (nop) (variable "$inc"))
             def_lex(ctx, PVIP_string_c_str(node->children.nodes[1]->pv));
+            PRINTF("    pone_assign(world, 0, \"");
+            WRITE_PV(node->children.nodes[1]->pv);
+            PRINTF("\", pone_nil());\n");
+            break;
         case PVIP_NODE_ADD:
             INFIX("pone_add");
             break;
@@ -990,7 +994,7 @@ void _pone_compile(pone_compile_ctx* ctx, PVIPNode* node) {
             break;
         }
         case PVIP_NODE_NOP:
-            PRINTF("pone_nil();");
+            PRINTF("pone_nil()");
             break;
         default:
             fprintf(stderr, "unsupported node '%s'\n", PVIP_node_name(node->type));
