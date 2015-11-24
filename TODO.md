@@ -58,7 +58,6 @@ TODO
  * -i
  * `s///`
  * `"hoge"[0]`
- * `sub x() { for 1..10 { say 3; } }; say 5`
 
 ## Bindings
 
