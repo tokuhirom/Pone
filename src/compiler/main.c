@@ -1024,12 +1024,28 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, pone_node* node, int so_no) {
         fwrite(ctx->subs[i]->buf, 1, ctx->subs[i]->len, fp);
     }
     PRINTF("// --------------- vvvv loader point vvvv -------------------\n");
-    PRINTF("void pone_so_init_%d(pone_world* world, pone_val* self, int n, va_list args) {\n", so_no);
+    PRINTF("pone_val* pone_so_init_%d(pone_world* world, pone_val* self, int n, va_list args) {\n", so_no);
     fwrite(ctx->buf->buf, 1, ctx->buf->len, fp);
+    PRINTF("    return pone_nil();\n");
     PRINTF("}\n");
 }
 
-static void pone_compile_node(pone_universe* universe, pone_node* node, const char* filename, bool compile_only, pvip_t* pvip) {
+pone_val* pone_load_dll(pone_world* world, const char* so_path, const char* funcname) {
+    void* handle = dlopen("./pone_generated.so", RTLD_LAZY);
+    if (!handle) {
+        pone_throw_str(world, "dlopen: %s", dlerror());
+    }
+    pone_funcptr_t pone_so_init = dlsym(handle, "pone_so_init_0");
+
+    char* error;
+    if ((error = dlerror()) != NULL)  {
+        pone_throw_str(world, "dlerror: %s", error);
+    }
+
+    return pone_code_new(world, pone_so_init);
+}
+
+static void pone_compile_node(pone_world* world, pone_node* node, const char* filename, bool compile_only, pvip_t* pvip) {
     FILE* fp = fopen("pone_generated.c", "w");
     if (!fp) {
         perror("Cannot open pone_generated.c");
@@ -1064,37 +1080,18 @@ static void pone_compile_node(pone_universe* universe, pone_node* node, const ch
 
     fclose(fp);
 
-    int retval = system("clang -D_POSIX_C_SOURCE=200809L -rdynamic -DPONE_DYNAMIC -fPIC -shared -lstdc++ -Iinclude/ -I src/ -g -lm -std=c99 -o pone_generated.so pone_generated.c -L. -lpone");
+    pone_val* cmdline = pone_str_c_str(world, pone_str_new_printf(world, "clang -D_POSIX_C_SOURCE=200809L -rdynamic -fPIC -shared -Iinclude/ -I src/ -g -lm -std=c99 -o %s %s -L. -lpone", "pone_generated.so", "pone_generated.c"));
+
+    int retval = system(pone_str_ptr(cmdline));
     if (retval != 0) {
-        fprintf(stderr, "cannot compile code\n");
-        exit(EXIT_FAILURE);
+        pone_throw_str(world, "cannot compile generated C code");
     }
 
     if (!compile_only) {
-        void* handle = dlopen("./pone_generated.so", RTLD_LAZY);
-        if (!handle) {
-            fprintf(stderr, "cannot load dll: %s\n", dlerror());
-            exit(EXIT_FAILURE);
-        }
-        pone_funcptr_t pone_so_init = dlsym(handle, "pone_so_init_0");
+        pone_val* code = pone_load_dll(world, "./pone_generated.c", "pone_so_init_0");
 
-        char* error;
-        if ((error = dlerror()) != NULL)  {
-            fprintf(stderr, "%s\n", error);
-            exit(EXIT_FAILURE);
-        }
-
-        pone_code code = {
-          .type = PONE_CODE,
-          .flags = PONE_FLAGS_FROZEN,
-          .func = pone_so_init,
-          .lex = NULL,
-        };
-
-        pone_thread_start(universe, (pone_val*)&code);
-        pone_universe_wait_threads(universe);
-
-        dlclose(handle);
+        pone_thread_start(world->universe, code);
+        pone_universe_wait_threads(world->universe);
     }
 }
 
@@ -1133,62 +1130,15 @@ int main(int argc, char** argv) {
 
     pone_universe* universe = pone_universe_init();
     pone_init(universe);
-    if (eval) {
-        PVIPString *error;
-        pone_node *node = PVIP_parse_string(pvip, eval, strlen(eval), yy_debug, &error);
-        if (!node) {
-            PVIP_string_say(error);
-            PVIP_string_destroy(error);
-            printf("ABORT\n");
-            exit(1);
-        }
 
-        if (dump) {
-            PVIP_node_dump_sexp(node);
-        } else {
-            pone_compile_node(universe, node, "-e", compile_only, pvip);
-        }
-    } else if (optind < argc) {
-        const char* filename = argv[optind];
-
-        FILE* fp = fopen(filename, "r");
-        if (!fp) {
-            fprintf(stderr, "Cannot open %s\n", filename);
-            exit(1);
-        }
-        PVIPString *error;
-        pone_node *node = PVIP_parse_fp(pvip, fp, yy_debug, &error);
-        if (!node) {
-            PVIP_string_say(error);
-            PVIP_string_destroy(error);
-            printf("ABORT\n");
-            exit(1);
-        }
-        if (dump) {
-            PVIP_node_dump_sexp(node);
-        } else {
-            pone_compile_node(universe, node, filename, compile_only, pvip);
-        }
+    // create compiler world.
+    pone_world* world = pone_world_new(universe);
+    if (setjmp(world->err_handlers[0])) {
+        pone_universe_default_err_handler(world);
     } else {
-        // REPL mode
-        linenoiseSetMultiLine(1);
-
-        char* history_file = strdup(getenv("HOME"));
-        if (!history_file) {
-            fprintf(stderr, "[pone] cannot allocate memory\n");
-            abort();
-        }
-        history_file = realloc(history_file, strlen(history_file) + strlen("/.pone_history.txt")+1);
-        if (!history_file) {
-            fprintf(stderr, "[pone] cannot allocate memory\n");
-            abort();
-        }
-        strcpy(history_file+strlen(history_file), "/.pone_history.txt");
-
-        const char* line;
-        while((line = linenoise("pone> ")) != NULL) {
+        if (eval) {
             PVIPString *error;
-            pone_node *node = PVIP_parse_string(pvip, line, strlen(line), yy_debug, &error);
+            pone_node *node = PVIP_parse_string(pvip, eval, strlen(eval), yy_debug, &error);
             if (!node) {
                 PVIP_string_say(error);
                 PVIP_string_destroy(error);
@@ -1196,10 +1146,68 @@ int main(int argc, char** argv) {
                 exit(1);
             }
 
-            pone_compile_node(universe, node, "-e", false, pvip);
+            if (dump) {
+                PVIP_node_dump_sexp(node);
+            } else {
+                pone_compile_node(world, node, "-e", compile_only, pvip);
+            }
+        } else if (optind < argc) {
+            const char* filename = argv[optind];
 
-            linenoiseHistoryAdd(line);
-            linenoiseHistorySave(history_file);
+            FILE* fp = fopen(filename, "r");
+            if (!fp) {
+                fprintf(stderr, "Cannot open %s\n", filename);
+                exit(1);
+            }
+            PVIPString *error;
+            pone_node *node = PVIP_parse_fp(pvip, fp, yy_debug, &error);
+            if (!node) {
+                PVIP_string_say(error);
+                PVIP_string_destroy(error);
+                printf("ABORT\n");
+                exit(1);
+            }
+            if (dump) {
+                PVIP_node_dump_sexp(node);
+            } else {
+                pone_compile_node(world, node, filename, compile_only, pvip);
+            }
+        } else {
+            // REPL mode
+            linenoiseSetMultiLine(1);
+
+            char* history_file = strdup(getenv("HOME"));
+            if (!history_file) {
+                fprintf(stderr, "[pone] cannot allocate memory\n");
+                abort();
+            }
+            history_file = realloc(history_file, strlen(history_file) + strlen("/.pone_history.txt")+1);
+            if (!history_file) {
+                fprintf(stderr, "[pone] cannot allocate memory\n");
+                abort();
+            }
+            strcpy(history_file+strlen(history_file), "/.pone_history.txt");
+
+            const char* line;
+            while((line = linenoise("pone> ")) != NULL) {
+                PVIPString *error;
+                pone_node *node = PVIP_parse_string(pvip, line, strlen(line), yy_debug, &error);
+                if (!node) {
+                    PVIP_string_say(error);
+                    PVIP_string_destroy(error);
+                    printf("ABORT\n");
+                    exit(1);
+                }
+
+                pone_compile_node(world, node, "-e", false, pvip);
+
+                linenoiseHistoryAdd(line);
+                linenoiseHistorySave(history_file);
+
+                if (world->gc_requested) {
+                    pone_gc_run(world);
+                }
+            }
         }
     }
     pvip_free(pvip);
