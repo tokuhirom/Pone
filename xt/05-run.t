@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
+use lib ' t/extlib/lib/perl5/';
 use Test::More;
 use Test::Base;
 use POSIX;

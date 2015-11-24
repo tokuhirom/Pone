@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use lib ' t/extlib/lib/perl5/';
 use v5.10.0;
 use utf8;
 use autodie;
