@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include "pone.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -205,8 +206,8 @@ struct pvip_t* pvip_new();
 void pvip_free(struct pvip_t* pvip);
 
 /* parser related public apis */
-pone_node * pone_parse_string(struct pvip_t* pvip, const char *string, int len, int debug, PVIPString **error);
-pone_node * pone_parse_fp(struct pvip_t* pvip, FILE *fp, int debug, PVIPString **error);
+pone_node * PVIP_parse_string(struct pvip_t* pvip, const char *string, int len, int debug, PVIPString **error);
+pone_node * PVIP_parse_fp(struct pvip_t* pvip, FILE *fp, int debug, PVIPString **error);
 
 
 /* node related public apis */

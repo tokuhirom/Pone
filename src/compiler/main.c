@@ -1096,6 +1096,32 @@ static void pone_compile_node(pone_world* world, pone_node* node, const char* fi
     }
 }
 
+static pone_node* pone_parse_string(pone_world* world, pvip_t* pvip, const char* src, bool yy_debug) {
+    PVIPString *error;
+    pone_node *node = PVIP_parse_string(pvip, src, strlen(src), yy_debug, &error);
+    if (!node) {
+        pone_val* s = pone_str_new_strdup(world, "Cannot parse string: ",
+                strlen("Cannot parse string: "));
+        pone_str_append_c(world, s, error->buf, error->len);
+        PVIP_string_destroy(error);
+        pone_throw(world, s);
+    }
+    return node;
+}
+
+static pone_node* pone_parse_fp(pone_world* world, pvip_t* pvip, FILE* fp, bool yy_debug) {
+    PVIPString *error;
+    pone_node *node = PVIP_parse_fp(pvip, fp, yy_debug, &error);
+    if (!node) {
+        pone_val* s = pone_str_new_strdup(world, "Cannot parse string: ",
+                strlen("Cannot parse: "));
+        pone_str_append_c(world, s, error->buf, error->len);
+        PVIP_string_destroy(error);
+        pone_throw(world, s);
+    }
+    return node;
+}
+
 static const char* gen_tmpfile(pone_world* world) {
     pone_val* c_tmpfile_v = pone_tmpfile_new(world);
     return pone_tmpfile_path_c(world, c_tmpfile_v);
@@ -1143,14 +1169,7 @@ int main(int argc, char** argv) {
         pone_universe_default_err_handler(world);
     } else {
         if (eval) {
-            PVIPString *error;
-            pone_node *node = pone_parse_string(pvip, eval, strlen(eval), yy_debug, &error);
-            if (!node) {
-                PVIP_string_say(error);
-                PVIP_string_destroy(error);
-                printf("ABORT\n");
-                exit(1);
-            }
+            pone_node *node = pone_parse_string(world, pvip, eval, yy_debug);
 
             if (dump) {
                 pone_node_dump_sexp(node);
@@ -1168,14 +1187,7 @@ int main(int argc, char** argv) {
                 fprintf(stderr, "Cannot open %s\n", filename);
                 exit(1);
             }
-            PVIPString *error;
-            pone_node *node = pone_parse_fp(pvip, fp, yy_debug, &error);
-            if (!node) {
-                PVIP_string_say(error);
-                PVIP_string_destroy(error);
-                printf("ABORT\n");
-                exit(1);
-            }
+            pone_node *node = pone_parse_fp(world, pvip, fp, yy_debug);
             if (dump) {
                 pone_node_dump_sexp(node);
             } else {
@@ -1204,14 +1216,7 @@ int main(int argc, char** argv) {
             while((line = linenoise("pone> ")) != NULL) {
                 pone_push_scope(world);
 
-                PVIPString *error;
-                pone_node *node = pone_parse_string(pvip, line, strlen(line), yy_debug, &error);
-                if (!node) {
-                    PVIP_string_say(error);
-                    PVIP_string_destroy(error);
-                    printf("ABORT\n");
-                    exit(1);
-                }
+                pone_node *node = pone_parse_string(world, pvip, line, yy_debug);
 
                 const char* c_filename = gen_tmpfile(world);
                 const char* so_filename = gen_tmpfile(world);
