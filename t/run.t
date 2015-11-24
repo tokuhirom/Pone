@@ -76,3 +76,11 @@ like $res, qr/$wd/;
 --- code: say gmtime()
 --- re: \d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d\d\d
 
+===
+--- code: say tmpfile().path()
+--- re: pone_......$
+
+===
+--- code: say tmpfile().file()
+--- re: FILE.*
+

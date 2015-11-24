@@ -332,6 +332,8 @@ typedef struct pone_universe {
     struct pone_val* class_file;
     // class of Module
     struct pone_val* class_module;
+    // class of TmpFile
+    struct pone_val* class_tmpfile;
 
     // $*INC
     struct pone_val* inc;
@@ -445,7 +447,7 @@ pone_val* pone_str_new_const(pone_world* world, const char*p, size_t len);
 void pone_str_free(pone_world* world, pone_val* val);
 pone_val* pone_stringify(pone_world* world, pone_val* val);
 pone_val* pone_str_from_num(pone_world* world, double n);
-const char* pone_str_ptr(pone_val* val);
+char* pone_str_ptr(pone_val* val);
 pone_int_t pone_str_len(pone_val* val);
 char* pone_strdup(pone_world* world, const char* src, size_t size);
 void pone_str_append_c(pone_world* world, pone_val* str, const char* s, pone_int_t s_len);

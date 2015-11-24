@@ -156,7 +156,7 @@ pone_val* pone_stringify(pone_world* world, pone_val* val) {
     return pone_call_method(world, val, "Str", 0);
 }
 
-inline const char* pone_str_ptr(pone_val* val) {
+inline char* pone_str_ptr(pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) {
         return pone_str_ptr(val->as.str.val);
