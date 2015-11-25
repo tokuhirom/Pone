@@ -635,6 +635,12 @@ void pone_builtin_init(pone_world* world);
 #define THREAD_TRACE(fmt, ...)
 #endif
 
+#ifdef DEBUG_MODULE
+#define MODULE_TRACE(fmt, ...) fprintf(stderr, "[pone module] [%lx] " fmt "\n", pthread_self(), ##__VA_ARGS__)
+#else
+#define MODULE_TRACE(fmt, ...)
+#endif
+
 #ifdef DEBUG_GC
 #define GC_TRACE(fmt, ...) fprintf(stderr, "[pone gc] [%lx] " fmt "\n", pthread_self(), ##__VA_ARGS__)
 #else

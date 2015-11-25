@@ -222,6 +222,11 @@ PONE_FUNC(meth_printf) {
     return pone_nil();
 }
 
+PONE_FUNC(meth_internals_dump_lex) {
+    pone_lex_dump(world->lex);
+    return pone_nil();
+}
+
 void pone_builtin_init(pone_world* world) {
     pone_universe* universe = world->universe;
     pone_universe_set_global(universe, "slurp", pone_code_new_c(world, meth_slurp));
@@ -238,5 +243,6 @@ void pone_builtin_init(pone_world* world) {
     pone_universe_set_global(universe, "die", pone_code_new_c(world, meth_die));
     pone_universe_set_global(universe, "exit", pone_code_new_c(world, meth_exit));
     pone_universe_set_global(universe, "printf", pone_code_new_c(world, meth_printf));
+    pone_universe_set_global(universe, "INTERNALS__dump_lex", pone_code_new_c(world, meth_internals_dump_lex));
 }
 

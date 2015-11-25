@@ -1,6 +1,7 @@
 // Module is a core feature in Pone.
 #include "pone.h"
 #include "pone_file.h"
+#include "pone_compile.h"
 #include "dlfcn.h"
 #include <sys/stat.h>
 
@@ -78,9 +79,12 @@ pone_val* pone_module_from_lex(pone_world* world, const char* module_name) {
 // try load ${dir}/${name}.pn.
 static bool try_load_pn(pone_world* world, pone_val* dir, const char* name, const char* as) {
     pone_val* path = pone_stringify(world, dir);
+    pone_str_append_c(world, path, "/", strlen("/"));
     pone_str_append_c(world, path, name, strlen(name));
     pone_str_append_c(world, path, ".pn", strlen(".pn"));
     const char* path_c = pone_str_ptr(pone_str_c_str(world, path));
+
+    MODULE_TRACE("Loading %s", path_c);
 
     FILE* fp = fopen(path_c, "r");
     if (!fp) {
@@ -97,6 +101,19 @@ static bool try_load_pn(pone_world* world, pone_val* dir, const char* name, cons
 
     // manage file handle by GC.
     (void)pone_file_new(world, fp, true);
+    pone_val* code = pone_compile_fp(world, fp, path_c);
+
+    // save original lex.
+    pone_val* orig_lex = world->lex;
+    pone_save_tmp(world, orig_lex);
+    // create new lex from Code's saved lex.
+    world->lex = NULL;
+
+    pone_val* module = pone_code_call(world, code, pone_nil(), 0);
+
+    world->lex = orig_lex;
+
+    pone_assign(world, 0, as, module);
     return true;
 }
 
@@ -105,15 +122,24 @@ void pone_use(pone_world* world, const char *name, const char* as) {
     pone_val* inc = world->universe->inc;
     for (pone_int_t i=0; i<pone_ary_elems(inc); ++i) {
         pone_val* dir = pone_ary_at_pos(inc, i);
+
         // try ${dir}/${name}.pn
-        try_load_pn(world, dir, name, as);
+        if (try_load_pn(world, dir, name, as)) {
+            return;
+        }
+
         // try ${dir}/${name}.so
         const char* from = pone_str_ptr(pone_str_c_str(world, pone_stringify(world, dir)));
         if (load_module(world, from, name, as)) {
             return;
         }
     }
-    // TODO dump $*INC
-    pone_throw_str(world, "Could not load module %s: no such module.", name);
+
+    pone_val* msg = pone_str_new_printf(world, "Could not load module '%s': no such module in:\n\n", name);
+    for (pone_int_t i=0; i<pone_ary_elems(inc); ++i) {
+        pone_str_append_c(world, msg, "    ", strlen("    "));
+        pone_str_append(world, msg, pone_ary_at_pos(inc, i));
+    }
+    pone_throw(world, msg);
 }
 

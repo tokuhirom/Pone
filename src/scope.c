@@ -30,10 +30,10 @@ void pone_lex_mark(pone_val* lex) {
 
 // for debug
 void pone_lex_dump(pone_val* lex) {
-    printf("--- LEX DUMP ---\n");
+    printf("--- LEX DUMP(%p) ---\n", lex);
     int i=0;
     while (lex) {
-        printf("--- %d\n", i);
+        printf("--- %d(%p)\n", i, lex);
 
         const char* k;
         pone_val* v;
@@ -92,6 +92,8 @@ void pone_pop_scope(pone_world* world) {
 }
 
 pone_val* pone_save_tmp(pone_world* world, pone_val* val) {
+    assert(val);
+
     if (world->tmpstack.n == world->tmpstack.m) {
         world->tmpstack.m = world->tmpstack.m ? world->tmpstack.m<<1 : 2;
         world->tmpstack.a = (pone_val**)realloc(world->tmpstack.a,

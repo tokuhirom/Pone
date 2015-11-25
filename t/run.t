@@ -79,9 +79,13 @@ like $res, qr/$wd/;
 
 ===
 --- code: say tmpfile().path()
---- re: pone_......$
+--- re: pone_......
 
 ===
 --- code: say tmpfile().file()
 --- re: FILE.*
+
+===
+--- code: $*INC.unshift("t/lib"); use hoge hoge; say hoge.x()
+--- re: hogehoge
 

@@ -32,9 +32,9 @@ struct pvip_arena {
     pone_node nodes[PVIP_ARENA_SIZE];
 };
 
-typedef struct pvip_t {
+struct pvip_t {
     struct pvip_arena* arena;
-} pvip_t;
+};
 
 struct pvip_t* pvip_new() {
     pvip_t* pvip = malloc(sizeof(pvip_t));
