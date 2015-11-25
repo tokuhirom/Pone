@@ -189,7 +189,13 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
         if (pone_defined(method)) {
             return method;
         } else {
-            return NULL;
+            pone_val* methods = pone_obj_get_ivar(world, klass, "$!methods");
+            pone_val* method = pone_hash_at_key_c(world->universe, methods, name);
+            if (pone_defined(method)) {
+                return method;
+            } else {
+                return NULL;
+            }
         }
     } else {
         // Normal object

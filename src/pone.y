@@ -199,10 +199,12 @@ module_stmt = 'module' ws pkg:pkg_name eat_terminator { $$ = PVIP_node_new_child
 # use io/socket/inet;
 # use . io/socket/inet;
 use_stmt =
-    'use' - id:ident - pkg:pkg_name {
-        $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_USE, MAYBE(id), pkg); 
+    'use' - id:ident - pkg:pkg_name eat_terminator {
+        $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_USE, id, pkg); 
     }
-      eat_terminator
+    | 'use' - pkg:pkg_name eat_terminator {
+        $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_USE, NOP(), pkg); 
+    }
 
 pkg_name = < [a-zA-Z] [a-zA-Z0-9_]* ( '/' [a-zA-Z0-9_]+ )* > {
     $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_IDENT, yytext, yyleng);
