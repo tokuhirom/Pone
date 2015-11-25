@@ -90,6 +90,9 @@ void pone_universe_wait_threads(pone_universe* universe) {
 }
 
 void pone_universe_destroy(pone_universe* universe) {
+    CHECK_PTHREAD(pthread_cancel(universe->signal_thread));
+    void* retval;
+    CHECK_PTHREAD(pthread_join(universe->signal_thread, &retval));
     CHECK_PTHREAD(pthread_cond_destroy(&(universe->worker_fin_cond)));
     CHECK_PTHREAD(pthread_mutex_destroy(&(universe->signal_channels_mutex)));
     CHECK_PTHREAD(pthread_mutex_destroy(&(universe->worker_worlds_mutex)));

@@ -75,8 +75,7 @@ void pone_signal_start_thread(pone_world* world) {
     sigfillset(&set);
     CHECK_PTHREAD(pthread_sigmask(SIG_BLOCK, &set, NULL));
 
-    pthread_t thread;
-    CHECK_PTHREAD(pthread_create(&thread, NULL, signal_thread, world->universe));
+    CHECK_PTHREAD(pthread_create(&(world->universe->signal_thread), NULL, signal_thread, world->universe));
 }
 
 PONE_FUNC(meth_signal_notify) {

@@ -292,6 +292,9 @@ typedef struct pone_universe {
     // mutex for signal_channels.
     pthread_mutex_t signal_channels_mutex;
 
+    // signal thread.
+    pthread_t signal_thread;
+
     // class of class
     struct pone_val* class_class;
     // class of Int
