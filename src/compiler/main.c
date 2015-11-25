@@ -4,6 +4,8 @@
 #include "pvip.h"
 #include "linenoise.h"
 
+#include <unistd.h> /* getopt */
+
 static void usage() {
     printf("Usage: pone -e=code\n"
             "    pone src.pone\n");
