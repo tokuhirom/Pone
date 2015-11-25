@@ -1,5 +1,6 @@
 // Module is a core feature in Pone.
 #include "pone.h"
+#include "pone_file.h"
 #include "dlfcn.h"
 #include <sys/stat.h>
 
@@ -58,10 +59,56 @@ static bool load_module(pone_world* world, const char* from, const char *name, c
     return true;
 }
 
+pone_val* pone_module_from_lex(pone_world* world, const char* module_name) {
+    pone_val* module = pone_module_new(world, module_name);
+    pone_val* lex = world->lex;
+    const char* k;
+    pone_val* v;
+    kh_foreach(lex->as.lex.map, k, v, {
+        pone_val* klass = pone_what(world, v);
+        // export only class and code.
+        // TODO support 'my class' and 'my sub'. it means v->flags |= PONE_FLAGS_CLASS_MY;
+        if (klass == world->universe->class_class || klass == world->universe->class_code) {
+            pone_module_put(world, module, k, v);
+        }
+    });
+    return module;
+}
+
+// try load ${dir}/${name}.pn.
+static bool try_load_pn(pone_world* world, pone_val* dir, const char* name, const char* as) {
+    pone_val* path = pone_stringify(world, dir);
+    pone_str_append_c(world, path, name, strlen(name));
+    pone_str_append_c(world, path, ".pn", strlen(".pn"));
+    const char* path_c = pone_str_ptr(pone_str_c_str(world, path));
+
+    FILE* fp = fopen(path_c, "r");
+    if (!fp) {
+        int e = errno;
+        struct stat stat_buf;
+        if (stat(path_c, &stat_buf) != 0) {
+            // file does not exist.
+            return false;
+        } else {
+            // file exists but can't open. it's a problem. it means permission errror or something.
+            pone_throw_str(world, "Cannot open %s: %s", path_c, strerror(e));
+        }
+    }
+
+    // manage file handle by GC.
+    (void)pone_file_new(world, fp, true);
+    return true;
+}
+
 void pone_use(pone_world* world, const char *name, const char* as) {
+    // scan $*INC
     pone_val* inc = world->universe->inc;
     for (pone_int_t i=0; i<pone_ary_elems(inc); ++i) {
-        const char* from = pone_str_ptr(pone_str_c_str(world, pone_stringify(world, pone_ary_at_pos(inc, i))));
+        pone_val* dir = pone_ary_at_pos(inc, i);
+        // try ${dir}/${name}.pn
+        try_load_pn(world, dir, name, as);
+        // try ${dir}/${name}.so
+        const char* from = pone_str_ptr(pone_str_c_str(world, pone_stringify(world, dir)));
         if (load_module(world, from, name, as)) {
             return;
         }

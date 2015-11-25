@@ -9,7 +9,9 @@
 #include "pvip.h"
 #include "pvip_private.h"
 #include "pone.h"
+#include "pone_compile.h"
 #include "pone_tmpfile.h"
+#include "pone_module.h"
 #include "linenoise.h"
 
 #ifndef CC
@@ -1005,11 +1007,12 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
 #undef COMPILE
 }
 
-void pone_compile(pone_compile_ctx* ctx, FILE* fp, pone_node* node, int so_no) {
+void pone_compile(pone_compile_ctx* ctx, FILE* fp, pone_node* node, const char* so_funcname, const char* module_name) {
     _pone_compile(ctx, node);
 
 #define PRINTF(fmt, ...) fprintf(fp, (fmt), ##__VA_ARGS__)
     PRINTF("#include \"pone.h\"\n");
+    PRINTF("#include \"pone_module.h\"\n");
     PRINTF("\n");
     PRINTF("// --------------- vvvv ints          vvvv -------------------\n");
     {
@@ -1025,9 +1028,9 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, pone_node* node, int so_no) {
         fwrite(ctx->subs[i]->buf, 1, ctx->subs[i]->len, fp);
     }
     PRINTF("// --------------- vvvv loader point vvvv -------------------\n");
-    PRINTF("pone_val* pone_so_init_%d(pone_world* world, pone_val* self, int n, va_list args) {\n", so_no);
+    PRINTF("pone_val* %s(pone_world* world, pone_val* self, int n, va_list args) {\n", so_funcname);
     fwrite(ctx->buf->buf, 1, ctx->buf->len, fp);
-    PRINTF("    return pone_nil();\n");
+    PRINTF("    return pone_module_from_lex(world, \"%s\");\n", module_name);
     PRINTF("}\n");
 }
 
@@ -1066,8 +1069,7 @@ static void pone_compile_node(pone_world* world, pone_node* node, const char* fi
     ctx.vars_max = 1;
     ctx.pvip = pvip;
     push_vars_stack(&ctx);
-    int so_no = 0;
-    pone_compile(&ctx, fp, node, so_no);
+    pone_compile(&ctx, fp, node, so_funcname, "main");
     pop_vars_stack(&ctx);
     for (int i=0; i<ctx.sub_idx; ++i) {
         PVIP_string_destroy(ctx.subs[i]);
@@ -1081,12 +1083,7 @@ static void pone_compile_node(pone_world* world, pone_node* node, const char* fi
 
     fclose(fp);
 
-    pone_val* cmdline = pone_str_c_str(world, pone_str_new_printf(world, "clang -x c -D_POSIX_C_SOURCE=200809L -rdynamic -fPIC -shared -Iinclude/ -I src/ -g -lm -std=c99 -o %s %s -L. -lpone", so_filename, c_filename));
-
-    int retval = system(pone_str_ptr(cmdline));
-    if (retval != 0) {
-        pone_throw_str(world, "cannot compile generated C code");
-    }
+    pone_compile_c(world, so_filename, c_filename);
 
     if (!compile_only) {
         pone_val* code = pone_load_dll(world, so_filename, so_funcname);
@@ -1191,8 +1188,8 @@ int main(int argc, char** argv) {
             if (dump) {
                 pone_node_dump_sexp(node);
             } else {
-                const char* c_filename = "pone_generated.c";
-                const char* so_filename = "pone_generated.so";
+                const char* c_filename = gen_tmpfile(world);
+                const char* so_filename = gen_tmpfile(world);
                 const char* so_funcname = "pone_so_init_0";
                 pone_compile_node(world, node, filename, compile_only, pvip, c_filename, so_filename, so_funcname);
             }
