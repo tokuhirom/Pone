@@ -48,6 +48,12 @@ PONE_FUNC(meth_dd) {
     return pone_nil();
 }
 
+PONE_FUNC(meth_what) {
+    pone_val* val;
+    PONE_ARG("what", "o", &val);
+    return pone_what(world, val);
+}
+
 PONE_FUNC(meth_pthread_self) {
     PONE_ARG("pthread_self", "");
     return pone_int_new(world, (pone_int_t)pthread_self());
@@ -232,6 +238,7 @@ void pone_builtin_init(pone_world* world) {
     pone_universe_set_global(universe, "slurp", pone_code_new_c(world, meth_slurp));
     pone_universe_set_global(universe, "chan", pone_code_new_c(world, meth_chan));
     pone_universe_set_global(universe, "dd", pone_code_new_c(world, meth_dd));
+    pone_universe_set_global(universe, "what", pone_code_new_c(world, meth_what));
     pone_universe_set_global(universe, "pthread_self", pone_code_new_c(world, meth_pthread_self));
     pone_universe_set_global(universe, "abs", pone_code_new_c(world, meth_abs));
     pone_universe_set_global(universe, "print", pone_code_new_c(world, meth_print));

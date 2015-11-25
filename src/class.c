@@ -36,17 +36,6 @@ PONE_FUNC(mu_say) {
     return pone_nil();
 }
 
-PONE_FUNC(mu_what) {
-    PONE_ARG("#WHAT", "");
-    return pone_what(world, self);
-}
-
-PONE_FUNC(class_what) {
-    PONE_ARG("Class#WHAT", "");
-    // TODO return class of class
-    return pone_nil();
-}
-
 // initialize Class class
 pone_val* pone_init_class(pone_world* world) {
     pone_val* val = pone_obj_alloc(world, PONE_OBJ);
@@ -58,7 +47,6 @@ pone_val* pone_init_class(pone_world* world) {
     pone_add_method_c(world, val, "name", strlen("name"), meth_name);
     pone_add_method_c(world, val, "Str", strlen("Str"), meth_Str);
     pone_add_method_c(world, val, "say", strlen("say"), mu_say);
-    pone_add_method_c(world, val, "WHAT", strlen("WHAT"), class_what);
     pone_class_compose(world, val);
 
     return val;
@@ -113,7 +101,6 @@ pone_val* pone_class_new(pone_world* world, const char* name, size_t name_len) {
 
     pone_add_method_c(world, obj, "say", strlen("say"), mu_say);
     pone_add_method_c(world, obj, "Str", strlen("Str"), mu_str);
-    pone_add_method_c(world, obj, "WHAT", strlen("WHAT"), mu_what);
 
     return (pone_val*)obj;
 }

@@ -214,6 +214,7 @@ typedef struct pone_world {
 
     // $@
     struct pone_val* errvar;
+    struct pone_val* stacktrace;
 
     // $!(errno)
     int errsv;

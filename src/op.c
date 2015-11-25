@@ -151,7 +151,7 @@ static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
             break;
         }
         case PONE_ARRAY: {
-            printf("(array len:" PoneIntFmt ", max:" PoneIntFmt, val->as.ary.len, val->as.ary.max);
+            printf("(array len:" PoneIntFmt ", max:" PoneIntFmt "\n", val->as.ary.len, val->as.ary.max);
             for (pone_int_t i=0; i<val->as.ary.len; ++i) {
                 pin(indent+1);
                 dd(universe, val->as.ary.a[i], indent+2);

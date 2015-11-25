@@ -125,7 +125,12 @@ void pone_world_mark(pone_world* world) {
     if (world->lex) {
         pone_gc_mark_value(world->lex);
     }
-    pone_gc_mark_value(world->errvar);
+    if (world->errvar) {
+        pone_gc_mark_value(world->errvar);
+    }
+    if (world->stacktrace) {
+        pone_gc_mark_value(world->stacktrace);
+    }
 
     if (world->code) {
         pone_gc_mark_value(world->code);

@@ -14,13 +14,12 @@ void pone_universe_default_err_handler(pone_world* world) {
     fwrite(pone_str_ptr(str), 1, pone_str_len(str), stderr);
     fwrite("\n\n", 1, strlen("\n\n"), stderr);
 
-#ifdef __GLIBC__
-    {
-        void *trace[128];
-        int n = backtrace(trace, sizeof(trace) / sizeof(trace[0]));
-        backtrace_symbols_fd(trace, n, fileno(stderr));
+    if (world->stacktrace) {
+        for (pone_int_t i=0; i<pone_ary_elems(world->stacktrace); ++i) {
+            printf("%5ld: %s\n", pone_ary_elems(world->stacktrace)-i,
+                    pone_str_ptr(pone_str_c_str(world, pone_ary_at_pos(world->stacktrace, i))));
+        }
     }
-#endif
 
     exit(1);
 }
