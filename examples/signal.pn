@@ -5,6 +5,6 @@ async(sub {
     exit();
 });
 say "hehhL";
-signal.notify($chan, signal.SIGINT);
-signal.kill($$, signal.SIGINT);
+signal.notify($chan, signal.SIGUSR1);
+signal.kill($$, signal.SIGUSR1);
 sleep 100

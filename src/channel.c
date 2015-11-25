@@ -15,7 +15,7 @@ void pone_chan_mark_queue(pone_world* world, pone_val* chan) {
     THREAD_TRACE("pone_chan_mark_queue %p", chan);
     pthread_mutex_t* mutex = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!mutex"));
     pone_val* buffer = pone_obj_get_ivar(world, chan, "$!buffer");
-    CHECK_PTHREAD(pthread_mutex_lock(mutex));
+    CHECK_PTHREAD("pone_chan_mark_queue" && pthread_mutex_lock(mutex));
     for (pone_int_t i=0; i<pone_ary_elems(buffer); ++i) {
         pone_gc_mark_value(pone_ary_at_pos(buffer, i));
     }
@@ -23,15 +23,16 @@ void pone_chan_mark_queue(pone_world* world, pone_val* chan) {
 }
 
 void pone_chan_send(pone_world* world, pone_val* chan, pone_val* val) {
-    pone_val* limit = pone_obj_get_ivar(world, chan, "$!buffer-limit");
+    pone_val* limit_v = pone_obj_get_ivar(world, chan, "$!buffer-limit");
     pone_val* buffer = pone_obj_get_ivar(world, chan, "$!buffer");
     pthread_cond_t* send_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!send-cond"));
     pthread_cond_t* recv_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!recv-cond"));
     pthread_mutex_t* mutex = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!mutex"));
 
     // if buffer is available
+    pone_int_t limit = pone_intify(world, limit_v);
     CHECK_PTHREAD(pthread_mutex_lock(mutex));
-    while (pone_intify(world, limit) < pone_ary_elems(buffer)) {
+    while (limit < pone_ary_elems(buffer)) {
         CHECK_PTHREAD(pthread_cond_wait(recv_cond, mutex));
     }
     THREAD_TRACE("pone_chan_send chan:%p val:%p", chan, val);
@@ -46,21 +47,22 @@ void pone_chan_send(pone_world* world, pone_val* chan, pone_val* val) {
  * Return false otherwise.
  */
 bool pone_chan_trysend(pone_world* world, pone_val* chan, pone_val* val) {
-    pone_val* limit = pone_obj_get_ivar(world, chan, "$!buffer-limit");
+    pone_val* limit_v = pone_obj_get_ivar(world, chan, "$!buffer-limit");
     pone_val* buffer = pone_obj_get_ivar(world, chan, "$!buffer");
     pthread_cond_t* send_cond = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!send-cond"));
     pthread_mutex_t* mutex = pone_opaque_ptr(pone_obj_get_ivar(world, chan, "$!mutex"));
 
     bool sent = false;
+    pone_int_t limit = pone_intify(world, limit_v);
     CHECK_PTHREAD(pthread_mutex_lock(mutex));
-    if (pone_intify(world, limit) > pone_ary_elems(buffer)) {
+    if (limit > pone_ary_elems(buffer)) {
         pone_ary_push(world->universe, buffer, val);
         CHECK_PTHREAD(pthread_cond_signal(send_cond));
         sent = true;
     }
     CHECK_PTHREAD(pthread_mutex_unlock(mutex));
 
-    THREAD_TRACE("sent channel item");
+    THREAD_TRACE("sent channel item(trysend)");
 
     return sent;
 }

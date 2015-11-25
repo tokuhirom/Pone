@@ -26,7 +26,6 @@ static inline void handle(pone_world* world, int sig) {
     }
 
     // Send signal to channels.
-    CHECK_PTHREAD(pthread_mutex_lock(&(universe->signal_channels_mutex)));
     pone_push_scope(world);
     pone_val* sig_v = pone_int_new(world, sig);
     for (pone_int_t i=0; i<kv_size(universe->signal_channels[sig]); i++) {
@@ -38,11 +37,10 @@ static inline void handle(pone_world* world, int sig) {
         }
     }
     pone_pop_scope(world);
-    CHECK_PTHREAD(pthread_mutex_unlock(&(universe->signal_channels_mutex)));
 }
 
 static void* signal_thread(void* p) {
-    pone_universe* universe = p;
+    pone_world* world = p;
     int sig;
     sigset_t set;
     sigfillset(&set);
@@ -51,19 +49,23 @@ static void* signal_thread(void* p) {
 #else
     pthread_setname_np(pthread_self(), "pone signal ^^;");
 #endif
-    pone_world* world = pone_world_new(universe);
     CHECK_PTHREAD(pthread_mutex_lock(&(world->mutex)));
+
+    THREAD_TRACE("Started signal thread");
 
     for (;;) {
         if (sigwait(&set, &sig) != 0) {
             perror("sigwait"); // sigwait returns EINVAL.
             abort();
         }
+
+        CHECK_PTHREAD(pthread_mutex_lock(&(world->universe->signal_channels_mutex)));
         handle(world, sig);
 
         if (world->gc_requested) {
             pone_gc_run(world);
         }
+        CHECK_PTHREAD(pthread_mutex_unlock(&(world->universe->signal_channels_mutex)));
     }
     abort(); // should not reach here.
 }
@@ -75,7 +77,8 @@ void pone_signal_start_thread(pone_world* world) {
     sigfillset(&set);
     CHECK_PTHREAD(pthread_sigmask(SIG_BLOCK, &set, NULL));
 
-    CHECK_PTHREAD(pthread_create(&(world->universe->signal_thread), NULL, signal_thread, world->universe));
+    world->universe->signal_world = pone_world_new(world->universe);
+    CHECK_PTHREAD(pthread_create(&(world->universe->signal_thread), NULL, signal_thread, world->universe->signal_world));
 }
 
 PONE_FUNC(meth_signal_notify) {
@@ -88,7 +91,12 @@ PONE_FUNC(meth_signal_notify) {
     }
 
     CHECK_PTHREAD(pthread_mutex_lock(&(world->universe->signal_channels_mutex)));
-    kv_push(pone_val*, world->universe->signal_channels[sig], chan);
+    // copy channel to signal thread.
+    pone_val * copied = pone_val_copy(world->universe->signal_world, chan);
+    //  register values to global varaiables.
+    kv_push(pone_val*, world->universe->signal_channels[sig], copied);
+    // register channel to channels array.
+    pone_val_vec_push(&(world->universe->signal_world->channels), copied);
     CHECK_PTHREAD(pthread_mutex_unlock(&(world->universe->signal_channels_mutex)));
 
     return pone_nil();

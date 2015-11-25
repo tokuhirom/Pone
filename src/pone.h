@@ -295,6 +295,8 @@ typedef struct pone_universe {
     // signal thread.
     pthread_t signal_thread;
 
+    pone_world* signal_world;
+
     // class of class
     struct pone_val* class_class;
     // class of Int
@@ -688,7 +690,7 @@ void pone_builtin_init(pone_world* world);
 #define CHECK_PTHREAD(code) \
   do { \
       int r; \
-      THREAD_TRACE("%s", #code); \
+      THREAD_TRACE("%s %s at %d", #code, __FILE__, __LINE__); \
       if ((r=(code)) != 0) { \
           errno = r; \
           perror("pthread error: " #code); \
