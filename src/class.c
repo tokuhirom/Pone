@@ -36,6 +36,13 @@ PONE_FUNC(mu_say) {
     return pone_nil();
 }
 
+PONE_FUNC(meth_accepts) {
+    pone_val* val;
+    PONE_ARG("Class#ACCEPTS", "o", &val);
+
+    return pone_what(world, val) == self ? pone_true() : pone_false();
+}
+
 // initialize Class class
 pone_val* pone_init_class(pone_world* world) {
     pone_val* val = pone_obj_alloc(world, PONE_OBJ);
@@ -47,6 +54,7 @@ pone_val* pone_init_class(pone_world* world) {
     pone_add_method_c(world, val, "name", strlen("name"), meth_name);
     pone_add_method_c(world, val, "Str", strlen("Str"), meth_Str);
     pone_add_method_c(world, val, "say", strlen("say"), mu_say);
+    pone_add_method_c(world, val, "ACCEPTS", strlen("ACCEPTS"), meth_accepts);
     pone_class_compose(world, val);
 
     return val;

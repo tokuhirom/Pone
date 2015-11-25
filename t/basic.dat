@@ -981,3 +981,9 @@ say $x;
 --- expected
 7
 
+===
+--- input
+say "hoge" ~~ Str; say "hoge" ~~ Int
+--- expected
+True
+False
