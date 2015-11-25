@@ -46,6 +46,7 @@ TODO
  * IO::Socket::INET#getsockopt
  * Time#strftime
  * URI
+ * `exec.which(path)` like golang's `exec.LookPath("fortune")`
 
 ## Basic features
 

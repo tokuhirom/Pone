@@ -1,0 +1,10 @@
+my $chan = chan(1);
+async(sub {
+    my $sig = $chan.receive;
+    say "GOT SIGNAL";
+    exit();
+});
+say "hehhL";
+signal.notify($chan, signal.SIGINT);
+signal.kill($$, signal.SIGINT);
+sleep 100
