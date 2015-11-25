@@ -14,10 +14,6 @@
 #include "pone_module.h"
 #include "linenoise.h"
 
-#ifndef CC
-#define CC cc
-#endif
-
 KHASH_SET_INIT_INT64(i64);
 
 static void usage() {
