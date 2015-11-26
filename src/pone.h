@@ -124,11 +124,11 @@ typedef struct {
     khash_t(str) * ivar;
 } pone_obj;
 
+struct pone_opaque_body;
+
 typedef struct {
     PONE_HEAD;
-    struct pone_val* klass;
-    void* ptr;
-    pone_finalizer_t finalizer;
+    struct pone_opaque_body* body;
 } pone_opaque;
 
 typedef struct pone_lex_t {
@@ -335,7 +335,7 @@ typedef struct pone_universe {
     struct pone_val* class_channel;
     // class of Opaque
     struct pone_val* class_opaque;
-    // class of Opaque
+    // class of Errno
     struct pone_val* class_errno;
     // class of File
     struct pone_val* class_file;
@@ -628,17 +628,6 @@ void pone_channel_init(pone_world* world);
 pone_val* pone_chan_new(pone_world* world, pone_int_t limit);
 bool pone_chan_trysend(pone_world* world, pone_val* chan, pone_val* val);
 void pone_chan_mark_queue(pone_world* world, pone_val* chan);
-
-// opaque.c
-void pone_opaque_init(pone_world* world);
-pone_val* pone_opaque_new(pone_world* world, void* ptr, pone_finalizer_t finalizer);
-static inline void pone_opaque_set_class(pone_world* world, pone_val* v, pone_val* klass) {
-    v->as.opaque.klass = klass;
-}
-void pone_opaque_free(pone_world* world, pone_val* v);
-static inline void* pone_opaque_ptr(pone_val* v) {
-    return v->as.opaque.ptr;
-}
 
 // errno.c
 pone_val* pone_errno(pone_world* world);

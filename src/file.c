@@ -1,5 +1,6 @@
 #include "pone.h"
 #include "pone_file.h"
+#include "pone_opaque.h"
 #include <sys/file.h>
 
 #define SELF_FH pone_opaque_ptr(pone_obj_get_ivar(world, self, "$!fh"))

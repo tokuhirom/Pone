@@ -1,4 +1,5 @@
 #include "pone.h"
+#include "pone_opaque.h"
 
 /*
  * class Channel {

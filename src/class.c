@@ -1,4 +1,5 @@
 #include "pone.h" /* PONE_INC */
+#include "pone_opaque.h"
 
 /**
  * Class related operations
@@ -18,7 +19,6 @@ PONE_FUNC(meth_Str) {
 PONE_FUNC(mu_str) {
     PONE_ARG("#Str", "");
 
-    // TODO include class name
     pone_val* v = pone_str_new_strdup(world, "", 0);
     pone_str_append(world, v, pone_obj_get_ivar(world, pone_what(world, self), "$!name"));
     pone_str_append_c(world, v, "<", strlen("<"));
@@ -86,8 +86,8 @@ pone_val* pone_what(pone_world* world, pone_val* obj) {
     case PONE_CODE:
         return universe->class_code;
     case PONE_OPAQUE:
-        if (obj->as.opaque.klass != NULL) {
-            return obj->as.opaque.klass;
+        if (obj->as.opaque.body->klass != NULL) {
+            return obj->as.opaque.body->klass;
         } else {
             return universe->class_opaque;
         }

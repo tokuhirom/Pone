@@ -1,4 +1,5 @@
 #include "pone.h" /* PONE_INC */
+#include "pone_opaque.h"
 
 void pone_obj_mark(pone_val* val) {
     assert(pone_type(val) == PONE_OBJ);
@@ -107,7 +108,7 @@ pone_val* pone_val_copy(pone_world* world, pone_val* obj) {
         pone_throw_str(world, "You can't copy code object.");
         abort();
     case PONE_OPAQUE:
-        return pone_opaque_new(world, pone_opaque_ptr(obj), NULL);
+        return pone_opaque_copy(world, obj);
     case PONE_OBJ:
         return pone_obj_copy(world, obj);
     case PONE_LEX:

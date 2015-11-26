@@ -1,4 +1,5 @@
 #include "pone.h"
+#include "pone_opaque.h"
 #include <errno.h>
 
 void pone_gc_mark_value(pone_val* val) {
