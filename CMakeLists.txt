@@ -81,7 +81,7 @@ SET(SRCS
     src/pvip_node.c src/pvip_string.c gen.pone.y.c src/gen.node.c
     )
 
-add_executable(pone src/compiler/main.c 3rd/linenoise/linenoise.c)
+add_executable(pone src/main.c 3rd/linenoise/linenoise.c)
 target_link_libraries(pone libpone m onigmo dl pthread)
 set_target_properties(pone
     PROPERTIES
