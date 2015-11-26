@@ -1,5 +1,6 @@
 #include "pone.h"
 #include "pone_module.h"
+#include "pone_val_vec.h"
 #include "kvec.h"
 
 #include <signal.h>

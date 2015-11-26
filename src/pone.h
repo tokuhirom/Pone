@@ -145,60 +145,10 @@ typedef struct pone_lex_t {
 struct pone_arena;
 struct pone_universe;
 
-typedef struct {
+struct pone_val_vec {
     pone_int_t n, m;
     struct pone_val** a;
-} pone_val_vec;
-
-static inline void pone_val_vec_init(pone_val_vec* vec) {
-    vec->a = NULL;
-    vec->n = 0;
-    vec->m = 0;
-}
-
-static inline void pone_val_vec_push(pone_val_vec* vec, struct pone_val* v) {
-    if (vec->n == vec->m) {
-        vec->m = vec->m == 0 ? 2 : vec->m << 1;
-        vec->a = realloc(vec->a, sizeof(struct pone_val*) * vec->m);
-    }
-    vec->a[vec->n++] = v;
-}
-
-static inline void pone_val_vec_destroy(pone_val_vec* vec) {
-    free(vec->a);
-}
-
-static inline struct pone_val* pone_val_vec_last(pone_val_vec* vec) {
-    return vec->a[vec->n - 1];
-}
-
-static inline void pone_val_vec_pop(pone_val_vec* vec) {
-    assert(vec->n > 0);
-    vec->n--;
-}
-
-static inline struct pone_val* pone_val_vec_get(pone_val_vec* vec, pone_int_t i) {
-    assert(vec->n > i);
-    return vec->a[i];
-}
-
-static inline pone_int_t pone_val_vec_size(pone_val_vec* vec) {
-    return vec->n;
-}
-
-// delete item at i.
-static inline void pone_val_vec_delete(pone_val_vec* vec, pone_int_t i) {
-    assert(vec->n > i);
-    // i=0
-    // before: x a a a
-    // after:  a a a
-    //
-    // i=1
-    // before: a x a a
-    // after:  a a a
-    memmove(vec->a + i, vec->a + i + 1, vec->n - i - 1);
-    vec->n--;
-}
+};
 
 // thread context
 typedef struct pone_world {
@@ -246,7 +196,7 @@ typedef struct pone_world {
     pthread_t thread_id;
 
     // captured channels.
-    pone_val_vec channels;
+    struct pone_val_vec channels;
 
     pthread_mutex_t mutex;
     pthread_cond_t cond;
@@ -291,7 +241,7 @@ typedef struct pone_val {
 // VM context
 typedef struct pone_universe {
     // signal handlers
-    pone_val_vec signal_channels[PONE_SIGNAL_HANDLERS_SIZE];
+    struct pone_val_vec signal_channels[PONE_SIGNAL_HANDLERS_SIZE];
     // mutex for signal_channels.
     pthread_mutex_t signal_channels_mutex;
 
