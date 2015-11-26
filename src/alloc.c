@@ -50,7 +50,7 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
         }
     }
 
-    val->as.basic.type   = type;
+    val->as.basic.type = type;
 
     pone_save_tmp(world, val);
 
@@ -75,7 +75,7 @@ void pone_free(pone_universe* universe, void* p) {
 }
 
 char* pone_strdup(pone_world* world, const char* src, size_t size) {
-    char* p = (char*)malloc(size+1);
+    char* p = (char*)malloc(size + 1);
     if (!p) {
         fprintf(stderr, "Cannot allocate memory\n");
         exit(1);
@@ -84,5 +84,3 @@ char* pone_strdup(pone_world* world, const char* src, size_t size) {
     p[size] = '\0';
     return p;
 }
-
-

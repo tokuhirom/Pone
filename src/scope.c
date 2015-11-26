@@ -31,7 +31,7 @@ void pone_lex_mark(pone_val* lex) {
 // for debug
 void pone_lex_dump(pone_val* lex) {
     printf("--- LEX DUMP(%p) ---\n", lex);
-    int i=0;
+    int i = 0;
     while (lex) {
         printf("--- %d(%p)\n", i, lex);
 
@@ -57,9 +57,9 @@ void pone_push_scope(pone_world* world) {
     assert(pone_type(world->lex) == PONE_LEX);
 
     if (world->savestack.n == world->savestack.m) {
-        world->savestack.m = world->savestack.m ? world->savestack.m<<1 : 2;
+        world->savestack.m = world->savestack.m ? world->savestack.m << 1 : 2;
         world->savestack.a = (size_t*)realloc(world->savestack.a,
-                sizeof(size_t) * world->savestack.m);
+                                              sizeof(size_t) * world->savestack.m);
         PONE_ALLOC_CHECK(world->savestack.a);
     }
     world->savestack.a[world->savestack.n++] = world->tmpstack.n;
@@ -95,12 +95,11 @@ pone_val* pone_save_tmp(pone_world* world, pone_val* val) {
     assert(val);
 
     if (world->tmpstack.n == world->tmpstack.m) {
-        world->tmpstack.m = world->tmpstack.m ? world->tmpstack.m<<1 : 2;
+        world->tmpstack.m = world->tmpstack.m ? world->tmpstack.m << 1 : 2;
         world->tmpstack.a = (pone_val**)realloc(world->tmpstack.a,
-                sizeof(pone_val*)*world->tmpstack.m);
+                                                sizeof(pone_val*) * world->tmpstack.m);
         PONE_ALLOC_CHECK(world->tmpstack.a);
     }
     world->tmpstack.a[world->tmpstack.n++] = val;
     return val;
 }
-

@@ -15,4 +15,3 @@ pone_node* pone_parse_string(pone_world* world, pvip_t* pvip, const char* src, b
 pone_node* pone_parse_fp(pone_world* world, pvip_t* pvip, FILE* fp, bool yy_debug);
 
 #endif // PONE_COMPILE_H_
-

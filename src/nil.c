@@ -1,8 +1,8 @@
 #include "pone.h" /* PONE_INC */
 
 static pone_nil_t pone_nil_val = {
-    .type=PONE_NIL,
-    .flags=PONE_FLAGS_GLOBAL
+    .type = PONE_NIL,
+    .flags = PONE_FLAGS_GLOBAL
 };
 
 pone_val* pone_nil() {
@@ -45,4 +45,3 @@ void pone_nil_init(pone_world* world) {
 
     pone_universe_set_global(universe, "Nil", pone_nil());
 }
-

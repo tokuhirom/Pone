@@ -16,7 +16,7 @@ pone_val* pone_regex_new(pone_world* world, const char* str, size_t len) {
     OnigErrorInfo errinfo;
     regex_t* re = pone_malloc(world->universe, sizeof(regex_t));
     int err_code;
-    if ((err_code=onig_new_without_alloc(re, (const OnigUChar*)str, (const OnigUChar*)str+len, ONIG_OPTION_NONE, ONIG_ENCODING_UTF8, ONIG_SYNTAX_PERL, &errinfo)) != ONIG_NORMAL) {
+    if ((err_code = onig_new_without_alloc(re, (const OnigUChar*)str, (const OnigUChar*)str + len, ONIG_OPTION_NONE, ONIG_ENCODING_UTF8, ONIG_SYNTAX_PERL, &errinfo)) != ONIG_NORMAL) {
         char buf[ONIG_MAX_ERROR_MESSAGE_LEN];
         int errsize = onig_error_code_to_str((OnigUChar*)buf, err_code, errinfo);
         pone_throw(world, pone_str_new_strdup(world, buf, errsize));
@@ -34,16 +34,16 @@ PONE_FUNC(meth_regex_accepts) {
     regex_t* re = pone_opaque_ptr(pone_obj_get_ivar(world, self, "$!re"));
     OnigRegion* region = onig_region_new();
     OnigPosition pos = onig_search(
-            re,
-            (const OnigUChar*)pone_str_ptr(obj),
-            (const OnigUChar*)pone_str_ptr(obj)+pone_str_len(obj),
-            (const OnigUChar*)pone_str_ptr(obj),
-            (const OnigUChar*)pone_str_ptr(obj)+pone_str_len(obj),
-            region,
-            0);
+        re,
+        (const OnigUChar*)pone_str_ptr(obj),
+        (const OnigUChar*)pone_str_ptr(obj) + pone_str_len(obj),
+        (const OnigUChar*)pone_str_ptr(obj),
+        (const OnigUChar*)pone_str_ptr(obj) + pone_str_len(obj),
+        region,
+        0);
     if (pos >= 0) {
         pone_val* match = pone_match_new(world, obj, region->beg[0], region->end[0]);
-        for (int i=1; i<region->num_regs; ++i) {
+        for (int i = 1; i < region->num_regs; ++i) {
             pone_match_push(world, match, region->beg[i], region->end[i]);
         }
         onig_region_free(region, 1);
@@ -74,7 +74,7 @@ pone_val* pone_match_new(pone_world* world, pone_val* orig, pone_int_t from, pon
 void pone_match_push(pone_world* world, pone_val* self, pone_int_t from, pone_int_t to) {
     pone_val* list = pone_obj_get_ivar(world, self, "@!list");
     pone_val* orig = pone_obj_get_ivar(world, self, "$!orig");
-    for (pone_int_t i=0; i<pone_ary_elems(list); ++i) {
+    for (pone_int_t i = 0; i < pone_ary_elems(list); ++i) {
         pone_val* c = pone_ary_at_pos(list, i);
         pone_int_t c_from = pone_intify(world, pone_obj_get_ivar(world, c, "$!from"));
         if (from >= c_from) {
@@ -84,26 +84,25 @@ void pone_match_push(pone_world* world, pone_val* self, pone_int_t from, pone_in
     pone_ary_push(world->universe, list, pone_match_new(world, orig, from, to));
 }
 
-static pone_val* match_str(pone_world* world,  pone_val* self, int n, int indent) {
+static pone_val* match_str(pone_world* world, pone_val* self, int n, int indent) {
     pone_val* orig = pone_obj_get_ivar(world, self, "$!orig");
     pone_int_t from = pone_intify(world, pone_obj_get_ivar(world, self, "$!from"));
-    pone_int_t to   = pone_intify(world, pone_obj_get_ivar(world, self, "$!to"));
+    pone_int_t to = pone_intify(world, pone_obj_get_ivar(world, self, "$!to"));
     pone_val* list = pone_obj_get_ivar(world, self, "@!list");
 
-
     pone_val* buf = pone_str_new_strdup(world, "", 0);
-    for (int i=0; i<indent; ++i) {
+    for (int i = 0; i < indent; ++i) {
         pone_str_append_c(world, buf, " ", strlen(" "));
     }
-    if (n>=0) {
+    if (n >= 0) {
         pone_str_appendf(world, buf, "%d ", n);
     }
     pone_str_append_c(world, buf, "｢", strlen("｢"));
     pone_str_append_c(world, buf, pone_str_ptr(orig) + from, to - from);
     pone_str_append_c(world, buf, "｣\n", strlen("｣\n"));
-    for (pone_int_t i=0; i<pone_ary_elems(list); ++i) {
+    for (pone_int_t i = 0; i < pone_ary_elems(list); ++i) {
         pone_val* match = pone_ary_at_pos(list, i);
-        pone_str_append(world, buf, match_str(world, match, i, indent+1));
+        pone_str_append(world, buf, match_str(world, match, i, indent + 1));
     }
     return buf;
 }
@@ -136,4 +135,3 @@ void pone_regex_init(pone_world* world) {
 
     pone_universe_set_global(universe, "Regex", universe->class_regex);
 }
-

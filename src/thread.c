@@ -10,7 +10,7 @@ static void copy_lex_values(pone_world* world, pone_val* code) {
     pone_val* dst = pone_lex_new(world, NULL);
     pone_val* lex = code->as.code.lex;
     while (lex) {
-        const char *k;
+        const char* k;
         pone_val* v;
         kh_foreach(lex->as.lex.map, k, v, {
             int ret;
@@ -58,7 +58,7 @@ static void* thread_start(void* p) {
             // deep copy lex vars.
             copy_lex_values(world, code);
             assert(pone_type(code) == PONE_CODE);
-            (void) pone_code_call(world, code, pone_nil(), 0);
+            (void)pone_code_call(world, code, pone_nil(), 0);
 
             pone_universe* universe = world->universe;
             // move the world to free list
@@ -121,7 +121,7 @@ static pone_val* meth_thread_start(pone_world* world, pone_val* self, int n, va_
 
     THREAD_TRACE("meth_thread_start");
 
-    pone_val*code = va_arg(args, pone_val*);
+    pone_val* code = va_arg(args, pone_val*);
     assert(pone_type(code) == PONE_CODE);
 
     pone_thread_start(world->universe, code);
@@ -134,4 +134,3 @@ void pone_thread_init(pone_world* world) {
 
     pone_universe_set_global(universe, "async", pone_code_new_c(world, meth_thread_start));
 }
-

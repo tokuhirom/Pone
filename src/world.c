@@ -46,8 +46,8 @@ pone_world* pone_world_new(pone_universe* universe) {
     world->lex = pone_lex_new(world, NULL);
     assert(pone_type(world->lex) == PONE_LEX);
 
-    world->err_handlers = pone_malloc(universe, sizeof(jmp_buf)*PONE_ERR_HANDLERS_INIT);
-    world->err_handler_lexs = pone_malloc(universe, sizeof(pone_world*)*PONE_ERR_HANDLERS_INIT);
+    world->err_handlers = pone_malloc(universe, sizeof(jmp_buf) * PONE_ERR_HANDLERS_INIT);
+    world->err_handler_lexs = pone_malloc(universe, sizeof(pone_world*) * PONE_ERR_HANDLERS_INIT);
     world->err_handler_idx = 0;
     world->err_handler_max = PONE_ERR_HANDLERS_INIT;
 
@@ -72,10 +72,10 @@ pone_world* pone_world_new(pone_universe* universe) {
 // Clear the world before reuse.
 void pone_world_release(pone_world* world) {
     // rewind tmpstack
-    world->tmpstack.n=0;
+    world->tmpstack.n = 0;
 
     // rewind savestack
-    world->savestack.n=0;
+    world->savestack.n = 0;
 
     // remove code
     world->code = NULL;
@@ -91,18 +91,18 @@ void pone_world_free(pone_world* world) {
 
 #ifndef NDEBUG
     world->freelist = NULL;
-    world->tmpstack.n=0;
-    world->tmpstack.m=0;
-    world->savestack.n=0;
-    world->savestack.m=0;
+    world->tmpstack.n = 0;
+    world->tmpstack.m = 0;
+    world->savestack.n = 0;
+    world->savestack.m = 0;
 #endif
 
-//  pone_arena* a = world->arena_head;
-//  while (a) {
-//      pone_arena* next = a->next;
-//      free(a);
-//      a = next;
-//  }
+    //  pone_arena* a = world->arena_head;
+    //  while (a) {
+    //      pone_arena* next = a->next;
+    //      free(a);
+    //      a = next;
+    //  }
 
     pone_gc_log(world->universe, "[pone gc] freeing world %p\n", world);
 
@@ -136,17 +136,17 @@ void pone_world_mark(pone_world* world) {
         pone_gc_mark_value(world->code);
     }
 
-    for (pone_int_t i=0; i<world->err_handler_idx; ++i) {
+    for (pone_int_t i = 0; i < world->err_handler_idx; ++i) {
         pone_gc_mark_value(world->err_handler_lexs[i]);
     }
 
     // mark tmp stack
-    for (size_t i=0; i<kv_size(world->tmpstack); ++i) {
-        pone_gc_mark_value(kv_A(world->tmpstack,i));
+    for (size_t i = 0; i < kv_size(world->tmpstack); ++i) {
+        pone_gc_mark_value(kv_A(world->tmpstack, i));
     }
 
     // captured channels
-    for (pone_int_t i=0; i<pone_val_vec_size(&(world->channels)); ++i) {
+    for (pone_int_t i = 0; i < pone_val_vec_size(&(world->channels)); ++i) {
         pone_val* chan = pone_val_vec_get(&(world->channels), i);
         if (chan->as.basic.type == PONE_OBJ && chan->as.obj.klass == world->universe->class_channel) {
             pone_val* v = pone_val_vec_get(&(world->channels), i);
@@ -160,4 +160,3 @@ void pone_world_mark(pone_world* world) {
         }
     }
 }
-

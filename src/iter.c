@@ -18,4 +18,3 @@ pone_val* pone_iter_next(pone_world* world, pone_val* iter) {
     assert(pone_alive(iter));
     return pone_call_method(world, iter, "pull-one", 0);
 }
-

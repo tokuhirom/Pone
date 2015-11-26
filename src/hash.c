@@ -36,7 +36,7 @@ pone_val* pone_hash_assign_keys(pone_world* world, pone_val* hash, pone_int_t n,
 
     va_start(list, n);
     // we can optimize in case of `{a => 3}`. we can omit mortalize.
-    for (pone_int_t i=0; i<n; i+=2) {
+    for (pone_int_t i = 0; i < n; i += 2) {
         pone_val* k = va_arg(list, pone_val*);
         pone_val* v = va_arg(list, pone_val*);
         pone_hash_assign_key(world, hash, k, v);
@@ -47,7 +47,7 @@ pone_val* pone_hash_assign_keys(pone_world* world, pone_val* hash, pone_int_t n,
 }
 
 void pone_hash_free(pone_world* world, pone_val* val) {
-    pone_hash* h=(pone_hash*)val;
+    pone_hash* h = (pone_hash*)val;
     const char* k;
     pone_val* v;
     kh_foreach(h->h, k, v, {
@@ -59,7 +59,7 @@ void pone_hash_free(pone_world* world, pone_val* val) {
 void pone_hash_assign_key_c(pone_world* world, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v) {
     assert(pone_type(hv) == PONE_HASH);
     int ret;
-    const char* ks=pone_strdup(world, key, key_len);
+    const char* ks = pone_strdup(world, key, key_len);
     khint_t k = kh_put(str, ((pone_hash*)hv)->h, ks, &ret);
     if (ret == -1) {
         abort(); // TODO better error msg
@@ -76,7 +76,7 @@ bool pone_hash_exists_c(pone_world* world, pone_val* hash, const char* name) {
     if (k != kh_end(hash->as.hash.h)) {
         return true;
     } else {
-        return false; 
+        return false;
     }
 }
 
@@ -105,7 +105,7 @@ size_t pone_hash_elems(pone_val* val) {
 pone_val* pone_hash_keys(pone_world* world, pone_val* val) {
     assert(pone_type(val) == PONE_HASH);
 
-    pone_hash* h=(pone_hash*)val;
+    pone_hash* h = (pone_hash*)val;
 
     pone_val* retval = pone_ary_new(world, 0);
 
@@ -158,4 +158,3 @@ void pone_hash_init(pone_world* world) {
     pone_add_method_c(world, universe->class_hash, "ASSIGN-KEY", strlen("ASSIGN-KEY"), meth_hash_assign_key);
     pone_class_compose(world, universe->class_hash);
 }
-

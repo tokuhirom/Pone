@@ -32,4 +32,3 @@ void pone_pair_init(pone_world* world) {
     pone_class_compose(world, universe->class_pair);
     pone_universe_set_global(universe, "Pair", universe->class_pair);
 }
-

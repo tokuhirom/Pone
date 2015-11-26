@@ -7,20 +7,20 @@
 jmp_buf* pone_exc_handler_push(pone_world* world) {
     if (world->err_handler_idx == world->err_handler_max) {
         world->err_handler_max *= 2;
-        world->err_handlers = realloc(world->err_handlers, sizeof(jmp_buf)*world->err_handler_max);
+        world->err_handlers = realloc(world->err_handlers, sizeof(jmp_buf) * world->err_handler_max);
         if (!world->err_handlers) {
             fprintf(stderr, "can't alloc mem\n");
             exit(1);
         }
 
-        world->err_handler_lexs = realloc(world->err_handler_lexs, sizeof(pone_world*)*world->err_handler_max);
+        world->err_handler_lexs = realloc(world->err_handler_lexs, sizeof(pone_world*) * world->err_handler_max);
         if (!world->err_handler_lexs) {
             fprintf(stderr, "can't alloc mem\n");
             exit(1);
         }
     }
 
-    world->err_handler_lexs[world->err_handler_idx+1] = world->lex;
+    world->err_handler_lexs[world->err_handler_idx + 1] = world->lex;
     return &(world->err_handlers[++world->err_handler_idx]);
 }
 
@@ -52,7 +52,7 @@ void pone_throw(pone_world* world, pone_val* val) {
 
 #ifdef __GLIBC__
     {
-        void *buffer[128];
+        void* buffer[128];
         int nptrs = backtrace(buffer, 128);
 
         char** strings = backtrace_symbols(buffer, nptrs);
@@ -99,4 +99,3 @@ pone_val* pone_try(pone_world* world, pone_val* code) {
 pone_val* pone_errvar(pone_world* world) {
     return world->errvar;
 }
-

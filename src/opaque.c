@@ -9,7 +9,7 @@ pone_val* pone_opaque_new(pone_world* world, void* ptr, pone_finalizer_t finaliz
 
 void pone_opaque_free(pone_world* world, pone_val* v) {
     assert(pone_type(v) == PONE_OPAQUE);
-    
+
     pone_finalizer_t finalizer = v->as.opaque.finalizer;
     if (finalizer) {
         finalizer(world, v);
@@ -24,4 +24,3 @@ void pone_opaque_init(pone_world* world) {
 
     universe->class_opaque = klass;
 }
-

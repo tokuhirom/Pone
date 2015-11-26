@@ -13,7 +13,7 @@ pone_val* pone_errno(pone_world* world) {
 PONE_FUNC(meth_errno_str) {
     PONE_ARG("Errno#Str", "");
     pone_int_t errsv = pone_intify(world, pone_obj_get_ivar(world, self, "$!errno"));
-    const char * e = strerror(errsv);
+    const char* e = strerror(errsv);
     return pone_str_new_const(world, e, strlen(e));
 }
 
@@ -33,4 +33,3 @@ void pone_errno_init(pone_world* world) {
 
     pone_class_compose(world, universe->class_errno);
 }
-

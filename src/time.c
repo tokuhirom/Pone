@@ -51,11 +51,11 @@ PONE_FUNC(meth_sec) {
 
 PONE_FUNC(builtin_gmtime) {
     PONE_ARG("gmtime", "");
-    time_t     current_time;
+    time_t current_time;
     pone_val* t = pone_bytes_new_malloc(world, sizeof(struct tm));
 
     time(&current_time);
-    assert(gmtime_r( &current_time, (struct tm*)pone_str_ptr(t)));
+    assert(gmtime_r(&current_time, (struct tm*)pone_str_ptr(t)));
     pone_val* klass = pone_get_lex(world, "$!time_class");
     pone_val* obj = pone_obj_new(world, klass);
     pone_obj_set_ivar(world, obj, "$!tm", t);
@@ -64,17 +64,16 @@ PONE_FUNC(builtin_gmtime) {
 
 PONE_FUNC(builtin_localtime) {
     PONE_ARG("localtime", "");
-    time_t     current_time;
+    time_t current_time;
     pone_val* t = pone_bytes_new_malloc(world, sizeof(struct tm));
 
     time(&current_time);
-    assert(localtime_r( &current_time, (struct tm*)pone_str_ptr(t)));
+    assert(localtime_r(&current_time, (struct tm*)pone_str_ptr(t)));
     pone_val* klass = pone_get_lex(world, "$!time_class");
     pone_val* obj = pone_obj_new(world, klass);
     pone_obj_set_ivar(world, obj, "$!tm", t);
     return obj;
 }
-
 
 void pone_time_init(pone_world* world) {
     pone_val* klass = pone_class_new(world, "Time", strlen("Time"));
@@ -99,4 +98,3 @@ void pone_time_init(pone_world* world) {
         pone_universe_set_global(world->universe, "localtime", code);
     }
 }
-

@@ -13,7 +13,7 @@ extern "C" {
 #define PVIP_VERSION_STRING "0.1.0"
 
 #define PVIP_FALSE 0
-#define PVIP_TRUE  1
+#define PVIP_TRUE 1
 
 typedef int PVIP_BOOL;
 
@@ -122,10 +122,10 @@ typedef enum {
     PVIP_NODE_NOT_SMART_MATCH, /* !~~ */
     PVIP_NODE_TRUE,
     PVIP_NODE_FALSE,
-    PVIP_NODE_TW_VM,  /* $*VM */
+    PVIP_NODE_TW_VM, /* $*VM */
     PVIP_NODE_HAS,
-    PVIP_NODE_ATTRIBUTE_VARIABLE,  /* $!var, $.var, @.var */
-    PVIP_NODE_FUNCREF,           /* &var */
+    PVIP_NODE_ATTRIBUTE_VARIABLE, /* $!var, $.var, @.var */
+    PVIP_NODE_FUNCREF, /* &var */
     PVIP_NODE_TW_PACKAGE, /* $?PACKAGE */
     PVIP_NODE_TW_CLASS, /* $?CLASS */
     PVIP_NODE_TW_MODULE, /* $?MODULE */
@@ -148,7 +148,7 @@ typedef enum {
     PVIP_NODE_UNICODE_CHAR, /* \c[] */
     PVIP_NODE_STUB, /* ... */
     PVIP_NODE_PARAM,
-    PVIP_NODE_BITWISE_OR,  /* | */
+    PVIP_NODE_BITWISE_OR, /* | */
     PVIP_NODE_BITWISE_AND, /* & */
     PVIP_NODE_BITWISE_XOR, /* ^ */
     PVIP_NODE_VARGS, /* sub foo (*@a) { } */
@@ -175,12 +175,12 @@ typedef enum {
 /* bit flags for `sub ($x is rw) { }` etc. */
 typedef enum {
     PVIP_FUNC_ATTR_IS_COPY = 1,
-    PVIP_FUNC_ATTR_IS_RW   = 2,
-    PVIP_FUNC_ATTR_IS_REF  = 4,
+    PVIP_FUNC_ATTR_IS_RW = 2,
+    PVIP_FUNC_ATTR_IS_REF = 4,
 } PVIP_func_attr_t;
 
 typedef struct {
-    char *buf;
+    char* buf;
     size_t len;
     size_t buflen;
 } PVIPString;
@@ -191,10 +191,10 @@ typedef struct _pone_node {
     union {
         int64_t iv;
         double nv;
-        PVIPString *pv;
+        PVIPString* pv;
         struct {
             int size;
-            struct _pone_node **nodes;
+            struct _pone_node** nodes;
         } children;
     };
 } pone_node;
@@ -206,30 +206,29 @@ struct pvip_t* pvip_new();
 void pvip_free(struct pvip_t* pvip);
 
 /* parser related public apis */
-pone_node * PVIP_parse_string(struct pvip_t* pvip, const char *string, int len, int debug, PVIPString **error);
-pone_node * PVIP_parse_fp(struct pvip_t* pvip, FILE *fp, int debug, PVIPString **error);
-
+pone_node* PVIP_parse_string(struct pvip_t* pvip, const char* string, int len, int debug, PVIPString** error);
+pone_node* PVIP_parse_fp(struct pvip_t* pvip, FILE* fp, int debug, PVIPString** error);
 
 /* node related public apis */
 const char* PVIP_node_name(PVIP_node_type_t t);
 PVIP_category_t PVIP_node_category(PVIP_node_type_t type);
-void PVIP_node_as_sexp(pone_node * node, PVIPString *buf);
+void PVIP_node_as_sexp(pone_node* node, PVIPString* buf);
 
-void PVIP_node_change_type(pone_node *node, PVIP_node_type_t type);
+void PVIP_node_change_type(pone_node* node, PVIP_node_type_t type);
 
-void pone_node_dump_sexp(pone_node * node);
+void pone_node_dump_sexp(pone_node* node);
 
 /* string */
-PVIPString *PVIP_string_new();
-void PVIP_string_destroy(PVIPString *str);
-PVIP_BOOL PVIP_string_concat(PVIPString *str, const char *src, size_t len);
-PVIP_BOOL PVIP_string_concat_int(PVIPString *str, int64_t n);
-PVIP_BOOL PVIP_string_concat_number(PVIPString *str, double n);
-PVIP_BOOL PVIP_string_concat_char(PVIPString *str, char n);
-void PVIP_string_say(PVIPString *str);
-PVIP_BOOL PVIP_string_vprintf(PVIPString *str, const char*format, va_list ap);
-PVIP_BOOL PVIP_string_printf(PVIPString *str, const char*format, ...);
-const char * PVIP_string_c_str(PVIPString *str);
+PVIPString* PVIP_string_new();
+void PVIP_string_destroy(PVIPString* str);
+PVIP_BOOL PVIP_string_concat(PVIPString* str, const char* src, size_t len);
+PVIP_BOOL PVIP_string_concat_int(PVIPString* str, int64_t n);
+PVIP_BOOL PVIP_string_concat_number(PVIPString* str, double n);
+PVIP_BOOL PVIP_string_concat_char(PVIPString* str, char n);
+void PVIP_string_say(PVIPString* str);
+PVIP_BOOL PVIP_string_vprintf(PVIPString* str, const char* format, va_list ap);
+PVIP_BOOL PVIP_string_printf(PVIPString* str, const char* format, ...);
+const char* PVIP_string_c_str(PVIPString* str);
 
 #ifdef __cplusplus
 };

@@ -89,4 +89,3 @@ void pone_init(pone_universe* universe) {
     // start signal thread
     pone_signal_start_thread(world);
 }
-

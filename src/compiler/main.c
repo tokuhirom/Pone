@@ -8,9 +8,8 @@
 
 static void usage() {
     printf("Usage: pone -e=code\n"
-            "    pone src.pone\n");
+           "    pone src.pone\n");
 }
-
 
 int main(int argc, char** argv) {
     // TODO use portable getopt
@@ -21,25 +20,25 @@ int main(int argc, char** argv) {
     bool yy_debug = false;
     while ((opt = getopt(argc, argv, "ycde:")) != -1) {
         switch (opt) {
-            case 'c':
-                compile_only = true;
-                break;
-            case 'e':
-                eval = optarg;
-                break;
-            case 'd':
-                dump = true;
-                break;
-            case 'y':
+        case 'c':
+            compile_only = true;
+            break;
+        case 'e':
+            eval = optarg;
+            break;
+        case 'd':
+            dump = true;
+            break;
+        case 'y':
 #ifndef YY_DEBUG
-                printf("You must recompile pone with -DYY_DEBUG");
-                abort();
+            printf("You must recompile pone with -DYY_DEBUG");
+            abort();
 #endif
-                yy_debug = true;
-                break;
-            default:
-                usage();
-                exit(EXIT_FAILURE);
+            yy_debug = true;
+            break;
+        default:
+            usage();
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -55,7 +54,7 @@ int main(int argc, char** argv) {
     } else {
         if (eval) {
             if (dump) {
-                pone_node *node = pone_parse_string(world, pvip, eval, yy_debug);
+                pone_node* node = pone_parse_string(world, pvip, eval, yy_debug);
                 pone_node_dump_sexp(node);
             } else {
                 pone_val* code = pone_compile_str(world, eval);
@@ -74,7 +73,7 @@ int main(int argc, char** argv) {
                 exit(1);
             }
             if (dump) {
-                pone_node *node = pone_parse_fp(world, pvip, fp, yy_debug);
+                pone_node* node = pone_parse_fp(world, pvip, fp, yy_debug);
                 pone_node_dump_sexp(node);
             } else {
                 pone_val* code = pone_compile_fp(world, fp, filename);
@@ -92,15 +91,15 @@ int main(int argc, char** argv) {
                 fprintf(stderr, "[pone] cannot allocate memory\n");
                 abort();
             }
-            history_file = realloc(history_file, strlen(history_file) + strlen("/.pone_history.txt")+1);
+            history_file = realloc(history_file, strlen(history_file) + strlen("/.pone_history.txt") + 1);
             if (!history_file) {
                 fprintf(stderr, "[pone] cannot allocate memory\n");
                 abort();
             }
-            strcpy(history_file+strlen(history_file), "/.pone_history.txt");
+            strcpy(history_file + strlen(history_file), "/.pone_history.txt");
 
             const char* line;
-            while((line = linenoise("pone> ")) != NULL) {
+            while ((line = linenoise("pone> ")) != NULL) {
                 pone_push_scope(world);
 
                 pone_val* code = pone_compile_str(world, line);
@@ -121,4 +120,3 @@ int main(int argc, char** argv) {
     }
     pone_universe_destroy(universe);
 }
-

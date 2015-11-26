@@ -49,7 +49,7 @@ static void pone_gc_collect(pone_world* world) {
 #endif
     pone_arena* arena = world->arena_head;
     while (arena) {
-        for (pone_int_t i=0; i< arena->idx; ++i) {
+        for (pone_int_t i = 0; i < arena->idx; ++i) {
             pone_val* val = &(arena->values[i]);
             if (pone_type(val) == 0) { // free-ed
                 continue;
@@ -131,4 +131,3 @@ void pone_gc_init(pone_world* world) {
     pone_class_compose(world, gc);
     pone_universe_set_global(universe, "GC", gc);
 }
-

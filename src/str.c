@@ -12,7 +12,7 @@ static void validate_utf8(pone_world* world, const char* p, pone_int_t len) {
 }
 
 // pone dup p.
-pone_val* pone_str_new_strdup(pone_world* world, const char*p, size_t len) {
+pone_val* pone_str_new_strdup(pone_world* world, const char* p, size_t len) {
     validate_utf8(world, p, len);
     pone_val* v = pone_bytes_new_strdup(world, p, len);
     v->as.basic.flags |= PONE_FLAGS_STR_UTF8;
@@ -26,7 +26,7 @@ pone_val* pone_bytes_new_malloc(pone_world* world, pone_int_t len) {
     return (pone_val*)pv;
 }
 
-pone_val* pone_bytes_new_strdup(pone_world* world, const char*p, size_t len) {
+pone_val* pone_bytes_new_strdup(pone_world* world, const char* p, size_t len) {
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->p = pone_strdup(world, p, len);
     pv->len = len;
@@ -34,7 +34,7 @@ pone_val* pone_bytes_new_strdup(pone_world* world, const char*p, size_t len) {
 }
 
 // create new pone_string object by p. p must allocated by pone_malloc.
-pone_val* pone_str_new_allocd(pone_world* world, char*p, size_t len) {
+pone_val* pone_str_new_allocd(pone_world* world, char* p, size_t len) {
     validate_utf8(world, p, len);
 
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
@@ -44,7 +44,7 @@ pone_val* pone_str_new_allocd(pone_world* world, char*p, size_t len) {
     return (pone_val*)pv;
 }
 
-pone_val* pone_bytes_new_allocd(pone_world* world, char*p, size_t len) {
+pone_val* pone_bytes_new_allocd(pone_world* world, char* p, size_t len) {
     validate_utf8(world, p, len);
 
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
@@ -58,7 +58,7 @@ pone_val* pone_bytes_new_allocd(pone_world* world, char*p, size_t len) {
  * pone will not dup string.
  * pone mark return value as decoded string.
  */
-pone_val* pone_str_new_const(pone_world* world, const char*p, size_t len) {
+pone_val* pone_str_new_const(pone_world* world, const char* p, size_t len) {
     validate_utf8(world, p, len);
 
     pone_val* pv = pone_bytes_new_const(world, p, len);
@@ -66,7 +66,7 @@ pone_val* pone_str_new_const(pone_world* world, const char*p, size_t len) {
     return pv;
 }
 
-pone_val* pone_bytes_new_const(pone_world* world, const char*p, size_t len) {
+pone_val* pone_bytes_new_const(pone_world* world, const char* p, size_t len) {
     assert(world);
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->flags |= PONE_FLAGS_STR_CONST | PONE_FLAGS_FROZEN;
@@ -93,8 +93,8 @@ pone_val* pone_str_new_vprintf(pone_world* world, const char* fmt, va_list args)
     if (size < 0) {
         abort();
     }
-    char* p = pone_malloc(world->universe, size+1);
-    size = vsnprintf(p, size+1, fmt, copied);
+    char* p = pone_malloc(world->universe, size + 1);
+    size = vsnprintf(p, size + 1, fmt, copied);
     if (size < 0) {
         abort();
     }
@@ -113,14 +113,13 @@ pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2) {
 
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->flags = PONE_FLAGS_STR_UTF8;
-    pv->len = pone_str_len(s1)+pone_str_len(s2);
+    pv->len = pone_str_len(s1) + pone_str_len(s2);
     pv->p = pone_malloc(world->universe, pv->len);
     memcpy(pv->p, pone_str_ptr(s1), pone_str_len(s1));
-    memcpy(pv->p+pone_str_len(s1), pone_str_ptr(s2), pone_str_len(s2));
+    memcpy(pv->p + pone_str_len(s1), pone_str_ptr(s2), pone_str_len(s2));
 
     return (pone_val*)pv;
 }
-
 
 pone_val* pone_str_copy(pone_world* world, pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
@@ -141,14 +140,14 @@ void pone_str_free(pone_world* world, pone_val* val) {
 
 pone_val* pone_str_from_int(pone_world* world, pone_int_t i) {
     // LONG_MAX=9223372036854775807. "9223372036854775807".elems = 19
-    char buf[19+1];
-    int size = snprintf(buf, 19+1, PoneIntFmt, i);
+    char buf[19 + 1];
+    int size = snprintf(buf, 19 + 1, PoneIntFmt, i);
     return pone_str_new_strdup(world, buf, size);
 }
 
 pone_val* pone_str_from_num(pone_world* world, double n) {
-    char buf[512+1];
-    int size = snprintf(buf, 512+1, "%f", n);
+    char buf[512 + 1];
+    int size = snprintf(buf, 512 + 1, "%f", n);
     return pone_str_new_strdup(world, buf, size);
 }
 
@@ -179,7 +178,7 @@ bool pone_str_contains_null(pone_universe* universe, pone_val* val) {
     if (pone_str_len(val) == 0) {
         return false;
     } else {
-        return memchr(pone_str_ptr(val), 0, pone_str_len(val)-1) != NULL;
+        return memchr(pone_str_ptr(val), 0, pone_str_len(val) - 1) != NULL;
     }
 }
 
@@ -234,7 +233,7 @@ PONE_FUNC(meth_str_str) {
 PONE_FUNC(meth_str_int) {
     PONE_ARG("Str#Int", "");
 
-    char *end = (char*)pone_str_ptr(self) + pone_str_len(self);
+    char* end = (char*)pone_str_ptr(self) + pone_str_len(self);
     pone_int_t i = strtol(pone_str_ptr(self), &end, 10);
     if (i == LONG_MAX) {
         if (errno == ERANGE) {
@@ -247,7 +246,7 @@ PONE_FUNC(meth_str_int) {
 PONE_FUNC(meth_str_num) {
     PONE_ARG("Str#Num", "");
 
-    char *end = (char*)pone_str_ptr(self) + pone_str_len(self);
+    char* end = (char*)pone_str_ptr(self) + pone_str_len(self);
     return pone_num_new(world, strtod(pone_str_ptr(self), &end));
 }
 
@@ -255,7 +254,7 @@ PONE_FUNC(meth_str_length) {
     PONE_ARG("Str#length", "");
 
     // Note: ongenc_strlen should support long?
-    int i = onigenc_strlen(ONIG_ENCODING_UTF8, (OnigUChar*)pone_str_ptr(self), (OnigUChar*)pone_str_ptr(self)+pone_str_len(self));
+    int i = onigenc_strlen(ONIG_ENCODING_UTF8, (OnigUChar*)pone_str_ptr(self), (OnigUChar*)pone_str_ptr(self) + pone_str_len(self));
     return pone_int_new(world, i);
 }
 
@@ -270,7 +269,7 @@ PONE_FUNC(meth_bytes_length) {
 }
 
 void pone_str_init(pone_world* world) {
-    pone_universe * universe = world->universe;
+    pone_universe* universe = world->universe;
     assert(universe->class_str == NULL);
 
     {
@@ -290,5 +289,3 @@ void pone_str_init(pone_world* world) {
         pone_universe_set_global(world->universe, "Bytes", universe->class_bytes);
     }
 }
-
-

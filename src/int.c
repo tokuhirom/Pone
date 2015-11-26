@@ -27,10 +27,13 @@ PONE_FUNC(meth_int_is_prime) {
     PONE_ARG("Int#is_prime", "");
     pone_int_t num = pone_intify(world, self);
 
-    if (num <= 1) return pone_false();
-    if (num == 2) return pone_true();
-    if (num % 2 == 0) return pone_false();
-    for(pone_int_t i = 3; i < num / 2; i+= 2) {
+    if (num <= 1)
+        return pone_false();
+    if (num == 2)
+        return pone_true();
+    if (num % 2 == 0)
+        return pone_false();
+    for (pone_int_t i = 3; i < num / 2; i += 2) {
         if (num % i == 0) {
             return pone_false();
         }
@@ -75,4 +78,3 @@ void pone_int_init(pone_world* world) {
 
     pone_universe_set_global(world->universe, "Int", universe->class_int);
 }
-

@@ -15,9 +15,9 @@ void pone_universe_default_err_handler(pone_world* world) {
     fwrite("\n\n", 1, strlen("\n\n"), stderr);
 
     if (world->stacktrace) {
-        for (pone_int_t i=0; i<pone_ary_elems(world->stacktrace); ++i) {
-            printf("%5ld: %s\n", pone_ary_elems(world->stacktrace)-i,
-                    pone_str_ptr(pone_str_c_str(world, pone_ary_at_pos(world->stacktrace, i))));
+        for (pone_int_t i = 0; i < pone_ary_elems(world->stacktrace); ++i) {
+            printf("%5ld: %s\n", pone_ary_elems(world->stacktrace) - i,
+                   pone_str_ptr(pone_str_c_str(world, pone_ary_at_pos(world->stacktrace, i))));
         }
     }
 
@@ -25,7 +25,7 @@ void pone_universe_default_err_handler(pone_world* world) {
 }
 
 pone_universe* pone_universe_init() {
-    pone_universe*universe = malloc(sizeof(pone_universe));
+    pone_universe* universe = malloc(sizeof(pone_universe));
     if (!universe) {
         fprintf(stderr, "cannot allocate memory\n");
         exit(1);
@@ -37,7 +37,7 @@ pone_universe* pone_universe_init() {
     CHECK_PTHREAD(pthread_cond_init(&(universe->worker_fin_cond), NULL));
 
     // initialize signal channels.
-    for (int i=0; i<PONE_SIGNAL_HANDLERS_SIZE; ++i) {
+    for (int i = 0; i < PONE_SIGNAL_HANDLERS_SIZE; ++i) {
         kv_init(universe->signal_channels[i]);
     }
 
@@ -104,15 +104,15 @@ void pone_universe_destroy(pone_universe* universe) {
 
 // gc mark
 void pone_universe_mark(pone_universe* universe) {
-//  pone_world* world = universe->worker_worlds;
-//  while (world) {
-//      pone_world_mark(world);
-//      assert(world != world->next);
-//      world = world->next;
-//  }
+    //  pone_world* world = universe->worker_worlds;
+    //  while (world) {
+    //      pone_world_mark(world);
+    //      assert(world != world->next);
+    //      world = world->next;
+    //  }
 
-    for (int i=0; i<PONE_SIGNAL_HANDLERS_SIZE; ++i) {
-        for (int j=0; j<kv_size(universe->signal_channels[i]); j++) {
+    for (int i = 0; i < PONE_SIGNAL_HANDLERS_SIZE; ++i) {
+        for (int j = 0; j < kv_size(universe->signal_channels[i]); j++) {
             pone_gc_mark_value(kv_A(universe->signal_channels[i], j));
         }
     }
@@ -126,4 +126,3 @@ void pone_gc_log(pone_universe* universe, const char* fmt, ...) {
         va_end(args);
     }
 }
-

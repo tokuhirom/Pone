@@ -5,13 +5,13 @@
 #include "dlfcn.h"
 #include <sys/stat.h>
 
-pone_val* pone_module_new(pone_world* world, const char *name) {
-    pone_val*obj = pone_obj_new(world, world->universe->class_module);
+pone_val* pone_module_new(pone_world* world, const char* name) {
+    pone_val* obj = pone_obj_new(world, world->universe->class_module);
     pone_obj_set_ivar(world, obj, "$!name", pone_str_new_strdup(world, name, strlen(name)));
     return obj;
 }
 
-void pone_module_put(pone_world* world, pone_val* self, const char *name, pone_val* val) {
+void pone_module_put(pone_world* world, pone_val* self, const char* name, pone_val* val) {
     pone_obj_set_ivar(world, self, name, val);
 }
 
@@ -33,7 +33,7 @@ void pone_module_init(pone_world* world) {
 // my $funcname = $pkg;
 // $funcname =~ s!/!_!g;
 // $funcname = "PONE_DL_$funcname";
-static bool load_module(pone_world* world, const char* from, const char *name, const char* as) {
+static bool load_module(pone_world* world, const char* from, const char* name, const char* as) {
     pone_val* fullpath_v = pone_str_new_printf(world, "%s/%s.so", from, name);
     const char* fullpath = pone_str_ptr(pone_str_c_str(world, fullpath_v));
     struct stat stat_buf;
@@ -48,7 +48,7 @@ static bool load_module(pone_world* world, const char* from, const char *name, c
     pone_loadfunc_t pone_load = dlsym(handle, "PONE_DLL_io_socket_inet");
 
     char* error;
-    if ((error = dlerror()) != NULL)  {
+    if ((error = dlerror()) != NULL) {
         dlclose(handle);
         pone_throw_str(world, "Could not load module %s: %s", fullpath, dlerror());
     }
@@ -117,10 +117,10 @@ static bool try_load_pn(pone_world* world, pone_val* dir, const char* name, cons
     return true;
 }
 
-void pone_use(pone_world* world, const char *name, const char* as) {
+void pone_use(pone_world* world, const char* name, const char* as) {
     // scan $*INC
     pone_val* inc = world->universe->inc;
-    for (pone_int_t i=0; i<pone_ary_elems(inc); ++i) {
+    for (pone_int_t i = 0; i < pone_ary_elems(inc); ++i) {
         pone_val* dir = pone_ary_at_pos(inc, i);
 
         // try ${dir}/${name}.pn
@@ -136,10 +136,9 @@ void pone_use(pone_world* world, const char *name, const char* as) {
     }
 
     pone_val* msg = pone_str_new_printf(world, "Could not load module '%s': no such module in:\n\n", name);
-    for (pone_int_t i=0; i<pone_ary_elems(inc); ++i) {
+    for (pone_int_t i = 0; i < pone_ary_elems(inc); ++i) {
         pone_str_append_c(world, msg, "    ", strlen("    "));
         pone_str_append(world, msg, pone_ary_at_pos(inc, i));
     }
     pone_throw(world, msg);
 }
-

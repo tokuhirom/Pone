@@ -23,29 +23,29 @@ typedef long pone_int_t;
 // TODO: NaN boxing
 
 // This variable is global var.
-#define PONE_FLAGS_GLOBAL (1<<0)
+#define PONE_FLAGS_GLOBAL (1 << 0)
 // This object is immutable
-#define PONE_FLAGS_FROZEN (1<<1)
+#define PONE_FLAGS_FROZEN (1 << 1)
 // GC mark
-#define PONE_FLAGS_GC_MARK (1<<2)
+#define PONE_FLAGS_GC_MARK (1 << 2)
 // type specific flag 1
-#define PONE_FLAGS_TYPE_1 (1<<5)
+#define PONE_FLAGS_TYPE_1 (1 << 5)
 // type specific flag 2
-#define PONE_FLAGS_TYPE_2 (1<<6)
+#define PONE_FLAGS_TYPE_2 (1 << 6)
 // type specific flag 3
-#define PONE_FLAGS_TYPE_3 (1<<7)
+#define PONE_FLAGS_TYPE_3 (1 << 7)
 
 // string literal is constant
-#define PONE_FLAGS_STR_CONST  PONE_FLAGS_TYPE_1
+#define PONE_FLAGS_STR_CONST PONE_FLAGS_TYPE_1
 // This string has copied buffer
-#define PONE_FLAGS_STR_COPY   PONE_FLAGS_TYPE_2
+#define PONE_FLAGS_STR_COPY PONE_FLAGS_TYPE_2
 // This string is UTF-8 decoded string
-#define PONE_FLAGS_STR_UTF8   PONE_FLAGS_TYPE_3
+#define PONE_FLAGS_STR_UTF8 PONE_FLAGS_TYPE_3
 
 typedef double pone_num_t;
 
 typedef enum {
-    PONE_NIL=1,
+    PONE_NIL = 1,
     PONE_INT,
     PONE_NUM,
     PONE_STRING,
@@ -59,7 +59,7 @@ typedef enum {
 } pone_t;
 
 #define PONE_HEAD \
-    pone_t type; \
+    pone_t type;  \
     uint8_t flags
 
 struct pone_val;
@@ -67,7 +67,7 @@ struct pone_world;
 
 typedef struct pone_val* (*pone_funcptr_t)(struct pone_world*, struct pone_val*, int n, va_list);
 typedef struct pone_val* (*pone_loadfunc_t)(struct pone_world*, struct pone_val*);
-typedef void(*pone_finalizer_t)(struct pone_world*, struct pone_val*);
+typedef void (*pone_finalizer_t)(struct pone_world*, struct pone_val*);
 
 KHASH_MAP_INIT_STR(str, struct pone_val*)
 
@@ -87,14 +87,14 @@ typedef struct {
 
 typedef struct {
     PONE_HEAD;
-    pone_num_t n; 
+    pone_num_t n;
 } pone_num;
 
 typedef struct {
     PONE_HEAD;
     union {
-      char* p;
-      struct pone_val* val;
+        char* p;
+        struct pone_val* val;
     };
     pone_int_t len;
 } pone_string;
@@ -113,7 +113,7 @@ typedef struct {
 
 typedef struct {
     PONE_HEAD;
-    khash_t(str) *h;
+    khash_t(str) * h;
     pone_int_t len;
 } pone_hash;
 
@@ -121,20 +121,20 @@ typedef struct {
     PONE_HEAD;
     struct pone_val* klass;
     // instance variable
-    khash_t(str) *ivar;
+    khash_t(str) * ivar;
 } pone_obj;
 
 typedef struct {
     PONE_HEAD;
     struct pone_val* klass;
-    void *ptr;
+    void* ptr;
     pone_finalizer_t finalizer;
 } pone_opaque;
 
 typedef struct pone_lex_t {
     PONE_HEAD;
     struct pone_val* parent;
-    khash_t(str) *map;
+    khash_t(str) * map;
     pthread_t thread_id;
 } pone_lex_t;
 
@@ -145,7 +145,10 @@ typedef struct pone_lex_t {
 struct pone_arena;
 struct pone_universe;
 
-typedef struct { pone_int_t n, m; struct pone_val **a; } pone_val_vec;
+typedef struct {
+    pone_int_t n, m;
+    struct pone_val** a;
+} pone_val_vec;
 
 static inline void pone_val_vec_init(pone_val_vec* vec) {
     vec->a = NULL;
@@ -154,9 +157,9 @@ static inline void pone_val_vec_init(pone_val_vec* vec) {
 }
 
 static inline void pone_val_vec_push(pone_val_vec* vec, struct pone_val* v) {
-    if (vec->n==vec->m) {
-        vec->m = vec->m == 0 ? 2 : vec->m<<1;
-        vec->a = realloc(vec->a, sizeof(struct pone_val*)*vec->m);
+    if (vec->n == vec->m) {
+        vec->m = vec->m == 0 ? 2 : vec->m << 1;
+        vec->a = realloc(vec->a, sizeof(struct pone_val*) * vec->m);
     }
     vec->a[vec->n++] = v;
 }
@@ -166,7 +169,7 @@ static inline void pone_val_vec_destroy(pone_val_vec* vec) {
 }
 
 static inline struct pone_val* pone_val_vec_last(pone_val_vec* vec) {
-    return vec->a[vec->n-1];
+    return vec->a[vec->n - 1];
 }
 
 static inline void pone_val_vec_pop(pone_val_vec* vec) {
@@ -344,7 +347,7 @@ typedef struct pone_universe {
     // $*INC
     struct pone_val* inc;
 
-    khash_t(str) *globals;
+    khash_t(str) * globals;
 
     // thread.c sends signal at thread termination.
     pthread_cond_t worker_fin_cond;
@@ -365,7 +368,6 @@ typedef struct pone_arena {
     int idx;
     struct pone_val values[PONE_ARENA_SIZE];
 } pone_arena;
-
 
 // pone.c
 void pone_init(pone_universe* universe);
@@ -443,13 +445,13 @@ pone_val* pone_ary_shift(pone_world* world, pone_val* self);
 pone_val* pone_ary_copy(pone_world* world, pone_val* obj);
 
 // str.c
-pone_val* pone_bytes_new_const(pone_world* world, const char*p, size_t len);
-pone_val* pone_bytes_new_allocd(pone_world* world, char*p, size_t len);
-pone_val* pone_str_new_strdup(pone_world* world, const char*p, size_t len);
+pone_val* pone_bytes_new_const(pone_world* world, const char* p, size_t len);
+pone_val* pone_bytes_new_allocd(pone_world* world, char* p, size_t len);
+pone_val* pone_str_new_strdup(pone_world* world, const char* p, size_t len);
 pone_val* pone_bytes_new_malloc(pone_world* world, pone_int_t len);
-pone_val* pone_bytes_new_strdup(pone_world* world, const char*p, size_t len);
-pone_val* pone_str_new_allocd(pone_world* world, char*p, size_t len);
-pone_val* pone_str_new_const(pone_world* world, const char*p, size_t len);
+pone_val* pone_bytes_new_strdup(pone_world* world, const char* p, size_t len);
+pone_val* pone_str_new_allocd(pone_world* world, char* p, size_t len);
+pone_val* pone_str_new_const(pone_world* world, const char* p, size_t len);
 void pone_str_free(pone_world* world, pone_val* val);
 pone_val* pone_stringify(pone_world* world, pone_val* val);
 pone_val* pone_str_from_num(pone_world* world, double n);
@@ -519,10 +521,18 @@ pone_val* pone_num_new(pone_world* world, pone_num_t i);
 void pone_num_init(pone_world* world);
 
 // basic value operations
-static inline pone_t pone_type(pone_val* val) { return val->as.basic.type; }
-static inline pone_t pone_flags(pone_val* val) { return val->as.basic.flags; }
-static inline bool pone_defined(pone_val* val) { return val->as.basic.type != PONE_NIL; }
-static inline bool pone_alive(pone_val* val) { return val->as.basic.type != 0; }
+static inline pone_t pone_type(pone_val* val) {
+    return val->as.basic.type;
+}
+static inline pone_t pone_flags(pone_val* val) {
+    return val->as.basic.flags;
+}
+static inline bool pone_defined(pone_val* val) {
+    return val->as.basic.type != PONE_NIL;
+}
+static inline bool pone_alive(pone_val* val) {
+    return val->as.basic.type != 0;
+}
 
 // op.c
 pone_val* pone_get_lex(pone_world* world, const char* key);
@@ -626,7 +636,9 @@ static inline void pone_opaque_set_class(pone_world* world, pone_val* v, pone_va
     v->as.opaque.klass = klass;
 }
 void pone_opaque_free(pone_world* world, pone_val* v);
-static inline void* pone_opaque_ptr(pone_val* v) { return v->as.opaque.ptr; }
+static inline void* pone_opaque_ptr(pone_val* v) {
+    return v->as.opaque.ptr;
+}
 
 // errno.c
 pone_val* pone_errno(pone_world* world);
@@ -671,48 +683,47 @@ void pone_builtin_init(pone_world* world);
 #define GC_RD_LOCK_TRACE(fmt, ...)
 #endif
 
-#define PONE_ALLOC_CHECK(v) \
-  do { \
-    if (!v) { \
-      fprintf(stderr, "Cannot allocate memory\n"); \
-      abort(); \
-    } \
-  } while (0)
+#define PONE_ALLOC_CHECK(v)                              \
+    do {                                                 \
+        if (!v) {                                        \
+            fprintf(stderr, "Cannot allocate memory\n"); \
+            abort();                                     \
+        }                                                \
+    } while (0)
 
 #ifdef __linux__
 #include <unistd.h>
 #include <sys/syscall.h>
-#define ASSERT_LOCK(lock) assert((lock).__data.__owner==syscall(SYS_gettid))
+#define ASSERT_LOCK(lock) assert((lock).__data.__owner == syscall(SYS_gettid))
 #else
 #define ASSERT_LOCK(lock)
 #endif
 
-#define CHECK_PTHREAD(code) \
-  do { \
-      int r; \
-      THREAD_TRACE("%s %s at %d", #code, __FILE__, __LINE__); \
-      if ((r=(code)) != 0) { \
-          errno = r; \
-          perror("pthread error: " #code); \
-          abort(); \
-      } \
-  } while (0)
+#define CHECK_PTHREAD(code)                                     \
+    do {                                                        \
+        int r;                                                  \
+        THREAD_TRACE("%s %s at %d", #code, __FILE__, __LINE__); \
+        if ((r = (code)) != 0) {                                \
+            errno = r;                                          \
+            perror("pthread error: " #code);                    \
+            abort();                                            \
+        }                                                       \
+    } while (0)
 
 void pone_runtime_init(pone_world* world);
 
 #define PONE_FUNC(name) static pone_val* name(pone_world* world, pone_val* self, int nargs, va_list args)
 #define PONE_ARG(name, spec, ...) pone_arg(world, name, nargs, args, spec, ##__VA_ARGS__)
-void pone_arg(pone_world* world, const char*name, int nargs, va_list args, const char* spec, ...);
+void pone_arg(pone_world* world, const char* name, int nargs, va_list args, const char* spec, ...);
 
-#define PONE_REG_METHOD(name, meth)  \
+#define PONE_REG_METHOD(name, meth) \
     pone_add_method_c(world, klass, name, strlen(name), meth);
 
-#define PONE_DECLARE_GETTER(name, var) \
+#define PONE_DECLARE_GETTER(name, var)                                              \
     static pone_val* name(pone_world* world, pone_val* self, int n, va_list args) { \
-        assert(n == 0); \
-        pone_val* v = pone_obj_get_ivar(world, self, var); \
-        return v; \
+        assert(n == 0);                                                             \
+        pone_val* v = pone_obj_get_ivar(world, self, var);                          \
+        return v;                                                                   \
     }
 
 #endif
-

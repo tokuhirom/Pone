@@ -68,7 +68,6 @@ PONE_FUNC(meth_file_tell) {
     return pone_int_new(world, ftell(SELF_FH));
 }
 
-
 PONE_FUNC(meth_file_seek) {
     pone_int_t position;
     pone_int_t whence;
@@ -111,8 +110,8 @@ PONE_FUNC(meth_file_flock) {
 }
 
 PONE_FUNC(builtin_open) {
-    char *fname;
-    char *mode = "rb";
+    char* fname;
+    char* mode = "rb";
     PONE_ARG("File#open", "s:s", &fname, &mode);
 
     FILE* fh = fopen(fname, mode);
@@ -127,7 +126,7 @@ PONE_FUNC(builtin_open) {
 
 PONE_FUNC(builtin_fdopen) {
     pone_int_t fd;
-    char *mode;
+    char* mode;
     PONE_ARG("File#fdopen", "is", &fd, &mode);
 
     FILE* fh = fdopen(fd, mode);
@@ -178,4 +177,3 @@ void pone_file_init(pone_world* world) {
     pone_universe_set_global(world->universe, "LOCK_EX", pone_int_new(world, LOCK_EX));
     pone_universe_set_global(world->universe, "LOCK_UN", pone_int_new(world, LOCK_UN));
 }
-

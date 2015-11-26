@@ -5,7 +5,7 @@
 // TODO unlink file
 
 static const char* get_tmpdir() {
-    const char * t = getenv("TMPDIR");
+    const char* t = getenv("TMPDIR");
     if (t) {
         return t;
     }
@@ -20,11 +20,11 @@ static const char* get_tmpdir() {
 pone_val* pone_tmpfile_new(pone_world* world) {
     pone_val* self = pone_obj_new(world, world->universe->class_tmpfile);
     const char* tmp = get_tmpdir();
-    pone_val* path  =  pone_str_new_strdup(world, tmp, strlen(tmp));
+    pone_val* path = pone_str_new_strdup(world, tmp, strlen(tmp));
     pone_str_append_c(world, path, "/pone_XXXXXX", strlen("/pone_XXXXXX"));
     path = pone_str_c_str(world, path);
     // mkstemp: POSIX.1-2001.
-    char* ptr= pone_str_ptr(path);
+    char* ptr = pone_str_ptr(path);
     int fd = mkstemp(ptr);
     if (fd < 0) {
         pone_throw_str(world, "mkstemp: cannot create tmpfile: %s", strerror(errno));
@@ -73,4 +73,3 @@ void pone_tmpfile_init(pone_world* world) {
     world->universe->class_tmpfile = klass;
     pone_universe_set_global(world->universe, "tmpfile", pone_code_new_c(world, meth_new));
 }
-

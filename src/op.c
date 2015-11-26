@@ -36,7 +36,7 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
 #endif
 
     assert(pone_type(world->lex) == PONE_LEX);
-    for (int i=0; i<up; i++) {
+    for (int i = 0; i < up; i++) {
         lex = lex->as.lex.parent;
     }
 
@@ -55,11 +55,11 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
     return val;
 }
 
-#define INFIX(funcname, op_func) \
+#define INFIX(funcname, op_func)                                                           \
     pone_val* funcname(pone_world* world, int level, const char* varname, pone_val* val) { \
-        pone_val* lhs = pone_get_lex(world, varname); \
-        pone_val* result = op_func(world, lhs, val); \
-        return pone_assign(world, level, varname, result); \
+        pone_val* lhs = pone_get_lex(world, varname);                                      \
+        pone_val* result = op_func(world, lhs, val);                                       \
+        return pone_assign(world, level, varname, result);                                 \
     }
 
 INFIX(pone_inplace_add, pone_add)
@@ -105,7 +105,7 @@ pone_val* pone_assign_key(pone_world* world, pone_val* var, pone_val* key, pone_
 }
 
 static void pin(pone_int_t indent) {
-    for (pone_int_t i=0; i<indent; ++i) {
+    for (pone_int_t i = 0; i < indent; ++i) {
         printf(" ");
     }
 }
@@ -113,80 +113,80 @@ static void pin(pone_int_t indent) {
 static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
     pin(indent);
     switch (pone_type(val)) {
-        case PONE_STRING: {
-            printf("(string: immutable:%d len:" PoneIntFmt " , ",
-                    pone_flags(val) & PONE_FLAGS_FROZEN,
-                    pone_str_len(val));
-            for (pone_int_t i=0; i<pone_str_len(val); ++i) {
-                if (isprint(*(pone_str_ptr(val)+i))) {
-                    fwrite(pone_str_ptr(val) + i, 1, 1, stdout);
-                } else {
-                    char* p = pone_str_ptr(val);
-                    printf("\\x%02x", *(p + i));
-                }
-            }
-            printf(")\n");
-            break;
-        }
-        case PONE_INT:
-            printf("(int: flags:%d " PoneIntFmt ")\n", pone_flags(val), pone_int_val(val));
-            break;
-        case PONE_NIL:
-            printf("(undef)\n");
-            break;
-        case PONE_CODE:
-            printf("(code)\n");
-            break;
-        case PONE_HASH: {
-            printf("(hash\n");
-            const char* k;
-            pone_val* v;
-            kh_foreach(val->as.hash.h, k, v, {
-                pin(indent+1);
-                printf("key:%s\n", k);
-                dd(universe, v, indent+2);
-            });
-            pin(indent);
-            printf(")\n");
-            break;
-        }
-        case PONE_ARRAY: {
-            printf("(array len:" PoneIntFmt ", max:" PoneIntFmt "\n", val->as.ary.len, val->as.ary.max);
-            for (pone_int_t i=0; i<val->as.ary.len; ++i) {
-                pin(indent+1);
-                dd(universe, val->as.ary.a[i], indent+2);
-            }
-            pin(indent);
-            printf(")\n");
-            break;
-        }
-        case PONE_BOOL: {
-            printf("(bool %s)\n", val->as.boolean.b ? "true" : "false");
-            break;
-        }
-        case PONE_OBJ: {
-            printf("(obj\n");
-            pin(indent+1);
-            if (val->as.obj.klass) {
-                printf("class:\n");
-                dd(universe, val->as.obj.klass, indent+2);
+    case PONE_STRING: {
+        printf("(string: immutable:%d len:" PoneIntFmt " , ",
+               pone_flags(val) & PONE_FLAGS_FROZEN,
+               pone_str_len(val));
+        for (pone_int_t i = 0; i < pone_str_len(val); ++i) {
+            if (isprint(*(pone_str_ptr(val) + i))) {
+                fwrite(pone_str_ptr(val) + i, 1, 1, stdout);
             } else {
-                printf("class is NULL!\n");
+                char* p = pone_str_ptr(val);
+                printf("\\x%02x", *(p + i));
             }
-            const char* k;
-            pone_val* v;
-            kh_foreach(val->as.obj.ivar, k, v, {
+        }
+        printf(")\n");
+        break;
+    }
+    case PONE_INT:
+        printf("(int: flags:%d " PoneIntFmt ")\n", pone_flags(val), pone_int_val(val));
+        break;
+    case PONE_NIL:
+        printf("(undef)\n");
+        break;
+    case PONE_CODE:
+        printf("(code)\n");
+        break;
+    case PONE_HASH: {
+        printf("(hash\n");
+        const char* k;
+        pone_val* v;
+        kh_foreach(val->as.hash.h, k, v, {
                 pin(indent+1);
                 printf("key:%s\n", k);
                 dd(universe, v, indent+2);
-            });
-            pin(indent);
-            printf(")\n");
-            break;
+        });
+        pin(indent);
+        printf(")\n");
+        break;
+    }
+    case PONE_ARRAY: {
+        printf("(array len:" PoneIntFmt ", max:" PoneIntFmt "\n", val->as.ary.len, val->as.ary.max);
+        for (pone_int_t i = 0; i < val->as.ary.len; ++i) {
+            pin(indent + 1);
+            dd(universe, val->as.ary.a[i], indent + 2);
         }
-        default:
-            fprintf(stderr, "unknown type: %d\n", pone_type(val));
-            abort();
+        pin(indent);
+        printf(")\n");
+        break;
+    }
+    case PONE_BOOL: {
+        printf("(bool %s)\n", val->as.boolean.b ? "true" : "false");
+        break;
+    }
+    case PONE_OBJ: {
+        printf("(obj\n");
+        pin(indent + 1);
+        if (val->as.obj.klass) {
+            printf("class:\n");
+            dd(universe, val->as.obj.klass, indent + 2);
+        } else {
+            printf("class is NULL!\n");
+        }
+        const char* k;
+        pone_val* v;
+        kh_foreach(val->as.obj.ivar, k, v, {
+                pin(indent+1);
+                printf("key:%s\n", k);
+                dd(universe, v, indent+2);
+        });
+        pin(indent);
+        printf(")\n");
+        break;
+    }
+    default:
+        fprintf(stderr, "unknown type: %d\n", pone_type(val));
+        abort();
     }
 }
 
@@ -194,7 +194,6 @@ static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
 void pone_dd(pone_world* world, pone_val* val) {
     dd(world->universe, val, 0);
 }
-
 
 bool pone_so(pone_val* val) {
     switch (pone_type(val)) {
@@ -287,40 +286,40 @@ pone_val* pone_pow(pone_world* world, pone_val* v1, pone_val* v2) {
     return pone_num_new(world, n3);
 }
 
-#define CMP_OP(op) \
-    do { \
+#define CMP_OP(op)                                                    \
+    do {                                                              \
         if (pone_type(v1) == PONE_NUM || pone_type(v2) == PONE_NUM) { \
-            pone_num_t n1 = pone_numify(world, v1); \
-            pone_num_t n2 = pone_numify(world, v2); \
-            return n1 op n2; \
-        } else { \
-            pone_int_t i1 = pone_intify(world, v1); \
-            pone_int_t i2 = pone_intify(world, v2); \
-            return i1 op i2; \
-        } \
+            pone_num_t n1 = pone_numify(world, v1);                   \
+            pone_num_t n2 = pone_numify(world, v2);                   \
+            return n1 op n2;                                          \
+        } else {                                                      \
+            pone_int_t i1 = pone_intify(world, v1);                   \
+            pone_int_t i2 = pone_intify(world, v2);                   \
+            return i1 op i2;                                          \
+        }                                                             \
     } while (0)
 
-bool pone_eq(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(==); }
-bool pone_ne(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(!=); }
-bool pone_le(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(<=); }
-bool pone_lt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(<);  }
-bool pone_ge(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(>=); }
-bool pone_gt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(>);  }
+bool pone_eq(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(== ); }
+bool pone_ne(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(!= ); }
+bool pone_le(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(<= ); }
+bool pone_lt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(< ); }
+bool pone_ge(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(>= ); }
+bool pone_gt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(> ); }
 
 #undef CMP_OP
 
-#define BIT_OP(op) \
-    do { \
+#define BIT_OP(op)                              \
+    do {                                        \
         pone_int_t i1 = pone_intify(world, v1); \
         pone_int_t i2 = pone_intify(world, v2); \
-        return pone_int_new(world, i1 op i2); \
+        return pone_int_new(world, i1 op i2);   \
     } while (0)
 
-pone_val* pone_bitwise_or(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(|);  }
-pone_val* pone_bitwise_and(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(&);  }
-pone_val* pone_bitwise_xor(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(^);  }
-pone_val* pone_brshift(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(>>);  }
-pone_val* pone_blshift(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(<<);  }
+pone_val* pone_bitwise_or(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(| ); }
+pone_val* pone_bitwise_and(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(&); }
+pone_val* pone_bitwise_xor(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP (^); }
+pone_val* pone_brshift(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(>> ); }
+pone_val* pone_blshift(pone_world* world, pone_val* v1, pone_val* v2) { BIT_OP(<< ); }
 
 #undef BIT_OP
 
@@ -347,9 +346,9 @@ pone_int_t pone_str_cmp(pone_world* world, pone_val* v1, pone_val* v2) {
 bool pone_str_eq(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(== 0); }
 bool pone_str_ne(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(!= 0); }
 bool pone_str_le(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(<= 0); }
-bool pone_str_lt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(<  0); }
+bool pone_str_lt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(< 0); }
 bool pone_str_ge(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(>= 0); }
-bool pone_str_gt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(>  0); }
+bool pone_str_gt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(> 0); }
 
 #undef CMP_OP
 
@@ -379,17 +378,28 @@ size_t pone_elems(pone_world* world, pone_val* val) {
 const char* pone_type_name(pone_val* val) {
     assert(pone_alive(val));
     switch (pone_type(val)) {
-    case PONE_NIL:    return "PONE_NIL";
-    case PONE_INT:    return "PONE_INT";
-    case PONE_NUM:    return "PONE_NUM";
-    case PONE_STRING: return "PONE_STRING";
-    case PONE_ARRAY:  return "PONE_ARRAY";
-    case PONE_BOOL:   return "PONE_BOOL";
-    case PONE_HASH:   return "PONE_HASH";
-    case PONE_CODE:   return "PONE_CODE";
-    case PONE_OBJ:    return "PONE_OBJ";
-    case PONE_LEX:    return "PONE_LEX";
-    case PONE_OPAQUE: return "PONE_OPAQUE";
+    case PONE_NIL:
+        return "PONE_NIL";
+    case PONE_INT:
+        return "PONE_INT";
+    case PONE_NUM:
+        return "PONE_NUM";
+    case PONE_STRING:
+        return "PONE_STRING";
+    case PONE_ARRAY:
+        return "PONE_ARRAY";
+    case PONE_BOOL:
+        return "PONE_BOOL";
+    case PONE_HASH:
+        return "PONE_HASH";
+    case PONE_CODE:
+        return "PONE_CODE";
+    case PONE_OBJ:
+        return "PONE_OBJ";
+    case PONE_LEX:
+        return "PONE_LEX";
+    case PONE_OPAQUE:
+        return "PONE_OPAQUE";
     }
     abort();
 }
@@ -414,4 +424,3 @@ pone_val* pone_at_key(pone_world* world, pone_val* obj, pone_val* pos) {
         return pone_call_method(world, obj, "AT-KEY", 1, pos);
     }
 }
-

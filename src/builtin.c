@@ -12,7 +12,7 @@ PONE_FUNC(meth_slurp) {
     }
 
     pone_val* str = pone_str_c_str(world, val);
-    FILE *fp = fopen(pone_str_ptr(str), "r");
+    FILE* fp = fopen(pone_str_ptr(str), "r");
     if (!fp) {
         pone_throw_str(world, "Cannot open '%s': %s", pone_str_ptr(str), strerror(errno));
     }
@@ -128,7 +128,6 @@ PONE_FUNC(meth_sleep) {
     return pone_nil();
 }
 
-
 PONE_FUNC(meth_die) {
     pone_val* msg;
     PONE_ARG("die", "o", &msg);
@@ -151,7 +150,7 @@ PONE_FUNC(meth_printf) {
     char dst_buf[PRINTF_BUFSIZ];
 
     const char* p = pone_str_ptr(fmt);
-    const char* end = p+pone_str_len(fmt);
+    const char* end = p + pone_str_len(fmt);
     while (p < end) {
         switch (*p) {
         case '%': {
@@ -173,29 +172,29 @@ PONE_FUNC(meth_printf) {
                     char fmt = *p;
                     ++p;
                     pone_val* v = va_arg(args, pone_val*);
-                    if (p - fmt_p > PRINTF_BUFSIZ-1) {
+                    if (p - fmt_p > PRINTF_BUFSIZ - 1) {
                         pone_throw_str(world, "[printf] format string too long");
                     }
 
-                    memcpy(fmt_buf, fmt_p, p-fmt_p);
-                    fmt_buf[p-fmt_p] = '\0';
+                    memcpy(fmt_buf, fmt_p, p - fmt_p);
+                    fmt_buf[p - fmt_p] = '\0';
 
                     int printed;
                     switch (fmt) {
-                        case 'f': {
-                            pone_num_t n = pone_numify(world, v);
-                            printed = snprintf(dst_buf, PRINTF_BUFSIZ-1, fmt_buf, n);
-                            break;
-                        }
-                        case 'd': {
-                            pone_int_t i = pone_intify(world, v);
-                            printed = snprintf(dst_buf, PRINTF_BUFSIZ-1, fmt_buf, i);
-                            break;
-                        }
-                        default:
-                            abort();
+                    case 'f': {
+                        pone_num_t n = pone_numify(world, v);
+                        printed = snprintf(dst_buf, PRINTF_BUFSIZ - 1, fmt_buf, n);
+                        break;
                     }
-                    if (printed > PRINTF_BUFSIZ-1) {
+                    case 'd': {
+                        pone_int_t i = pone_intify(world, v);
+                        printed = snprintf(dst_buf, PRINTF_BUFSIZ - 1, fmt_buf, i);
+                        break;
+                    }
+                    default:
+                        abort();
+                    }
+                    if (printed > PRINTF_BUFSIZ - 1) {
                         pone_throw_str(world, "[printf] printf buffer overrun");
                     }
 #undef PRINTF_BUFSIZ
@@ -252,4 +251,3 @@ void pone_builtin_init(pone_world* world) {
     pone_universe_set_global(universe, "printf", pone_code_new_c(world, meth_printf));
     pone_universe_set_global(universe, "INTERNALS__dump_lex", pone_code_new_c(world, meth_internals_dump_lex));
 }
-

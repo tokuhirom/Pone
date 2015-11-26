@@ -19,7 +19,7 @@ pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func) {
 }
 
 void pone_code_bind(pone_world* world, pone_val* code, const char* key, pone_val* val) {
-    khash_t(str) *lex = code->as.code.lex->as.lex.map;
+    khash_t(str)* lex = code->as.code.lex->as.lex.map;
     int ret;
     khint_t k = kh_put(str, lex, pone_strdup(world, key, strlen(key)), &ret);
     if (ret == -1) {
@@ -89,4 +89,3 @@ void pone_code_init(pone_world* world) {
     universe->class_code = pone_class_new(world, "Code", strlen("Code"));
     pone_class_compose(world, universe->class_code);
 }
-

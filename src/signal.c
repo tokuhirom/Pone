@@ -28,7 +28,7 @@ static inline void handle(pone_world* world, int sig) {
     // Send signal to channels.
     pone_push_scope(world);
     pone_val* sig_v = pone_int_new(world, sig);
-    for (pone_int_t i=0; i<kv_size(universe->signal_channels[sig]); i++) {
+    for (pone_int_t i = 0; i < kv_size(universe->signal_channels[sig]); i++) {
         pone_val* chan = kv_A(universe->signal_channels[sig], i);
         if (!pone_chan_trysend(world, chan, sig_v)) {
             fprintf(stderr, "[pone] cannot send signal to channel(%p): signal:%d\n",
@@ -92,7 +92,7 @@ PONE_FUNC(meth_signal_notify) {
 
     CHECK_PTHREAD(pthread_mutex_lock(&(world->universe->signal_channels_mutex)));
     // copy channel to signal thread.
-    pone_val * copied = pone_val_copy(world->universe->signal_world, chan);
+    pone_val* copied = pone_val_copy(world->universe->signal_world, chan);
     //  register values to global varaiables.
     kv_push(pone_val*, world->universe->signal_channels[sig], copied);
     // register channel to channels array.
@@ -120,39 +120,38 @@ void pone_signal_init(pone_world* world) {
 #define SETSIG(sig) \
     pone_module_put(world, module, #sig, pone_int_new(world, sig))
 
-SETSIG(SIGHUP);
-SETSIG(SIGINT);
-SETSIG(SIGQUIT);
-SETSIG(SIGILL);
-SETSIG(SIGABRT);
-SETSIG(SIGFPE);
-SETSIG(SIGKILL);
-SETSIG(SIGSEGV);
-SETSIG(SIGPIPE);
-SETSIG(SIGALRM);
-SETSIG(SIGTERM);
-SETSIG(SIGUSR1);
-SETSIG(SIGUSR2);
-SETSIG(SIGCHLD);
-SETSIG(SIGCONT);
-SETSIG(SIGSTOP);
-SETSIG(SIGTSTP);
-SETSIG(SIGTTIN);
-SETSIG(SIGTTOU);
-SETSIG(SIGBUS);
+    SETSIG(SIGHUP);
+    SETSIG(SIGINT);
+    SETSIG(SIGQUIT);
+    SETSIG(SIGILL);
+    SETSIG(SIGABRT);
+    SETSIG(SIGFPE);
+    SETSIG(SIGKILL);
+    SETSIG(SIGSEGV);
+    SETSIG(SIGPIPE);
+    SETSIG(SIGALRM);
+    SETSIG(SIGTERM);
+    SETSIG(SIGUSR1);
+    SETSIG(SIGUSR2);
+    SETSIG(SIGCHLD);
+    SETSIG(SIGCONT);
+    SETSIG(SIGSTOP);
+    SETSIG(SIGTSTP);
+    SETSIG(SIGTTIN);
+    SETSIG(SIGTTOU);
+    SETSIG(SIGBUS);
 #ifdef SIGPOLL
-SETSIG(SIGPOLL);
+    SETSIG(SIGPOLL);
 #endif
-SETSIG(SIGPROF);
-SETSIG(SIGSYS);
-SETSIG(SIGTRAP);
-SETSIG(SIGURG);
-SETSIG(SIGVTALRM);
-SETSIG(SIGXCPU);
-SETSIG(SIGXFSZ);
+    SETSIG(SIGPROF);
+    SETSIG(SIGSYS);
+    SETSIG(SIGTRAP);
+    SETSIG(SIGURG);
+    SETSIG(SIGVTALRM);
+    SETSIG(SIGXCPU);
+    SETSIG(SIGXFSZ);
 
 #undef SETSIG
 
     pone_universe_set_global(world->universe, "signal", module);
 }
-

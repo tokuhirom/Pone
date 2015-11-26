@@ -11,7 +11,7 @@ PONE_FUNC(meth_getwd) {
     return pone_str_new_strdup(world, buf, strlen(buf));
 }
 
-#define PONE_REG_METHOD(name, meth)  \
+#define PONE_REG_METHOD(name, meth) \
     pone_add_method_c(world, klass, name, strlen(name), meth);
 
 PONE_FUNC(meth_is_win) {
@@ -31,4 +31,3 @@ void pone_os_init(pone_world* world) {
     // builtin getcwd() function
     pone_universe_set_global(world->universe, "getcwd", pone_code_new(world, meth_getwd));
 }
-
