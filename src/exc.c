@@ -107,7 +107,6 @@ pone_val* pone_exc_class_new_simple(pone_world* world, const char* name, pone_in
     pone_val* klass = pone_class_new(world, name, strlen(name));
     pone_add_method_c(world, klass, "message", strlen("message"), meth_exc_message);
     pone_add_method_c(world, klass, "Str", strlen("Str"), meth_exc_message);
-    pone_class_compose(world, klass);
     pone_obj_set_ivar(world, klass, "$!message", pone_str_new_strdup(world, message, strlen(message)));
     return klass;
 }
@@ -126,7 +125,6 @@ PONE_FUNC(exc_adhoc_str) {
 void pone_exc_init(pone_world* world) {
     pone_val* klass = pone_class_new(world, "X::AdHoc", strlen("X::AdHoc"));
     pone_add_method_c(world, klass, "Str", strlen("Str"), exc_adhoc_str);
-    pone_class_compose(world, klass);
 
     world->universe->class_x_adhoc = klass;
     pone_universe_set_global(world->universe, "X::AdHoc",klass);

@@ -117,7 +117,5 @@ void pone_range_init(pone_world* world) {
     pone_add_method_c(world, universe->class_range, "Str", strlen("Str"), meth_range_str);
     pone_obj_set_ivar(world, universe->class_range, "$!iterator-class", iter_class);
 
-    pone_class_compose(world, universe->class_range);
-
     pone_universe_set_global(universe, "Range", universe->class_range);
 }

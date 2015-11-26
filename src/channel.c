@@ -179,7 +179,6 @@ void pone_channel_init(pone_world* world) {
     pone_add_method_c(world, klass, "send", strlen("send"), meth_chan_send);
     pone_add_method_c(world, klass, "close", strlen("close"), meth_chan_close);
     pone_add_method_c(world, klass, "closed", strlen("closed"), meth_chan_closed);
-    pone_class_compose(world, klass);
 
     universe->class_channel = klass;
     pone_universe_set_global(universe, "Channel", klass);

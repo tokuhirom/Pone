@@ -511,7 +511,6 @@ pone_val* pone_find_method(pone_world* world, pone_val* klass, const char* name)
 pone_val* pone_what(pone_world* world, pone_val* obj);
 pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...);
 pone_val* pone_call_meta_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...);
-void pone_class_compose(pone_world* world, pone_val* klass);
 
 // obj.c
 pone_val* pone_init_mu(pone_world* world);

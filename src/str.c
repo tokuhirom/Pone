@@ -286,14 +286,12 @@ void pone_str_init(pone_world* world) {
         pone_add_method_c(world, universe->class_str, "Int", strlen("Int"), meth_str_int);
         pone_add_method_c(world, universe->class_str, "Num", strlen("Num"), meth_str_num);
         pone_add_method_c(world, universe->class_str, "length", strlen("length"), meth_str_length);
-        pone_class_compose(world, universe->class_str);
         pone_universe_set_global(world->universe, "Str", universe->class_str);
     }
     {
         universe->class_bytes = pone_class_new(world, "Str", strlen("Str"));
         pone_add_method_c(world, universe->class_bytes, "Str", strlen("Str"), meth_bytes_str);
         pone_add_method_c(world, universe->class_bytes, "length", strlen("length"), meth_bytes_length);
-        pone_class_compose(world, universe->class_bytes);
         pone_universe_set_global(world->universe, "Bytes", universe->class_bytes);
     }
 }

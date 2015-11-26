@@ -159,7 +159,6 @@ void pone_file_init(pone_world* world) {
     pone_add_method_c(world, klass, "eof", strlen("eof"), meth_file_eof);
     pone_add_method_c(world, klass, "getc", strlen("getc"), meth_file_getc);
     pone_add_method_c(world, klass, "flock", strlen("flock"), meth_file_flock);
-    pone_class_compose(world, klass);
 
     world->universe->class_file = klass;
 

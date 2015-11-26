@@ -42,7 +42,6 @@ void pone_nil_init(pone_world* world) {
     pone_add_method_c(world, universe->class_nil, "Str", strlen("Str"), meth_nil_str);
     pone_add_method_c(world, universe->class_nil, "Int", strlen("Int"), meth_nil_int);
     pone_add_method_c(world, universe->class_nil, "Num", strlen("Num"), meth_nil_num);
-    pone_class_compose(world, universe->class_nil);
 
     pone_universe_set_global(universe, "Nil", pone_nil());
 }

@@ -30,6 +30,4 @@ void pone_errno_init(pone_world* world) {
     universe->class_errno = pone_class_new(world, "Errno", strlen("Errno"));
     pone_add_method_c(world, universe->class_errno, "Str", strlen("Str"), meth_errno_str);
     pone_add_method_c(world, universe->class_errno, "Int", strlen("Int"), meth_errno_int);
-
-    pone_class_compose(world, universe->class_errno);
 }

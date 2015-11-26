@@ -129,6 +129,5 @@ void pone_gc_init(pone_world* world) {
     pone_universe* universe = world->universe;
     pone_val* gc = pone_class_new(world, "GC", strlen("GC"));
     pone_add_method_c(world, gc, "request", strlen("request"), meth_gc_request);
-    pone_class_compose(world, gc);
     pone_universe_set_global(universe, "GC", gc);
 }

@@ -25,7 +25,6 @@ PONE_FUNC(meth_module_str) {
 void pone_module_init(pone_world* world) {
     pone_val* module = pone_class_new(world, "Module", strlen("Module"));
     pone_add_method_c(world, module, "Str", strlen("Str"), meth_module_str);
-    pone_class_compose(world, module);
     world->universe->class_module = module;
 }
 

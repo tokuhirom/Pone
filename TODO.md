@@ -48,7 +48,6 @@ TODO
  * URI
  * `exec.which(path)` like golang's `exec.LookPath("fortune")`
  * Channel#close
- * port earliest syntax from perl6
 
 ## Basic features
 

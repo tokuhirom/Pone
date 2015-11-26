@@ -156,5 +156,4 @@ void pone_hash_init(pone_world* world) {
     universe->class_hash = pone_class_new(world, "Hash", strlen("Hash"));
     pone_add_method_c(world, universe->class_hash, "elems", strlen("elems"), meth_hash_elems);
     pone_add_method_c(world, universe->class_hash, "ASSIGN-KEY", strlen("ASSIGN-KEY"), meth_hash_assign_key);
-    pone_class_compose(world, universe->class_hash);
 }

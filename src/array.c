@@ -281,5 +281,4 @@ void pone_ary_init(pone_world* world) {
     pone_add_method_c(world, universe->class_ary, "Str", strlen("Str"), meth_ary_str);
     pone_add_method_c(world, universe->class_ary, "ASSIGN-POS", strlen("ASSIGN-POS"), meth_ary_assign_pos);
     pone_obj_set_ivar(world, universe->class_ary, "$!iterator-class", iter_class);
-    pone_class_compose(world, universe->class_ary);
 }

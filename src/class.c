@@ -56,7 +56,6 @@ pone_val* pone_init_class(pone_world* world) {
     pone_add_method_c(world, val, "Str", strlen("Str"), meth_Str);
     pone_add_method_c(world, val, "say", strlen("say"), mu_say);
     pone_add_method_c(world, val, "ACCEPTS", strlen("ACCEPTS"), meth_accepts);
-    pone_class_compose(world, val);
 
     return val;
 }
@@ -128,25 +127,6 @@ void pone_add_method(pone_world* world, pone_val* klass, const char* name, size_
     pone_val* methods = pone_obj_get_ivar(world, klass, "$!methods");
     assert(pone_type(methods) == PONE_HASH);
     pone_hash_assign_key_c(world, methods, name, name_len, method);
-}
-
-static void _compose(pone_world* world, pone_val* target_methods, pone_val* klass) {
-    pone_val* methods = pone_obj_get_ivar(world, klass, "$!methods");
-
-    const char* k;
-    pone_val* v;
-    kh_foreach(methods->as.hash.h, k, v, {
-        assert(v);
-        if (!pone_hash_exists_c(world, target_methods, k)) {
-            pone_hash_assign_key_c(world, target_methods, k, strlen(k), v);
-        }
-    });
-}
-
-// .^compose
-void pone_class_compose(pone_world* world, pone_val* klass) {
-    pone_val* methods = pone_obj_get_ivar(world, klass, "$!methods");
-    _compose(world, methods, klass);
 }
 
 const char* pone_what_str_c(pone_world* world, pone_val* val) {

@@ -85,7 +85,6 @@ void pone_time_init(pone_world* world) {
     pone_add_method_c(world, klass, "hour", strlen("hour"), meth_hour);
     pone_add_method_c(world, klass, "min", strlen("min"), meth_min);
     pone_add_method_c(world, klass, "sec", strlen("sec"), meth_sec);
-    pone_class_compose(world, klass);
 
     {
         pone_val* code = pone_code_new(world, builtin_gmtime);

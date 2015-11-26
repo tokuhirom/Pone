@@ -67,5 +67,4 @@ void pone_num_init(pone_world* world) {
     pone_add_method_c(world, universe->class_num, "Str", strlen("Str"), meth_num_str);
     pone_add_method_c(world, universe->class_num, "Num", strlen("Num"), meth_num_num);
     pone_add_method_c(world, universe->class_num, "Int", strlen("Int"), meth_num_int);
-    pone_class_compose(world, universe->class_num);
 }

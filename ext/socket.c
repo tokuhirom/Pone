@@ -230,7 +230,6 @@ void PONE_DLL_io_socket_inet(pone_world* world, pone_val* module) {
     pone_add_method_c(world, klass, "close", strlen("close"), meth_sock_close);
     pone_add_method_c(world, klass, "write", strlen("write"), meth_sock_write);
     pone_add_method_c(world, klass, "read", strlen("read"), meth_sock_read);
-    pone_class_compose(world, klass);
 
     pone_module_put(world, module, "Socket", klass);
 

@@ -41,7 +41,6 @@ void pone_opaque_init(pone_world* world) {
 
     // TODO class_opaque may useless.
     pone_val* klass = pone_class_new(world, "Opaque", strlen("Opaque"));
-    pone_class_compose(world, klass);
 
     universe->class_opaque = klass;
 }

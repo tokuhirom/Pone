@@ -69,7 +69,6 @@ void pone_tmpfile_init(pone_world* world) {
     pone_val* klass = pone_class_new(world, "TmpFile", strlen("TmpFile"));
     pone_add_method_c(world, klass, "path", strlen("path"), meth_path);
     pone_add_method_c(world, klass, "file", strlen("file"), meth_file);
-    pone_class_compose(world, klass);
 
     world->universe->class_tmpfile = klass;
     pone_universe_set_global(world->universe, "tmpfile", pone_code_new_c(world, meth_new));
