@@ -60,8 +60,6 @@ pone_world* pone_world_new(pone_universe* universe) {
     world->savestack.n = 0;
     world->savestack.m = 0;
 
-    pone_val_vec_init(&(world->channels));
-
     CHECK_PTHREAD(pthread_mutex_init(&(world->mutex), NULL));
     CHECK_PTHREAD(pthread_cond_init(&(world->cond), NULL));
 
@@ -144,20 +142,5 @@ void pone_world_mark(pone_world* world) {
     // mark tmp stack
     for (size_t i = 0; i < kv_size(world->tmpstack); ++i) {
         pone_gc_mark_value(kv_A(world->tmpstack, i));
-    }
-
-    // captured channels
-    for (pone_int_t i = 0; i < pone_val_vec_size(&(world->channels)); ++i) {
-        pone_val* chan = pone_val_vec_get(&(world->channels), i);
-        if (chan->as.basic.type == PONE_OBJ && chan->as.obj.klass == world->universe->class_channel) {
-            pone_val* v = pone_val_vec_get(&(world->channels), i);
-            // do not mark channel itself. mark channel's queue!
-            pone_chan_mark_queue(world, v);
-        } else {
-            // maybe this value was reused or freed.
-            THREAD_TRACE("remove from world->channels %p", chan);
-            pone_val_vec_delete(&(world->channels), i);
-            i--;
-        }
     }
 }

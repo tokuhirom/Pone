@@ -195,9 +195,6 @@ typedef struct pone_world {
 
     pthread_t thread_id;
 
-    // captured channels.
-    struct pone_val_vec channels;
-
     pthread_mutex_t mutex;
     pthread_cond_t cond;
 
@@ -574,10 +571,8 @@ void pone_signal_start_thread(pone_world* world);
 void pone_signal_init(pone_world* world);
 
 // channel.c
-void pone_channel_init(pone_world* world);
 pone_val* pone_chan_new(pone_world* world, pone_int_t limit);
 bool pone_chan_trysend(pone_world* world, pone_val* chan, pone_val* val);
-void pone_chan_mark_queue(pone_world* world, pone_val* chan);
 
 // errno.c
 pone_val* pone_errno(pone_world* world);

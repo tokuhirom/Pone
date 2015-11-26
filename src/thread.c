@@ -21,11 +21,6 @@ static void copy_lex_values(pone_world* world, pone_val* code) {
                 abort(); // TODO better error msg
             }
             kh_val(dst->as.lex.map, k) = v;
-
-            // if the value is channel, we need to add this value to the channel list.
-            if (v->as.basic.type == PONE_OBJ && v->as.obj.klass == world->universe->class_channel) {
-                pone_val_vec_push(&(world->channels), v);
-            }
         });
         lex = lex->as.lex.parent;
     }

@@ -12,6 +12,7 @@ void pone_module_init(pone_world* world);
 void pone_time_init(pone_world* world);
 void pone_tmpfile_init(pone_world* world);
 void pone_opaque_init(pone_world* world);
+void pone_channel_init(pone_world* world);
 
 void pone_init(pone_universe* universe) {
 #if defined(_WIN32) || defined(_WIN64)

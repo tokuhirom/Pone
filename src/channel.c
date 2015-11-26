@@ -19,13 +19,6 @@ struct pone_chan {
     pthread_cond_t send_cond;
 };
 
-/*
- * Mark items in channel queue.
- * (This function don't mark channel itself)
- */
-void pone_chan_mark_queue(pone_world* world, pone_val* chan) {
-}
-
 void pone_chan_send(pone_world* world, pone_val* self, pone_val* val) {
     struct pone_chan* chan = pone_opaque_ptr(self);
 

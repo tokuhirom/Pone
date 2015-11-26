@@ -96,8 +96,6 @@ PONE_FUNC(meth_signal_notify) {
     pone_val* copied = pone_val_copy(world->universe->signal_world, chan);
     //  register values to global varaiables.
     kv_push(pone_val*, world->universe->signal_channels[sig], copied);
-    // register channel to channels array.
-    pone_val_vec_push(&(world->universe->signal_world->channels), copied);
     CHECK_PTHREAD(pthread_mutex_unlock(&(world->universe->signal_channels_mutex)));
 
     return pone_nil();
