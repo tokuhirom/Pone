@@ -1001,3 +1001,9 @@ my $ch = chan(0); $ch.close; try { $ch.receive }; say $@ ~~ X::Channel::ReceiveO
 --- expected
 True
 
+===
+--- input
+try { die "test" }; say $@
+--- expected
+test
+

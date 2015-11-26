@@ -136,7 +136,7 @@ static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
         printf("(undef)\n");
         break;
     case PONE_CODE:
-        printf("(code)\n");
+        printf("(code func:%p)\n", val->as.code.func);
         break;
     case PONE_HASH: {
         printf("(hash\n");

@@ -13,6 +13,7 @@ void pone_time_init(pone_world* world);
 void pone_tmpfile_init(pone_world* world);
 void pone_opaque_init(pone_world* world);
 void pone_channel_init(pone_world* world);
+void pone_exc_init(pone_world* world);
 
 void pone_init(pone_universe* universe) {
 #if defined(_WIN32) || defined(_WIN64)
@@ -66,6 +67,7 @@ void pone_init(pone_universe* universe) {
     pone_builtin_init(world);
     pone_time_init(world);
     pone_tmpfile_init(world);
+    pone_exc_init(world);
 
     // init $*INC
     universe->inc = pone_ary_new(world, 1, pone_str_new_const(world, "blib", strlen("blib")));

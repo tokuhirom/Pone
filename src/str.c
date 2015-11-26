@@ -153,7 +153,14 @@ pone_val* pone_str_from_num(pone_world* world, double n) {
 }
 
 pone_val* pone_stringify(pone_world* world, pone_val* val) {
-    return pone_call_method(world, val, "Str", 0);
+    pone_val* retval = pone_call_method(world, val, "Str", 0);
+#ifndef NDEBUG
+    if (pone_type(retval) != PONE_STRING) {
+        pone_dd(world, val);
+    }
+#endif
+    assert(pone_type(retval) == PONE_STRING);
+    return retval;
 }
 
 inline char* pone_str_ptr(pone_val* val) {

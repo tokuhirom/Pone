@@ -36,7 +36,9 @@ void pone_throw_str(pone_world* world, const char* fmt, ...) {
     va_start(args, fmt);
     pone_val* v = pone_str_new_vprintf(world, fmt, args);
     va_end(args);
-    pone_throw(world, v);
+    pone_val* exc = pone_obj_new(world, world->universe->class_x_adhoc);
+    pone_obj_set_ivar(world, exc, "$!payload", v);
+    pone_throw(world, exc);
 }
 
 // TODO rename to pone_throw
@@ -114,3 +116,19 @@ pone_val* pone_exc_class_new_simple(pone_world* world, const char* name, pone_in
 pone_val* pone_errvar(pone_world* world) {
     return world->errvar;
 }
+
+PONE_FUNC(exc_adhoc_str) {
+    PONE_ARG("X::AdHoc#Str", "");
+    pone_val* payload = pone_obj_get_ivar(world, self, "$!payload");
+    return pone_stringify(world, payload);
+}
+
+void pone_exc_init(pone_world* world) {
+    pone_val* klass = pone_class_new(world, "X::AdHoc", strlen("X::AdHoc"));
+    pone_add_method_c(world, klass, "Str", strlen("Str"), exc_adhoc_str);
+    pone_class_compose(world, klass);
+
+    world->universe->class_x_adhoc = klass;
+    pone_universe_set_global(world->universe, "X::AdHoc",klass);
+}
+

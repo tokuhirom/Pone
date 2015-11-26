@@ -1,5 +1,4 @@
 #ifndef PONE_H_
-
 #define PONE_H_
 
 #include <string.h>
@@ -292,6 +291,8 @@ typedef struct pone_universe {
     struct pone_val* class_module;
     // class of TmpFile
     struct pone_val* class_tmpfile;
+    // class of X::AdHoc
+    struct pone_val* class_x_adhoc;
 
     // $*INC
     struct pone_val* inc;
