@@ -158,13 +158,21 @@ PONE_FUNC(meth_chan_closed) {
 void pone_channel_init(pone_world* world) {
     pone_universe* universe = world->universe;
 
-    pone_val* recv_on_closed = pone_class_new(world, "X::Channel::ReceiveOnClosed", strlen("X::Channel::ReceiveOnClosed"));
-    pone_class_compose(world, recv_on_closed);
-    pone_universe_set_global(universe, "X::Channel::ReceiveOnClosed", recv_on_closed);
+#define KLASS "X::Channel::ReceiveOnClosed"
+    pone_val* recv_on_closed = pone_exc_class_new_simple(world,
+            KLASS, strlen(KLASS),
+            "Cannot receive a message on a closed channel"
+            );
+    pone_universe_set_global(universe, KLASS, recv_on_closed);
+#undef KLASS
 
-    pone_val* send_on_closed = pone_class_new(world, "X::Channel::SendOnClosed", strlen("X::Channel::SendOnClosed"));
-    pone_class_compose(world, send_on_closed);
-    pone_universe_set_global(universe, "X::Channel::SendOnClosed", send_on_closed);
+#define KLASS "X::Channel::SendOnClosed"
+    pone_val* send_on_closed = pone_exc_class_new_simple(world,
+            KLASS, strlen(KLASS),
+            "Cannot send a message on a closed channel"
+            );
+    pone_universe_set_global(universe, KLASS, send_on_closed);
+#undef KLASS
 
     pone_val* klass = pone_class_new(world, "Channel", strlen("Channel"));
     pone_add_method_c(world, klass, "receive", strlen("receive"), meth_chan_receive);

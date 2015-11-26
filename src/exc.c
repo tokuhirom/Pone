@@ -96,6 +96,20 @@ pone_val* pone_try(pone_world* world, pone_val* code) {
     }
 }
 
+PONE_FUNC(meth_exc_message) {
+    PONE_ARG("#message", "");
+    return pone_obj_get_ivar(world, pone_what(world, self), "$!message");
+}
+
+pone_val* pone_exc_class_new_simple(pone_world* world, const char* name, pone_int_t name_len, const char* message){
+    pone_val* klass = pone_class_new(world, name, strlen(name));
+    pone_add_method_c(world, klass, "message", strlen("message"), meth_exc_message);
+    pone_add_method_c(world, klass, "Str", strlen("Str"), meth_exc_message);
+    pone_class_compose(world, klass);
+    pone_obj_set_ivar(world, klass, "$!message", pone_str_new_strdup(world, message, strlen(message)));
+    return klass;
+}
+
 // get $@
 pone_val* pone_errvar(pone_world* world) {
     return world->errvar;
