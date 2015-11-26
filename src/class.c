@@ -86,11 +86,8 @@ pone_val* pone_what(pone_world* world, pone_val* obj) {
     case PONE_CODE:
         return universe->class_code;
     case PONE_OPAQUE:
-        if (obj->as.opaque.body->klass != NULL) {
-            return obj->as.opaque.body->klass;
-        } else {
-            return universe->class_opaque;
-        }
+        assert(obj->as.opaque.body->klass);
+        return obj->as.opaque.body->klass;
     case PONE_OBJ:
         return obj->as.obj.klass;
     case PONE_LEX:

@@ -11,7 +11,6 @@ void pone_file_init(pone_world* world);
 void pone_module_init(pone_world* world);
 void pone_time_init(pone_world* world);
 void pone_tmpfile_init(pone_world* world);
-void pone_opaque_init(pone_world* world);
 void pone_channel_init(pone_world* world);
 void pone_exc_init(pone_world* world);
 
@@ -56,7 +55,6 @@ void pone_init(pone_universe* universe) {
     pone_pair_init(world);
     pone_gc_init(world);
     pone_channel_init(world);
-    pone_opaque_init(world);
     pone_errno_init(world);
     pone_runtime_init(world);
     pone_file_init(world);

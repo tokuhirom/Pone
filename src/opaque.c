@@ -36,11 +36,3 @@ void pone_opaque_free(pone_world* world, pone_val* v) {
     }
 }
 
-void pone_opaque_init(pone_world* world) {
-    pone_universe* universe = world->universe;
-
-    // TODO class_opaque may useless.
-    pone_val* klass = pone_class_new(world, "Opaque", strlen("Opaque"));
-
-    universe->class_opaque = klass;
-}

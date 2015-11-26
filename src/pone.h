@@ -281,8 +281,6 @@ typedef struct pone_universe {
     struct pone_val* class_pair;
     // class of Channel
     struct pone_val* class_channel;
-    // class of Opaque
-    struct pone_val* class_opaque;
     // class of Errno
     struct pone_val* class_errno;
     // class of File
