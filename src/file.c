@@ -6,7 +6,10 @@
 #define SELF_FH pone_opaque_ptr(self)
 
 static void finalizer(pone_world* world, pone_val* val) {
-    fclose(pone_opaque_ptr(val));
+    FILE* fp = pone_opaque_ptr(val);
+    if (fp) {
+        fclose(fp);
+    } // closed file contains null pointer.
 }
 
 pone_val* pone_file_new(pone_world* world, FILE* fh, bool auto_close) {
@@ -54,6 +57,7 @@ PONE_FUNC(meth_file_close) {
     if (fclose(SELF_FH) != 0) {
         pone_world_set_errno(world);
     }
+    pone_opaque_set_ptr(self, NULL);
     return pone_nil();
 }
 

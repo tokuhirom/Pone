@@ -18,5 +18,9 @@ static inline void* pone_opaque_ptr(pone_val* v) {
     return v->as.opaque.body->ptr;
 }
 
+static inline void pone_opaque_set_ptr(pone_val* v, void* ptr) {
+    v->as.opaque.body->ptr = ptr;
+}
+
 #endif
 
