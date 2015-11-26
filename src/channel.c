@@ -119,13 +119,6 @@ pone_val* pone_chan_new(pone_world* world, pone_int_t limit) {
     return obj;
 }
 
-PONE_FUNC(meth_chan_new) {
-    pone_int_t limit;
-    PONE_ARG("Channel#new", ":i", &limit);
-
-    return pone_chan_new(world, limit);
-}
-
 /**
 
 =head1 NAME
@@ -157,7 +150,6 @@ void pone_channel_init(pone_world* world) {
     pone_universe* universe = world->universe;
 
     pone_val* klass = pone_class_new(world, "Channel", strlen("Channel"));
-    pone_add_method_c(world, klass, "new", strlen("new"), meth_chan_new);
     pone_add_method_c(world, klass, "receive", strlen("receive"), meth_chan_receive);
     pone_add_method_c(world, klass, "send", strlen("send"), meth_chan_send);
     pone_class_compose(world, klass);
