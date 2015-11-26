@@ -2,11 +2,12 @@
 #include "pone_opaque.h"
 
 // @args finalizer allows NULL.
-pone_val* pone_opaque_new(pone_world* world, void* ptr, pone_finalizer_t finalizer) {
+pone_val* pone_opaque_new(pone_world* world, pone_val* klass, void* ptr, pone_finalizer_t finalizer) {
     struct pone_opaque_body* body = pone_malloc(world->universe, sizeof(struct pone_opaque_body));
     body->ptr = ptr;
     body->finalizer = finalizer;
     body->refcnt = 1;
+    body->klass = klass;
 
     pone_val* opaque = pone_obj_alloc(world, PONE_OPAQUE);
     opaque->as.opaque.body = body;

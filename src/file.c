@@ -3,16 +3,14 @@
 #include "pone_opaque.h"
 #include <sys/file.h>
 
-#define SELF_FH pone_opaque_ptr(pone_obj_get_ivar(world, self, "$!fh"))
+#define SELF_FH pone_opaque_ptr(self)
 
 static void finalizer(pone_world* world, pone_val* val) {
     fclose(pone_opaque_ptr(val));
 }
 
 pone_val* pone_file_new(pone_world* world, FILE* fh, bool auto_close) {
-    pone_val* file = pone_obj_new(world, world->universe->class_file);
-    pone_obj_set_ivar(world, file, "$!fh", pone_opaque_new(world, fh, auto_close ? finalizer : NULL));
-    return file;
+    return pone_opaque_new(world, world->universe->class_file, fh, auto_close ? finalizer : NULL);
 }
 
 FILE* pone_file_fp(pone_world* world, pone_val* file) {

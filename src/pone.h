@@ -274,6 +274,8 @@ typedef struct pone_universe {
     struct pone_val* instance_iteration_end;
     // class of Regex
     struct pone_val* class_regex;
+    // class of onig(private)
+    struct pone_val* class_onig;
     // class of Match
     struct pone_val* class_match;
     // class of Pair

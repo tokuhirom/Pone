@@ -107,8 +107,7 @@ pone_val* pone_chan_new(pone_world* world, pone_int_t limit) {
     CHECK_PTHREAD(pthread_cond_init(&(chan->recv_cond), NULL));
     CHECK_PTHREAD(pthread_cond_init(&(chan->send_cond), NULL));
     CHECK_PTHREAD(pthread_mutex_init(&(chan->mutex), NULL));
-    pone_val* obj = pone_opaque_new(world, chan, chan_finalizer);
-    pone_opaque_set_class(chan->world, obj, world->universe->class_channel);
+    pone_val* obj = pone_opaque_new(world, world->universe->class_channel, chan, chan_finalizer);
     return obj;
 }
 

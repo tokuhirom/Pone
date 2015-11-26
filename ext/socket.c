@@ -79,8 +79,7 @@ PONE_FUNC(meth_sock_accept) {
             return pone_nil();
         }
 #endif
-        pone_val* opaque = pone_opaque_new(world, csock, finalizer);
-        pone_opaque_set_class(world, opaque, pone_what(world, self));
+        pone_val* opaque = pone_opaque_new(world, pone_what(world, self), csock, finalizer);
         return opaque;
     } else {
         // got error
@@ -146,9 +145,7 @@ PONE_FUNC(meth_sock_connect) {
     struct pone_sock* sock = pone_malloc(world->universe, sizeof(struct pone_sock));
     sock->fd = fd;
 
-    pone_val* opaque = pone_opaque_new(world, sock, finalizer);
-    pone_opaque_set_class(world, opaque, pone_get_lex(world, "klass"));
-    return opaque;
+    return pone_opaque_new(world, pone_get_lex(world, "klass"), sock, finalizer);
 }
 
 PONE_FUNC(meth_sock_listen) {
@@ -220,9 +217,7 @@ PONE_FUNC(meth_sock_listen) {
     struct pone_sock* sock = pone_malloc(world->universe, sizeof(struct pone_sock));
     sock->fd = fd;
 
-    pone_val* opaque = pone_opaque_new(world, sock, finalizer);
-    pone_opaque_set_class(world, opaque, pone_get_lex(world, "klass"));
-    return opaque;
+    return pone_opaque_new(world, pone_get_lex(world, "klass"), sock, finalizer);
 }
 
 void PONE_DLL_io_socket_inet(pone_world* world, pone_val* module) {

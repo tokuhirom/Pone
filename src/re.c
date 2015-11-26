@@ -23,7 +23,7 @@ pone_val* pone_regex_new(pone_world* world, const char* str, size_t len) {
         pone_throw(world, pone_str_new_strdup(world, buf, errsize));
         // TODO create X::Regexp
     }
-    pone_obj_set_ivar(world, obj, "$!re", pone_opaque_new(world, re, re_finalizer));
+    pone_obj_set_ivar(world, obj, "$!re", pone_opaque_new(world, universe->class_onig, re, re_finalizer));
     pone_obj_set_ivar(world, obj, "$!str", pone_str_new_strdup(world, str, len));
     return obj;
 }
@@ -120,6 +120,7 @@ void pone_regex_init(pone_world* world) {
     assert(universe->class_regex == NULL);
 
     universe->class_regex = pone_class_new(world, "Regex", strlen("Regex"));
+    universe->class_onig = pone_class_new(world, "onig", strlen("onig"));
     // TODO inherit from routine
     pone_add_method_c(world, universe->class_regex, "ACCEPTS", strlen("ACCEPTS"), meth_regex_accepts);
     pone_add_method_c(world, universe->class_regex, "Str", strlen("Str"), meth_regex_str);
@@ -136,3 +137,4 @@ void pone_regex_init(pone_world* world) {
 
     pone_universe_set_global(universe, "Regex", universe->class_regex);
 }
+

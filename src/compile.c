@@ -1147,7 +1147,7 @@ static pone_compile_ctx* pone_compile_ctx_new(pone_world* world, const char* fil
     ctx->ints = kh_init(i64);
     ctx->vars_max = 1;
     // managed by GC
-    (void)pone_opaque_new(world, ctx, pone_compile_ctx_finalize);
+    (void)pone_opaque_new(world, pone_class_new(world, "CompilerContext", strlen("CompilerContext")), ctx, pone_compile_ctx_finalize);
     return ctx;
 }
 
