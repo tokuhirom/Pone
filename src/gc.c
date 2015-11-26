@@ -118,7 +118,7 @@ void pone_gc_run(pone_world* world) {
 }
 
 PONE_FUNC(meth_gc_request) {
-    PONE_ARG("GC#request", "");
+    PONE_ARG("gc_request", "");
 
     world->gc_requested = true;
 
@@ -126,8 +126,6 @@ PONE_FUNC(meth_gc_request) {
 }
 
 void pone_gc_init(pone_world* world) {
-    pone_universe* universe = world->universe;
-    pone_val* gc = pone_class_new(world, "GC", strlen("GC"));
-    pone_add_method_c(world, gc, "request", strlen("request"), meth_gc_request);
-    pone_universe_set_global(universe, "GC", gc);
+    pone_universe_set_global(world->universe, "gc_request",
+            pone_code_new(world, meth_gc_request));
 }
