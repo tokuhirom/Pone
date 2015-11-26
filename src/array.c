@@ -1,4 +1,5 @@
 #include "pone.h" /* PONE_INC */
+#include "pone_exc.h"
 
 void pone_ary_mark(pone_val* val) {
     pone_int_t l = val->as.ary.len;

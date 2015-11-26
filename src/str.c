@@ -1,4 +1,5 @@
 #include "pone.h" /* PONE_INC */
+#include "pone_exc.h"
 #include "oniguruma.h"
 
 void pone_str_mark(pone_val* val) {

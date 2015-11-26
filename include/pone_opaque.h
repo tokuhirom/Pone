@@ -23,4 +23,3 @@ static inline void pone_opaque_set_ptr(pone_val* v, void* ptr) {
 }
 
 #endif
-

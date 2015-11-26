@@ -336,13 +336,6 @@ void pone_world_mark(pone_world*);
 void pone_world_set_errno(pone_world* world);
 void pone_use(pone_world* world, const char* pkg, const char* as);
 
-// exc.c
-jmp_buf* pone_exc_handler_push(pone_world* world);
-void pone_exc_handler_pop(pone_world* world);
-void pone_throw(pone_world* world, pone_val* msg);
-void pone_throw_str(pone_world* world, const char* fmt, ...);
-void pone_warn_str(pone_world* world, const char* fmt, ...);
-
 // op.c
 void pone_dd(pone_world* world, pone_val* val);
 const char* pone_what_str_c(pone_world* world, pone_val* val);

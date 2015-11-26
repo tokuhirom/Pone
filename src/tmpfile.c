@@ -1,5 +1,6 @@
 #include "pone.h"
 #include "pone_file.h"
+#include "pone_exc.h"
 #include "pone_tmpfile.h"
 
 // TODO unlink file

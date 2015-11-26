@@ -45,4 +45,3 @@ void pone_opaque_init(pone_world* world) {
 
     universe->class_opaque = klass;
 }
-

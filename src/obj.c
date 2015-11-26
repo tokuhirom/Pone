@@ -1,5 +1,6 @@
 #include "pone.h" /* PONE_INC */
 #include "pone_opaque.h"
+#include "pone_exc.h"
 
 void pone_obj_mark(pone_val* val) {
     assert(pone_type(val) == PONE_OBJ);

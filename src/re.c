@@ -1,5 +1,6 @@
 #include "pone.h" /* PONE_INC */
 #include "pone_opaque.h"
+#include "pone_exc.h"
 #include "oniguruma.h"
 
 static void re_finalizer(pone_world* world, pone_val* val) {
@@ -137,4 +138,3 @@ void pone_regex_init(pone_world* world) {
 
     pone_universe_set_global(universe, "Regex", universe->class_regex);
 }
-

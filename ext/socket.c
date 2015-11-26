@@ -1,6 +1,7 @@
 #include "pone.h"
 #include "pone_module.h"
 #include "pone_opaque.h"
+#include "pone_exc.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>

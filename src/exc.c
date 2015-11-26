@@ -1,4 +1,5 @@
 #include "pone.h"
+#include "pone_exc.h"
 
 #ifdef __GLIBC__
 #include <execinfo.h>

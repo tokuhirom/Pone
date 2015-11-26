@@ -1,4 +1,5 @@
 #include "pone.h" /* PONE_INC */
+#include "pone_exc.h"
 #include <math.h>
 #include <setjmp.h>
 #include <ctype.h>

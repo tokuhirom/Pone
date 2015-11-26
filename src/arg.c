@@ -1,4 +1,5 @@
 #include "pone.h"
+#include "pone_exc.h"
 
 static int min_args(const char* spec) {
     int n = 0;

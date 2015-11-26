@@ -1,4 +1,5 @@
 #include "pone.h"
+#include "pone_exc.h"
 
 pone_val* pone_iter_init(pone_world* world, pone_val* obj) {
     assert(pone_alive(obj));

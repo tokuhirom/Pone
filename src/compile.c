@@ -8,7 +8,9 @@
 #include <dlfcn.h>
 #include "pone_compile.h"
 #include "pone_module.h"
+#include "pone_compile.h"
 #include "pone_tmpfile.h"
+#include "pone_exc.h"
 #include "pone_opaque.h"
 #include "pone.h"
 #include "pone_compile.h"

@@ -1,5 +1,6 @@
 #include "pone.h"
 #include "pone_opaque.h"
+#include "pone_exc.h"
 
 /*
  * class Channel {
@@ -175,4 +176,3 @@ void pone_channel_init(pone_world* world) {
     universe->class_channel = klass;
     pone_universe_set_global(universe, "Channel", klass);
 }
-

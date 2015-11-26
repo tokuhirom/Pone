@@ -1,4 +1,5 @@
 #include "pone.h"
+#include "pone_exc.h"
 #include "pone_module.h"
 #include "pone_val_vec.h"
 #include "kvec.h"

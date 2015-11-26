@@ -1,6 +1,7 @@
 // Module is a core feature in Pone.
 #include "pone.h"
 #include "pone_file.h"
+#include "pone_exc.h"
 #include "pone_compile.h"
 #include "dlfcn.h"
 #include <sys/stat.h>
