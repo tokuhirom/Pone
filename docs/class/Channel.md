@@ -28,6 +28,10 @@ Send `$var` to receiver thread. If channel's buffer is reached to `$buffer-lengt
 
 Nil
 
+### Exception
+
+`receive` throws X::Channel::SendOnClosed exception if channel was closed.
+
 ## `method close()`
 
 Close the channel.

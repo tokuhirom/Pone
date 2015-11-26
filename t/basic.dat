@@ -995,3 +995,9 @@ my $ch = chan(0); say $ch.closed(); $ch.close; say $ch.closed;
 False
 True
 
+===
+--- input
+my $ch = chan(0); $ch.close; try { $ch.receive }; say $@ ~~ X::Channel::ReceiveOnClosed
+--- expected
+True
+

@@ -21,6 +21,11 @@ struct pone_chan {
 
 void pone_chan_send(pone_world* world, pone_val* self, pone_val* val) {
     struct pone_chan* chan = pone_opaque_ptr(self);
+    if (!chan) {
+        pone_val* exc_class = pone_get_lex(world, "X::Channel::SendOnClosed");
+        pone_val* exc = pone_obj_new(world, exc_class);
+        pone_throw(world, exc);
+    }
 
     CHECK_PTHREAD(pthread_mutex_lock(&(chan->mutex)));
     while (chan->limit < chan->num) {
@@ -45,6 +50,11 @@ void pone_chan_send(pone_world* world, pone_val* self, pone_val* val) {
  */
 bool pone_chan_trysend(pone_world* world, pone_val* self, pone_val* val) {
     struct pone_chan* chan = pone_opaque_ptr(self);
+    if (!chan) {
+        pone_val* exc_class = pone_get_lex(world, "X::Channel::SendOnClosed");
+        pone_val* exc = pone_obj_new(world, exc_class);
+        pone_throw(world, exc);
+    }
 
     bool sent = false;
     CHECK_PTHREAD(pthread_mutex_lock(&(chan->mutex)));
@@ -64,6 +74,12 @@ bool pone_chan_trysend(pone_world* world, pone_val* self, pone_val* val) {
 
 pone_val* pone_chan_receive(pone_world* world, pone_val* self) {
     struct pone_chan* chan = pone_opaque_ptr(self);
+    if (chan == NULL) {
+        pone_val* exc_class = pone_get_lex(world, "X::Channel::ReceiveOnClosed");
+        pone_val* exc = pone_obj_new(world, exc_class);
+        pone_throw(world, exc);
+    }
+
     THREAD_TRACE("waiting channel item");
 
     CHECK_PTHREAD(pthread_mutex_lock(&(chan->mutex)));
@@ -109,8 +125,8 @@ pone_val* pone_chan_new(pone_world* world, pone_int_t limit) {
     CHECK_PTHREAD(pthread_cond_init(&(chan->recv_cond), NULL));
     CHECK_PTHREAD(pthread_cond_init(&(chan->send_cond), NULL));
     CHECK_PTHREAD(pthread_mutex_init(&(chan->mutex), NULL));
-    pone_val* obj = pone_opaque_new(world, world->universe->class_channel, chan, chan_finalizer);
-    return obj;
+
+    return pone_opaque_new(world, world->universe->class_channel, chan, chan_finalizer);
 }
 
 PONE_FUNC(meth_chan_receive) {
@@ -141,6 +157,14 @@ PONE_FUNC(meth_chan_closed) {
 void pone_channel_init(pone_world* world) {
     pone_universe* universe = world->universe;
 
+    pone_val* recv_on_closed = pone_class_new(world, "X::Channel::ReceiveOnClosed", strlen("X::Channel::ReceiveOnClosed"));
+    pone_class_compose(world, recv_on_closed);
+    pone_universe_set_global(universe, "X::Channel::ReceiveOnClosed", recv_on_closed);
+
+    pone_val* send_on_closed = pone_class_new(world, "X::Channel::SendOnClosed", strlen("X::Channel::SendOnClosed"));
+    pone_class_compose(world, send_on_closed);
+    pone_universe_set_global(universe, "X::Channel::SendOnClosed", send_on_closed);
+
     pone_val* klass = pone_class_new(world, "Channel", strlen("Channel"));
     pone_add_method_c(world, klass, "receive", strlen("receive"), meth_chan_receive);
     pone_add_method_c(world, klass, "send", strlen("send"), meth_chan_send);
@@ -151,3 +175,4 @@ void pone_channel_init(pone_world* world) {
     universe->class_channel = klass;
     pone_universe_set_global(universe, "Channel", klass);
 }
+
