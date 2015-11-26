@@ -92,11 +92,13 @@ static void finalize_cond(pone_world* world, pone_val* val) {
 
 static void chan_finalizer(pone_world* world, pone_val* val) {
     struct pone_chan* chan = pone_opaque_ptr(val);
-    CHECK_PTHREAD(pthread_cond_destroy(&(chan->recv_cond)));
-    CHECK_PTHREAD(pthread_cond_destroy(&(chan->send_cond)));
-    CHECK_PTHREAD(pthread_mutex_destroy(&(chan->mutex)));
-    pone_world_free(chan->world);
-    pone_free(world->universe, chan);
+    if (chan) {
+        CHECK_PTHREAD(pthread_cond_destroy(&(chan->recv_cond)));
+        CHECK_PTHREAD(pthread_cond_destroy(&(chan->send_cond)));
+        CHECK_PTHREAD(pthread_mutex_destroy(&(chan->mutex)));
+        pone_world_free(chan->world);
+        pone_free(world->universe, chan);
+    }
 }
 
 pone_val* pone_chan_new(pone_world* world, pone_int_t limit) {
@@ -111,20 +113,6 @@ pone_val* pone_chan_new(pone_world* world, pone_int_t limit) {
     return obj;
 }
 
-/**
-
-=head1 NAME
-
-Channel - Thread-safe queue for sending values from producers to consumers
-
-=head1 DESCRIPTION
-
-A Channel is a thread-safe queue that helps you to send a series of objects from one or more producers to one or more consumers.
-
-=cut
-
- */
-
 PONE_FUNC(meth_chan_receive) {
     PONE_ARG("Channel#receive", "");
 
@@ -138,12 +126,26 @@ PONE_FUNC(meth_chan_send) {
     return pone_nil();
 }
 
+PONE_FUNC(meth_chan_close) {
+    PONE_ARG("Channel#close", "");
+    chan_finalizer(world, self);
+    pone_opaque_set_ptr(self, NULL);
+    return pone_nil();
+}
+
+PONE_FUNC(meth_chan_closed) {
+    PONE_ARG("Channel#closed", "");
+    return pone_opaque_ptr(self) ? pone_false() : pone_true();
+}
+
 void pone_channel_init(pone_world* world) {
     pone_universe* universe = world->universe;
 
     pone_val* klass = pone_class_new(world, "Channel", strlen("Channel"));
     pone_add_method_c(world, klass, "receive", strlen("receive"), meth_chan_receive);
     pone_add_method_c(world, klass, "send", strlen("send"), meth_chan_send);
+    pone_add_method_c(world, klass, "close", strlen("close"), meth_chan_close);
+    pone_add_method_c(world, klass, "closed", strlen("closed"), meth_chan_closed);
     pone_class_compose(world, klass);
 
     universe->class_channel = klass;

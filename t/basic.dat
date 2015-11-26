@@ -987,3 +987,11 @@ say "hoge" ~~ Str; say "hoge" ~~ Int
 --- expected
 True
 False
+
+===
+--- input
+my $ch = chan(0); say $ch.closed(); $ch.close; say $ch.closed;
+--- expected
+False
+True
+
