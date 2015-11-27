@@ -69,8 +69,6 @@ TODO
 
 ## Bindings
 
- * HTTP::Parser
- * h2o
  * hiredis
  * libmysqlclient
  * FFI
