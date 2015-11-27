@@ -4,13 +4,14 @@
 #include "pone_exc.h"
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
 
 struct pone_sock {
     int fd;
-    struct sockaddr addr;
+    struct sockaddr peeraddr;
 };
 
 static void sock_close(struct pone_sock* sock) {
@@ -67,9 +68,9 @@ PONE_FUNC(meth_sock_accept) {
     struct pone_sock* csock = pone_malloc(world->universe, sizeof(struct pone_sock));
     socklen_t addrlen = sizeof(struct sockaddr);
 #ifdef HAVE_ACCEPT4
-    csock->fd = accept4(sock->fd, &(csock->addr), &addrlen, SOCK_CLOEXEC);
+    csock->fd = accept4(sock->fd, &(csock->peeraddr), &addrlen, SOCK_CLOEXEC);
 #else
-    csock->fd = accept(sock->fd, &(csock->addr), &addrlen);
+    csock->fd = accept(sock->fd, &(csock->peeraddr), &addrlen);
 #endif
 
     if (csock->fd != -1) {
@@ -88,7 +89,96 @@ PONE_FUNC(meth_sock_accept) {
         pone_free(world->universe, csock);
         return pone_nil();
     }
+}
 
+static inline pone_val* get_addr(pone_world* world, struct sockaddr* addr) {
+    char buf[INET6_ADDRSTRLEN];
+    switch (addr->sa_family) {
+        case AF_INET:
+            if (inet_ntop(AF_INET, &(((struct sockaddr_in*)addr)->sin_addr),
+                    buf,
+                    sizeof(buf)) == NULL) {
+                    pone_world_set_errno(world);
+                    return pone_nil();
+            }
+            break;
+        case AF_INET6:
+            if (inet_ntop(AF_INET6, &(((struct sockaddr_in6*)addr)->sin6_addr),
+                    buf,
+                    sizeof(buf)) == NULL) {
+                    pone_world_set_errno(world);
+                    return pone_nil();
+            }
+            break;
+    }
+    return pone_str_new_strdup(world, buf, strlen(buf));
+}
+
+static inline pone_val* get_port(pone_world* world, struct sockaddr* addr) {
+    pone_int_t port;
+    switch (addr->sa_family) {
+        case AF_INET:
+            port = ntohs(((struct sockaddr_in*)addr)->sin_port);
+            break;
+        case AF_INET6:
+            port = ntohs(((struct sockaddr_in6*)addr)->sin6_port);
+            break;
+        default:
+            pone_throw_str(world, "Unsupported socket family: %d",
+                    addr->sa_family);
+            abort();
+    }
+    return pone_int_new(world, port);
+}
+
+PONE_FUNC(meth_sock_sockaddr) {
+    struct pone_sock* sock = pone_opaque_ptr(self);
+
+    struct sockaddr addr;
+    socklen_t len = sizeof(addr);
+    if (getsockname(sock->fd, &addr, &len) == -1) {
+        pone_world_set_errno(world);
+        return pone_nil();
+    }
+
+    return get_addr(world, &addr);
+}
+
+PONE_FUNC(meth_sock_sockport) {
+    struct pone_sock* sock = pone_opaque_ptr(self);
+    struct sockaddr_storage addr;
+    socklen_t len = sizeof(addr);
+    if (getsockname(sock->fd, (struct sockaddr*)&addr, &len) == -1) {
+        pone_world_set_errno(world);
+        return pone_nil();
+    }
+
+    return get_port(world,(struct sockaddr*) &addr);
+}
+
+PONE_FUNC(meth_sock_peeraddr) {
+    struct pone_sock* sock = pone_opaque_ptr(self);
+
+    struct sockaddr addr;
+    socklen_t len = sizeof(addr);
+    if (getpeername(sock->fd, &addr, &len) == -1) {
+        pone_world_set_errno(world);
+        return pone_nil();
+    }
+
+    return get_addr(world, &addr);
+}
+
+PONE_FUNC(meth_sock_peerport) {
+    struct pone_sock* sock = pone_opaque_ptr(self);
+    struct sockaddr addr;
+    socklen_t len = sizeof(addr);
+    if (getpeername(sock->fd, &addr, &len) == -1) {
+        pone_world_set_errno(world);
+        return pone_nil();
+    }
+
+    return get_port(world, &addr);
 }
 
 PONE_FUNC(meth_sock_connect) {
@@ -137,16 +227,15 @@ PONE_FUNC(meth_sock_connect) {
         close(fd);
     }
 
-    freeaddrinfo(result);           /* No longer needed */
-
     if (rp == NULL) {               /* No address succeeded */
+        freeaddrinfo(result);           /* No longer needed */
         return pone_nil();
+    } else {
+        struct pone_sock* sock = pone_malloc(world->universe, sizeof(struct pone_sock));
+        sock->fd = fd;
+        freeaddrinfo(result);           /* No longer needed */
+        return pone_opaque_new(world, pone_get_lex(world, "klass"), sock, finalizer);
     }
-
-    struct pone_sock* sock = pone_malloc(world->universe, sizeof(struct pone_sock));
-    sock->fd = fd;
-
-    return pone_opaque_new(world, pone_get_lex(world, "klass"), sock, finalizer);
 }
 
 PONE_FUNC(meth_sock_listen) {
@@ -195,30 +284,32 @@ PONE_FUNC(meth_sock_listen) {
         close(fd);
     }
 
-    freeaddrinfo(result);           /* No longer needed */
-
     if (rp == NULL) {               /* No address succeeded */
+        freeaddrinfo(result);           /* No longer needed */
         return pone_nil();
     }
 
     if (listen(fd, backlog) == -1) {
+        freeaddrinfo(result);           /* No longer needed */
         pone_world_set_errno(world);
         return pone_nil();
-    }
-
-    // set SO_REUSEADDR by default.
-    {
-        int yes = 1;
-        if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
-            pone_world_set_errno(world);
-            return pone_nil();
+    } else {
+        // set SO_REUSEADDR by default.
+        {
+            int yes = 1;
+            if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
+                freeaddrinfo(result);           /* No longer needed */
+                pone_world_set_errno(world);
+                return pone_nil();
+            }
         }
+
+        struct pone_sock* sock = pone_malloc(world->universe, sizeof(struct pone_sock));
+        sock->fd = fd;
+
+        freeaddrinfo(result);           /* No longer needed */
+        return pone_opaque_new(world, pone_get_lex(world, "klass"), sock, finalizer);
     }
-
-    struct pone_sock* sock = pone_malloc(world->universe, sizeof(struct pone_sock));
-    sock->fd = fd;
-
-    return pone_opaque_new(world, pone_get_lex(world, "klass"), sock, finalizer);
 }
 
 void PONE_DLL_io_socket_inet(pone_world* world, pone_val* module) {
@@ -230,6 +321,10 @@ void PONE_DLL_io_socket_inet(pone_world* world, pone_val* module) {
     pone_add_method_c(world, klass, "close", strlen("close"), meth_sock_close);
     pone_add_method_c(world, klass, "write", strlen("write"), meth_sock_write);
     pone_add_method_c(world, klass, "read", strlen("read"), meth_sock_read);
+    pone_add_method_c(world, klass, "sockaddr", strlen("sockaddr"), meth_sock_sockaddr);
+    pone_add_method_c(world, klass, "sockport", strlen("sockport"), meth_sock_sockport);
+    pone_add_method_c(world, klass, "peeraddr", strlen("peeraddr"), meth_sock_peeraddr);
+    pone_add_method_c(world, klass, "peerport", strlen("peerport"), meth_sock_peerport);
 
     pone_module_put(world, module, "Socket", klass);
 

@@ -6,6 +6,7 @@ void* pone_malloc(pone_universe* universe, size_t size) {
         fprintf(stderr, "Cannot allocate memory\n");
         exit(1);
     }
+    // TODO remove this memset for performance
     memset(p, 0, size);
     return p;
 }

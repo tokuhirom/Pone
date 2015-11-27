@@ -86,8 +86,7 @@ pone_val* pone_what(pone_world* world, pone_val* obj) {
     case PONE_CODE:
         return universe->class_code;
     case PONE_OPAQUE:
-        assert(obj->as.opaque.body->klass);
-        return obj->as.opaque.body->klass;
+        return pone_opaque_class(obj);
     case PONE_OBJ:
         return obj->as.obj.klass;
     case PONE_LEX:
@@ -149,12 +148,11 @@ const char* pone_what_str_c(pone_world* world, pone_val* val) {
     case PONE_CODE:
         return "Code";
     case PONE_OPAQUE:
-        return "Opaque";
     case PONE_OBJ: {
         assert(pone_alive(val));
         pone_val* klass = pone_what(world, val);
         assert(pone_alive(klass));
-        pone_val* name = pone_obj_get_ivar(world, val, "$!name");
+        pone_val* name = pone_obj_get_ivar(world, klass, "$!name");
         return pone_str_ptr(pone_str_c_str(world, pone_stringify(world, name)));
     }
     case PONE_LEX:

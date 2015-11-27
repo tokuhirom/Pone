@@ -1,5 +1,4 @@
-use socket socket;
-# TODO use socket
+use socket;
 
 my $chan = chan(9);
 
@@ -7,6 +6,11 @@ async(sub {
     # TODO loop
     while True {
         my $csock = $chan.receive();
+        say "RECEIVED";
+        say $csock.sockaddr;
+        say $csock.sockport;
+        say $csock.peeraddr;
+        say $csock.peerport;
         for 1..10 {
             my $buf = $csock.read(1000);
             $csock.write($buf);
@@ -17,7 +21,11 @@ async(sub {
     }
 });
 
-my $sock = socket.listen("127.0.0.1", 10084);
+my $sock = socket.listen("127.0.0.1", 0) or die "$!";
+say $sock.sockaddr;
+say $sock.sockport;
+say $sock.peeraddr;
+say $sock.peerport;
 
 # TODO listen or die
 while True {
