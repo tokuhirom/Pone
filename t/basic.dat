@@ -1007,3 +1007,10 @@ try { die "test" }; say $@
 --- expected
 test
 
+===
+--- input
+say Int.can('X') ~~ Nil; say Int.can('Int') ~~ Code;
+--- expected
+True
+True
+

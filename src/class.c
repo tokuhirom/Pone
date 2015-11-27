@@ -44,6 +44,14 @@ PONE_FUNC(meth_accepts) {
     return pone_what(world, val) == self ? pone_true() : pone_false();
 }
 
+PONE_FUNC(meth_can) {
+    const char* name;
+    PONE_ARG("Class#can", "s", &name);
+
+    pone_val* methods = pone_obj_get_ivar(world, self, "$!methods");
+    return pone_hash_at_key_c(world->universe, methods, name);
+}
+
 // initialize Class class
 pone_val* pone_init_class(pone_world* world) {
     pone_val* val = pone_obj_alloc(world, PONE_OBJ);
@@ -55,6 +63,7 @@ pone_val* pone_init_class(pone_world* world) {
     pone_add_method_c(world, val, "name", strlen("name"), meth_name);
     pone_add_method_c(world, val, "Str", strlen("Str"), meth_Str);
     pone_add_method_c(world, val, "say", strlen("say"), mu_say);
+    pone_add_method_c(world, val, "can", strlen("can"), meth_can);
     pone_add_method_c(world, val, "ACCEPTS", strlen("ACCEPTS"), meth_accepts);
 
     return val;
