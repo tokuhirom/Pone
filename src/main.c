@@ -118,5 +118,6 @@ int main(int argc, char** argv) {
             }
         }
     }
+    pone_world_free(world);
     pone_universe_destroy(universe);
 }
