@@ -587,6 +587,7 @@ twvars =
     | '@*ARGS' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_CLARGS); }
     | '$*INC' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_INC); }
     | '$*VM' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_VM); }
+    | '$*OS' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_OS); }
     | '$?PACKAGE' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_PACKAGE); }
     | '$?CLASS' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_CLASS); }
     | '$?MODULE' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_MODULE); }

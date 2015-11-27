@@ -134,6 +134,7 @@ typedef enum {
     PVIP_NODE_TW_PERLVER, /* $*PPERLVER */
     PVIP_NODE_TW_EXECUTABLE_NAME, /* $*EXECUTABLE_NAME */
     PVIP_NODE_TW_ROUTINE, /* &?ROUTINE */
+    PVIP_NODE_TW_OS, /* $*OS */
     PVIP_NODE_VALUE_IDENTITY, /* '===' operator in S03-operators/value_equivalence.t */
     PVIP_NODE_CMP, /* 'cmp' operator */
     PVIP_NODE_SPECIAL_VARIABLE_REGEXP_MATCH, /* $/ - regex match */

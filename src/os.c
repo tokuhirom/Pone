@@ -26,9 +26,12 @@ PONE_FUNC(meth_is_win) {
 }
 
 void pone_os_init(pone_world* world) {
-    pone_val* module = pone_module_new(world, "os");
-    pone_module_put(world, module, "is_win", pone_code_new(world, meth_is_win));
-    pone_universe_set_global(world->universe, "os", module);
+    pone_val* os_class = pone_class_new(world, "$*OS", strlen("$*OS"));
+    pone_add_method_c(world, os_class, "is_win", strlen("is_win"), meth_is_win);
+
+    pone_val* os = pone_obj_new(world, os_class);
+
+    pone_universe_set_global(world->universe, "$*OS", os);
 
     // builtin getcwd() function
     pone_universe_set_global(world->universe, "getcwd", pone_code_new(world, meth_getwd));

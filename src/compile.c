@@ -155,8 +155,9 @@ static inline pone_node* inject_return(pone_compile_ctx* ctx, pone_node* node) {
     case PVIP_NODE_UNARY_UPTO: /* ^ */
     case PVIP_NODE_STDOUT: /* $*OUT */
     case PVIP_NODE_STDERR: /* $*ERR */
+    case PVIP_NODE_TW_OS: /* $*OS */
+    case PVIP_NODE_TW_INC: /* $*INC */
     // DEPRECATE
-    case PVIP_NODE_TW_INC: /* @*INC */
     case PVIP_NODE_META_METHOD_CALL: /* $foo.^methods */
     case PVIP_NODE_REGEXP:
     case PVIP_NODE_SMART_MATCH: /* ~~ */
@@ -740,6 +741,9 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         break;
     case PVIP_NODE_TW_INC:
         PRINTF("(world->universe->inc)");
+        break;
+    case PVIP_NODE_TW_OS:
+        PRINTF("pone_get_lex(world, \"$*OS\")");
         break;
     case PVIP_NODE_FUNCALL: {
         assert(
