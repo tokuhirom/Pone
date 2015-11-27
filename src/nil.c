@@ -12,7 +12,7 @@ pone_val* pone_nil() {
 
 PONE_FUNC(meth_nil_gist) {
     PONE_ARG("Nil#gist", "");
-    return pone_str_new_const(world, "Nil", 3);
+    return pone_str_new_const(world, "nil", 3);
 }
 
 PONE_FUNC(meth_nil_str) {
