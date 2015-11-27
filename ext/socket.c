@@ -241,9 +241,11 @@ PONE_FUNC(meth_sock_connect) {
 
 PONE_FUNC(meth_sock_listen) {
     const char* addr;
+    pone_int_t addr_len;
     const char* port;
+    pone_int_t port_len;
     pone_int_t backlog = SOMAXCONN;
-    PONE_ARG("Socket#listen", "ss:i", &addr, &port, &backlog);
+    PONE_ARG("Socket#listen", "ss:i", &addr, &addr_len, &port, &port_len, &backlog);
 
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -313,7 +315,7 @@ PONE_FUNC(meth_sock_listen) {
     }
 }
 
-void PONE_DLL_io_socket_inet(pone_world* world, pone_val* module) {
+void PONE_DLL_socket(pone_world* world, pone_val* module) {
     // TODO setsockopt
     // TODO getsockopt
 

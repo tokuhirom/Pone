@@ -355,7 +355,7 @@ item_assignment_expr =
             | '^=' - b:item_assignment_expr { $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_INPLACE_BIN_XOR,  a, b); a=$$; }
             | '<<=' - b:item_assignment_expr { $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_INPLACE_BLSHIFT,  a, b); a=$$; }
             | '>>=' - b:item_assignment_expr { $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_INPLACE_BRSHIFT,  a, b); a=$$; }
-            | '.='  - b:item_assignment_expr { $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_INPLACE_CONCAT_S, a, b); a=$$; }
+            | '~='  - b:item_assignment_expr { $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_INPLACE_CONCAT_S, a, b); a=$$; }
         )
     )* { $$=a; }
 

@@ -1057,7 +1057,9 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         if (node->children.nodes[0]->type == PVIP_NODE_NOP) {
             const char* p = PVIP_string_c_str(node->children.nodes[1]->pv);
             const char* s = strrchr(p, '/');
-            if (!s) {
+            if (s) {
+                s++;
+            } else {
                 s = p;
             }
             PRINTF("%s", s);

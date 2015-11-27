@@ -42,7 +42,7 @@ void pone_module_init(pone_world* world) {
 //
 // my $funcname = $pkg;
 // $funcname =~ s!/!_!g;
-// $funcname = "PONE_DL_$funcname";
+// $funcname = "PONE_DLL_$funcname";
 static bool load_module(pone_world* world, const char* from, const char* name, const char* as) {
     pone_val* fullpath_v = pone_str_new_printf(world, "%s/%s.so", from, name);
     const char* fullpath = pone_str_ptr(pone_str_c_str(world, fullpath_v));
@@ -51,16 +51,33 @@ static bool load_module(pone_world* world, const char* from, const char* name, c
         return false;
     }
 
+    pone_int_t name_len = strlen(name);
+    // s!/!_!g;
+    pone_val* funcname_tail = pone_str_new_strdup(world, name, name_len);
+    char* p = pone_str_ptr(funcname_tail);
+    char* p_end = p+pone_str_len(funcname_tail);
+    while (p!=p_end) {
+        if (*p == '/') {
+            *p = '_';
+        }
+        p++;
+    }
+
+    pone_val* funcname = pone_str_new_strdup(world, "PONE_DLL_", strlen("PONE_DLL_"));
+    pone_str_append(world, funcname, funcname_tail);
+
     void* handle = dlopen(fullpath, RTLD_LAZY);
     if (!handle) {
         pone_throw_str(world, "Could not load module %s: %s", fullpath, dlerror());
     }
-    pone_loadfunc_t pone_load = dlsym(handle, "PONE_DLL_io_socket_inet");
+    pone_loadfunc_t pone_load = dlsym(handle, pone_str_ptr(
+                pone_str_c_str(world, funcname)));
 
     char* error;
     if ((error = dlerror()) != NULL) {
-        dlclose(handle);
-        pone_throw_str(world, "Could not load module %s: %s", fullpath, dlerror());
+        printf("%s\n", error);
+        // TODO: dlclose
+        pone_throw_str(world, "Could not load module %s(dlsym): %s", fullpath, error);
     }
 
     pone_val* module = pone_module_new(world, name);

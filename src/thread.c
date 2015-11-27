@@ -51,6 +51,7 @@ static void* thread_start(void* p) {
             pone_push_scope(world);
 
             pone_val* code = world->code;
+            assert(pone_type(code) == PONE_CODE);
             // deep copy lex vars.
             copy_lex_values(world, code);
             assert(pone_type(code) == PONE_CODE);
@@ -85,7 +86,7 @@ void pone_thread_start(pone_universe* universe, pone_val* code) {
                 if (pthread_mutex_trylock(&(world->mutex)) == 0) {
                     // got mutex lock
                     WORLD_TRACE("Reuse %p", world);
-                    world->code = code;
+                    world->code = pone_val_copy(world, code);
                     CHECK_PTHREAD(pthread_cond_signal(&(world->cond)));
                     CHECK_PTHREAD(pthread_mutex_unlock(&(world->mutex)));
                     return;
@@ -99,7 +100,7 @@ void pone_thread_start(pone_universe* universe, pone_val* code) {
 
     CHECK_PTHREAD(pthread_mutex_lock(&(universe->worker_worlds_mutex)));
     pone_world* new_world = pone_world_new(universe);
-    new_world->code = code;
+    new_world->code = pone_val_copy(new_world, code);
     if (universe->worker_worlds) {
         new_world->next = universe->worker_worlds;
         universe->worker_worlds = new_world;

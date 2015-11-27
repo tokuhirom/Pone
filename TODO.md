@@ -86,6 +86,7 @@ TODO
 ### Syntax
 
  * given-when
+ * `if True { } else { }`
 
 ## Core
 

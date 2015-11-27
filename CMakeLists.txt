@@ -126,26 +126,20 @@ set_target_properties(libpone
 
 add_library(ext_socket SHARED ext/socket.c)
 target_link_libraries(ext_socket libpone)
-set_target_properties(ext_socket
-    PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "blib/"
-    )
-set_target_properties(ext_socket
-    PROPERTIES
-    PREFIX ""
-    )
-set_target_properties(ext_socket
-    PROPERTIES
-    OUTPUT_NAME "socket"
-    )
-set_target_properties(ext_socket
-    PROPERTIES
-    COMPILE_FLAGS "${PONE_COMPILE_FLAGS}"
-    )
-set_target_properties(ext_socket
-    PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    )
+set_target_properties(ext_socket PROPERTIES LIBRARY_OUTPUT_DIRECTORY "blib/")
+set_target_properties(ext_socket PROPERTIES PREFIX "")
+set_target_properties(ext_socket PROPERTIES OUTPUT_NAME "socket")
+set_target_properties(ext_socket PROPERTIES COMPILE_FLAGS "${PONE_COMPILE_FLAGS}")
+set_target_properties(ext_socket PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+add_library(ext_http_parser SHARED ext/http_parser.c 3rd/picohttpparser/picohttpparser.c)
+file(MAKE_DIRECTORY blib/http/)
+target_link_libraries(ext_http_parser libpone)
+set_target_properties(ext_http_parser PROPERTIES LIBRARY_OUTPUT_DIRECTORY "blib/")
+set_target_properties(ext_http_parser PROPERTIES PREFIX "")
+set_target_properties(ext_http_parser PROPERTIES OUTPUT_NAME "http/parser")
+set_target_properties(ext_http_parser PROPERTIES COMPILE_FLAGS "${PONE_COMPILE_FLAGS}")
+set_target_properties(ext_http_parser PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 ADD_LIBRARY(linenoise STATIC 3rd/linenoise/linenoise.c)
 set_source_files_properties(3rd/linenoise/linenoise.c PROPERTIES COMPILE_FLAGS "-g -Wno-implicit-function-declaration")

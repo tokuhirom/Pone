@@ -106,6 +106,7 @@ pone_val* pone_val_copy(pone_world* world, pone_val* obj) {
     case PONE_CODE:
         // TODO support code object copy...........
         // But, we can't copy lex object
+        abort();
         pone_throw_str(world, "You can't copy code object.");
         abort();
     case PONE_OPAQUE:
