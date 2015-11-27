@@ -1,6 +1,8 @@
 #include "pone.h"
 #include "pone_module.h"
 
+#include <unistd.h>
+
 PONE_FUNC(meth_getwd) {
     PONE_ARG("getcwd", "");
     char buf[PATH_MAX];
