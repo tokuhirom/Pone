@@ -20,7 +20,8 @@ TODO
  * __FILE__
  * __LINE__
  * LEAVE block
- *         "abs", "atan2", "cos", "exp", "hex", "int", "log", "oct", "rand",
+ * math module
+   *         "atan2", "cos", "exp", "hex", "log", "oct", "rand",
          "sin", "sqrt", "srand"
 
 ## Builtin classes

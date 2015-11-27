@@ -60,27 +60,6 @@ PONE_FUNC(meth_pthread_self) {
     return pone_int_new(world, (pone_int_t)pthread_self());
 }
 
-PONE_FUNC(meth_abs) {
-    pone_val* val;
-    PONE_ARG("abs", "o", &val);
-    switch (pone_type(val)) {
-    case PONE_INT: {
-        pone_int_t i = pone_int_val(val);
-        if (i < 0) {
-            return pone_int_new(world, -i);
-        } else {
-            return val;
-        }
-    }
-    case PONE_NUM: {
-        // TODO: NV
-    }
-    default:
-        pone_throw_str(world, "you can't call abs() for non-numeric value");
-        abort();
-    }
-}
-
 PONE_FUNC(meth_print) {
     pone_val* val;
     PONE_ARG("print", "o", &val);
@@ -241,7 +220,6 @@ void pone_builtin_init(pone_world* world) {
     pone_universe_set_global(universe, "dd", pone_code_new_c(world, meth_dd));
     pone_universe_set_global(universe, "what", pone_code_new_c(world, meth_what));
     pone_universe_set_global(universe, "pthread_self", pone_code_new_c(world, meth_pthread_self));
-    pone_universe_set_global(universe, "abs", pone_code_new_c(world, meth_abs));
     pone_universe_set_global(universe, "print", pone_code_new_c(world, meth_print));
     pone_universe_set_global(universe, "say", pone_code_new_c(world, meth_say));
     pone_universe_set_global(universe, "elems", pone_code_new_c(world, meth_elems));
