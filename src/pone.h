@@ -248,6 +248,9 @@ typedef struct pone_universe {
 
     pone_world* signal_world;
 
+    // True after pone_universe() was called.
+    bool end_time;
+
     // class of class
     struct pone_val* class_class;
     // class of Int

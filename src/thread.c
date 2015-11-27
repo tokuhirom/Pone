@@ -7,6 +7,7 @@ static void* thread_start(void* p) {
     THREAD_TRACE("NEW %lx", pthread_self());
 
     pone_world* world = (pone_world*)p;
+    world->thread_id = pthread_self();
     assert(world->universe);
 
     // mask all signals
@@ -14,14 +15,19 @@ static void* thread_start(void* p) {
     sigfillset(&set);
     CHECK_PTHREAD(pthread_sigmask(SIG_BLOCK, &set, NULL));
 
+    CHECK_PTHREAD(pthread_mutex_lock(&(world->mutex)));
     world->err_handler_lexs[0] = world->lex;
     if (setjmp(world->err_handlers[0])) {
         pone_universe_default_err_handler(world);
     } else {
-        CHECK_PTHREAD(pthread_mutex_lock(&(world->mutex)));
-        while (true) {
-            while (!world->code) {
+        while (!world->universe->end_time) {
+            while (!world->code && !world->universe->end_time) {
                 CHECK_PTHREAD(pthread_cond_wait(&(world->cond), &(world->mutex)));
+            }
+
+            if (world->universe->end_time) {
+                // armageddon is comming.
+                break;
             }
 
             pone_push_scope(world);
@@ -43,6 +49,7 @@ static void* thread_start(void* p) {
             CHECK_PTHREAD(pthread_mutex_unlock(&(universe->worker_worlds_mutex)));
         }
     }
+    CHECK_PTHREAD(pthread_mutex_unlock(&(world->mutex)));
 
     return NULL;
 }

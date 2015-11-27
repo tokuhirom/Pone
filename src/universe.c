@@ -97,6 +97,18 @@ void pone_universe_destroy(pone_universe* universe) {
     CHECK_PTHREAD(pthread_mutex_destroy(&(universe->signal_channels_mutex)));
     CHECK_PTHREAD(pthread_mutex_destroy(&(universe->worker_worlds_mutex)));
 
+    universe->end_time = true;
+
+    pone_world* world = universe->worker_worlds;
+    while (world) {
+        CHECK_PTHREAD(pthread_cond_signal(&(world->cond)));
+        void* retval;
+        CHECK_PTHREAD(pthread_join(world->thread_id, &retval));
+        pone_world* next = world->next;
+        pone_world_free(world);
+        world = next;
+    }
+
     CHECK_PTHREAD(pthread_mutex_unlock(&(universe->signal_world->mutex)));
     pone_world_free(universe->signal_world);
     CHECK_PTHREAD(pthread_mutex_unlock(&(universe->global_world->mutex)));
