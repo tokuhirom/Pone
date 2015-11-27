@@ -59,10 +59,14 @@ void pone_hash_free(pone_world* world, pone_val* val) {
 void pone_hash_assign_key_c(pone_world* world, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v) {
     assert(pone_type(hv) == PONE_HASH);
     int ret;
-    const char* ks = pone_strdup(world, key, key_len);
+    char* ks = pone_strdup(world, key, key_len);
     khint_t k = kh_put(str, ((pone_hash*)hv)->h, ks, &ret);
     if (ret == -1) {
-        abort(); // TODO better error msg
+        fprintf(stderr, "[BUG] khash.h returns error: %s\n", key);
+        abort();
+    } else if (ret == 0) {
+        // the key is present in the hash table.
+        pone_free(world->universe, ks);
     }
     kh_val(((pone_hash*)hv)->h, k) = v;
     ((pone_hash*)hv)->len++;
@@ -93,7 +97,7 @@ pone_val* pone_hash_at_key_c(pone_universe* universe, pone_val* hash, const char
 }
 
 void pone_hash_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val* v) {
-    k = pone_stringify(world, k);
+    k = pone_str_c_str(world, pone_stringify(world, k));
     pone_hash_assign_key_c(world, hv, pone_str_ptr(k), pone_str_len(k), v);
 }
 
