@@ -114,9 +114,10 @@ PONE_FUNC(meth_file_flock) {
 
 PONE_FUNC(builtin_open) {
     char* fname;
+    pone_int_t fname_len;
     char* mode = "rb";
     pone_int_t mode_len;
-    PONE_ARG("File#open", "s:s", &fname, &mode, &mode_len);
+    PONE_ARG("File#open", "s:s", &fname, &fname_len, &mode, &mode_len);
 
     FILE* fh = fopen(fname, mode);
     if (fh) {
