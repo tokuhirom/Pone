@@ -62,10 +62,6 @@ like $res, qr/$wd/;
 --- re: alpha
 
 ===
---- code: say os.is_win;
---- re: True|False
-
-===
 --- code: say 3.hoge
 --- re: Method 'hoge' not found for invocant of class 'Int'
 
