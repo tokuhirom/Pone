@@ -5,7 +5,7 @@ INCLUDE(CheckSymbolExists)
 
 enable_testing()
 
-include_directories(3rd/uthash/include/ 3rd/linenoise/ 3rd/onigmo/ 3rd/pvip/src/ src/ include)
+include_directories(3rd/uthash/include/ 3rd/linenoise/ 3rd/onigmo/ src/ include)
 
 list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 check_symbol_exists(accept4 sys/socket.h HAVE_ACCEPT4)
