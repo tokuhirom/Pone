@@ -19,7 +19,6 @@ static inline void pone_world_dump(pone_universe* universe) {
 }
 #endif
 
-// This routine needs GVL
 pone_world* pone_world_new(pone_universe* universe) {
     assert(universe);
 
