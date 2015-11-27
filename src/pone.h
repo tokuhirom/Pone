@@ -244,6 +244,8 @@ typedef struct pone_universe {
     // signal thread.
     pthread_t signal_thread;
 
+    pone_world* global_world;
+
     pone_world* signal_world;
 
     // class of class

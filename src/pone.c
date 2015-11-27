@@ -23,6 +23,7 @@ void pone_init(pone_universe* universe) {
 
     // create new world to initialize built-in classes.
     pone_world* world = pone_world_new(universe);
+    universe->global_world = world;
 
     // Do not reuse this world.
     CHECK_PTHREAD(pthread_mutex_lock(&(world->mutex)));
