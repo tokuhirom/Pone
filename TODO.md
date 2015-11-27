@@ -1,6 +1,11 @@
 TODO
 ====
 
+## Builtin variables
+
+ * `$*OS`
+ * `$*ARGV`
+
 ## Builtin functions
 
  * rand
