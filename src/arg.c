@@ -60,7 +60,10 @@ void pone_arg(pone_world* world, const char* name, int nargs, va_list args, cons
                 }
             }
             const char** p = va_arg(vars, const char**);
-            *p = pone_str_ptr(pone_str_c_str(world, pone_stringify(world, va_arg(args, pone_val*))));
+            pone_int_t* lenp = va_arg(vars, pone_int_t*);
+            pone_val* c_str = pone_str_c_str(world, pone_stringify(world, va_arg(args, pone_val*)));
+            *p = pone_str_ptr(c_str);
+            *lenp = pone_str_len(c_str);
             used++;
             break;
         }

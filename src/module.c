@@ -25,7 +25,8 @@ PONE_FUNC(meth_module_str) {
 
 PONE_FUNC(meth_module_can) {
     char* name;
-    PONE_ARG("Module#can", "s", &name);
+    pone_int_t name_len;
+    PONE_ARG("Module#can", "s", &name, &name_len);
     return pone_obj_get_ivar(world, self, name);
 }
 

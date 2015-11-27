@@ -183,8 +183,10 @@ PONE_FUNC(meth_sock_peerport) {
 
 PONE_FUNC(meth_sock_connect) {
     const char* addr;
+    pone_int_t addr_len;
     const char* port;
-    PONE_ARG("Socket#connect", "ss", &addr, &port);
+    pone_int_t port_len;
+    PONE_ARG("Socket#connect", "ss", &addr, &addr_len, &port, &port_len);
 
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -195,7 +197,6 @@ PONE_FUNC(meth_sock_connect) {
     hints.ai_protocol = IPPROTO_TCP;          /* Any protocol */
 
     struct addrinfo *result, *rp;
-    printf("%s:%s\n", addr, port);
 
     int s = getaddrinfo(addr, port, &hints, &result);
     if (s != 0) {

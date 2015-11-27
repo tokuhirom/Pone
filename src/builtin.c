@@ -111,7 +111,8 @@ PONE_FUNC(meth_time) {
 
 PONE_FUNC(meth_getenv) {
     const char* key;
-    PONE_ARG("getenv", "s", &key);
+    pone_int_t key_len;
+    PONE_ARG("getenv", "s", &key, &key_len);
     const char* len = getenv(key);
     if (len) {
         return pone_str_new_strdup(world, len, strlen(len));

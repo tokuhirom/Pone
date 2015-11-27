@@ -46,7 +46,8 @@ PONE_FUNC(meth_accepts) {
 
 PONE_FUNC(meth_can) {
     const char* name;
-    PONE_ARG("Class#can", "s", &name);
+    pone_int_t name_len;
+    PONE_ARG("Class#can", "s", &name, &name_len);
 
     pone_val* methods = pone_obj_get_ivar(world, self, "$!methods");
     return pone_hash_at_key_c(world->universe, methods, name);

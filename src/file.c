@@ -115,7 +115,8 @@ PONE_FUNC(meth_file_flock) {
 PONE_FUNC(builtin_open) {
     char* fname;
     char* mode = "rb";
-    PONE_ARG("File#open", "s:s", &fname, &mode);
+    pone_int_t mode_len;
+    PONE_ARG("File#open", "s:s", &fname, &mode, &mode_len);
 
     FILE* fh = fopen(fname, mode);
     if (fh) {
@@ -130,7 +131,8 @@ PONE_FUNC(builtin_open) {
 PONE_FUNC(builtin_fdopen) {
     pone_int_t fd;
     char* mode;
-    PONE_ARG("File#fdopen", "is", &fd, &mode);
+    pone_int_t mode_len;
+    PONE_ARG("File#fdopen", "is", &fd, &mode, &mode_len);
 
     FILE* fh = fdopen(fd, mode);
     if (fh) {
