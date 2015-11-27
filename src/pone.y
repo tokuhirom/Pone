@@ -561,6 +561,7 @@ term =
     | lambda
     | it_method
     | enum
+    | 'nil' ![-a-zA-Z0-9] { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_NIL); }
     | 'try' ws - b:block { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_TRY, b); }
     | 'try' ws+ b:expr { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_TRY, b); }
     | regexp
@@ -599,7 +600,7 @@ twvars =
     | '$^b' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_B); }
     | '$^c' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_C); }
 
-reserved = ( 'True' | 'False' | 'my' | 'our' | 'while' | 'unless' | 'if' | 'elsif' | 'else' | 'role' | 'class' | 'try' | 'has' | 'sub' | 'cmp' | 'enum' | 'END' | 'BEGIN' | 'not' | 'and' | 'or' | 'use' ) ![-A-Za-z0-9]
+reserved = ( 'True' | 'False' | 'my' | 'our' | 'while' | 'unless' | 'if' | 'elsif' | 'else' | 'role' | 'class' | 'try' | 'has' | 'sub' | 'cmp' | 'enum' | 'END' | 'BEGIN' | 'not' | 'and' | 'or' | 'use' | 'nil' ) ![-A-Za-z0-9]
 
 role =
     'role' ws+ i:ident - b:block { $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_ROLE, i, b); }

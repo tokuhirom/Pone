@@ -219,6 +219,7 @@ static inline pone_node* inject_return(pone_compile_ctx* ctx, pone_node* node) {
     case PVIP_NODE_BITWISE_AND: /* & */
     case PVIP_NODE_BITWISE_XOR: /* ^ */
     case PVIP_NODE_WHATEVER: /* * */
+    case PVIP_NODE_NIL: /* nil */
     case PVIP_NODE_ROLE: {
         // printf("NOT A CHILDREN %s\n", PVIP_node_name(node->type));
         pone_node* ret = pvip_node_alloc(ctx->pvip);
@@ -1067,6 +1068,9 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         break;
     }
     case PVIP_NODE_NOP:
+        PRINTF("pone_nil()");
+        break;
+    case PVIP_NODE_NIL:
         PRINTF("pone_nil()");
         break;
     default:

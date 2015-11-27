@@ -1014,3 +1014,9 @@ say Int.can('X') ~~ Nil; say Int.can('Int') ~~ Code;
 True
 True
 
+===
+--- input
+say nil ~~ Nil
+--- expected
+True
+
