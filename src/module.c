@@ -17,14 +17,23 @@ void pone_module_put(pone_world* world, pone_val* self, const char* name, pone_v
 }
 
 PONE_FUNC(meth_module_str) {
+    PONE_ARG("Module#Str", "");
     pone_val* v = pone_str_new_strdup(world, "Module:", strlen("Module:"));
     pone_str_append(world, v, pone_obj_get_ivar(world, self, "$!name"));
     return v;
 }
 
+PONE_FUNC(meth_module_can) {
+    char* name;
+    PONE_ARG("Module#can", "s", &name);
+    return pone_obj_get_ivar(world, self, name);
+}
+
 void pone_module_init(pone_world* world) {
     pone_val* module = pone_class_new(world, "Module", strlen("Module"));
     pone_add_method_c(world, module, "Str", strlen("Str"), meth_module_str);
+    pone_add_method_c(world, module, "can", strlen("can"), meth_module_can);
+
     world->universe->class_module = module;
 }
 

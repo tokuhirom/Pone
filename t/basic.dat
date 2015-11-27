@@ -1020,3 +1020,9 @@ say nil ~~ Nil
 --- expected
 True
 
+===
+--- input
+use socket; say socket.can("listen") ~~ Code
+--- expected
+True
+
