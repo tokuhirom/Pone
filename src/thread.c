@@ -3,30 +3,6 @@
 #include <errno.h>
 #include <signal.h>
 
-/*
- * Copy all values to the new world.
- * Because we need to copy values from another thread.
- */
-static void copy_lex_values(pone_world* world, pone_val* code) {
-    pone_val* dst = pone_lex_new(world, NULL);
-    pone_val* lex = code->as.code.lex;
-    while (lex) {
-        const char* k;
-        pone_val* v;
-        kh_foreach(lex->as.lex.map, k, v, {
-            int ret;
-            pone_val* key = pone_str_new_strdup(world, k, strlen(k));
-            khint_t k = kh_put(str, dst->as.lex.map, pone_str_ptr(key), &ret);
-            if (ret == -1) {
-                abort(); // TODO better error msg
-            }
-            kh_val(dst->as.lex.map, k) = v;
-        });
-        lex = lex->as.lex.parent;
-    }
-    code->as.code.lex = dst;
-}
-
 static void* thread_start(void* p) {
     THREAD_TRACE("NEW %lx", pthread_self());
 
@@ -51,9 +27,9 @@ static void* thread_start(void* p) {
             pone_push_scope(world);
 
             pone_val* code = world->code;
+            // this is safety because it's copied.
+            code->as.code.lex->as.lex.thread_id = pthread_self();
             assert(pone_type(code) == PONE_CODE);
-            // deep copy lex vars.
-            copy_lex_values(world, code);
             assert(pone_type(code) == PONE_CODE);
             (void)pone_code_call(world, code, pone_nil(), 0);
 
@@ -73,6 +49,38 @@ static void* thread_start(void* p) {
 
 pone_int_t pone_count_alive_threads(pone_universe* universe);
 
+/*
+ * Copy all values to the new world.
+ * Because we need to copy values from another thread.
+ */
+static pone_val* dup_lex_values(pone_world* world, pone_val* code) {
+    pone_val* dst = pone_lex_new(world, NULL);
+    pone_val* lex = code->as.code.lex;
+    while (lex) {
+        const char* k;
+        pone_val* v;
+        kh_foreach(lex->as.lex.map, k, v, {
+            int ret;
+            pone_val* key = pone_str_new_strdup(world, k, strlen(k));
+            khint_t k = kh_put(str, dst->as.lex.map, pone_str_ptr(key), &ret);
+            if (ret == -1) {
+                abort(); // TODO better error msg
+            }
+            kh_val(dst->as.lex.map, k) = v;
+        });
+        lex = lex->as.lex.parent;
+    }
+    return dst;
+}
+
+
+static pone_val* copy_code(pone_world* world, pone_val* code) {
+    pone_val* dst = pone_code_new_c(world, code->as.code.func);
+    // deep copy lex vars.
+    dst->as.code.lex = dup_lex_values(world, code);
+    return dst;
+}
+
 void pone_thread_start(pone_universe* universe, pone_val* code) {
     assert(pone_type(code) == PONE_CODE);
 
@@ -86,7 +94,7 @@ void pone_thread_start(pone_universe* universe, pone_val* code) {
                 if (pthread_mutex_trylock(&(world->mutex)) == 0) {
                     // got mutex lock
                     WORLD_TRACE("Reuse %p", world);
-                    world->code = pone_val_copy(world, code);
+                    world->code = copy_code(world, code);
                     CHECK_PTHREAD(pthread_cond_signal(&(world->cond)));
                     CHECK_PTHREAD(pthread_mutex_unlock(&(world->mutex)));
                     return;
@@ -100,7 +108,7 @@ void pone_thread_start(pone_universe* universe, pone_val* code) {
 
     CHECK_PTHREAD(pthread_mutex_lock(&(universe->worker_worlds_mutex)));
     pone_world* new_world = pone_world_new(universe);
-    new_world->code = pone_val_copy(new_world, code);
+    new_world->code = copy_code(new_world, code);
     if (universe->worker_worlds) {
         new_world->next = universe->worker_worlds;
         universe->worker_worlds = new_world;

@@ -9,20 +9,18 @@ say $_;
         # TODO loop
         while True {
             my $csock = $chan.receive();
-            say "accepted";
-            say $csock.sockaddr;
-            say $csock.sockport;
-            say $csock.peeraddr;
-            say $csock.peerport;
             my $buf;
             while True {
                 my $cbuf = $csock.read(1000);
-                $buf ~= $cbuf;
-                my $got = parser.parse_request($buf);
-                dd $got;
-                if $got[0] > 0 {
-                    $csock.write("HTTP/1.0 200 OK\r\nContent-Length: 8\r\nConnection: close\r\n\r\nHello!!\n");
-                    $csock.close();
+                if $cbuf.length > 0 {
+                    $buf ~= $cbuf;
+                    my $got = parser.parse_request($buf);
+                    if $got[0] > 0 {
+                        $csock.write("HTTP/1.0 200 OK\r\nContent-Length: 8\r\nConnection: close\r\n\r\nHello!!\n");
+                        $csock.close();
+                        last;
+                    }
+                } else {
                     last;
                 }
             }
