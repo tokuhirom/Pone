@@ -12,7 +12,6 @@ PONE_FUNC(meth_parse_request) {
     struct phr_header headers[100];
     size_t prevbuflen = 0, method_len, path_len;
     size_t num_headers = sizeof(headers) / sizeof(headers[0]);
-    pone_dd(world, buf);
 
     int pret = phr_parse_request(
         pone_str_ptr(buf),
