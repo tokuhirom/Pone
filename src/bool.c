@@ -43,4 +43,6 @@ void pone_bool_init(pone_world* world) {
     universe->class_bool = pone_class_new(world, "Bool", strlen("Bool"));
     pone_add_method_c(world, universe->class_bool, "Str", strlen("Str"), meth_bool_str);
     pone_add_method_c(world, universe->class_bool, "Int", strlen("Int"), meth_bool_int);
+
+    pone_universe_set_global(world->universe, "Bool", universe->class_bool);
 }

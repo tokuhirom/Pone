@@ -1026,3 +1026,9 @@ use socket; say socket.can("listen") ~~ Code
 --- expected
 True
 
+===
+--- input
+say $*OS.is_win ~~ Bool
+--- expected
+True
+
