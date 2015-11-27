@@ -1,6 +1,7 @@
 #include "pone.h" /* PONE_INC */
 #include "kvec.h"
 #include "pone_val_vec.h"
+#include "pone_opaque.h"
 
 #define PONE_ERR_HANDLERS_INIT 10
 
@@ -95,12 +96,48 @@ void pone_world_free(pone_world* world) {
     world->savestack.m = 0;
 #endif
 
-    //  pone_arena* a = world->arena_head;
-    //  while (a) {
-    //      pone_arena* next = a->next;
-    //      free(a);
-    //      a = next;
-    //  }
+    pone_arena* arena = world->arena_head;
+    while (arena) {
+        for (pone_int_t i = 0; i < arena->idx; ++i) {
+            pone_val* val = &(arena->values[i]);
+            if (!pone_alive(val)) {
+                continue;
+            }
+
+            switch (pone_type(val)) {
+            case PONE_STRING:
+                pone_str_free(world, val);
+                break;
+            case PONE_ARRAY:
+                pone_ary_free(world, val);
+                break;
+            case PONE_HASH:
+                pone_hash_free(world, val);
+                break;
+            case PONE_OBJ:
+                pone_obj_free(world, val);
+                break;
+            case PONE_CODE:
+            case PONE_INT: // don't need to free heap
+            case PONE_NUM:
+                break;
+            case PONE_OPAQUE:
+                pone_opaque_free(world, val);
+                break;
+            case PONE_NIL:
+            case PONE_BOOL:
+                continue;
+                abort(); // should not reach here.
+            case PONE_LEX:
+                pone_lex_free(world, val);
+                break;
+            }
+            pone_val_free(world, val);
+        }
+        pone_arena* next = arena->next;
+        pone_free(world->universe, arena);
+        arena = next;
+    }
 
     pone_gc_log(world->universe, "[pone gc] freeing world %p\n", world);
 
