@@ -42,8 +42,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    pvip_t* pvip = pvip_new();
-
     pone_universe* universe = pone_universe_init();
     pone_init(universe);
 
@@ -54,8 +52,10 @@ int main(int argc, char** argv) {
     } else {
         if (eval) {
             if (dump) {
+                pvip_t* pvip = pvip_new();
                 pone_node* node = pone_parse_string(world, pvip, eval, yy_debug);
                 pone_node_dump_sexp(node);
+                pvip_free(pvip);
             } else {
                 pone_val* code = pone_compile_str(world, eval);
 
@@ -73,8 +73,10 @@ int main(int argc, char** argv) {
                 exit(1);
             }
             if (dump) {
+                pvip_t* pvip = pvip_new();
                 pone_node* node = pone_parse_fp(world, pvip, fp, yy_debug);
                 pone_node_dump_sexp(node);
+                pvip_free(pvip);
             } else {
                 pone_val* code = pone_compile_fp(world, fp, filename);
                 if (!compile_only) {
