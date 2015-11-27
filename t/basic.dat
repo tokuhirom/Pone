@@ -649,9 +649,9 @@ q<3>.Int.say
 
 ===
 --- input
-Nil.gist.say
+nil.gist.say
 --- expected
-Nil
+nil
 
 ===
 --- input
@@ -967,7 +967,7 @@ False
 --- input
 say 0//1;
 say 2//1;
-say Nil//1;
+say nil//1;
 --- expected
 0
 2
