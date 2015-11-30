@@ -4,16 +4,16 @@ Time is a class to store the time.
 
 ## Functions
 
-### `gmtime()`
-
-Get Time object in UTC.
-
-### `localtime()`
+### `time.now()`
 
 Get Time object in local time zone.
 
 
 ## Methods
+
+### `Time#utc()`
+
+Convert time to UTC time zone.
 
 ### `Time#year()`
 
