@@ -1088,3 +1088,9 @@ True
 あ
 True
 
+===
+--- input
+localtime().Str[0].say
+--- expected
+2
+
