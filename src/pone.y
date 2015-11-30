@@ -523,7 +523,7 @@ method_postfix_expr =
                 $$ = PVIP_node_new_children3(&(G->data), PVIP_NODE_META_METHOD_CALL, f1, f2, MAYBE(f3));
                 f1=$$;
             }
-            | '.'? '[' - f2:term - ']' {
+            | '[' - f2:term - ']' {
                 $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_ATPOS, f1, f2);
                 f1=$$;
             }
