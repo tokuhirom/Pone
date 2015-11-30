@@ -42,6 +42,7 @@ void pone_throw_str(pone_world* world, const char* fmt, ...) {
 }
 
 // TODO rename to pone_throw
+__attribute__((noreturn))
 void pone_throw(pone_world* world, pone_val* val) {
     assert(val);
 
