@@ -38,6 +38,7 @@ TODO
  * dir.open('/etc') or `"/etc/".IO.dir?
  * File#say
  * File#readline
+ * File#stat
  * File#lines
  * Path::Dir
  * Path::File
@@ -53,6 +54,7 @@ TODO
  * uri
   * uri.parse(Str $uri)
  * http/status
+ * getopt
 
 ## Basic features
 
