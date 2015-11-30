@@ -12,7 +12,7 @@ say $_;
             my $buf;
             while True {
                 my $cbuf = $csock.read(1000);
-                if $cbuf.length > 0 {
+                if $cbuf.bytes > 0 {
                     $buf ~= $cbuf;
                     my $got = parser.parse_request($buf);
                     if $got[0] > 0 {

@@ -34,8 +34,6 @@ TODO
  * Str#uc
  * Str#lcfirst
  * Str#ucfirst
- * Str#chars
- * Str#bytes
  * Str#split
  * Str#reverse
  * Array#reverse
