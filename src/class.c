@@ -50,7 +50,7 @@ PONE_FUNC(meth_can) {
     PONE_ARG("Class#can", "s", &name, &name_len);
 
     pone_val* methods = pone_obj_get_ivar(world, self, "$!methods");
-    return pone_hash_at_key_c(world->universe, methods, name);
+    return pone_map_at_key_c(world->universe, methods, name);
 }
 
 // initialize Class class
@@ -60,7 +60,7 @@ pone_val* pone_init_class(pone_world* world) {
     val->as.obj.klass = pone_nil();
 
     pone_obj_set_ivar(world, val, "$!name", pone_str_new_const(world, "Class", strlen("Class")));
-    pone_obj_set_ivar(world, val, "$!methods", pone_hash_new(world));
+    pone_obj_set_ivar(world, val, "$!methods", pone_map_new(world));
     pone_add_method_c(world, val, "name", strlen("name"), meth_name);
     pone_add_method_c(world, val, "Str", strlen("Str"), meth_Str);
     pone_add_method_c(world, val, "say", strlen("say"), mu_say);
@@ -91,8 +91,8 @@ pone_val* pone_what(pone_world* world, pone_val* obj) {
         return universe->class_ary;
     case PONE_BOOL:
         return universe->class_bool;
-    case PONE_HASH:
-        return universe->class_hash;
+    case PONE_MAP:
+        return universe->class_map;
     case PONE_CODE:
         return universe->class_code;
     case PONE_OPAQUE:
@@ -111,7 +111,7 @@ pone_val* pone_what(pone_world* world, pone_val* obj) {
 pone_val* pone_class_new(pone_world* world, const char* name, size_t name_len) {
     pone_val* obj = pone_obj_new(world, world->universe->class_class);
     pone_obj_set_ivar(world, obj, "$!name", pone_str_new_strdup(world, name, name_len));
-    pone_obj_set_ivar(world, obj, "$!methods", pone_hash_new(world));
+    pone_obj_set_ivar(world, obj, "$!methods", pone_map_new(world));
 
     pone_add_method_c(world, obj, "say", strlen("say"), mu_say);
     pone_add_method_c(world, obj, "Str", strlen("Str"), mu_str);
@@ -131,8 +131,8 @@ void pone_add_method(pone_world* world, pone_val* klass, const char* name, size_
     assert(pone_type(method) == PONE_CODE);
 
     pone_val* methods = pone_obj_get_ivar(world, klass, "$!methods");
-    assert(pone_type(methods) == PONE_HASH);
-    pone_hash_assign_key_c(world, methods, name, name_len, method);
+    assert(pone_type(methods) == PONE_MAP);
+    pone_map_assign_key_c(world, methods, name, name_len, method);
 }
 
 const char* pone_what_str_c(pone_world* world, pone_val* val) {
@@ -153,8 +153,8 @@ const char* pone_what_str_c(pone_world* world, pone_val* val) {
         return "Array";
     case PONE_BOOL:
         return "Bool";
-    case PONE_HASH:
-        return "Hash";
+    case PONE_MAP:
+        return "Map";
     case PONE_CODE:
         return "Code";
     case PONE_OPAQUE:
@@ -183,7 +183,7 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
             return method;
         } else {
             pone_val* methods = pone_obj_get_ivar(world, klass, "$!methods");
-            pone_val* method = pone_hash_at_key_c(world->universe, methods, name);
+            pone_val* method = pone_map_at_key_c(world->universe, methods, name);
             if (pone_defined(method)) {
                 return method;
             } else {
@@ -194,8 +194,8 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
         // Normal object
         pone_val* methods = pone_obj_get_ivar(world, klass, "$!methods");
         assert(methods);
-        assert(pone_type(methods) == PONE_HASH);
-        pone_val* method = pone_hash_at_key_c(world->universe, methods, name);
+        assert(pone_type(methods) == PONE_MAP);
+        pone_val* method = pone_map_at_key_c(world->universe, methods, name);
         assert(method);
         if (pone_defined(method)) {
             return method;
@@ -240,7 +240,7 @@ pone_val* pone_call_meta_method(pone_world* world, pone_val* obj, const char* me
         // .^methods
         pone_val* klass = pone_what(world, obj);
         pone_val* methods = pone_obj_get_ivar(world, klass, "$!methods");
-        return pone_hash_keys(world, methods);
+        return pone_map_keys(world, methods);
     } else {
         pone_throw_str(world, "Meta method '%s' not found for invocant of class '%s'", method_name, pone_what_str_c(world, obj));
         abort();

@@ -50,7 +50,7 @@ typedef enum {
     PONE_STRING,
     PONE_ARRAY,
     PONE_BOOL,
-    PONE_HASH,
+    PONE_MAP,
     PONE_CODE,
     PONE_OBJ,
     PONE_LEX,
@@ -114,7 +114,7 @@ typedef struct {
     PONE_HEAD;
     khash_t(str) * h;
     pone_int_t len;
-} pone_hash;
+} pone_map;
 
 typedef struct {
     PONE_HEAD;
@@ -221,7 +221,7 @@ typedef struct pone_val {
         pone_basic basic;
         pone_ary ary;
         pone_code code;
-        pone_hash hash;
+        pone_map map;
         pone_string str;
         pone_num num;
         pone_int integer;
@@ -265,8 +265,8 @@ typedef struct pone_universe {
     struct pone_val* class_ary;
     // class of Bool
     struct pone_val* class_bool;
-    // class of Hash
-    struct pone_val* class_hash;
+    // class of Map
+    struct pone_val* class_map;
     // class of Code
     struct pone_val* class_code;
     // class of Nil
@@ -363,18 +363,18 @@ pone_val* pone_inplace_brshift(pone_world* world, int level, const char* varname
 pone_val* pone_inplace_concat_s(pone_world* world, int level, const char* varname, pone_val* val);
 
 // hash.c
-pone_val* pone_hash_new(pone_world* world);
-pone_val* pone_hash_assign_keys(pone_world* world, pone_val* hash, pone_int_t n, ...);
-void pone_hash_assign_key_c(pone_world* world, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v);
-void pone_hash_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
-pone_int_t pone_hash_size(pone_val* val);
-void pone_hash_free(pone_world* world, pone_val* val);
-pone_val* pone_hash_at_key_c(pone_universe* universe, pone_val* hash, const char* name);
-void pone_hash_init(pone_world* world);
-bool pone_hash_exists_c(pone_world* world, pone_val* hash, const char* name);
-pone_val* pone_hash_keys(pone_world* world, pone_val* val);
-void pone_hash_mark(pone_val* val);
-pone_val* pone_hash_copy(pone_world* world, pone_val* obj);
+pone_val* pone_map_new(pone_world* world);
+pone_val* pone_map_assign_keys(pone_world* world, pone_val* hash, pone_int_t n, ...);
+void pone_map_assign_key_c(pone_world* world, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v);
+void pone_map_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
+pone_int_t pone_map_size(pone_val* val);
+void pone_map_free(pone_world* world, pone_val* val);
+pone_val* pone_map_at_key_c(pone_universe* universe, pone_val* hash, const char* name);
+void pone_map_init(pone_world* world);
+bool pone_map_exists_c(pone_world* world, pone_val* hash, const char* name);
+pone_val* pone_map_keys(pone_world* world, pone_val* val);
+void pone_map_mark(pone_val* val);
+pone_val* pone_map_copy(pone_world* world, pone_val* obj);
 
 // array.c
 pone_val* pone_ary_new(pone_world* world, pone_int_t n, ...);

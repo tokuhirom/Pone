@@ -101,8 +101,8 @@ pone_val* pone_val_copy(pone_world* world, pone_val* obj) {
         }
     case PONE_ARRAY:
         return pone_ary_copy(world, obj);
-    case PONE_HASH:
-        return pone_hash_copy(world, obj);
+    case PONE_MAP:
+        return pone_map_copy(world, obj);
     case PONE_CODE:
         // TODO support code object copy...........
         // But, we can't copy lex object

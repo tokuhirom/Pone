@@ -883,7 +883,7 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         break;
     case PVIP_NODE_HASH:
         // (statements (hash (pair (ident "a") (int 3))))
-        PRINTF("pone_hash_assign_keys(world, pone_hash_new(world), %d", node->children.size * 2);
+        PRINTF("pone_map_assign_keys(world, pone_map_new(world), %d", node->children.size * 2);
         for (int i = 0; i < node->children.size; ++i) {
             PRINTF(",");
 

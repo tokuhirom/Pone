@@ -66,7 +66,6 @@ Concurrency
 *Do not communicate by sharing memory; instead, share memory by communicating*.
 
  * Shared nothing architecture. Each threads communicate by Channels.
- * built-in Array/Hash is *not* thread safe.
 
 There is no GVL in Pone. But there's some synchronization point.
 

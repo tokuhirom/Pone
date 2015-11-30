@@ -48,7 +48,7 @@ void pone_init(pone_universe* universe) {
     pone_str_init(world);
     pone_num_init(world);
     pone_bool_init(world);
-    pone_hash_init(world);
+    pone_map_init(world);
     pone_code_init(world);
     pone_range_init(world);
     pone_regex_init(world);

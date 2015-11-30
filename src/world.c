@@ -111,8 +111,8 @@ void pone_world_free(pone_world* world) {
             case PONE_ARRAY:
                 pone_ary_free(world, val);
                 break;
-            case PONE_HASH:
-                pone_hash_free(world, val);
+            case PONE_MAP:
+                pone_map_free(world, val);
                 break;
             case PONE_OBJ:
                 pone_obj_free(world, val);

@@ -24,8 +24,8 @@ void pone_gc_mark_value(pone_val* val) {
     case PONE_ARRAY:
         pone_ary_mark(val);
         break;
-    case PONE_HASH:
-        pone_hash_mark(val);
+    case PONE_MAP:
+        pone_map_mark(val);
         break;
     case PONE_CODE:
         pone_code_mark(val);
@@ -73,8 +73,8 @@ static void pone_gc_collect(pone_world* world) {
                 case PONE_ARRAY:
                     pone_ary_free(world, val);
                     break;
-                case PONE_HASH:
-                    pone_hash_free(world, val);
+                case PONE_MAP:
+                    pone_map_free(world, val);
                     break;
                 case PONE_OBJ:
                     pone_obj_free(world, val);

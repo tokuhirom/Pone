@@ -138,11 +138,11 @@ static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
     case PONE_CODE:
         printf("(code func:%p)\n", val->as.code.func);
         break;
-    case PONE_HASH: {
+    case PONE_MAP: {
         printf("(hash\n");
         const char* k;
         pone_val* v;
-        kh_foreach(val->as.hash.h, k, v, {
+        kh_foreach(val->as.map.h, k, v, {
                 pin(indent+1);
                 printf("key:%s\n", k);
                 dd(universe, v, indent+2);
@@ -368,8 +368,8 @@ const char* pone_type_name(pone_val* val) {
         return "PONE_ARRAY";
     case PONE_BOOL:
         return "PONE_BOOL";
-    case PONE_HASH:
-        return "PONE_HASH";
+    case PONE_MAP:
+        return "PONE_MAP";
     case PONE_CODE:
         return "PONE_CODE";
     case PONE_OBJ:
@@ -396,8 +396,8 @@ pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos) {
 }
 
 pone_val* pone_at_key(pone_world* world, pone_val* obj, pone_val* pos) {
-    if (pone_type(obj) == PONE_HASH) { // specialization for performance
-        return pone_hash_at_key_c(world->universe, obj, pone_str_ptr(pone_str_c_str(world, pos)));
+    if (pone_type(obj) == PONE_MAP) { // specialization for performance
+        return pone_map_at_key_c(world->universe, obj, pone_str_ptr(pone_str_c_str(world, pos)));
     } else {
         return pone_call_method(world, obj, "AT-KEY", 1, pos);
     }
