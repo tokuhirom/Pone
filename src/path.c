@@ -59,7 +59,7 @@ STAT(blocks)
 #define STAT_TIME(key) \
     PONE_FUNC(meth_fileinfo_##key) { \
         struct stat* st = pone_opaque_ptr(self); \
-        return pone_localtime_from_epoch(world, st->st_##key); \
+        return pone_time_from_epoch(world, st->st_##key, 0); \
     }
 
 STAT_TIME(atime)
@@ -99,6 +99,8 @@ STAT(ctime)
 
 #undef STAT
     pone_universe_set_global(world->universe, "FileInfo", universe->class_fileinfo);
+
+// TODO split to src/fileinfo.c
 
     pone_universe_set_global(world->universe, "path", pone_code_new_c(world, meth_path_new));
 }

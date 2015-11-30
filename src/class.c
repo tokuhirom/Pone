@@ -229,7 +229,11 @@ pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_
             return method;
         }
     } else {
-        pone_throw_str(world, "Method '%s' not found for invocant of class '%s'", method_name, pone_what_str_c(world, obj));
+        if (pone_what(world, obj) == world->universe->class_module) {
+            pone_throw_str(world, "Method '%s' not found for invocant of module '%s'", method_name, pone_str_ptr(pone_str_c_str(world, pone_stringify(world, pone_obj_get_ivar(world, obj, "$!name")))));
+        } else {
+            pone_throw_str(world, "Method '%s' not found for invocant of class '%s'", method_name, pone_what_str_c(world, obj));
+        }
         abort();
     }
 }

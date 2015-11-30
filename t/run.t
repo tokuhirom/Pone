@@ -66,11 +66,11 @@ like $res, qr/$wd/;
 --- re: Method 'hoge' not found for invocant of class 'Int'
 
 ===
---- code: say localtime()
+--- code: say time.now()
 --- re: \d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d\d\d
 
 ===
---- code: say gmtime()
+--- code: say time.now().utc()
 --- re: \d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d\d\d
 
 ===

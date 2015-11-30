@@ -1,6 +1,8 @@
 #include "pone.h"
 #include "pone_exc.h"
+#include "pone_module.h"
 #include <time.h>
+#include <sys/time.h>
 
 // TODO Time#strftime
 // TODO we need portable strftime implementation.
@@ -52,37 +54,56 @@ PONE_FUNC(meth_sec) {
     return pone_int_new(world, GET_TM()->tm_sec);
 }
 
-PONE_FUNC(builtin_gmtime) {
-    PONE_ARG("gmtime", "");
-    time_t current_time;
+PONE_FUNC(meth_usec) {
+    PONE_ARG("Time#usec", "");
+    return pone_obj_get_ivar(world, self, "$!usec");
+}
+
+PONE_FUNC(meth_epoch) {
+    PONE_ARG("Time#epoch", "");
+    return pone_int_new(world, mktime(GET_TM()));
+}
+
+PONE_FUNC(meth_utc) {
+    PONE_ARG("Time#utc", "");
+
+    time_t time = mktime(GET_TM());
     pone_val* t = pone_bytes_new_malloc(world, sizeof(struct tm));
 
-    time(&current_time);
-    struct tm* tm = gmtime_r(&current_time, (struct tm*)pone_str_ptr(t));
+    struct tm* tm = gmtime_r(&time, (struct tm*)pone_str_ptr(t));
     if (tm == NULL) {
         pone_throw_str(world, "gmtime_r: %s", strerror(errno));
     }
-    pone_val* klass = pone_get_lex(world, "$!time_class");
-    pone_val* obj = pone_obj_new(world, klass);
+    pone_val* obj = pone_obj_new(world, world->universe->class_time);
     pone_obj_set_ivar(world, obj, "$!tm", t);
+    pone_obj_set_ivar(world, obj, "$!usec", pone_obj_get_ivar(world, self, "$!usec"));
     return obj;
 }
 
-pone_val* pone_localtime_from_epoch(pone_world* world, time_t epoch) {
+pone_val* pone_time_from_epoch(pone_world* world, time_t sec, pone_int_t usec) {
     pone_val* t = pone_bytes_new_malloc(world, sizeof(struct tm));
-    struct tm* tm = localtime_r(&epoch, (struct tm*)pone_str_ptr(t));
+    struct tm* tm = localtime_r(&sec, (struct tm*)pone_str_ptr(t));
     if (tm == NULL) {
         pone_throw_str(world, "localtime_r: %s", strerror(errno));
     }
     pone_val* obj = pone_obj_new(world, world->universe->class_time);
     pone_obj_set_ivar(world, obj, "$!tm", t);
+    pone_obj_set_ivar(world, obj, "$!usec", pone_int_new(world, (pone_int_t)usec));
     return obj;
 }
 
-PONE_FUNC(builtin_localtime) {
-    PONE_ARG("localtime", "");
-    time_t epoch = time(NULL);
-    return pone_localtime_from_epoch(world, epoch);
+PONE_FUNC(time_now) {
+    PONE_ARG("time.now", "");
+
+    pone_val* buf = pone_bytes_new_malloc(world, sizeof(struct timeval));
+    struct timeval* tv = (struct timeval*)pone_str_ptr(buf);
+
+    // Note. second argument for gettimeofday is deprecated. see gettimofday(2).
+    if (gettimeofday(tv, NULL) != 0) {
+        pone_throw_str(world, "gettimeofday: %s", strerror(errno));
+    }
+
+    return pone_time_from_epoch(world, tv->tv_sec, tv->tv_usec);
 }
 
 void pone_time_init(pone_world* world) {
@@ -95,17 +116,17 @@ void pone_time_init(pone_world* world) {
     pone_add_method_c(world, klass, "hour", strlen("hour"), meth_hour);
     pone_add_method_c(world, klass, "min", strlen("min"), meth_min);
     pone_add_method_c(world, klass, "sec", strlen("sec"), meth_sec);
+    pone_add_method_c(world, klass, "usec", strlen("usec"), meth_usec);
+    pone_add_method_c(world, klass, "utc", strlen("utc"), meth_utc);
+    pone_add_method_c(world, klass, "epoch", strlen("epoch"), meth_epoch);
     world->universe->class_time = klass;
     pone_universe_set_global(world->universe, "Time", klass);
 
+    pone_val* module = pone_module_new(world, "time");
     {
-        pone_val* code = pone_code_new(world, builtin_gmtime);
-        pone_code_bind(world, code, "$!time_class", klass);
-        pone_universe_set_global(world->universe, "gmtime", code);
+        pone_val* code = pone_code_new(world, time_now);
+        pone_module_put(world, module, "now", code);
     }
-    {
-        pone_val* code = pone_code_new(world, builtin_localtime);
-        pone_code_bind(world, code, "$!time_class", klass);
-        pone_universe_set_global(world->universe, "localtime", code);
-    }
+    pone_universe_set_global(world->universe, "time", module);
 }
+

@@ -1090,7 +1090,7 @@ True
 
 ===
 --- input
-localtime().Str[0].say
+time.now().Str[0].say
 --- expected
 2
 
