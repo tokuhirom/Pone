@@ -35,6 +35,7 @@ TODO
  * Array#reverse
  * Array#grep
  * Dir.open
+ * dir.open('/etc') or `"/etc/".IO.dir?
  * File#say
  * File#readline
  * File#lines

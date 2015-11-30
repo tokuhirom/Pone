@@ -1,6 +1,7 @@
 #include "pone.h"
 #include "pone_file.h"
 #include "pone_exc.h"
+#include "pone_path.h"
 #include "pone_tmpfile.h"
 
 // TODO unlink file
@@ -55,8 +56,8 @@ PONE_FUNC(meth_new) {
 }
 
 PONE_FUNC(meth_path) {
-    PONE_ARG("TempFile#path", "");
-    return pone_obj_get_ivar(world, self, "$!path");
+    PONE_ARG("TempFile#Path", "");
+    return pone_path_new(world, pone_obj_get_ivar(world, self, "$!path"));
 }
 
 PONE_FUNC(meth_file) {
@@ -67,7 +68,7 @@ PONE_FUNC(meth_file) {
 // create tmpfile module
 void pone_tmpfile_init(pone_world* world) {
     pone_val* klass = pone_class_new(world, "TmpFile", strlen("TmpFile"));
-    pone_add_method_c(world, klass, "path", strlen("path"), meth_path);
+    pone_add_method_c(world, klass, "Path", strlen("Path"), meth_path);
     pone_add_method_c(world, klass, "file", strlen("file"), meth_file);
 
     world->universe->class_tmpfile = klass;

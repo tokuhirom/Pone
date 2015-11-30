@@ -1,8 +1,11 @@
 #include "pone.h"
+#include "pone_exc.h"
 #include <time.h>
 
 // TODO Time#strftime
 // TODO we need portable strftime implementation.
+// TODO Time#http
+// TODO Time#rfc2822
 
 #define GET_TM() ((struct tm*)pone_str_ptr(pone_obj_get_ivar(world, self, "$!tm")))
 
@@ -55,24 +58,31 @@ PONE_FUNC(builtin_gmtime) {
     pone_val* t = pone_bytes_new_malloc(world, sizeof(struct tm));
 
     time(&current_time);
-    assert(gmtime_r(&current_time, (struct tm*)pone_str_ptr(t)));
+    struct tm* tm = gmtime_r(&current_time, (struct tm*)pone_str_ptr(t));
+    if (tm == NULL) {
+        pone_throw_str(world, "gmtime_r: %s", strerror(errno));
+    }
     pone_val* klass = pone_get_lex(world, "$!time_class");
     pone_val* obj = pone_obj_new(world, klass);
     pone_obj_set_ivar(world, obj, "$!tm", t);
     return obj;
 }
 
-PONE_FUNC(builtin_localtime) {
-    PONE_ARG("localtime", "");
-    time_t current_time;
+pone_val* pone_localtime_from_epoch(pone_world* world, time_t epoch) {
     pone_val* t = pone_bytes_new_malloc(world, sizeof(struct tm));
-
-    time(&current_time);
-    assert(localtime_r(&current_time, (struct tm*)pone_str_ptr(t)));
-    pone_val* klass = pone_get_lex(world, "$!time_class");
-    pone_val* obj = pone_obj_new(world, klass);
+    struct tm* tm = localtime_r(&epoch, (struct tm*)pone_str_ptr(t));
+    if (tm == NULL) {
+        pone_throw_str(world, "localtime_r: %s", strerror(errno));
+    }
+    pone_val* obj = pone_obj_new(world, world->universe->class_time);
     pone_obj_set_ivar(world, obj, "$!tm", t);
     return obj;
+}
+
+PONE_FUNC(builtin_localtime) {
+    PONE_ARG("localtime", "");
+    time_t epoch = time(NULL);
+    return pone_localtime_from_epoch(world, epoch);
 }
 
 void pone_time_init(pone_world* world) {
@@ -85,6 +95,8 @@ void pone_time_init(pone_world* world) {
     pone_add_method_c(world, klass, "hour", strlen("hour"), meth_hour);
     pone_add_method_c(world, klass, "min", strlen("min"), meth_min);
     pone_add_method_c(world, klass, "sec", strlen("sec"), meth_sec);
+    world->universe->class_time = klass;
+    pone_universe_set_global(world->universe, "Time", klass);
 
     {
         pone_val* code = pone_code_new(world, builtin_gmtime);

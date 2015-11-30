@@ -1055,3 +1055,16 @@ Str
 AAHOGEZZ
 aahogezz
 
+===
+--- input
+what(tmpfile().Path).name.say
+--- expected
+Path
+
+===
+--- input
+say path("CMakeLists.txt").stat.mtime ~~ Time
+--- expected
+True
+
+

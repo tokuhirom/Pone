@@ -297,6 +297,12 @@ typedef struct pone_universe {
     struct pone_val* class_tmpfile;
     // class of X::AdHoc
     struct pone_val* class_x_adhoc;
+    // class of Path
+    struct pone_val* class_path;
+    // class of FileInfo
+    struct pone_val* class_fileinfo;
+    // class of Time
+    struct pone_val* class_time;
 
     // $*INC
     struct pone_val* inc;
