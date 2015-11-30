@@ -83,7 +83,3 @@ TODO
  * given-when
  * `if True { } else { }`
 
-## Core
-
- * remove opaque's finalizer
-
