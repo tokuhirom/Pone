@@ -166,9 +166,9 @@ void pone_file_init(pone_world* world) {
 
     world->universe->class_file = klass;
 
-    pone_universe_set_global(world->universe, "File", klass);
-
     pone_val* module = pone_module_new(world, "file");
+
+    pone_module_put(world, module, "File", klass);
 
     pone_module_put(world, module, "open", pone_code_new_c(world, meth_open));
     pone_module_put(world, module, "fdopen", pone_code_new_c(world, meth_fdopen));
