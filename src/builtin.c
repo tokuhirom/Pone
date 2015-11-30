@@ -77,11 +77,6 @@ PONE_FUNC(meth_say) {
     return pone_nil();
 }
 
-PONE_FUNC(meth_time) {
-    PONE_ARG("time", "");
-    return pone_int_new(world, time(NULL));
-}
-
 PONE_FUNC(meth_getenv) {
     const char* key;
     pone_int_t key_len;
@@ -216,7 +211,6 @@ void pone_builtin_init(pone_world* world) {
     pone_universe_set_global(universe, "pthread_self", pone_code_new_c(world, meth_pthread_self));
     pone_universe_set_global(universe, "print", pone_code_new_c(world, meth_print));
     pone_universe_set_global(universe, "say", pone_code_new_c(world, meth_say));
-    pone_universe_set_global(universe, "time", pone_code_new_c(world, meth_time));
     pone_universe_set_global(universe, "getenv", pone_code_new_c(world, meth_getenv));
     pone_universe_set_global(universe, "sleep", pone_code_new_c(world, meth_sleep));
     pone_universe_set_global(universe, "die", pone_code_new_c(world, meth_die));

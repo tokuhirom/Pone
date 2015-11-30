@@ -76,6 +76,7 @@ pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int
 pone_val* pone_code_call(pone_world* world, pone_val* code, pone_val* self, int n, ...) {
     assert(pone_alive(code));
     assert(pone_type(code) == PONE_CODE);
+    // TODO support callable object
 
     va_list args;
     va_start(args, n);
