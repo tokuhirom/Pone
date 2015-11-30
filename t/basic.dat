@@ -1033,3 +1033,9 @@ say $*OS.is_win ~~ Bool
 --- expected
 True
 
+===
+--- input
+say what("hoge".encode()).name
+--- expected
+Bytes
+

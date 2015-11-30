@@ -52,7 +52,6 @@ TODO
  * Time#strftime
  * URI
  * `exec.which(path)` like golang's `exec.LookPath("fortune")`
- * Channel#close
 
 ## Basic features
 

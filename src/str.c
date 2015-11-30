@@ -258,6 +258,13 @@ PONE_FUNC(meth_str_num) {
     return pone_num_new(world, strtod(pone_str_ptr(self), &end));
 }
 
+// TODO support "hoge".encode("Shift_JIS")
+PONE_FUNC(meth_str_encode) {
+    PONE_ARG("Str#encode", "");
+
+    return pone_bytes_new_const(world, pone_str_ptr(self), pone_str_len(self));
+}
+
 PONE_FUNC(meth_str_length) {
     PONE_ARG("Str#length", "");
 
@@ -286,10 +293,11 @@ void pone_str_init(pone_world* world) {
         pone_add_method_c(world, universe->class_str, "Int", strlen("Int"), meth_str_int);
         pone_add_method_c(world, universe->class_str, "Num", strlen("Num"), meth_str_num);
         pone_add_method_c(world, universe->class_str, "length", strlen("length"), meth_str_length);
+        pone_add_method_c(world, universe->class_str, "encode", strlen("encode"), meth_str_encode);
         pone_universe_set_global(world->universe, "Str", universe->class_str);
     }
     {
-        universe->class_bytes = pone_class_new(world, "Str", strlen("Str"));
+        universe->class_bytes = pone_class_new(world, "Bytes", strlen("Bytes"));
         pone_add_method_c(world, universe->class_bytes, "Str", strlen("Str"), meth_bytes_str);
         pone_add_method_c(world, universe->class_bytes, "length", strlen("length"), meth_bytes_length);
         pone_universe_set_global(world->universe, "Bytes", universe->class_bytes);
