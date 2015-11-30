@@ -2,10 +2,21 @@
 
 String class.
 
-## `Str#length`
+## `Str#chars`
 
-    say "あいう".length; # => 3
+    say "あいう".chars; # => 3
 
 Returns number of chars in string.
 
+## `Str#uc`
+
+    say "HoGe".uc; # => HOGE
+
+Get upper cased string.
+
+## `Str#lc`
+
+    say "HoGe".lc; # => hoge
+
+Get upper cased string.
 
