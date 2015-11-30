@@ -74,7 +74,7 @@ like $res, qr/$wd/;
 --- re: \d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d\d\d
 
 ===
---- code: say tmpfile().path()
+--- code: say tmpfile().Path()
 --- re: pone_......
 
 ===

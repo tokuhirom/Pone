@@ -295,12 +295,37 @@ PONE_FUNC(meth_str_encode) {
     return pone_bytes_new_strdup(world, pone_str_ptr(self), pone_str_len(self));
 }
 
+pone_int_t pone_str_chars(pone_val* self) {
+    return onigenc_strlen(ONIG_ENCODING_UTF8, (OnigUChar*)pone_str_ptr(self), (OnigUChar*)pone_str_ptr(self) + pone_str_len(self));
+}
+
 PONE_FUNC(meth_str_chars) {
     PONE_ARG("Str#chars", "");
 
     // Note: ongenc_strlen should support long?
     int i = onigenc_strlen(ONIG_ENCODING_UTF8, (OnigUChar*)pone_str_ptr(self), (OnigUChar*)pone_str_ptr(self) + pone_str_len(self));
     return pone_int_new(world, i);
+}
+
+PONE_FUNC(meth_str_at_pos) {
+    pone_int_t n;
+    PONE_ARG("Str#AT-POS(Int $n)", "i", &n);
+
+    if (n < 0) {
+        n = pone_str_chars(self) + n;
+    }
+
+    char* p = pone_str_ptr(self);
+    char* e = p + pone_str_len(self);
+    for (; p<e && n>0; --n) {
+        p += ONIGENC_MBC_ENC_LEN(ONIG_ENCODING_UTF8, (OnigUChar*)p);
+    }
+    if (p==e || n < 0) {
+        return pone_nil();
+    } else {
+        pone_int_t end = ONIGENC_MBC_ENC_LEN(ONIG_ENCODING_UTF8, (OnigUChar*)p);
+        return pone_str_new_strdup(world, p, end);
+    }
 }
 
 PONE_FUNC(meth_bytes_str) {
@@ -332,6 +357,7 @@ void pone_str_init(pone_world* world) {
         pone_add_method_c(world, universe->class_str, "lc", strlen("lc"), meth_str_lc);
         pone_add_method_c(world, universe->class_str, "chars", strlen("chars"), meth_str_chars);
         pone_add_method_c(world, universe->class_str, "encode", strlen("encode"), meth_str_encode);
+        pone_add_method_c(world, universe->class_str, "AT-POS", strlen("AT-POS"), meth_str_at_pos);
         pone_universe_set_global(world->universe, "Str", universe->class_str);
     }
     {

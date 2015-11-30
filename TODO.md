@@ -64,7 +64,6 @@ TODO
  * -lane
  * -i
  * `s///`
- * `"hoge"[0]`
  * -I lib
 
 ## Bindings

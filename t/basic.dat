@@ -1067,4 +1067,24 @@ say path("CMakeLists.txt").stat.mtime ~~ Time
 --- expected
 True
 
+===
+--- input
+my $a = "あいう";
+say $a[0];
+say $a[1];
+say $a[2];
+say $a[3] ~~ Nil;
+say $a[-1];
+say $a[-2];
+say $a[-3];
+say $a[-4] ~~ Nil;
+--- expected
+あ
+い
+う
+True
+う
+い
+あ
+True
 
