@@ -1094,3 +1094,10 @@ time.now().Str[0].say
 --- expected
 2
 
+===
+--- input
+class X { sub x() { say what(self).name; say "OK"  } }; bless(X).x
+--- expected
+X
+OK
+

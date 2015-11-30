@@ -66,6 +66,8 @@ typedef struct pone_compile_ctx {
 
     pone_int_t logical_op_counter;
 
+    bool in_class;
+
     const char* filename;
     int anon_sub_no;
 } pone_compile_ctx;
@@ -786,6 +788,20 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         }
         PRINTF("}\n");
         break;
+    case PVIP_NODE_CLASS:
+        PRINTF("{pone_val* klass=pone_class_new(world, \"");
+        WRITE_PV(node->children.nodes[0]->pv);
+        PRINTF("\", sizeof(\"");
+        WRITE_PV(node->children.nodes[0]->pv);
+        PRINTF("\")-1);");
+        PRINTF("pone_assign(world, 0, \"");
+        WRITE_PV(node->children.nodes[0]->pv);
+        PRINTF("\", klass);");
+        ctx->in_class = true;
+        COMPILE(node->children.nodes[2]);
+        ctx->in_class = false;
+        PRINTF("}");
+        break;
     case PVIP_NODE_ARRAY:
         PRINTF("pone_ary_new(world, %d",
                node->children.size);
@@ -861,9 +877,13 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         break;
     }
     case PVIP_NODE_IDENT: {
-        PRINTF("pone_get_lex(world, \"");
-        WRITE_PV(node->pv);
-        PRINTF("\")");
+        if (node->pv->len == 4 && memcmp(node->pv->buf, "self", 4) == 0) {
+            PRINTF("(self)");
+        } else {
+            PRINTF("pone_get_lex(world, \"");
+            WRITE_PV(node->pv);
+            PRINTF("\")");
+        }
         break;
     }
     case PVIP_NODE_VARIABLE: {
@@ -987,6 +1007,12 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         if (is_anon) {
             PRINTF("pone_code_new(world, pone_user_func_anon_%d)",
                    ctx->anon_sub_no);
+        } else if (ctx->in_class) {
+            PRINTF("pone_add_method(world, klass, \"%s\", strlen(\"%s\"), pone_code_new_c(world, pone_user_func_%s))",
+                   PVIP_string_c_str(name->pv),
+                   PVIP_string_c_str(name->pv),
+                   PVIP_string_c_str(name->pv)
+                   );
         } else {
             PRINTF("pone_assign(world, 0, \"%s\", pone_code_new(world, pone_user_func_%s))",
                    PVIP_string_c_str(name->pv),
