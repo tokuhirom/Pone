@@ -1,6 +1,5 @@
 #include "pone.h" /* PONE_INC */
 #include "pone_exc.h"
-#include "pone_path.h"
 #include "oniguruma.h"
 
 void pone_str_mark(pone_val* val) {
@@ -259,12 +258,6 @@ PONE_FUNC(meth_str_num) {
     return pone_num_new(world, strtod(pone_str_ptr(self), &end));
 }
 
-PONE_FUNC(meth_str_path) {
-    PONE_ARG("Str#Path", "");
-
-    return pone_path_new(world, self);
-}
-
 PONE_FUNC(meth_str_uc) {
     PONE_ARG("Str#Num", "");
 
@@ -335,7 +328,6 @@ void pone_str_init(pone_world* world) {
         pone_add_method_c(world, universe->class_str, "Str", strlen("Str"), meth_str_str);
         pone_add_method_c(world, universe->class_str, "Int", strlen("Int"), meth_str_int);
         pone_add_method_c(world, universe->class_str, "Num", strlen("Num"), meth_str_num);
-        pone_add_method_c(world, universe->class_str, "Path", strlen("Path"), meth_str_path);
         pone_add_method_c(world, universe->class_str, "uc", strlen("uc"), meth_str_uc);
         pone_add_method_c(world, universe->class_str, "lc", strlen("lc"), meth_str_lc);
         pone_add_method_c(world, universe->class_str, "chars", strlen("chars"), meth_str_chars);
