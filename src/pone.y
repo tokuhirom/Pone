@@ -582,9 +582,7 @@ enum =
 funcref = '&' i:ident { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_FUNCREF, i); }
 
 twvars = 
-    '$*OUT' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_STDOUT); }
-    | '$*ERR' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_STDERR); }
-    | '@*ARGS' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_CLARGS); }
+    '@*ARGS' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_CLARGS); }
     | '$*INC' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_INC); }
     | '$*VM' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_VM); }
     | '$*OS' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_OS); }

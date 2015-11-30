@@ -1,8 +1,8 @@
-# File
+# file
 
-File class.
+This package provides basic file operations.
 
-## `open(Str $filename[, Str $mode) --> File`
+## `file.open(Str $filename[, Str $mode) --> File`
 
 open `$filename` with mode `$mode`.
 
@@ -31,6 +31,10 @@ by additional characters, as described below):
 Returns `File` object. IF Pone can't open the file set `$!`
 
 (TODO: support autodie)
+
+## `file.fdopen(Int $fd[, Str $mode) --> File`
+
+Open file by fdopen(3).
 
 ## `File#read(Int $nbytes) --> Str`
 
@@ -97,11 +101,11 @@ Close the stream.
 
 ## CONSTANTS
 
-### `SEEK_SET`
-### `SEEK_CUR`
-### `SEEK_END`
+### `file.SEEK_SET`
+### `file.SEEK_CUR`
+### `file.SEEK_END`
 
-### `LOCK_EX`
-### `LOCK_UN`
-### `LOCK_SH`
+### `file.LOCK_EX`
+### `file.LOCK_UN`
+### `file.LOCK_SH`
 

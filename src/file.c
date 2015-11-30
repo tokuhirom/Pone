@@ -1,6 +1,7 @@
 #include "pone.h"
 #include "pone_file.h"
 #include "pone_opaque.h"
+#include "pone_module.h"
 #include <sys/file.h>
 
 #define SELF_FH pone_opaque_ptr(self)
@@ -112,7 +113,7 @@ PONE_FUNC(meth_file_flock) {
     }
 }
 
-PONE_FUNC(builtin_open) {
+PONE_FUNC(meth_open) {
     char* fname;
     pone_int_t fname_len;
     char* mode = "rb";
@@ -129,7 +130,7 @@ PONE_FUNC(builtin_open) {
     }
 }
 
-PONE_FUNC(builtin_fdopen) {
+PONE_FUNC(meth_fdopen) {
     pone_int_t fd;
     char* mode;
     pone_int_t mode_len;
@@ -167,18 +168,24 @@ void pone_file_init(pone_world* world) {
 
     pone_universe_set_global(world->universe, "File", klass);
 
-    pone_universe_set_global(world->universe, "open", pone_code_new(world, builtin_open));
-    pone_universe_set_global(world->universe, "fdopen", pone_code_new(world, builtin_fdopen));
+    pone_val* module = pone_module_new(world, "file");
+
+    pone_module_put(world, module, "open", pone_code_new_c(world, meth_open));
+    pone_module_put(world, module, "fdopen", pone_code_new_c(world, meth_fdopen));
 
     // TODO dup2
 
-    pone_universe_set_global(world->universe, "STDIN", pone_file_new(world, stdin, false));
-    pone_universe_set_global(world->universe, "STDOUT", pone_file_new(world, stdout, false));
-    pone_universe_set_global(world->universe, "STDERR", pone_file_new(world, stderr, false));
-    pone_universe_set_global(world->universe, "SEEK_CUR", pone_int_new(world, SEEK_CUR));
-    pone_universe_set_global(world->universe, "SEEK_SET", pone_int_new(world, SEEK_SET));
-    pone_universe_set_global(world->universe, "SEEK_END", pone_int_new(world, SEEK_END));
-    pone_universe_set_global(world->universe, "LOCK_SH", pone_int_new(world, LOCK_SH));
-    pone_universe_set_global(world->universe, "LOCK_EX", pone_int_new(world, LOCK_EX));
-    pone_universe_set_global(world->universe, "LOCK_UN", pone_int_new(world, LOCK_UN));
+    pone_module_put(world, module, "stdin", pone_file_new(world, stdin, false));
+    pone_module_put(world, module, "stdout", pone_file_new(world, stdout, false));
+    pone_module_put(world, module, "stderr", pone_file_new(world, stderr, false));
+
+    pone_module_put(world, module, "SEEK_CUR", pone_int_new(world, SEEK_CUR));
+    pone_module_put(world, module, "SEEK_SET", pone_int_new(world, SEEK_SET));
+    pone_module_put(world, module, "SEEK_END", pone_int_new(world, SEEK_END));
+    pone_module_put(world, module, "LOCK_SH", pone_int_new(world, LOCK_SH));
+    pone_module_put(world, module, "LOCK_EX", pone_int_new(world, LOCK_EX));
+    pone_module_put(world, module, "LOCK_UN", pone_int_new(world, LOCK_UN));
+
+    pone_universe_set_global(world->universe, "file", module);
 }
+

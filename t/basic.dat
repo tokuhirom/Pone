@@ -797,14 +797,14 @@ for 1..6 { if $_%2==0 { next } else { .say } }
 
 ===
 --- input
-say STDOUT.write("hoge\n")
+say file.stdout.write("hoge\n")
 --- expected
 hoge
 5
 
 ===
 --- input
-my $fh = open("t/dat/hello.txt");
+my $fh = file.open("t/dat/hello.txt");
 say $fh.eof;
 say $fh.read(10);
 say $fh.eof;
@@ -812,14 +812,14 @@ $fh.rewind();
 say $fh.eof;
 say $fh.read(10);
 say $fh.tell;
-$fh.seek(0, SEEK_SET);
+$fh.seek(0, file.SEEK_SET);
 say $fh.tell;
-$fh.seek(2, SEEK_CUR);
+$fh.seek(2, file.SEEK_CUR);
 say $fh.tell;
-$fh.seek(-1, SEEK_END);
+$fh.seek(-1, file.SEEK_END);
 say $fh.tell;
 say $fh.getc;
-$fh.flock(LOCK_EX);
+$fh.flock(file.LOCK_EX);
 $fh.close();
 --- expected
 False
@@ -835,9 +835,9 @@ o
 
 ===
 --- input
-say STDIN.fileno
-say STDOUT.fileno
-say STDERR.fileno
+say file.stdin.fileno
+say file.stdout.fileno
+say file.stderr.fileno
 --- expected
 0
 1
@@ -845,7 +845,7 @@ say STDERR.fileno
 
 ===
 --- input
-fdopen(STDOUT.fileno, "wb").write("HELLO\n")
+file.fdopen(file.stdout.fileno, "wb").write("HELLO\n")
 --- expected
 HELLO
 
