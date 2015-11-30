@@ -45,12 +45,11 @@ PONE_FUNC(meth_accepts) {
 }
 
 PONE_FUNC(meth_can) {
-    const char* name;
-    pone_int_t name_len;
-    PONE_ARG("Class#can", "s", &name, &name_len);
+    pone_val* name;
+    PONE_ARG("Class#can", "o", &name);
 
     pone_val* methods = pone_obj_get_ivar(world, self, "$!methods");
-    return pone_map_at_key_c(world->universe, methods, name);
+    return pone_map_at_key(world, methods, pone_stringify(world, name));
 }
 
 // initialize Class class
@@ -183,7 +182,7 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
             return method;
         } else {
             pone_val* methods = pone_obj_get_ivar(world, klass, "$!methods");
-            pone_val* method = pone_map_at_key_c(world->universe, methods, name);
+            pone_val* method = pone_map_at_key(world, methods, pone_str_new_strdup(world, name, strlen(name)));
             if (pone_defined(method)) {
                 return method;
             } else {
@@ -195,7 +194,7 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
         pone_val* methods = pone_obj_get_ivar(world, klass, "$!methods");
         assert(methods);
         assert(pone_type(methods) == PONE_MAP);
-        pone_val* method = pone_map_at_key_c(world->universe, methods, name);
+        pone_val* method = pone_map_at_key(world, methods, pone_str_new_strdup(world, name, strlen(name)));
         assert(method);
         if (pone_defined(method)) {
             return method;

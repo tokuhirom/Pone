@@ -110,10 +110,11 @@ typedef struct {
     pone_int_t len;
 } pone_ary;
 
+struct pone_hash_body;
+
 typedef struct {
     PONE_HEAD;
-    khash_t(str) * h;
-    pone_int_t len;
+    struct pone_hash_body* body;
 } pone_map;
 
 typedef struct {
@@ -369,7 +370,7 @@ void pone_map_assign_key_c(pone_world* world, pone_val* hv, const char* key, pon
 void pone_map_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
 pone_int_t pone_map_size(pone_val* val);
 void pone_map_free(pone_world* world, pone_val* val);
-pone_val* pone_map_at_key_c(pone_universe* universe, pone_val* hash, const char* name);
+pone_val* pone_map_at_key(pone_world* world, pone_val* hash, pone_val* key);
 void pone_map_init(pone_world* world);
 bool pone_map_exists_c(pone_world* world, pone_val* hash, const char* name);
 pone_val* pone_map_keys(pone_world* world, pone_val* val);

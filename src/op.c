@@ -111,7 +111,7 @@ static void pin(pone_int_t indent) {
     }
 }
 
-static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
+static void dd(pone_world* world, pone_val* val, pone_int_t indent) {
     pin(indent);
     switch (pone_type(val)) {
     case PONE_STRING: {
@@ -139,14 +139,18 @@ static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
         printf("(code func:%p)\n", val->as.code.func);
         break;
     case PONE_MAP: {
-        printf("(hash\n");
-        const char* k;
-        pone_val* v;
-        kh_foreach(val->as.map.h, k, v, {
-                pin(indent+1);
-                printf("key:%s\n", k);
-                dd(universe, v, indent+2);
-        });
+        printf("MAP:\n");
+        pone_val* keys = pone_map_keys(world, val);
+        for (pone_int_t i=0; i<pone_ary_size(keys); i++) {
+            pone_val* key = pone_ary_at_pos(keys, i);
+            pin(indent+1);
+            printf("key:\n");
+            dd(world, key, indent+2);
+            pin(indent+1);
+            printf("value:\n");
+            pone_val* v = pone_map_at_key(world, val, key);
+            dd(world, v, indent+2);
+        }
         pin(indent);
         printf(")\n");
         break;
@@ -155,7 +159,7 @@ static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
         printf("(array len:" PoneIntFmt ", max:" PoneIntFmt "\n", val->as.ary.len, val->as.ary.max);
         for (pone_int_t i = 0; i < val->as.ary.len; ++i) {
             pin(indent + 1);
-            dd(universe, val->as.ary.a[i], indent + 2);
+            dd(world, val->as.ary.a[i], indent + 2);
         }
         pin(indent);
         printf(")\n");
@@ -170,7 +174,7 @@ static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
         pin(indent + 1);
         if (val->as.obj.klass) {
             printf("class:\n");
-            dd(universe, val->as.obj.klass, indent + 2);
+            dd(world, val->as.obj.klass, indent + 2);
         } else {
             printf("class is NULL!\n");
         }
@@ -179,7 +183,7 @@ static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
         kh_foreach(val->as.obj.ivar, k, v, {
                 pin(indent+1);
                 printf("key:%s\n", k);
-                dd(universe, v, indent+2);
+                dd(world, v, indent+2);
         });
         pin(indent);
         printf(")\n");
@@ -193,7 +197,7 @@ static void dd(pone_universe* universe, pone_val* val, pone_int_t indent) {
 
 // TODO we should implement .gist and .perl method for each class...
 void pone_dd(pone_world* world, pone_val* val) {
-    dd(world->universe, val, 0);
+    dd(world, val, 0);
 }
 
 bool pone_so(pone_val* val) {
@@ -395,10 +399,10 @@ pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos) {
     }
 }
 
-pone_val* pone_at_key(pone_world* world, pone_val* obj, pone_val* pos) {
+pone_val* pone_at_key(pone_world* world, pone_val* obj, pone_val* key) {
     if (pone_type(obj) == PONE_MAP) { // specialization for performance
-        return pone_map_at_key_c(world->universe, obj, pone_str_ptr(pone_str_c_str(world, pos)));
+        return pone_map_at_key(world, obj, pone_stringify(world, key));
     } else {
-        return pone_call_method(world, obj, "AT-KEY", 1, pos);
+        return pone_call_method(world, obj, "AT-KEY", 1, key);
     }
 }
