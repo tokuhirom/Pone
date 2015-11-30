@@ -262,7 +262,7 @@ PONE_FUNC(meth_str_num) {
 PONE_FUNC(meth_str_encode) {
     PONE_ARG("Str#encode", "");
 
-    return pone_bytes_new_const(world, pone_str_ptr(self), pone_str_len(self));
+    return pone_bytes_new_strdup(world, pone_str_ptr(self), pone_str_len(self));
 }
 
 PONE_FUNC(meth_str_length) {
@@ -283,6 +283,12 @@ PONE_FUNC(meth_bytes_length) {
     return pone_int_new(world, pone_str_len(self));
 }
 
+PONE_FUNC(meth_bytes_decode) {
+    PONE_ARG("Bytes#decode", "");
+
+    return pone_str_new_strdup(world, pone_str_ptr(self), pone_str_len(self));
+}
+
 void pone_str_init(pone_world* world) {
     pone_universe* universe = world->universe;
     assert(universe->class_str == NULL);
@@ -299,6 +305,7 @@ void pone_str_init(pone_world* world) {
     {
         universe->class_bytes = pone_class_new(world, "Bytes", strlen("Bytes"));
         pone_add_method_c(world, universe->class_bytes, "Str", strlen("Str"), meth_bytes_str);
+        pone_add_method_c(world, universe->class_bytes, "decode", strlen("decode"), meth_bytes_decode);
         pone_add_method_c(world, universe->class_bytes, "length", strlen("length"), meth_bytes_length);
         pone_universe_set_global(world->universe, "Bytes", universe->class_bytes);
     }

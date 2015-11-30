@@ -1039,3 +1039,9 @@ say what("hoge".encode()).name
 --- expected
 Bytes
 
+===
+--- input
+say what("hoge".encode().decode()).name
+--- expected
+Str
+
