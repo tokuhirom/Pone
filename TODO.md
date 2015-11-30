@@ -51,6 +51,7 @@ TODO
 
  * uri
   * uri.parse(Str $uri)
+ * http/status
 
 ## Basic features
 
