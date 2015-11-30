@@ -265,8 +265,8 @@ PONE_FUNC(meth_str_encode) {
     return pone_bytes_new_strdup(world, pone_str_ptr(self), pone_str_len(self));
 }
 
-PONE_FUNC(meth_str_length) {
-    PONE_ARG("Str#length", "");
+PONE_FUNC(meth_str_chars) {
+    PONE_ARG("Str#chars", "");
 
     // Note: ongenc_strlen should support long?
     int i = onigenc_strlen(ONIG_ENCODING_UTF8, (OnigUChar*)pone_str_ptr(self), (OnigUChar*)pone_str_ptr(self) + pone_str_len(self));
@@ -278,8 +278,8 @@ PONE_FUNC(meth_bytes_str) {
     return pone_str_copy(world, self);
 }
 
-PONE_FUNC(meth_bytes_length) {
-    PONE_ARG("Bytes#length", "");
+PONE_FUNC(meth_bytes_bytes) {
+    PONE_ARG("Bytes#bytes", "");
     return pone_int_new(world, pone_str_len(self));
 }
 
@@ -298,7 +298,7 @@ void pone_str_init(pone_world* world) {
         pone_add_method_c(world, universe->class_str, "Str", strlen("Str"), meth_str_str);
         pone_add_method_c(world, universe->class_str, "Int", strlen("Int"), meth_str_int);
         pone_add_method_c(world, universe->class_str, "Num", strlen("Num"), meth_str_num);
-        pone_add_method_c(world, universe->class_str, "length", strlen("length"), meth_str_length);
+        pone_add_method_c(world, universe->class_str, "chars", strlen("chars"), meth_str_chars);
         pone_add_method_c(world, universe->class_str, "encode", strlen("encode"), meth_str_encode);
         pone_universe_set_global(world->universe, "Str", universe->class_str);
     }
@@ -306,7 +306,7 @@ void pone_str_init(pone_world* world) {
         universe->class_bytes = pone_class_new(world, "Bytes", strlen("Bytes"));
         pone_add_method_c(world, universe->class_bytes, "Str", strlen("Str"), meth_bytes_str);
         pone_add_method_c(world, universe->class_bytes, "decode", strlen("decode"), meth_bytes_decode);
-        pone_add_method_c(world, universe->class_bytes, "length", strlen("length"), meth_bytes_length);
+        pone_add_method_c(world, universe->class_bytes, "bytes", strlen("bytes"), meth_bytes_bytes);
         pone_universe_set_global(world->universe, "Bytes", universe->class_bytes);
     }
 }

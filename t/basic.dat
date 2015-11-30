@@ -865,9 +865,11 @@ say((3 ** 2).Int)
 
 ===
 --- input
-say("あいう".length)
+say("あいう".chars)
+say("あいう".encode.bytes)
 --- expected
 3
+9
 
 ===
 --- input
