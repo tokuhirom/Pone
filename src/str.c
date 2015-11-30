@@ -258,6 +258,36 @@ PONE_FUNC(meth_str_num) {
     return pone_num_new(world, strtod(pone_str_ptr(self), &end));
 }
 
+PONE_FUNC(meth_str_uc) {
+    PONE_ARG("Str#Num", "");
+
+    pone_val* v = pone_str_new_strdup(world, pone_str_ptr(self), pone_str_len(self));
+    char* p = pone_str_ptr(v);
+    char* e = p + pone_str_len(v);
+    while (p!=e) {
+        if ('a' <= *p && *p <= 'z') {
+            *p = (*p - 'a')+'A';
+        }
+        p++;
+    }
+    return v;
+}
+
+PONE_FUNC(meth_str_lc) {
+    PONE_ARG("Str#Num", "");
+
+    pone_val* v = pone_str_new_strdup(world, pone_str_ptr(self), pone_str_len(self));
+    char* p = pone_str_ptr(v);
+    char* e = p + pone_str_len(v);
+    while (p!=e) {
+        if ('A' <= *p && *p <= 'Z') {
+            *p = (*p - 'A')+'a';
+        }
+        p++;
+    }
+    return v;
+}
+
 // TODO support "hoge".encode("Shift_JIS")
 PONE_FUNC(meth_str_encode) {
     PONE_ARG("Str#encode", "");
@@ -298,6 +328,8 @@ void pone_str_init(pone_world* world) {
         pone_add_method_c(world, universe->class_str, "Str", strlen("Str"), meth_str_str);
         pone_add_method_c(world, universe->class_str, "Int", strlen("Int"), meth_str_int);
         pone_add_method_c(world, universe->class_str, "Num", strlen("Num"), meth_str_num);
+        pone_add_method_c(world, universe->class_str, "uc", strlen("uc"), meth_str_uc);
+        pone_add_method_c(world, universe->class_str, "lc", strlen("lc"), meth_str_lc);
         pone_add_method_c(world, universe->class_str, "chars", strlen("chars"), meth_str_chars);
         pone_add_method_c(world, universe->class_str, "encode", strlen("encode"), meth_str_encode);
         pone_universe_set_global(world->universe, "Str", universe->class_str);

@@ -1047,3 +1047,11 @@ say what("hoge".encode().decode()).name
 --- expected
 Str
 
+===
+--- input
+"AahOgEZz".uc.say
+"AahOgEZz".lc.say
+--- expected
+AAHOGEZZ
+aahogezz
+

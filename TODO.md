@@ -30,10 +30,6 @@ TODO
  * `Proc` builtin class
  * Regex.quote
  * Str#index
- * Str#lc
- * Str#uc
- * Str#lcfirst
- * Str#ucfirst
  * Str#split
  * Str#reverse
  * Array#reverse
@@ -50,6 +46,11 @@ TODO
  * Time#strftime
  * URI
  * `exec.which(path)` like golang's `exec.LookPath("fortune")`
+
+## Bundled packages
+
+ * uri
+  * uri.parse(Str $uri)
 
 ## Basic features
 
