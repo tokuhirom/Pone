@@ -147,7 +147,7 @@ static bool try_load_pn(pone_world* world, pone_val* dir, const char* name, cons
 void pone_use(pone_world* world, const char* name, const char* as) {
     // scan $*INC
     pone_val* inc = world->universe->inc;
-    for (pone_int_t i = 0; i < pone_ary_elems(inc); ++i) {
+    for (pone_int_t i = 0; i < pone_ary_size(inc); ++i) {
         pone_val* dir = pone_ary_at_pos(inc, i);
 
         // try ${dir}/${name}.pn
@@ -163,7 +163,7 @@ void pone_use(pone_world* world, const char* name, const char* as) {
     }
 
     pone_val* msg = pone_str_new_printf(world, "Could not load module '%s': no such module in:\n\n", name);
-    for (pone_int_t i = 0; i < pone_ary_elems(inc); ++i) {
+    for (pone_int_t i = 0; i < pone_ary_size(inc); ++i) {
         pone_str_append_c(world, msg, "    ", strlen("    "));
         pone_str_append(world, msg, pone_ary_at_pos(inc, i));
     }

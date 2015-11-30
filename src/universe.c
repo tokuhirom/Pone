@@ -15,8 +15,8 @@ void pone_universe_default_err_handler(pone_world* world) {
     fwrite("\n\n", 1, strlen("\n\n"), stderr);
 
     if (world->stacktrace) {
-        for (pone_int_t i = 0; i < pone_ary_elems(world->stacktrace); ++i) {
-            printf("%5ld: %s\n", pone_ary_elems(world->stacktrace) - i,
+        for (pone_int_t i = 0; i < pone_ary_size(world->stacktrace); ++i) {
+            printf("%5ld: %s\n", pone_ary_size(world->stacktrace) - i,
                    pone_str_ptr(pone_str_c_str(world, pone_ary_at_pos(world->stacktrace, i))));
         }
     }

@@ -101,7 +101,7 @@ void pone_hash_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val
     pone_hash_assign_key_c(world, hv, pone_str_ptr(k), pone_str_len(k), v);
 }
 
-size_t pone_hash_elems(pone_val* val) {
+pone_int_t pone_hash_size(pone_val* val) {
     assert(pone_type(val) == PONE_HASH);
     return ((pone_hash*)val)->len;
 }
@@ -122,29 +122,11 @@ pone_val* pone_hash_keys(pone_world* world, pone_val* val) {
     return retval;
 }
 
-/*
-
-=head2 C<Hash#elems() --> Int>
-
-Get the number of elements.
-
-=cut
-
-*/
-PONE_FUNC(meth_hash_elems) {
-    PONE_ARG("Hash#elems", "");
-    return pone_int_new(world, pone_hash_elems(self));
+PONE_FUNC(meth_hash_size) {
+    PONE_ARG("Hash#size", "");
+    return pone_int_new(world, pone_hash_size(self));
 }
 
-/*
-
-=head2 C<Hash#ASSIGN-KEY($key, $value)>
-
-Get the number of elements.
-
-=cut
-
-*/
 PONE_FUNC(meth_hash_assign_key) {
     pone_val* key;
     pone_val* value;
@@ -158,6 +140,6 @@ void pone_hash_init(pone_world* world) {
     assert(universe->class_hash == NULL);
 
     universe->class_hash = pone_class_new(world, "Hash", strlen("Hash"));
-    pone_add_method_c(world, universe->class_hash, "elems", strlen("elems"), meth_hash_elems);
+    pone_add_method_c(world, universe->class_hash, "size", strlen("size"), meth_hash_size);
     pone_add_method_c(world, universe->class_hash, "ASSIGN-KEY", strlen("ASSIGN-KEY"), meth_hash_assign_key);
 }

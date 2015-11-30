@@ -76,7 +76,7 @@ pone_val* pone_match_new(pone_world* world, pone_val* orig, pone_int_t from, pon
 void pone_match_push(pone_world* world, pone_val* self, pone_int_t from, pone_int_t to) {
     pone_val* list = pone_obj_get_ivar(world, self, "@!list");
     pone_val* orig = pone_obj_get_ivar(world, self, "$!orig");
-    for (pone_int_t i = 0; i < pone_ary_elems(list); ++i) {
+    for (pone_int_t i = 0; i < pone_ary_size(list); ++i) {
         pone_val* c = pone_ary_at_pos(list, i);
         pone_int_t c_from = pone_intify(world, pone_obj_get_ivar(world, c, "$!from"));
         if (from >= c_from) {
@@ -102,7 +102,7 @@ static pone_val* match_str(pone_world* world, pone_val* self, int n, int indent)
     pone_str_append_c(world, buf, "｢", strlen("｢"));
     pone_str_append_c(world, buf, pone_str_ptr(orig) + from, to - from);
     pone_str_append_c(world, buf, "｣\n", strlen("｣\n"));
-    for (pone_int_t i = 0; i < pone_ary_elems(list); ++i) {
+    for (pone_int_t i = 0; i < pone_ary_size(list); ++i) {
         pone_val* match = pone_ary_at_pos(list, i);
         pone_str_append(world, buf, match_str(world, match, i, indent + 1));
     }

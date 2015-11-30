@@ -11,7 +11,7 @@ void pone_ary_mark(pone_val* val) {
 // deep copy
 pone_val* pone_ary_copy(pone_world* world, pone_val* obj) {
     pone_val* retval = pone_ary_new(world, 0);
-    for (pone_int_t i = 0; i < pone_ary_elems(obj); ++i) {
+    for (pone_int_t i = 0; i < pone_ary_size(obj); ++i) {
         pone_ary_push(world->universe, retval, pone_val_copy(world, pone_ary_at_pos(obj, i)));
     }
     return retval;
@@ -56,7 +56,7 @@ pone_val* pone_ary_at_pos(pone_val* av, pone_int_t i) {
     }
 }
 
-pone_int_t pone_ary_elems(pone_val* av) {
+pone_int_t pone_ary_size(pone_val* av) {
     assert(pone_type(av) == PONE_ARRAY);
     return ((pone_ary*)av)->len;
 }
@@ -110,7 +110,7 @@ PONE_FUNC(meth_pull_one) {
     pone_val* i = pone_obj_get_ivar(world, self, "$!i");
     assert(pone_type(i) == PONE_INT);
 
-    if (pone_int_val(i) != pone_ary_elems(ary)) {
+    if (pone_int_val(i) != pone_ary_size(ary)) {
         pone_val* val = pone_ary_at_pos(ary, pone_int_val(i));
         pone_int_incr(world, i);
         return val;
@@ -130,10 +130,10 @@ PONE_FUNC(meth_ary_iterator) {
     return iter;
 }
 
-PONE_FUNC(meth_ary_elems) {
-    PONE_ARG("Array#elems", "");
+PONE_FUNC(meth_ary_size) {
+    PONE_ARG("Array#size", "");
     assert(pone_type(self) == PONE_ARRAY);
-    return pone_int_new(world, pone_ary_elems(self));
+    return pone_int_new(world, pone_ary_size(self));
 }
 
 void pone_ary_push(pone_universe* universe, pone_val* self, pone_val* val) {
@@ -232,7 +232,7 @@ PONE_FUNC(meth_ary_join) {
     PONE_ARG("Array#join", "o", &separator);
 
     pone_val* v = pone_str_new_strdup(world, "", 0);
-    pone_int_t len = pone_ary_elems(self);
+    pone_int_t len = pone_ary_size(self);
     for (pone_int_t i = 0; i < len; ++i) {
         pone_str_append(world, v, pone_ary_at_pos(self, i));
         if (i != len - 1) {
@@ -247,7 +247,7 @@ PONE_FUNC(meth_ary_str) {
 
     pone_val* v = pone_str_new_strdup(world, "", 0);
     pone_str_append_c(world, v, "[", 1);
-    for (pone_int_t i = 0; i < pone_ary_elems(self); ++i) {
+    for (pone_int_t i = 0; i < pone_ary_size(self); ++i) {
         pone_str_append(world, v, pone_ary_at_pos(self, i));
         pone_str_append_c(world, v, ",", 1);
     }
@@ -272,7 +272,7 @@ void pone_ary_init(pone_world* world) {
 
     universe->class_ary = pone_class_new(world, "Array", strlen("Array"));
     pone_add_method_c(world, universe->class_ary, "iterator", strlen("iterator"), meth_ary_iterator);
-    pone_add_method_c(world, universe->class_ary, "elems", strlen("elems"), meth_ary_elems);
+    pone_add_method_c(world, universe->class_ary, "size", strlen("size"), meth_ary_size);
     pone_add_method_c(world, universe->class_ary, "push", strlen("push"), meth_ary_push);
     pone_add_method_c(world, universe->class_ary, "pop", strlen("pop"), meth_ary_pop);
     pone_add_method_c(world, universe->class_ary, "unshift", strlen("unshift"), meth_ary_unshift);

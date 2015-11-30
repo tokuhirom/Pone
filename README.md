@@ -44,10 +44,6 @@ hash literals.
 builtin functions
 =================
 
-  * `elems`
-
-Count elements.
-
   * `print(Str)`
 
 print message.

@@ -367,7 +367,7 @@ pone_val* pone_hash_new(pone_world* world);
 pone_val* pone_hash_assign_keys(pone_world* world, pone_val* hash, pone_int_t n, ...);
 void pone_hash_assign_key_c(pone_world* world, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v);
 void pone_hash_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
-size_t pone_hash_elems(pone_val* val);
+pone_int_t pone_hash_size(pone_val* val);
 void pone_hash_free(pone_world* world, pone_val* val);
 pone_val* pone_hash_at_key_c(pone_universe* universe, pone_val* hash, const char* name);
 void pone_hash_init(pone_world* world);
@@ -378,7 +378,7 @@ pone_val* pone_hash_copy(pone_world* world, pone_val* obj);
 
 // array.c
 pone_val* pone_ary_new(pone_world* world, pone_int_t n, ...);
-pone_int_t pone_ary_elems(pone_val* val);
+pone_int_t pone_ary_size(pone_val* val);
 void pone_ary_free(pone_world* world, pone_val* val);
 void pone_ary_init(pone_world* world);
 pone_val* pone_ary_at_pos(pone_val* ary, pone_int_t n);
@@ -434,7 +434,6 @@ void pone_int_init(pone_world* world);
 // SV ops
 double pone_num_val(pone_val* val);
 bool pone_bool_val(pone_val* val);
-size_t pone_elems(pone_world* world, pone_val* val);
 pone_int_t pone_intify(pone_world* world, pone_val* val);
 pone_num_t pone_numify(pone_world* world, pone_val* val);
 bool pone_is_frozen(pone_val* v);

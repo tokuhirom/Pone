@@ -143,13 +143,13 @@ ok
 
 ===
 --- input
-say(elems([]))
+say([].size)
 --- expected
 0
 
 ===
 --- input
-say(elems([1,2,3]))
+say([1,2,3].size)
 --- expected
 3
 
@@ -168,19 +168,19 @@ say $x;
 
 ===
 --- input
-say elems({a => 3});
+say {a => 3}.size;
 --- expected
 1
 
 ===
 --- input
-say elems({a => 3, b => 4});
+say {a => 3, b => 4}.size;
 --- expected
 2
 
 ===
 --- input
-say elems({});
+say {}.size;
 --- expected
 0
 
@@ -396,7 +396,7 @@ hoge
 
 ===
 --- input
-say {a => 1, b => 2}.elems();
+say {a => 1, b => 2}.size();
 --- expected
 2
 

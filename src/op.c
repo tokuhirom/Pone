@@ -353,29 +353,6 @@ bool pone_str_gt(pone_world* world, pone_val* v1, pone_val* v2) { CMP_OP(> 0); }
 
 #undef CMP_OP
 
-size_t pone_elems(pone_world* world, pone_val* val) {
-    switch (pone_type(val)) {
-    case PONE_STRING:
-        return pone_str_len(val);
-    case PONE_ARRAY:
-        return pone_ary_elems(val);
-    case PONE_HASH:
-        return pone_hash_elems(val);
-    case PONE_NIL:
-    case PONE_INT:
-    case PONE_NUM:
-    case PONE_BOOL:
-    case PONE_CODE:
-    case PONE_OPAQUE:
-        return 1; // same as perl6
-    case PONE_OBJ:
-        abort(); // TODO call .elem?
-    case PONE_LEX:
-        abort();
-    }
-    abort();
-}
-
 const char* pone_type_name(pone_val* val) {
     assert(pone_alive(val));
     switch (pone_type(val)) {

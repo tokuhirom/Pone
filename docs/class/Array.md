@@ -10,7 +10,7 @@ There is a literal to build an instance.
 
 # METHODS
 
-## `Array#elems() --> Int`
+## `Array#size() --> Int`
 
 Get the number of elements.
 
