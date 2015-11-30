@@ -80,7 +80,6 @@ static pone_val* dup_lex_values(pone_world* world, pone_val* code) {
     return dst;
 }
 
-
 static pone_val* copy_code(pone_world* world, pone_val* code) {
     pone_val* dst = pone_code_new_c(world, code->as.code.func);
     // deep copy lex vars.

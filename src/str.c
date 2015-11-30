@@ -264,9 +264,9 @@ PONE_FUNC(meth_str_uc) {
     pone_val* v = pone_str_new_strdup(world, pone_str_ptr(self), pone_str_len(self));
     char* p = pone_str_ptr(v);
     char* e = p + pone_str_len(v);
-    while (p!=e) {
+    while (p != e) {
         if ('a' <= *p && *p <= 'z') {
-            *p = (*p - 'a')+'A';
+            *p = (*p - 'a') + 'A';
         }
         p++;
     }
@@ -279,9 +279,9 @@ PONE_FUNC(meth_str_lc) {
     pone_val* v = pone_str_new_strdup(world, pone_str_ptr(self), pone_str_len(self));
     char* p = pone_str_ptr(v);
     char* e = p + pone_str_len(v);
-    while (p!=e) {
+    while (p != e) {
         if ('A' <= *p && *p <= 'Z') {
-            *p = (*p - 'A')+'a';
+            *p = (*p - 'A') + 'a';
         }
         p++;
     }

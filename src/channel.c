@@ -160,17 +160,15 @@ void pone_channel_init(pone_world* world) {
 
 #define KLASS "X::Channel::ReceiveOnClosed"
     pone_val* recv_on_closed = pone_exc_class_new_simple(world,
-            KLASS, strlen(KLASS),
-            "Cannot receive a message on a closed channel"
-            );
+                                                         KLASS, strlen(KLASS),
+                                                         "Cannot receive a message on a closed channel");
     pone_universe_set_global(universe, KLASS, recv_on_closed);
 #undef KLASS
 
 #define KLASS "X::Channel::SendOnClosed"
     pone_val* send_on_closed = pone_exc_class_new_simple(world,
-            KLASS, strlen(KLASS),
-            "Cannot send a message on a closed channel"
-            );
+                                                         KLASS, strlen(KLASS),
+                                                         "Cannot send a message on a closed channel");
     pone_universe_set_global(universe, KLASS, send_on_closed);
 #undef KLASS
 

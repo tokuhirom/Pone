@@ -141,15 +141,15 @@ static void dd(pone_world* world, pone_val* val, pone_int_t indent) {
     case PONE_MAP: {
         printf("MAP:\n");
         pone_val* keys = pone_map_keys(world, val);
-        for (pone_int_t i=0; i<pone_ary_size(keys); i++) {
+        for (pone_int_t i = 0; i < pone_ary_size(keys); i++) {
             pone_val* key = pone_ary_at_pos(keys, i);
-            pin(indent+1);
+            pin(indent + 1);
             printf("key:\n");
-            dd(world, key, indent+2);
-            pin(indent+1);
+            dd(world, key, indent + 2);
+            pin(indent + 1);
             printf("value:\n");
             pone_val* v = pone_map_at_key(world, val, key);
-            dd(world, v, indent+2);
+            dd(world, v, indent + 2);
         }
         pin(indent);
         printf(")\n");

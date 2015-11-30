@@ -55,8 +55,8 @@ static bool load_module(pone_world* world, const char* from, const char* name, c
     // s!/!_!g;
     pone_val* funcname_tail = pone_str_new_strdup(world, name, name_len);
     char* p = pone_str_ptr(funcname_tail);
-    char* p_end = p+pone_str_len(funcname_tail);
-    while (p!=p_end) {
+    char* p_end = p + pone_str_len(funcname_tail);
+    while (p != p_end) {
         if (*p == '/') {
             *p = '_';
         }
@@ -71,7 +71,7 @@ static bool load_module(pone_world* world, const char* from, const char* name, c
         pone_throw_str(world, "Could not load module %s: %s", fullpath, dlerror());
     }
     pone_loadfunc_t pone_load = dlsym(handle, pone_str_ptr(
-                pone_str_c_str(world, funcname)));
+                                                  pone_str_c_str(world, funcname)));
 
     char* error;
     if ((error = dlerror()) != NULL) {

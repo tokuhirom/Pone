@@ -127,5 +127,5 @@ PONE_FUNC(meth_gc_request) {
 
 void pone_gc_init(pone_world* world) {
     pone_universe_set_global(world->universe, "gc_request",
-            pone_code_new(world, meth_gc_request));
+                             pone_code_new(world, meth_gc_request));
 }

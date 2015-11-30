@@ -36,4 +36,3 @@ void pone_opaque_free(pone_world* world, pone_val* v) {
     }
     pone_free(world->universe, v->as.opaque.body);
 }
-
