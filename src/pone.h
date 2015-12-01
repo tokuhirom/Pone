@@ -398,6 +398,7 @@ pone_val* pone_ary_shift(pone_world* world, pone_val* self);
 pone_val* pone_ary_copy(pone_world* world, pone_val* obj);
 
 // str.c
+inline pone_int_t pone_str_next_char_len(char* s);
 pone_val* pone_bytes_new_const(pone_world* world, const char* p, size_t len);
 pone_val* pone_bytes_new_allocd(pone_world* world, char* p, size_t len);
 pone_val* pone_str_new_strdup(pone_world* world, const char* p, size_t len);

@@ -138,7 +138,7 @@ endmacro()
 pone_ext(ext_socket ext/socket.c "socket")
 pone_ext(ext_math ext/math.c "math")
 pone_ext(ext_http_parser ext/http_parser.c "http/parser")
-
+pone_ext(ext_json ext/json.c "json")
 
 ADD_LIBRARY(linenoise STATIC 3rd/linenoise/linenoise.c)
 set_source_files_properties(3rd/linenoise/linenoise.c PROPERTIES COMPILE_FLAGS "-g -Wno-implicit-function-declaration")

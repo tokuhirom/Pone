@@ -17,6 +17,8 @@ sub like($a, $b, $msg) {
         say "ok $NTEST - $msg";
     } else {
         say "not ok $NTEST - $msg";
+        file.stderr.write("  got: $a\n");
+        file.stderr.write("  expected: $b\n");
     }
 }
 
