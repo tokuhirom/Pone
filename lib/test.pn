@@ -11,6 +11,15 @@ sub ok($a, $msg) {
     }
 }
 
+sub like($a, $b, $msg) {
+    $NTEST = $NTEST+1;
+    if ($a ~~ $b) {
+        say "ok $NTEST - $msg";
+    } else {
+        say "not ok $NTEST - $msg";
+    }
+}
+
 sub pass($msg) {
     $NTEST = $NTEST+1;
     say "ok $NTEST - $msg";

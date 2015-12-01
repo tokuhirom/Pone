@@ -302,6 +302,13 @@ PONE_FUNC(meth_str_encode) {
     return pone_bytes_new_strdup(world, pone_str_ptr(self), pone_str_len(self));
 }
 
+PONE_FUNC(meth_str_accepts) {
+    pone_val* s;
+    PONE_ARG("Str#ACCEPTS", "o", &s);
+
+    return pone_str_eq(world, self, s) ? pone_true() : pone_false();
+}
+
 pone_int_t pone_str_chars(pone_val* self) {
     return onigenc_strlen(ONIG_ENCODING_UTF8, (OnigUChar*)pone_str_ptr(self), (OnigUChar*)pone_str_ptr(self) + pone_str_len(self));
 }
@@ -365,6 +372,7 @@ void pone_str_init(pone_world* world) {
         pone_add_method_c(world, universe->class_str, "chars", strlen("chars"), meth_str_chars);
         pone_add_method_c(world, universe->class_str, "encode", strlen("encode"), meth_str_encode);
         pone_add_method_c(world, universe->class_str, "AT-POS", strlen("AT-POS"), meth_str_at_pos);
+        pone_add_method_c(world, universe->class_str, "ACCEPTS", strlen("ACCEPTS"), meth_str_accepts);
         pone_universe_set_global(world->universe, "Str", universe->class_str);
     }
     {

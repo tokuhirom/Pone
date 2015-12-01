@@ -879,9 +879,9 @@ dq_string =
 dq_string_inner =
     (
         "\n" { G->data.line_number++; APPEND_S("\n", 1); }
-        | "{" - e:statementlist - "}" { APPEND_N(e); }
-        | "{" - "}" { APPEND_S("", 0); }
-        | < [^>"{\\\n$%]+ > { APPEND_S(yytext, yyleng); }
+        | '#{' - e:expr - "}" { APPEND_N(e); }
+        | '#{' - "}" { APPEND_S("", 0); }
+        | < [^>"#\\\n$%]+ > { APPEND_S(yytext, yyleng); }
         | h:variable '<' - k:atkey_key - '>' { APPEND_N((CHILDREN2(PVIP_NODE_ATKEY, h, k))); }
         # %hash{do_a}
         | h:variable '{' - k:expr - '}' {  APPEND_N(CHILDREN2(PVIP_NODE_ATKEY, h, k)); }
