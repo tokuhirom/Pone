@@ -403,6 +403,7 @@ pone_val* pone_bytes_new_allocd(pone_world* world, char* p, size_t len);
 pone_val* pone_str_new_strdup(pone_world* world, const char* p, size_t len);
 pone_val* pone_bytes_new_malloc(pone_world* world, pone_int_t len);
 pone_val* pone_bytes_new_strdup(pone_world* world, const char* p, size_t len);
+void pone_bytes_truncate(pone_val* val, pone_int_t len);
 pone_val* pone_str_new_allocd(pone_world* world, char* p, size_t len);
 pone_val* pone_str_new_const(pone_world* world, const char* p, size_t len);
 void pone_str_free(pone_world* world, pone_val* val);

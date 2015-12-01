@@ -48,12 +48,13 @@ PONE_FUNC(meth_sock_read) {
     pone_int_t length;
     PONE_ARG("Socket#read", "i", &length);
 
-    char* buf = pone_malloc_zero(world->universe, length);
+    pone_val* buf = pone_bytes_new_malloc(world, length);
 
     struct pone_sock* sock = pone_opaque_ptr(self);
-    ssize_t len = read(sock->fd, buf, length);
+    ssize_t len = read(sock->fd, pone_str_ptr(buf), length);
     if (len >= 0) {
-        return pone_bytes_new_allocd(world, buf, len);
+        pone_bytes_truncate(buf, len);
+        return buf;
     } else {
         pone_world_set_errno(world);
         return pone_nil();

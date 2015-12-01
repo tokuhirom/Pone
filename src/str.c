@@ -54,6 +54,13 @@ pone_val* pone_bytes_new_allocd(pone_world* world, char* p, size_t len) {
     return (pone_val*)pv;
 }
 
+void pone_bytes_truncate(pone_val* val, pone_int_t len) {
+    assert(pone_type(val) == PONE_STRING);
+
+    assert(val->as.str.len >= len);
+    val->as.str.len = len;
+}
+
 /**
  * Create new pone string object from C string.
  * pone will not dup string.
