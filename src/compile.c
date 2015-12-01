@@ -1175,15 +1175,32 @@ static void pone_compile_ctx_finalize(pone_world* world, pone_val* val) {
 
 static pone_compile_ctx* pone_compile_ctx_new(pone_world* world, const char* filename) {
     assert(world);
-    pone_compile_ctx* ctx = pone_malloc_zero(world->universe, sizeof(pone_compile_ctx));
+
+    pone_compile_ctx* ctx = pone_malloc(world->universe, sizeof(pone_compile_ctx));
     assert(ctx);
     ctx->pvip = pvip_new();
     ctx->buf = PVIP_string_new();
-    ctx->filename = filename;
-    ctx->vars_stack = pone_malloc_zero(world->universe, sizeof(khash_t(str)*) * 1);
-    pone_int_vec_init(&(ctx->loop_stack));
-    ctx->ints = kh_init(i64);
+
+    ctx->subs = NULL;
+    ctx->sub_idx = 0;
+
+    ctx->vars_stack = pone_malloc(world->universe, sizeof(khash_t(str)*) * 1);
+    ctx->vars_stack[0] = kh_init(str);
     ctx->vars_max = 1;
+    ctx->vars_idx = 0;
+
+    ctx->ints = kh_init(i64);
+
+    pone_int_vec_init(&(ctx->loop_stack));
+
+    ctx->logical_op_counter = 0;
+
+    ctx->in_class = false;
+
+    ctx->filename = filename;
+
+    ctx->anon_sub_no = 0;
+
     // managed by GC
     (void)pone_opaque_new(world, pone_class_new(world, "CompilerContext", strlen("CompilerContext")), ctx, pone_compile_ctx_finalize);
     return ctx;
