@@ -1,0 +1,17 @@
+my $NTEST = 0;
+
+# TODO subtest
+
+sub ok($a, $msg) {
+    $NTEST = $NTEST+1;
+    if ($a) {
+        say "ok $NTEST - $msg";
+    } else {
+        say "not ok $NTEST - $msg";
+    }
+}
+
+sub done_testing() {
+    say "1..$NTEST";
+}
+

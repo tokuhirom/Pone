@@ -3,6 +3,7 @@ script:
   - cmake -DCMAKE_BUILD_TYPE=Debug .
   - make all VERBOSE=1
   - prove -I t/extlib/lib/perl5/ -v -r t xt
+  - prove -v -r --exec './bin/pone' pt/
 addons:
   apt:
     packages:
