@@ -119,7 +119,8 @@ static void chan_finalizer(pone_world* world, pone_val* val) {
 }
 
 pone_val* pone_chan_new(pone_world* world, pone_int_t limit) {
-    struct pone_chan* chan = pone_malloc_zero(world->universe, sizeof(struct pone_chan));
+    struct pone_chan* chan = pone_malloc(world->universe, sizeof(struct pone_chan));
+    chan->num = 0;
     chan->limit = limit;
     chan->world = pone_world_new(world->universe);
     chan->buffer = pone_ary_new(chan->world, 0);
