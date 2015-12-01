@@ -45,7 +45,7 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
             world->gc_requested = true;
 
             // alloc new arena
-            pone_arena* arena = pone_malloc_zero(universe, sizeof(pone_arena));
+            pone_arena* arena = pone_malloc(universe, sizeof(pone_arena));
             world->arena_last->next = arena;
             world->arena_last = arena;
             val = &(arena->values[arena->idx++]);
