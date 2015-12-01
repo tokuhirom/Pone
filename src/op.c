@@ -28,6 +28,7 @@ pone_val* pone_get_lex(pone_world* world, const char* key) {
 }
 
 pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val) {
+    assert(val);
     pone_val* lex = world->lex;
 #ifndef NDEBUG
     if (pone_type(world->lex) != PONE_LEX) {
