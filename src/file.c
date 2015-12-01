@@ -25,9 +25,10 @@ PONE_FUNC(meth_file_read) {
     pone_int_t nmemb; // buffer size.
     PONE_ARG("File#read", "i", &nmemb);
 
-    char* buf = pone_malloc_zero(world->universe, nmemb);
-    size_t r = fread(buf, 1, nmemb, SELF_FH);
-    return pone_str_new_allocd(world, buf, r);
+    pone_val* buf = pone_bytes_new_malloc(world, nmemb);
+    size_t r = fread(pone_str_ptr(buf), 1, nmemb, SELF_FH);
+    pone_bytes_truncate(buf, r);
+    return buf;
 }
 
 PONE_FUNC(meth_file_write) {
