@@ -71,7 +71,10 @@ void pone_init(pone_universe* universe) {
     pone_path_init(world);
 
     // init $*INC
-    universe->inc = pone_ary_new(world, 1, pone_str_new_const(world, "blib", strlen("blib")));
+    universe->inc = pone_ary_new(world, 2,
+        pone_str_new_const(world, "lib", strlen("lib")),
+        pone_str_new_const(world, "blib", strlen("blib"))
+    );
 
     // TODO
     // pone_universe_set_global(universe, "pi", pone_num_new(world, M_PI));
