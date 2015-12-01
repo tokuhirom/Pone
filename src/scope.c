@@ -21,6 +21,7 @@ void pone_lex_mark(pone_val* lex) {
     const char* k;
     pone_val* v;
     kh_foreach(lex->as.lex.map, k, v, {
+        assert(v);
         pone_gc_mark_value(v);
     });
     if (lex->as.lex.parent) {
