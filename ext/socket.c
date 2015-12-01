@@ -48,7 +48,7 @@ PONE_FUNC(meth_sock_read) {
     pone_int_t length;
     PONE_ARG("Socket#read", "i", &length);
 
-    char* buf = pone_malloc(world->universe, length);
+    char* buf = pone_malloc_zero(world->universe, length);
 
     struct pone_sock* sock = pone_opaque_ptr(self);
     ssize_t len = read(sock->fd, buf, length);
@@ -65,7 +65,7 @@ PONE_FUNC(meth_sock_accept) {
 
     struct pone_sock* sock = pone_opaque_ptr(self);
 
-    struct pone_sock* csock = pone_malloc(world->universe, sizeof(struct pone_sock));
+    struct pone_sock* csock = pone_malloc_zero(world->universe, sizeof(struct pone_sock));
     socklen_t addrlen = sizeof(struct sockaddr);
 #ifdef HAVE_ACCEPT4
     csock->fd = accept4(sock->fd, &(csock->peeraddr), &addrlen, SOCK_CLOEXEC);
@@ -232,7 +232,7 @@ PONE_FUNC(meth_sock_connect) {
         freeaddrinfo(result);           /* No longer needed */
         return pone_nil();
     } else {
-        struct pone_sock* sock = pone_malloc(world->universe, sizeof(struct pone_sock));
+        struct pone_sock* sock = pone_malloc_zero(world->universe, sizeof(struct pone_sock));
         sock->fd = fd;
         freeaddrinfo(result);           /* No longer needed */
         return pone_opaque_new(world, pone_get_lex(world, "klass"), sock, finalizer);
@@ -307,7 +307,7 @@ PONE_FUNC(meth_sock_listen) {
             }
         }
 
-        struct pone_sock* sock = pone_malloc(world->universe, sizeof(struct pone_sock));
+        struct pone_sock* sock = pone_malloc_zero(world->universe, sizeof(struct pone_sock));
         sock->fd = fd;
 
         freeaddrinfo(result);           /* No longer needed */

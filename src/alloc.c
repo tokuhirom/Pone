@@ -6,7 +6,11 @@ void* pone_malloc(pone_universe* universe, size_t size) {
         fprintf(stderr, "Cannot allocate memory\n");
         exit(1);
     }
-    // TODO remove this memset for performance
+    return p;
+}
+
+void* pone_malloc_zero(pone_universe* universe, size_t size) {
+    void* p = pone_malloc(universe, size);
     memset(p, 0, size);
     return p;
 }
@@ -41,7 +45,7 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
             world->gc_requested = true;
 
             // alloc new arena
-            pone_arena* arena = pone_malloc(universe, sizeof(pone_arena));
+            pone_arena* arena = pone_malloc_zero(universe, sizeof(pone_arena));
             world->arena_last->next = arena;
             world->arena_last = arena;
             val = &(arena->values[arena->idx++]);

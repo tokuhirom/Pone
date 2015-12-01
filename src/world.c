@@ -23,7 +23,7 @@ static inline void pone_world_dump(pone_universe* universe) {
 pone_world* pone_world_new(pone_universe* universe) {
     assert(universe);
 
-    // we can't use pone_malloc yet.
+    // we can't use pone_malloc_zero yet.
     pone_world* world = (pone_world*)malloc(sizeof(pone_world));
     if (!world) {
         fprintf(stderr, "Cannot make world\n");
@@ -47,8 +47,8 @@ pone_world* pone_world_new(pone_universe* universe) {
     world->lex = pone_lex_new(world, NULL);
     assert(pone_type(world->lex) == PONE_LEX);
 
-    world->err_handlers = pone_malloc(universe, sizeof(jmp_buf) * PONE_ERR_HANDLERS_INIT);
-    world->err_handler_lexs = pone_malloc(universe, sizeof(pone_world*) * PONE_ERR_HANDLERS_INIT);
+    world->err_handlers = pone_malloc_zero(universe, sizeof(jmp_buf) * PONE_ERR_HANDLERS_INIT);
+    world->err_handler_lexs = pone_malloc_zero(universe, sizeof(pone_world*) * PONE_ERR_HANDLERS_INIT);
     world->err_handler_idx = 0;
     world->err_handler_max = PONE_ERR_HANDLERS_INIT;
 

@@ -65,7 +65,7 @@ pone_val* pone_map_copy(pone_world* world, pone_val* obj) {
 
 pone_val* pone_map_new(pone_world* world) {
     pone_val* hv = pone_obj_alloc(world, PONE_MAP);
-    hv->as.map.body = pone_malloc(world->universe, sizeof(struct pone_hash_body));
+    hv->as.map.body = pone_malloc_zero(world->universe, sizeof(struct pone_hash_body));
     hv->as.map.body->h = kh_init(val);
     return hv;
 }

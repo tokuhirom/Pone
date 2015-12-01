@@ -23,7 +23,7 @@ pone_val* pone_ary_new(pone_world* world, pone_int_t n, ...) {
     pone_ary* av = (pone_ary*)pone_obj_alloc(world, PONE_ARRAY);
 
     va_start(list, n);
-    av->a = (pone_val**)pone_malloc(world->universe, sizeof(pone_val) * n);
+    av->a = (pone_val**)pone_malloc_zero(world->universe, sizeof(pone_val) * n);
     if (!av->a) {
         abort();
     }

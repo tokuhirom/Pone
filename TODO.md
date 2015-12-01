@@ -19,6 +19,8 @@ TODO
  * __FILE__
  * __LINE__
  * LEAVE block
+ * Move slurp to file.slurp
+ * Implement socket.fdopen for server-starter
  * math module
    *         "atan2", "cos", "exp", "hex", "log", "oct", "rand",
          "sin", "sqrt", "srand"
