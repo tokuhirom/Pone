@@ -11,6 +11,11 @@ sub ok($a, $msg) {
     }
 }
 
+sub pass($msg) {
+    $NTEST = $NTEST+1;
+    say "ok $NTEST - $msg";
+}
+
 sub done_testing() {
     say "1..$NTEST";
 }
