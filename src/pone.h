@@ -43,23 +43,23 @@ typedef long pone_int_t;
 
 typedef double pone_num_t;
 
+// type flag needs 4 bits
 typedef enum {
     PONE_NIL = 1,
-    PONE_INT,
-    PONE_NUM,
-    PONE_STRING,
-    PONE_ARRAY,
-    PONE_BOOL,
-    PONE_MAP,
-    PONE_CODE,
-    PONE_OBJ,
-    PONE_LEX,
-    PONE_OPAQUE,
+    PONE_INT = 2,
+    PONE_NUM= 3,
+    PONE_STRING= 4,
+    PONE_ARRAY= 5,
+    PONE_BOOL=6,
+    PONE_MAP=7,
+    PONE_CODE=8,
+    PONE_OBJ=9,
+    PONE_LEX=10,
+    PONE_OPAQUE=11,
 } pone_t;
 
 #define PONE_HEAD \
-    pone_t type;  \
-    uint8_t flags
+  uint64_t type:4, flags:8; 
 
 struct pone_val;
 struct pone_world;
