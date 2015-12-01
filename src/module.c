@@ -44,7 +44,15 @@ void pone_module_init(pone_world* world) {
 // $funcname =~ s!/!_!g;
 // $funcname = "PONE_DLL_$funcname";
 static bool load_module(pone_world* world, const char* from, const char* name, const char* as) {
-    pone_val* fullpath_v = pone_str_new_printf(world, "%s/%s.so", from, name);
+#if defined(__linux__)
+    const char *ext = "so";
+#elif defined(__APPLE__)
+    const char *ext = "dylib";
+#else
+#error "Unsupported operating system"
+#endif
+
+    pone_val* fullpath_v = pone_str_new_printf(world, "%s/%s.%s", from, name, ext);
     const char* fullpath = pone_str_ptr(pone_str_c_str(world, fullpath_v));
     struct stat stat_buf;
     if (stat(fullpath, &stat_buf) != 0) {
