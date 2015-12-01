@@ -29,7 +29,7 @@ static void stat_finalizer(pone_world* world, pone_val* val) {
 
 PONE_FUNC(meth_path_stat) {
     char* v = pone_str_ptr(pone_str_c_str(world, pone_obj_get_ivar(world, self, "$!path")));
-    struct stat* st = pone_malloc_zero(world->universe, sizeof(struct stat));
+    struct stat* st = pone_malloc(world->universe, sizeof(struct stat));
     if (stat(v, st) == 0) {
         return pone_opaque_new(world, world->universe->class_fileinfo, st, stat_finalizer);
     } else {
