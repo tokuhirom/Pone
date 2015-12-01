@@ -1083,7 +1083,7 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         // (use (nop) (ident "socket"))
         PRINTF("pone_use(world, \"");
         WRITE_PV(node->children.nodes[1]->pv);
-        PRINTF("\", \"");
+        PRINTF("\",");
         if (node->children.nodes[0]->type == PVIP_NODE_NOP) {
             const char* p = PVIP_string_c_str(node->children.nodes[1]->pv);
             const char* s = strrchr(p, '/');
@@ -1092,11 +1092,15 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
             } else {
                 s = p;
             }
-            PRINTF("%s", s);
+            PRINTF("\"%s\", sizeof(\"%s\")-1", s, s);
         } else {
+            PRINTF("\"");
             WRITE_PV(node->children.nodes[0]->pv);
+            PRINTF("\", sizeof(\"");
+            WRITE_PV(node->children.nodes[0]->pv);
+            PRINTF("\")-1");
         }
-        PRINTF("\")");
+        PRINTF(")");
         break;
     }
     case PVIP_NODE_NOP:

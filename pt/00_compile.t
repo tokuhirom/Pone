@@ -1,5 +1,5 @@
-use test;
+use . test;
 
-test.ok(True, "good");
-test.done_testing()
+ok(True, "good");
+done_testing();
 

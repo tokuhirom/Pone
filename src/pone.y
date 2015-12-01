@@ -202,6 +202,11 @@ use_stmt =
     'use' - id:ident - pkg:pkg_name eat_terminator {
         $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_USE, id, pkg); 
     }
+    | 'use' - '.' - pkg:pkg_name eat_terminator {
+        $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_USE,
+          PVIP_node_new_string(&(G->data), PVIP_NODE_IDENT, ".", 1), pkg
+        );
+    }
     | 'use' - pkg:pkg_name eat_terminator {
         $$ = PVIP_node_new_children2(&(G->data), PVIP_NODE_USE, NOP(), pkg); 
     }

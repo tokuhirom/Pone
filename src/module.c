@@ -6,6 +6,20 @@
 #include "dlfcn.h"
 #include <sys/stat.h>
 
+static void export_module(pone_world* world, const char* name, pone_int_t name_len, pone_val* module) {
+    if (name_len == 1 && name[0] == '.') {
+        const char* k;
+        pone_val* v;
+        kh_foreach(module->as.obj.ivar, k, v, {
+            assert(v);
+            // TODO we may need to strdup `k`
+            pone_assign(world, 0, k, v);
+        });
+    } else {
+        pone_assign(world, 0, name, module);
+    }
+}
+
 pone_val* pone_module_new(pone_world* world, const char* name) {
     pone_val* obj = pone_obj_new(world, world->universe->class_module);
     pone_obj_set_ivar(world, obj, "$!name", pone_str_new_strdup(world, name, strlen(name)));
@@ -43,16 +57,16 @@ void pone_module_init(pone_world* world) {
 // my $funcname = $pkg;
 // $funcname =~ s!/!_!g;
 // $funcname = "PONE_DLL_$funcname";
-static bool load_module(pone_world* world, const char* from, const char* name, const char* as) {
+static bool load_module(pone_world* world, const char* from, const char* name, const char* as, pone_int_t as_len) {
 #if defined(__linux__)
-    const char *ext = "so";
+#define PONE_DLL_EXT "so"
 #elif defined(__APPLE__)
-    const char *ext = "dylib";
+#define PONE_DLL_EXT "dylib"
 #else
 #error "Unsupported operating system"
 #endif
 
-    pone_val* fullpath_v = pone_str_new_printf(world, "%s/%s.%s", from, name, ext);
+    pone_val* fullpath_v = pone_str_new_printf(world, "%s/%s.%s", from, name, PONE_DLL_EXT);
     const char* fullpath = pone_str_ptr(pone_str_c_str(world, fullpath_v));
     struct stat stat_buf;
     if (stat(fullpath, &stat_buf) != 0) {
@@ -91,7 +105,7 @@ static bool load_module(pone_world* world, const char* from, const char* name, c
     pone_val* module = pone_module_new(world, name);
     pone_load(world, module);
 
-    pone_assign(world, 0, as, module);
+    export_module(world, as, as_len, module);
     return true;
 }
 
@@ -112,7 +126,7 @@ pone_val* pone_module_from_lex(pone_world* world, const char* module_name) {
 }
 
 // try load ${dir}/${name}.pn.
-static bool try_load_pn(pone_world* world, pone_val* dir, const char* name, const char* as) {
+static bool try_load_pn(pone_world* world, pone_val* dir, const char* name, const char* as, pone_int_t as_len) {
     pone_val* path = pone_stringify(world, dir);
     pone_str_append_c(world, path, "/", strlen("/"));
     pone_str_append_c(world, path, name, strlen(name));
@@ -148,24 +162,24 @@ static bool try_load_pn(pone_world* world, pone_val* dir, const char* name, cons
 
     world->lex = orig_lex;
 
-    pone_assign(world, 0, as, module);
+    export_module(world, as, as_len, module);
     return true;
 }
 
-void pone_use(pone_world* world, const char* name, const char* as) {
+void pone_use(pone_world* world, const char* name, const char* as, pone_int_t as_len) {
     // scan $*INC
     pone_val* inc = world->universe->inc;
     for (pone_int_t i = 0; i < pone_ary_size(inc); ++i) {
         pone_val* dir = pone_ary_at_pos(inc, i);
 
         // try ${dir}/${name}.pn
-        if (try_load_pn(world, dir, name, as)) {
+        if (try_load_pn(world, dir, name, as, as_len)) {
             return;
         }
 
         // try ${dir}/${name}.so
         const char* from = pone_str_ptr(pone_str_c_str(world, pone_stringify(world, dir)));
-        if (load_module(world, from, name, as)) {
+        if (load_module(world, from, name, as, as_len)) {
             return;
         }
     }

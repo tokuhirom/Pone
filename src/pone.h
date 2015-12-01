@@ -345,7 +345,7 @@ pone_val* pone_errvar(pone_world* world);
 pone_val* pone_errno(pone_world* world);
 void pone_world_mark(pone_world*);
 void pone_world_set_errno(pone_world* world);
-void pone_use(pone_world* world, const char* pkg, const char* as);
+void pone_use(pone_world* world, const char* pkg, const char* as, pone_int_t as_len);
 
 // op.c
 void pone_dd(pone_world* world, pone_val* val);

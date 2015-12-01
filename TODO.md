@@ -50,6 +50,7 @@ TODO
  * Time#strftime
  * URI
  * `exec.which(path)` like golang's `exec.LookPath("fortune")`
+ * argument validation for compiled code.
 
 ## Bundled packages
 
