@@ -77,6 +77,8 @@ TODO
  * FFI
  * CSV reader
  * JSON reader/writer
+ * json.stringify
+ * json.parse
 
 ### GC
 
