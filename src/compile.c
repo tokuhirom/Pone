@@ -419,7 +419,7 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
                 PRINTF("\\\\");
                 break;
             case '\"':
-                PRINTF("\"");
+                PRINTF("\\\"");
                 break;
             default:
                 PRINTF("%c", node->pv->buf[i]);
