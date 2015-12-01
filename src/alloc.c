@@ -9,12 +9,6 @@ void* pone_malloc(pone_universe* universe, size_t size) {
     return p;
 }
 
-void* pone_malloc_zero(pone_universe* universe, size_t size) {
-    void* p = pone_malloc(universe, size);
-    memset(p, 0, size);
-    return p;
-}
-
 // Caller must get GC_RD_LOCK.
 pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
     pone_universe* universe = world->universe;
