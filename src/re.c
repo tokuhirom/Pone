@@ -4,7 +4,7 @@
 #include "oniguruma.h"
 
 static void re_finalizer(pone_world* world, pone_val* val) {
-    pone_free(world->universe, pone_opaque_ptr(val));
+    pone_free(world, pone_opaque_ptr(val));
 }
 
 static void region_finalizer(pone_world* world, pone_val* val) {
@@ -16,7 +16,7 @@ pone_val* pone_regex_new(pone_world* world, const char* str, size_t len) {
     pone_universe* universe = world->universe;
     pone_val* obj = pone_obj_new(world, universe->class_regex);
     OnigErrorInfo errinfo;
-    regex_t* re = pone_malloc(world->universe, sizeof(regex_t));
+    regex_t* re = pone_malloc(world, sizeof(regex_t));
     int err_code;
     if ((err_code = onig_new_without_alloc(re, (const OnigUChar*)str, (const OnigUChar*)str + len, ONIG_OPTION_NONE, ONIG_ENCODING_UTF8, ONIG_SYNTAX_PERL, &errinfo)) != ONIG_NORMAL) {
         char buf[ONIG_MAX_ERROR_MESSAGE_LEN];

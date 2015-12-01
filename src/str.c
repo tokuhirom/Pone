@@ -22,7 +22,7 @@ pone_val* pone_str_new_strdup(pone_world* world, const char* p, size_t len) {
 
 pone_val* pone_bytes_new_malloc(pone_world* world, pone_int_t len) {
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
-    pv->p = pone_malloc(world->universe, len);
+    pv->p = pone_malloc(world, len);
     pv->len = len;
     return (pone_val*)pv;
 }
@@ -101,7 +101,7 @@ pone_val* pone_str_new_vprintf(pone_world* world, const char* fmt, va_list args)
     if (size < 0) {
         abort();
     }
-    char* p = pone_malloc(world->universe, size + 1);
+    char* p = pone_malloc(world, size + 1);
     size = vsnprintf(p, size + 1, fmt, copied);
     if (size < 0) {
         abort();
@@ -122,7 +122,7 @@ pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2) {
     pone_string* pv = (pone_string*)pone_obj_alloc(world, PONE_STRING);
     pv->flags = PONE_FLAGS_STR_UTF8;
     pv->len = pone_str_len(s1) + pone_str_len(s2);
-    pv->p = pone_malloc(world->universe, pv->len);
+    pv->p = pone_malloc(world, pv->len);
     memcpy(pv->p, pone_str_ptr(s1), pone_str_len(s1));
     memcpy(pv->p + pone_str_len(s1), pone_str_ptr(s2), pone_str_len(s2));
 
@@ -142,7 +142,7 @@ void pone_str_free(pone_world* world, pone_val* val) {
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) {
         // there's no heap ref.
     } else if (!(pone_flags(val) & PONE_FLAGS_STR_CONST)) {
-        pone_free(world->universe, (char*)((pone_string*)val)->p);
+        pone_free(world, (char*)((pone_string*)val)->p);
     }
 }
 

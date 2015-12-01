@@ -24,7 +24,7 @@ static void sock_close(struct pone_sock* sock) {
 static void finalizer(pone_world* world, pone_val* val) {
     struct pone_sock* sock = pone_opaque_ptr(val);
     sock_close(sock);
-    pone_free(world->universe, sock);
+    pone_free(world, sock);
 }
 
 PONE_FUNC(meth_sock_close) {
@@ -66,7 +66,7 @@ PONE_FUNC(meth_sock_accept) {
 
     struct pone_sock* sock = pone_opaque_ptr(self);
 
-    struct pone_sock* csock = pone_malloc(world->universe, sizeof(struct pone_sock));
+    struct pone_sock* csock = pone_malloc(world, sizeof(struct pone_sock));
     socklen_t addrlen = sizeof(struct sockaddr);
 #ifdef HAVE_ACCEPT4
     csock->fd = accept4(sock->fd, &(csock->peeraddr), &addrlen, SOCK_CLOEXEC);
@@ -78,7 +78,7 @@ PONE_FUNC(meth_sock_accept) {
 #ifndef HAVE_ACCEPT4
         if (fcntl(csock->fd, F_SETFD, FD_CLOEXEC) == -1) {
             pone_world_set_errno(world);
-            pone_free(world->universe, csock);
+            pone_free(world, csock);
             return pone_nil();
         }
 #endif
@@ -87,7 +87,7 @@ PONE_FUNC(meth_sock_accept) {
     } else {
         // got error
         pone_world_set_errno(world);
-        pone_free(world->universe, csock);
+        pone_free(world, csock);
         return pone_nil();
     }
 }
@@ -233,7 +233,7 @@ PONE_FUNC(meth_sock_connect) {
         freeaddrinfo(result);           /* No longer needed */
         return pone_nil();
     } else {
-        struct pone_sock* sock = pone_malloc(world->universe, sizeof(struct pone_sock));
+        struct pone_sock* sock = pone_malloc(world, sizeof(struct pone_sock));
         sock->fd = fd;
         freeaddrinfo(result);           /* No longer needed */
         return pone_opaque_new(world, pone_get_lex(world, "klass"), sock, finalizer);
@@ -308,7 +308,7 @@ PONE_FUNC(meth_sock_listen) {
             }
         }
 
-        struct pone_sock* sock = pone_malloc(world->universe, sizeof(struct pone_sock));
+        struct pone_sock* sock = pone_malloc(world, sizeof(struct pone_sock));
         sock->fd = fd;
 
         freeaddrinfo(result);           /* No longer needed */

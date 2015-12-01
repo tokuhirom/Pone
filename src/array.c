@@ -23,7 +23,7 @@ pone_val* pone_ary_new(pone_world* world, pone_int_t n, ...) {
     pone_ary* av = (pone_ary*)pone_obj_alloc(world, PONE_ARRAY);
 
     va_start(list, n);
-    av->a = (pone_val**)pone_malloc(world->universe, sizeof(pone_val) * n);
+    av->a = (pone_val**)pone_malloc(world, sizeof(pone_val) * n);
     av->max = n;
     av->len = n;
     // we can optimize in case of `[1,2,3]`.
@@ -38,7 +38,7 @@ pone_val* pone_ary_new(pone_world* world, pone_int_t n, ...) {
 }
 
 void pone_ary_free(pone_world* world, pone_val* val) {
-    pone_free(world->universe, val->as.ary.a);
+    pone_free(world, val->as.ary.a);
 }
 
 // $av.AT-POS(i)

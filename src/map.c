@@ -29,7 +29,7 @@ pone_val* pone_map_copy(pone_world* world, pone_val* obj) {
 
 pone_val* pone_map_new(pone_world* world) {
     pone_val* hv = pone_obj_alloc(world, PONE_MAP);
-    struct pone_hash_body* body = pone_malloc(world->universe, sizeof(struct pone_hash_body));
+    struct pone_hash_body* body = pone_malloc(world, sizeof(struct pone_hash_body));
     body->len = 0;
     body->h = kh_init(val);
     hv->as.map.body = body;
@@ -53,7 +53,7 @@ pone_val* pone_map_assign_keys(pone_world* world, pone_val* hash, pone_int_t n, 
 
 void pone_map_free(pone_world* world, pone_val* val) {
     kh_destroy(val, val->as.map.body->h);
-    pone_free(world->universe, val->as.map.body);
+    pone_free(world, val->as.map.body);
 }
 
 // TODO DEPRECATE

@@ -24,16 +24,16 @@ PONE_FUNC(meth_path_str) {
 }
 
 static void stat_finalizer(pone_world* world, pone_val* val) {
-    pone_free(world->universe, pone_opaque_ptr(val));
+    pone_free(world, pone_opaque_ptr(val));
 }
 
 PONE_FUNC(meth_path_stat) {
     char* v = pone_str_ptr(pone_str_c_str(world, pone_obj_get_ivar(world, self, "$!path")));
-    struct stat* st = pone_malloc(world->universe, sizeof(struct stat));
+    struct stat* st = pone_malloc(world, sizeof(struct stat));
     if (stat(v, st) == 0) {
         return pone_opaque_new(world, world->universe->class_fileinfo, st, stat_finalizer);
     } else {
-        pone_free(world->universe, st);
+        pone_free(world, st);
         pone_world_set_errno(world);
         return pone_nil();
     }

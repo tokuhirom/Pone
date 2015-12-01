@@ -1,6 +1,6 @@
 #include "pone.h" /* PONE_INC */
 
-void* pone_malloc(pone_universe* universe, size_t size) {
+void* pone_malloc(pone_world* world, size_t size) {
     void* p = malloc(size);
     if (!p) {
         fprintf(stderr, "Cannot allocate memory\n");
@@ -39,7 +39,7 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
             world->gc_requested = true;
 
             // alloc new arena
-            pone_arena* arena = pone_malloc(universe, sizeof(pone_arena));
+            pone_arena* arena = pone_malloc(world, sizeof(pone_arena));
             world->arena_last->next = arena;
             world->arena_last = arena;
             val = &(arena->values[arena->idx++]);
@@ -69,7 +69,7 @@ void pone_val_free(pone_world* world, pone_val* p) {
 #endif
 }
 
-void pone_free(pone_universe* universe, void* p) {
+void pone_free(pone_world* world, void* p) {
     free(p);
 }
 

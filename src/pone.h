@@ -509,9 +509,9 @@ pone_val* pone_iter_next(pone_world* world, pone_val* iter);
 
 void pone_val_free(pone_world* world, pone_val* p);
 pone_t pone_type(pone_val* val);
-void* pone_malloc(pone_universe* universe, size_t size);
+void* pone_malloc(pone_world* world, size_t size);
 pone_val* pone_obj_alloc(pone_world* world, pone_t type);
-void pone_free(pone_universe* universe, void* p);
+void pone_free(pone_world* world, void* p);
 
 // class.c
 pone_val* pone_init_class(pone_world* world);

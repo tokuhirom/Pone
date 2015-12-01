@@ -3,7 +3,7 @@
 
 // @args finalizer allows NULL.
 pone_val* pone_opaque_new(pone_world* world, pone_val* klass, void* ptr, pone_finalizer_t finalizer) {
-    struct pone_opaque_body* body = pone_malloc(world->universe, sizeof(struct pone_opaque_body));
+    struct pone_opaque_body* body = pone_malloc(world, sizeof(struct pone_opaque_body));
     body->ptr = ptr;
     body->finalizer = finalizer;
     body->refcnt = 1;
@@ -34,5 +34,5 @@ void pone_opaque_free(pone_world* world, pone_val* v) {
             finalizer(world, v);
         }
     }
-    pone_free(world->universe, v->as.opaque.body);
+    pone_free(world, v->as.opaque.body);
 }

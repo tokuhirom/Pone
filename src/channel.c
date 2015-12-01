@@ -99,12 +99,12 @@ pone_val* pone_chan_receive(pone_world* world, pone_val* self) {
 
 static void finalize_mutex(pone_world* world, pone_val* val) {
     CHECK_PTHREAD(pthread_mutex_destroy(pone_opaque_ptr(val)));
-    pone_free(world->universe, pone_opaque_ptr(val));
+    pone_free(world, pone_opaque_ptr(val));
 }
 
 static void finalize_cond(pone_world* world, pone_val* val) {
     CHECK_PTHREAD(pthread_cond_destroy(pone_opaque_ptr(val)));
-    pone_free(world->universe, pone_opaque_ptr(val));
+    pone_free(world, pone_opaque_ptr(val));
 }
 
 static void chan_finalizer(pone_world* world, pone_val* val) {
@@ -114,12 +114,12 @@ static void chan_finalizer(pone_world* world, pone_val* val) {
         CHECK_PTHREAD(pthread_cond_destroy(&(chan->send_cond)));
         CHECK_PTHREAD(pthread_mutex_destroy(&(chan->mutex)));
         pone_world_free(chan->world);
-        pone_free(world->universe, chan);
+        pone_free(world, chan);
     }
 }
 
 pone_val* pone_chan_new(pone_world* world, pone_int_t limit) {
-    struct pone_chan* chan = pone_malloc(world->universe, sizeof(struct pone_chan));
+    struct pone_chan* chan = pone_malloc(world, sizeof(struct pone_chan));
     chan->num = 0;
     chan->limit = limit;
     chan->world = pone_world_new(world->universe);

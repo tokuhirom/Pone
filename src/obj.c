@@ -33,7 +33,7 @@ inline void pone_obj_free(pone_world* world, pone_val* val) {
     const char* k;
     pone_val* v;
     kh_foreach(val->as.obj.ivar, k, v, {
-        pone_free(world->universe, (void*)k); // k is strdupped.
+        pone_free(world, (void*)k); // k is strdupped.
     });
 
     kh_destroy(str, val->as.obj.ivar);

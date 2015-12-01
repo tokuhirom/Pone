@@ -26,7 +26,7 @@ void pone_code_bind(pone_world* world, pone_val* code, const char* key, pone_val
     if (ret == -1) {
         abort(); // TODO better error msg
     } else if (ret == 0) {
-        pone_free(world->universe, ks);
+        pone_free(world, ks);
     }
     kh_val(lex, k) = val;
 }

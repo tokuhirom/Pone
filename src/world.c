@@ -47,8 +47,8 @@ pone_world* pone_world_new(pone_universe* universe) {
     world->lex = pone_lex_new(world, NULL);
     assert(pone_type(world->lex) == PONE_LEX);
 
-    world->err_handlers = pone_malloc(universe, sizeof(jmp_buf) * PONE_ERR_HANDLERS_INIT);
-    world->err_handler_lexs = pone_malloc(universe, sizeof(pone_world*) * PONE_ERR_HANDLERS_INIT);
+    world->err_handlers = pone_malloc(world, sizeof(jmp_buf) * PONE_ERR_HANDLERS_INIT);
+    world->err_handler_lexs = pone_malloc(world, sizeof(pone_world*) * PONE_ERR_HANDLERS_INIT);
     world->err_handler_idx = 0;
     world->err_handler_max = PONE_ERR_HANDLERS_INIT;
 
@@ -135,7 +135,7 @@ void pone_world_free(pone_world* world) {
             pone_val_free(world, val);
         }
         pone_arena* next = arena->next;
-        pone_free(world->universe, arena);
+        pone_free(world, arena);
         arena = next;
     }
 
@@ -145,9 +145,9 @@ void pone_world_free(pone_world* world) {
     CHECK_PTHREAD(pthread_cond_destroy(&(world->cond)));
     free(world->tmpstack.a);
     free(world->savestack.a);
-    pone_free(world->universe, world->err_handler_lexs);
-    pone_free(world->universe, world->err_handlers);
-    pone_free(world->universe, world);
+    pone_free(world, world->err_handler_lexs);
+    pone_free(world, world->err_handlers);
+    pone_free(world, world);
 }
 
 void pone_world_set_errno(pone_world* world) {
