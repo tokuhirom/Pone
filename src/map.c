@@ -60,13 +60,14 @@ pone_val* pone_map_copy(pone_world* world, pone_val* obj) {
 }
 
 // TODO: delete key
-// TODO: push key
 // TODO: exists key
 
 pone_val* pone_map_new(pone_world* world) {
     pone_val* hv = pone_obj_alloc(world, PONE_MAP);
-    hv->as.map.body = pone_malloc_zero(world->universe, sizeof(struct pone_hash_body));
-    hv->as.map.body->h = kh_init(val);
+    struct pone_hash_body* body = pone_malloc(world->universe, sizeof(struct pone_hash_body));
+    body->len = 0;
+    body->h = kh_init(val);
+    hv->as.map.body = body;
     return hv;
 }
 
