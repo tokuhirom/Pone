@@ -300,7 +300,7 @@ PONE_FUNC(meth_sock_listen) {
     } else {
         // set SO_REUSEADDR by default.
         {
-            int yes = 1;
+            const int yes = 1;
             if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
                 freeaddrinfo(result); /* No longer needed */
                 pone_world_set_errno(world);
