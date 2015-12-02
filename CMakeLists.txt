@@ -137,7 +137,7 @@ endmacro()
 
 pone_ext(ext_socket ext/socket.c "socket")
 pone_ext(ext_math ext/math.c "math")
-pone_ext(ext_http_parser ext/http_parser.c "http/parser")
+pone_ext(ext_http_parser "3rd/picohttpparser/picohttpparser.c;ext/http_parser.c" "http/parser")
 pone_ext(ext_json ext/json.c "json")
 
 file(MAKE_DIRECTORY blib/http/)
