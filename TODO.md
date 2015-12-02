@@ -62,7 +62,7 @@ TODO
 
 ## Basic features
 
- * `class A { }`
+ * `class A { has a; }`
  * `class A does B { }`
  * `role A { }`
  * -p
@@ -80,6 +80,7 @@ TODO
  * FFI
  * CSV reader
  * json.parse
+ * discount support
 
 ### GC
 

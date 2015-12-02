@@ -8,19 +8,73 @@ There's more than one way to do it
 SYNOPSIS
 ========
 
+    use socket;
+    use http/parser;
+
+    my $chan = chan(9);
+
+    # start worker thread.
+    for 1..10 {
+        async(sub {
+            # TODO loop
+            while True {
+                my $csock = $chan.receive();
+                my $buf;
+                while True {
+                    my $cbuf = $csock.read(1000);
+                    if $cbuf.bytes > 0 {
+                        $buf ~= $cbuf;
+                        my $got = parser.parse_request($buf);
+                        if $got[0] > 0 {
+                            $csock.write("HTTP/1.0 200 OK\r\nContent-Length: 8\r\nConnection: close\r\n\r\nHello!!\n");
+                            $csock.close();
+                            last;
+                        }
+                    } else {
+                        last;
+                    }
+                }
+            }
+        });
+    }
+
+    my $sock = socket.listen("127.0.0.1", 0) or die "listen: $!";
+    say $sock.sockaddr;
+    say $sock.sockport;
+
+    while True {
+        my $csock = $sock.accept();
+        $chan.send($csock);
+    }
+
 DESCRIPTION
 ===========
 
 Pone is an Perl-ish interpreter. It has a Perl like syntax. This compiler compiles code into C.
 
+STATUS
+======
+
+Pone language is in pre-alpha state. Language design changes day-by-day.
+I need your feedback.
+
 FEATURES
 ========
 
-  * Threading support
-   * No global interpreter lock
-  * No GC stop the world
-   * GC working per thread.
-  * Channel based thread model
+* ** Threading support **
+
+Pone includes threading support with shared nothing architecture.
+It means there's no global interpreter lock in Pone interpreter. All threads run concurrently.
+
+* ** No Global GC stop **
+
+There's no global GC stop. Since each thread has own memory arena.
+In TCP server, you can run GC when the thread doesn't get a request.
+
+* ** Message passing model **
+
+Pone is shared nothing architecture. Use message passing instead.
+There's golang like channel for communcation.
 
 LITERALS
 ========
@@ -40,6 +94,10 @@ There is single quotation string literal
   * `{ a = 3 }`
 
 hash literals.
+
+  * True/False
+
+There's boolean value!
 
 builtin functions
 =================
