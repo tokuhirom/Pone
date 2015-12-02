@@ -68,6 +68,8 @@ typedef struct pone_compile_ctx {
 
     bool in_class;
 
+    pone_int_t param_no;
+
     const char* filename;
     int anon_sub_no;
 } pone_compile_ctx;
@@ -1019,47 +1021,6 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
                    PVIP_string_c_str(name->pv));
         }
 
-        //      if .name {
-        //          qq!pone_assign(world, 0, "&{$name}", pone_mortalize(world, pone_code_new(world, pone_user_func_{$name})))!;
-        //      } else {
-        //          qq!pone_mortalize(world, pone_code_new(world, pone_user_func_{$name}))!;
-        //      }
-        /*
-        my $name = .name // 'anon_' ~ $*ANONSUBNO++;
-        my $argcnt = .children[1] ?? .children[1].children.elems !! 0;
-        my $s = '';
-        $s ~= sprintf(qq!#line %d "%s"\n!, .lineno, $!filename);
-        $s ~= 'pone_val* pone_user_func_';
-        $s ~= $name;
-        $s ~= '(pone_world* world, pone_val* self, int n, va_list args) {' ~ "\n";
-        $s ~= "assert(n==$argcnt);\n";
-        @*TMPS.push(0);
-        @*SCOPE.push(0);
-        $s ~= "pone_push_scope(world);\n";
-        # bind parameters to lexical variables
-        if $argcnt > 0 {
-            if .children[1] {
-                for 0..^(.children[1].children.elems) -> $i {
-                    my $var = .children[1].children[$i];
-                    $s ~= "pone_assign(world, 0, \"{$var.value}\", va_arg(args, pone_val*));\n";
-                }
-            }
-        }
-        $s ~= self!compile(inject-return(.children[2]));
-        @*SCOPE.pop();
-        $s ~= "pone_pop_scope(world);\n";
-        @*TMPS.pop();
-        $s ~= "    return pone_nil();\n";
-        $s ~= "\}\n";
-
-        @!subs.push: $s;
-
-        if .name {
-            qq!pone_assign(world, 0, "&{$name}", pone_mortalize(world, pone_code_new(world, pone_user_func_{$name})))!;
-        } else {
-            qq!pone_mortalize(world, pone_code_new(world, pone_user_func_{$name}))!;
-        }
-        */
         break;
     }
     case PVIP_NODE_PARAM: {
@@ -1073,7 +1034,8 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         break;
     }
     case PVIP_NODE_PARAMS: {
-        for (int i = 0; i < node->children.size; ++i) {
+        PRINTF("if (n!=%d) { pone_throw_str(world, \"Expect %d parameters but you passed %%d.\", n); }", node->children.size, node->children.size);
+        for (pone_int_t i = 0; i < node->children.size; ++i) {
             COMPILE(node->children.nodes[i]);
         }
         break;
@@ -1123,6 +1085,7 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, pone_node* node, const char* 
 #define PRINTF(fmt, ...) fprintf(fp, (fmt), ##__VA_ARGS__)
     PRINTF("#include \"pone.h\"\n");
     PRINTF("#include \"pone_module.h\"\n");
+    PRINTF("#include \"pone_exc.h\"\n");
     PRINTF("\n");
     PRINTF("// --------------- vvvv ints          vvvv -------------------\n");
     {
