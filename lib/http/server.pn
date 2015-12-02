@@ -5,8 +5,8 @@ use http/parser;
 
 class Server {
     # TODO: enable this.
-    # has $.host is ro;
-    # has $.port is ro;
+    # has $.host is ro required;
+    # has $.port is ro required;
 
     # remove this.
     sub host() { $.host }
