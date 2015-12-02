@@ -2,7 +2,7 @@ my $NTEST = 0;
 
 # TODO subtest
 
-sub ok($a, $msg) {
+sub ok($a, $msg="") {
     $NTEST = $NTEST+1;
     if ($a) {
         say "ok $NTEST - $msg";
@@ -11,7 +11,7 @@ sub ok($a, $msg) {
     }
 }
 
-sub like($a, $b, $msg) {
+sub like($a, $b, $msg="") {
     $NTEST = $NTEST+1;
     if ($a ~~ $b) {
         say "ok $NTEST - $msg";

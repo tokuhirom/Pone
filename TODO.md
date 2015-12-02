@@ -69,6 +69,7 @@ TODO
  * -lane
  * -i
  * `s///`
+ * JSON reader/writer
  * -I lib
 
 ## Bindings

@@ -1026,16 +1026,45 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
     case PVIP_NODE_PARAM: {
         // (param (nop) (variable "$n") (nop) (int 0))
         // (param (nop) (list) (nop) (int 0))
+        // (param (nop) (variable "$m") (int 3) (int 0))
         if (node->children.nodes[1]->type == PVIP_NODE_VARIABLE) {
-            PRINTF("pone_assign(world, 0, \"");
-            WRITE_PV(node->children.nodes[1]->pv);
-            PRINTF("\", va_arg(args, pone_val*));\n");
+            // sub x($x=1) { }; x(1) => n=1, param_no=0
+            // sub x($x=1) { }; x()  => n=0, param_no=0
+            PRINTF("if (n>%d) {", ctx->param_no);
+            {
+                PRINTF("pone_assign(world, 0, \"");
+                WRITE_PV(node->children.nodes[1]->pv);
+                PRINTF("\", ");
+                PRINTF("va_arg(args, pone_val*)");
+                PRINTF(");\n");
+            }
+            PRINTF("} else {");
+            {
+                // use default argument.
+                PRINTF("pone_assign(world, 0, \"");
+                WRITE_PV(node->children.nodes[1]->pv);
+                PRINTF("\", ");
+                COMPILE(node->children.nodes[2]);
+                PRINTF(");\n");
+            }
+            PRINTF("}");
+        } else {
+            abort();
         }
         break;
     }
     case PVIP_NODE_PARAMS: {
-        PRINTF("if (n!=%d) { pone_throw_str(world, \"Expect %d parameters but you passed %%d.\", n); }", node->children.size, node->children.size);
+        pone_int_t min_params = 0;
+        pone_int_t max_params = node->children.size;
         for (pone_int_t i = 0; i < node->children.size; ++i) {
+            pone_node* n = node->children.nodes[i]->children.nodes[2];
+            if (n->type == PVIP_NODE_NOP) {
+                min_params++;
+            }
+        }
+        PRINTF("if (n<%d) { pone_throw_str(world, \"Expect %d..%d parameters but you passed %%d.\", n); }", min_params, min_params, max_params);
+        for (pone_int_t i = 0; i < node->children.size; ++i) {
+            ctx->param_no = i;
             COMPILE(node->children.nodes[i]);
         }
         break;
