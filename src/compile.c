@@ -1048,7 +1048,11 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
                 PRINTF(");\n");
             }
             PRINTF("}");
+        } else if (node->children.nodes[1]->type == PVIP_NODE_LIST) {
+            // ignore this.
+            // sub () { }
         } else {
+            pone_node_dump_sexp(node);
             abort();
         }
         break;
@@ -1057,8 +1061,9 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         pone_int_t min_params = 0;
         pone_int_t max_params = node->children.size;
         for (pone_int_t i = 0; i < node->children.size; ++i) {
-            pone_node* n = node->children.nodes[i]->children.nodes[2];
-            if (n->type == PVIP_NODE_NOP) {
+            pone_node* var_node = node->children.nodes[i]->children.nodes[1];
+            pone_node* default_node = node->children.nodes[i]->children.nodes[2];
+            if (var_node->type == PVIP_NODE_VARIABLE && default_node->type == PVIP_NODE_NOP) {
                 min_params++;
             }
         }
