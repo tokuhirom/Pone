@@ -491,6 +491,7 @@ static inline bool pone_alive(pone_val* val) {
 // op.c
 pone_val* pone_get_lex(pone_world* world, const char* key);
 pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val);
+pone_val* pone_assign_list(pone_world* world, pone_val* val, int nvars, ...);
 pone_val* pone_assign_pos(pone_world* world, pone_val* var, pone_val* pos, pone_val* rhs);
 pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_subtract(pone_world* world, pone_val* v1, pone_val* v2);

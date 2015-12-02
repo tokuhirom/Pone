@@ -57,6 +57,22 @@ pone_val* pone_assign(pone_world* world, int up, const char* key, pone_val* val)
     return val;
 }
 
+pone_val* pone_assign_list(pone_world* world, pone_val* val, int nvars, ...) {
+    assert(pone_type(val) == PONE_ARRAY);
+
+    if (nvars != pone_ary_size(val)) {
+        pone_throw_str(world, "'=' operator: rhs expected %d values but lhs returns %d",
+                nvars, pone_ary_size(val));
+    }
+    va_list vars;
+    va_start(vars, nvars);
+    for (pone_int_t i=0; i<nvars; ++i) {
+        pone_assign(world, 0, va_arg(vars, const char*), pone_ary_at_pos(val, i));
+    }
+
+    return pone_nil();
+}
+
 #define INFIX(funcname, op_func)                                                           \
     pone_val* funcname(pone_world* world, int level, const char* varname, pone_val* val) { \
         pone_val* lhs = pone_get_lex(world, varname);                                      \

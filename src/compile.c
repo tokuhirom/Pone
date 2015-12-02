@@ -829,14 +829,42 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         PVIPString* var;
         switch (varnode->type) {
         case PVIP_NODE_MY: {
-            var = varnode->children.nodes[1]->pv;
-            def_lex(ctx, PVIP_string_c_str(var));
-            int idx = find_lex(ctx, PVIP_string_c_str(var));
-            PRINTF("pone_assign(world, %d, \"", idx);
-            WRITE_PV(var);
-            PRINTF("\", ");
-            COMPILE(node->children.nodes[1]);
-            PRINTF(")");
+            if (varnode->children.nodes[1]->type == PVIP_NODE_VARIABLE) {
+                // my $n;
+                var = varnode->children.nodes[1]->pv;
+                def_lex(ctx, PVIP_string_c_str(var));
+                int idx = find_lex(ctx, PVIP_string_c_str(var));
+                PRINTF("pone_assign(world, %d, \"", idx);
+                WRITE_PV(var);
+                PRINTF("\", ");
+                COMPILE(node->children.nodes[1]);
+                PRINTF(")");
+            } else if (varnode->children.nodes[1]->type == PVIP_NODE_LIST) {
+                // my ($x, $y);
+                pone_node* list = varnode->children.nodes[1];
+                // define variables.
+                for (pone_int_t i=0; i<list->children.size; ++i) {
+                    var = list->children.nodes[i]->pv;
+                    def_lex(ctx, PVIP_string_c_str(var));
+                }
+                PRINTF("pone_assign_list(world, ");
+                COMPILE(node->children.nodes[1]);
+                PRINTF(", %d, ", list->children.size);
+                for (pone_int_t i=0; i<list->children.size; ++i) {
+                    var = list->children.nodes[i]->pv;
+                    PRINTF("\"");
+                    WRITE_PV(var);
+                    PRINTF("\"");
+                    if (i!=list->children.size-1) {
+                        PRINTF(",");
+                    }
+                }
+                PRINTF(")");
+            } else {
+                pone_node_dump_sexp(varnode);
+                pone_node_dump_sexp(node);
+                abort();
+            }
             break;
         }
         case PVIP_NODE_VARIABLE: {
