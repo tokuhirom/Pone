@@ -1,5 +1,6 @@
 #include "pone.h" /* PONE_INC */
 #include "pone_exc.h"
+#include "pone_opaque.h"
 #include <math.h>
 #include <setjmp.h>
 #include <ctype.h>
@@ -146,8 +147,13 @@ static void dd(pone_world* world, pone_val* val, pone_int_t indent) {
         printf(")\n");
         break;
     }
+    case PONE_LEX:
+        abort();
     case PONE_INT:
         printf("(int: flags:%d " PoneIntFmt ")\n", pone_flags(val), pone_int_val(val));
+        break;
+    case PONE_NUM:
+        printf("(num: flags:%d %.f)\n", pone_flags(val), pone_num_val(val));
         break;
     case PONE_NIL:
         printf("(undef)\n");
@@ -186,6 +192,15 @@ static void dd(pone_world* world, pone_val* val, pone_int_t indent) {
         printf("(bool %s)\n", val->as.boolean.b ? "true" : "false");
         break;
     }
+    case PONE_OPAQUE: {
+        printf("opaque: %p\n", pone_opaque_ptr(val));
+        if (val->as.opaque.body->klass) {
+            pin(indent + 1);
+            printf("class:\n");
+            dd(world, pone_opaque_class(val), indent + 2);
+        }
+        break;
+    }
     case PONE_OBJ: {
         printf("(obj\n");
         pin(indent + 1);
@@ -206,9 +221,6 @@ static void dd(pone_world* world, pone_val* val, pone_int_t indent) {
         printf(")\n");
         break;
     }
-    default:
-        fprintf(stderr, "unknown type: %d\n", pone_type(val));
-        abort();
     }
 }
 
@@ -219,6 +231,8 @@ void pone_dd(pone_world* world, pone_val* val) {
 
 bool pone_so(pone_val* val) {
     switch (pone_type(val)) {
+    case PONE_NIL:
+        return false;
     case PONE_INT:
         return pone_int_val(val) != 0;
     case PONE_NUM:
