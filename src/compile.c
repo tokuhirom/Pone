@@ -52,6 +52,8 @@ static inline void pone_int_vec_pop(pone_int_vec* vec) {
 typedef struct pone_compile_ctx {
     pvip_t* pvip;
 
+    pone_world* world;
+
     PVIPString* buf;
     PVIPString** subs;
     int sub_idx;
@@ -69,6 +71,8 @@ typedef struct pone_compile_ctx {
     bool in_class;
 
     pone_int_t param_no;
+
+    pone_val* subnames;
 
     const char* filename;
     int anon_sub_no;
@@ -1043,8 +1047,10 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
 
         PRINTF("pone_val* pone_user_func_");
         if (is_anon) {
+            pone_ary_push(ctx->world->universe, ctx->subnames, pone_str_new_printf(ctx->world, "pone_user_func_anon_%d", ctx->anon_sub_no));
             PRINTF("anon_%d", ctx->anon_sub_no);
         } else {
+            pone_ary_push(ctx->world->universe, ctx->subnames, pone_str_new_printf(ctx->world, "pone_user_func_%s", PVIP_string_c_str(name->pv)));
             WRITE_PV(name->pv);
         }
         PRINTF("(pone_world* world, pone_val* self, int n, va_list args) {\n");
@@ -1181,6 +1187,13 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, pone_node* node, const char* 
             PRINTF("static pone_int pone_const_int_%ld = { .type=PONE_INT, .flags=PONE_FLAGS_FROZEN, .i=%ld };\n", key, key);
         }
     }
+    PRINTF("// --------------- vvvv function prototypes    vvvv -------------------\n");
+    for (int i = 0; i < pone_ary_size(ctx->subnames); ++i) {
+        pone_val* v = pone_ary_at_pos(ctx->subnames,i);
+        PRINTF("pone_val* ");
+        fwrite(pone_str_ptr(v), 1, pone_str_len(v), fp);
+        PRINTF("(pone_world* world, pone_val* self, int n, va_list args);\n");
+    }
     PRINTF("// --------------- vvvv functions     vvvv -------------------\n");
     for (int i = 0; i < ctx->sub_idx; ++i) {
         fwrite(ctx->subs[i]->buf, 1, ctx->subs[i]->len, fp);
@@ -1229,6 +1242,9 @@ static pone_compile_ctx* pone_compile_ctx_new(pone_world* world, const char* fil
 
     pone_compile_ctx* ctx = pone_malloc(world, sizeof(pone_compile_ctx));
     assert(ctx);
+
+    ctx->world = world;
+
     ctx->pvip = pvip_new();
     ctx->buf = PVIP_string_new();
 
@@ -1251,6 +1267,8 @@ static pone_compile_ctx* pone_compile_ctx_new(pone_world* world, const char* fil
     ctx->filename = filename;
 
     ctx->anon_sub_no = 0;
+
+    ctx->subnames = pone_ary_new(world, 0);
 
     // managed by GC
     (void)pone_opaque_new(world, pone_class_new(world, "CompilerContext", strlen("CompilerContext")), ctx, pone_compile_ctx_finalize);

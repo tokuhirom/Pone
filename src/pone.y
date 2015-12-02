@@ -645,7 +645,7 @@ it_method = (
 
 ident =
     < '::'? [A-Za-z] [-A-Za-z0-9_]* ( '::' [A-Za-z] [A-Za-z0-9_]* )* > { $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_IDENT, yytext, yyleng); }
-    | < [a-zA-Z] [a-zA-Z0-9]* ( [-_] [a-zA-Z0-9]+ )* > {
+    | < [a-zA-Z_] [a-zA-Z0-9]* ( [-_] [a-zA-Z0-9]+ )* > {
         $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_IDENT, yytext, yyleng);
     }
 

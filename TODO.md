@@ -67,8 +67,8 @@ TODO
  * -lane
  * -i
  * `s///`
- * -I lib
  * named argument parameters.
+ * `sub x(Code $code) { }` style argument validation.
 
 ## Bindings
 

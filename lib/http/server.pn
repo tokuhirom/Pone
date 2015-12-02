@@ -1,0 +1,80 @@
+use socket;
+use http/parser;
+
+# WTP!
+
+class Server {
+    # TODO: enable this.
+    # has $.host is ro;
+    # has $.port is ro;
+
+    # remove this.
+    sub host() { $.host }
+    sub port() { $.port }
+
+    sub _initialize($host, $port) {
+        $.host = $host;
+        $.port = $port;
+    }
+}
+
+# $app must be code.
+sub start(Code $app, Hash $opts = {}) {
+    my $channel_buffer = $opts<channel_buffer> // 10;
+    my $n_threads = $opts<n_threads> // 10;
+    my $host = $opts<host> // '127.0.0.1';
+    my $port = $opts<port> // 5000;
+
+    my $chan = chan($channel_buffer);
+
+    # start worker threads.
+    for 1..$n_threads {
+        async(sub {
+            # TODO loop
+            while True {
+                my $csock = $chan.receive();
+                my $buf;
+                while True {
+                    # TODO We should implement IO::Blob for buffering psgi.input.
+                    my $cbuf = $csock.read(1000);
+                    if $cbuf.bytes > 0 {
+                        # Call $app.
+                        $buf ~= $cbuf;
+                        my ($got, $env) = parser.parse_request($buf);
+                        # TODO chunked support
+                        if $got > 0 {
+                            $csock.write(
+                                "HTTP/1.0 200 OK\r\n"
+                                ~ "Content-Length: 8\r\n"
+                                ~ "Connection: close\r\n\r\n");
+                            $csock.write("Hello!!\n");
+                            $csock.close();
+                            last;
+                        }
+                    } else {
+                        last;
+                    }
+                }
+            }
+        });
+    }
+
+    # start listener
+    my $sock = socket.listen($host, $port)
+        or die "listen: $!";
+    say "http://#{$sock.sockaddr}:#{$sock.sockport}/";
+
+    # start listener thread..
+    async(sub {
+        while True {
+            my $csock = $sock.accept();
+            $chan.send($csock);
+        }
+    });
+
+    # TODO bless(Server, {host => $sock.sockaddr, port => $sock.sockport})
+    my $server = bless(Server);
+    $server._initialize($sock.sockaddr, $sock.sockport);
+    return $server;
+}
+
