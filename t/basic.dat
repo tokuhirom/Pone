@@ -656,7 +656,7 @@ nil
 
 ===
 --- input
-say slurp("t/dat/hello.txt")
+say file.slurp("t/dat/hello.txt")
 --- expected
 hello
 

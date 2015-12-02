@@ -2,6 +2,7 @@
 #include "pone_file.h"
 #include "pone_opaque.h"
 #include "pone_module.h"
+#include "pone_exc.h"
 #include <sys/file.h>
 
 #define SELF_FH pone_opaque_ptr(self)
@@ -147,6 +148,37 @@ PONE_FUNC(meth_fdopen) {
     }
 }
 
+PONE_FUNC(meth_slurp) {
+    pone_val* val;
+    PONE_ARG("file.slurp", "o", &val);
+    if (pone_str_contains_null(world->universe, val)) {
+        pone_throw_str(world, "You can't slurp file. Because file name contains \\0.");
+    }
+
+    pone_val* str = pone_str_c_str(world, val);
+    FILE* fp = fopen(pone_str_ptr(str), "r");
+    if (!fp) {
+        pone_throw_str(world, "Cannot open '%s': %s", pone_str_ptr(str), strerror(errno));
+    }
+
+    pone_val* retval = pone_str_new_strdup(world, "", 0);
+
+    char buf[512];
+    while (!feof(fp)) {
+        size_t n = fread(buf, 1, 512, fp);
+        if (n == 0) {
+            fclose(fp);
+            pone_throw_str(world, "Cannot read file '%s': %s", pone_str_ptr(str), strerror(errno));
+        }
+        pone_str_append_c(world, retval, buf, n);
+    }
+
+    fclose(fp);
+
+    return retval;
+}
+
+
 void pone_file_init(pone_world* world) {
     // TODO File#printf
     // TODO File#readline
@@ -173,6 +205,8 @@ void pone_file_init(pone_world* world) {
 
     pone_module_put(world, module, "open", pone_code_new_c(world, meth_open));
     pone_module_put(world, module, "fdopen", pone_code_new_c(world, meth_fdopen));
+
+    pone_module_put(world, module, "slurp", pone_code_new_c(world, meth_slurp));
 
     // TODO dup2
 

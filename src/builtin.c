@@ -5,36 +5,6 @@
 #include <unistd.h>
 #include <errno.h>
 
-PONE_FUNC(meth_slurp) {
-    pone_val* val;
-    PONE_ARG("slurp", "o", &val);
-    if (pone_str_contains_null(world->universe, val)) {
-        pone_throw_str(world, "You can't slurp file. Because file name contains \\0.");
-    }
-
-    pone_val* str = pone_str_c_str(world, val);
-    FILE* fp = fopen(pone_str_ptr(str), "r");
-    if (!fp) {
-        pone_throw_str(world, "Cannot open '%s': %s", pone_str_ptr(str), strerror(errno));
-    }
-
-    pone_val* retval = pone_str_new_strdup(world, "", 0);
-
-    char buf[512];
-    while (!feof(fp)) {
-        size_t n = fread(buf, 1, 512, fp);
-        if (n == 0) {
-            fclose(fp);
-            pone_throw_str(world, "Cannot read file '%s': %s", pone_str_ptr(str), strerror(errno));
-        }
-        pone_str_append_c(world, retval, buf, n);
-    }
-
-    fclose(fp);
-
-    return retval;
-}
-
 PONE_FUNC(meth_chan) {
     pone_int_t limit;
     PONE_ARG("chan", ":i", &limit);
@@ -210,7 +180,6 @@ PONE_FUNC(meth_bless) {
 
 void pone_builtin_init(pone_world* world) {
     pone_universe* universe = world->universe;
-    pone_universe_set_global(universe, "slurp", pone_code_new_c(world, meth_slurp));
     pone_universe_set_global(universe, "chan", pone_code_new_c(world, meth_chan));
     pone_universe_set_global(universe, "dd", pone_code_new_c(world, meth_dd));
     pone_universe_set_global(universe, "what", pone_code_new_c(world, meth_what));
