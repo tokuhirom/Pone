@@ -186,8 +186,9 @@ void pone_use(pone_world* world, const char* name, const char* as, pone_int_t as
 
     pone_val* msg = pone_str_new_printf(world, "Could not load module '%s': no such module in:\n\n", name);
     for (pone_int_t i = 0; i < pone_ary_size(inc); ++i) {
-        pone_str_append_c(world, msg, "    ", strlen("    "));
+        pone_str_append_c(world, msg, "    - ", strlen("    - "));
         pone_str_append(world, msg, pone_ary_at_pos(inc, i));
+        pone_str_append_c(world, msg, "\n", strlen("\n"));
     }
     pone_throw(world, msg);
 }

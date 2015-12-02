@@ -7,19 +7,34 @@
 #include <unistd.h> /* getopt */
 
 static void usage() {
-    printf("Usage: pone -e=code\n"
-           "    pone src.pone\n");
+    printf("Usage:\n"
+           "    pone -e=code\n"
+           "    pone path/to/src.pn\n");
 }
 
 int main(int argc, char** argv) {
+    // initialize universe.
+    pone_universe* universe = pone_universe_init();
+    pone_init(universe);
+
+    // create compiler world.
+    pone_world* world = pone_world_new(universe);
+
+    // parse options.
     // TODO use portable getopt
     int opt;
     bool dump = false;
     bool compile_only = false;
     const char* eval = NULL;
     bool yy_debug = false;
-    while ((opt = getopt(argc, argv, "ycde:")) != -1) {
+    while ((opt = getopt(argc, argv, "ycde:I:")) != -1) {
         switch (opt) {
+        case 'I':
+            pone_ary_push(
+                    world->universe,
+                    universe->inc,
+                    pone_str_new_strdup(world, optarg, strlen(optarg)));
+            break;
         case 'c':
             compile_only = true;
             break;
@@ -42,11 +57,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    pone_universe* universe = pone_universe_init();
-    pone_init(universe);
-
-    // create compiler world.
-    pone_world* world = pone_world_new(universe);
     if (setjmp(world->err_handlers[0])) {
         pone_universe_default_err_handler(world);
     } else {

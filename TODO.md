@@ -19,7 +19,6 @@ TODO
  * __FILE__
  * __LINE__
  * LEAVE block
- * Move slurp to file.slurp
  * Implement socket.fdopen for server-starter
  * math module
    *         "atan2", "cos", "exp", "hex", "log", "oct", "rand",
@@ -68,7 +67,6 @@ TODO
  * -lane
  * -i
  * `s///`
- * JSON reader/writer
  * -I lib
  * named argument parameters.
 
@@ -79,7 +77,8 @@ TODO
  * FFI
  * CSV reader
  * json.parse
- * discount support
+ * text/markdown/howdown support
+ * sqlite3
 
 ### GC
 
