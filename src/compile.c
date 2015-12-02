@@ -824,6 +824,11 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         }
         PRINTF(")");
         break;
+    case PVIP_NODE_HAS: {
+        // has $!hoge;
+        //   ==> (has (attribute_variable "$!hoge") (nop))
+        break;
+    }
     case PVIP_NODE_LIST_ASSIGNMENT: {
         pone_node* varnode = node->children.nodes[0];
         PVIPString* var;
@@ -901,11 +906,27 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
             PRINTF(")");
             break;
         }
+        case PVIP_NODE_ATTRIBUTE_VARIABLE: {
+            // $!hoge = 3;
+            // // (list_assignment (attribute_variable "$!hoge") (int 3))
+            PRINTF("pone_obj_set_ivar(world, self, \"");
+            WRITE_PV(varnode->pv);
+            PRINTF("\", ");
+            COMPILE(node->children.nodes[1]);
+            PRINTF(")");
+            break;
+        }
         default:
             fprintf(stderr, "invalid node at lhs at line %d, %s\n",
                     node->line_number, PVIP_node_name(varnode->type));
             abort();
         }
+        break;
+    }
+    case PVIP_NODE_ATTRIBUTE_VARIABLE: {
+        PRINTF("pone_obj_get_ivar(world, self, \"");
+        WRITE_PV(node->pv);
+        PRINTF("\")");
         break;
     }
     case PVIP_NODE_IDENT: {

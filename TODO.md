@@ -62,7 +62,6 @@ TODO
 
 ## Basic features
 
- * `class A { has a; }`
  * `class A does B { }`
  * `role A { }`
  * -p
