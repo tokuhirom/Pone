@@ -768,7 +768,9 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         PRINTF("if (pone_so(");
         COMPILE(node->children.nodes[0]);
         PRINTF(")) {\n");
-        COMPILE(node->children.nodes[1]);
+        if (node->children.nodes[1]->type != PVIP_NODE_NOP) {
+            COMPILE(node->children.nodes[1]);
+        }
         PRINTF("}\n");
         for (int i = 2; i < node->children.size; ++i) {
             COMPILE(node->children.nodes[i]);

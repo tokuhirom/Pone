@@ -34,6 +34,7 @@ TODO
  * Str#index
  * Str#split
  * Str#reverse
+ * Str#chomp
  * Array#reverse
  * Array#grep
  * Dir.open
@@ -64,13 +65,13 @@ TODO
  * `class A { }`
  * `class A does B { }`
  * `role A { }`
- * str methods
  * -p
  * -lane
  * -i
  * `s///`
  * JSON reader/writer
  * -I lib
+ * named argument parameters.
 
 ## Bindings
 
@@ -89,5 +90,4 @@ TODO
 ### Syntax
 
  * given-when
- * `if True { } else { }`
 
