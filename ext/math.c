@@ -32,4 +32,3 @@ PONE_FUNC(meth_abs) {
 void PONE_DLL_math(pone_world* world, pone_val* module) {
     pone_module_put(world, module, "abs", pone_code_new_c(world, meth_abs));
 }
-

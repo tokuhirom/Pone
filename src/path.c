@@ -39,9 +39,9 @@ PONE_FUNC(meth_path_stat) {
     }
 }
 
-#define STAT(key) \
-    PONE_FUNC(meth_fileinfo_##key) { \
-        struct stat* st = pone_opaque_ptr(self); \
+#define STAT(key)                                 \
+    PONE_FUNC(meth_fileinfo_##key) {              \
+        struct stat* st = pone_opaque_ptr(self);  \
         return pone_int_new(world, st->st_##key); \
     }
 
@@ -56,9 +56,9 @@ STAT(size)
 STAT(blksize)
 STAT(blocks)
 
-#define STAT_TIME(key) \
-    PONE_FUNC(meth_fileinfo_##key) { \
-        struct stat* st = pone_opaque_ptr(self); \
+#define STAT_TIME(key)                                       \
+    PONE_FUNC(meth_fileinfo_##key) {                         \
+        struct stat* st = pone_opaque_ptr(self);             \
         return pone_time_from_epoch(world, st->st_##key, 0); \
     }
 
@@ -83,25 +83,24 @@ void pone_path_init(pone_world* world) {
 #define STAT(key) \
     pone_add_method_c(world, universe->class_fileinfo, #key, strlen(#key), meth_fileinfo_##key);
 
-STAT(dev)
-STAT(ino)
-STAT(mode)
-STAT(nlink)
-STAT(uid)
-STAT(gid)
-STAT(rdev)
-STAT(size)
-STAT(blksize)
-STAT(blocks)
-STAT(atime)
-STAT(mtime)
-STAT(ctime)
+    STAT(dev)
+    STAT(ino)
+    STAT(mode)
+    STAT(nlink)
+    STAT(uid)
+    STAT(gid)
+    STAT(rdev)
+    STAT(size)
+    STAT(blksize)
+    STAT(blocks)
+    STAT(atime)
+    STAT(mtime)
+    STAT(ctime)
 
 #undef STAT
     pone_universe_set_global(world->universe, "FileInfo", universe->class_fileinfo);
 
-// TODO split to src/fileinfo.c
+    // TODO split to src/fileinfo.c
 
     pone_universe_set_global(world->universe, "path", pone_code_new_c(world, meth_path_new));
 }
-

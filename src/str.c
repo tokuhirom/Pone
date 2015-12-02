@@ -331,10 +331,10 @@ PONE_FUNC(meth_str_at_pos) {
 
     char* p = pone_str_ptr(self);
     char* e = p + pone_str_len(self);
-    for (; p<e && n>0; --n) {
+    for (; p < e && n > 0; --n) {
         p += ONIGENC_MBC_ENC_LEN(ONIG_ENCODING_UTF8, (OnigUChar*)p);
     }
-    if (p==e || n < 0) {
+    if (p == e || n < 0) {
         return pone_nil();
     } else {
         pone_int_t end = ONIGENC_MBC_ENC_LEN(ONIG_ENCODING_UTF8, (OnigUChar*)p);

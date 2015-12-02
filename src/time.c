@@ -129,4 +129,3 @@ void pone_time_init(pone_world* world) {
     }
     pone_universe_set_global(world->universe, "time", module);
 }
-

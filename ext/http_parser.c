@@ -7,7 +7,7 @@ PONE_FUNC(meth_parse_request) {
 
     PONE_ARG("http/parser.parse_request", "o", &buf);
 
-    const char *method, *path;
+    const char* method, *path;
     int minor_version;
     struct phr_header headers[100];
     size_t prevbuflen = 0, method_len, path_len;
@@ -17,17 +17,16 @@ PONE_FUNC(meth_parse_request) {
         pone_str_ptr(buf),
         pone_str_len(buf),
         &method, &method_len, &path, &path_len,
-        &minor_version, headers, &num_headers, prevbuflen
-    );
+        &minor_version, headers, &num_headers, prevbuflen);
     if (pret > 0) {
         // TODO use list
         pone_val* env = pone_map_new(world);
         pone_map_assign_key_c(world, env, "REQUEST_METHOD", strlen("REQUEST_METHOD"),
-                pone_str_new_strdup(world, method, method_len));
+                              pone_str_new_strdup(world, method, method_len));
         pone_map_assign_key_c(world, env, "REQUEST_URI", strlen("REQUEST_URI"),
-                pone_str_new_strdup(world, path, path_len));
+                              pone_str_new_strdup(world, path, path_len));
         pone_map_assign_key_c(world, env, "SCRIPT_NAME", strlen("SCRIPT_NAME"),
-                pone_str_new_const(world, "", 0));
+                              pone_str_new_const(world, "", 0));
         return pone_ary_new(world, 2, pone_int_new(world, pret), env);
     } else {
         return pone_ary_new(world, 1, pone_int_new(world, pret));

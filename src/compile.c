@@ -1015,8 +1015,7 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
             PRINTF("pone_add_method(world, klass, \"%s\", strlen(\"%s\"), pone_code_new_c(world, pone_user_func_%s))",
                    PVIP_string_c_str(name->pv),
                    PVIP_string_c_str(name->pv),
-                   PVIP_string_c_str(name->pv)
-                   );
+                   PVIP_string_c_str(name->pv));
         } else {
             PRINTF("pone_assign(world, 0, \"%s\", pone_code_new(world, pone_user_func_%s))",
                    PVIP_string_c_str(name->pv),

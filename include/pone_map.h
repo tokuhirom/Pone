@@ -4,10 +4,9 @@
 #include "pone.h"
 #include "khash.h"
 
-
-#define PONE_MAP_FOREACH(v, kvar, vvar, code)                      \
-    assert(pone_type(v) == PONE_MAP); \
-    khash_t(val)* h = v->as.map.body->h;                                 \
+#define PONE_MAP_FOREACH(v, kvar, vvar, code)                  \
+    assert(pone_type(v) == PONE_MAP);                          \
+    khash_t(val)* h = v->as.map.body->h;                       \
     for (khint_t __i = kh_begin(h); __i != kh_end(h); ++__i) { \
         if (!kh_exist(h, __i))                                 \
             continue;                                          \
@@ -43,4 +42,3 @@ struct pone_hash_body {
 };
 
 #endif // PONE_HASH_H_
-

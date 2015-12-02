@@ -189,4 +189,3 @@ void pone_file_init(pone_world* world) {
 
     pone_universe_set_global(world->universe, "file", module);
 }
-
