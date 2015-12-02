@@ -9,13 +9,8 @@ class Server {
     # has $.port is ro required;
 
     # remove this.
-    sub host() { $.host }
-    sub port() { $.port }
-
-    sub _initialize($host, $port) {
-        $.host = $host;
-        $.port = $port;
-    }
+    sub host() { $.socket.sockaddr }
+    sub port() { $.socket.sockport }
 }
 
 # $app must be code.
@@ -72,9 +67,6 @@ sub start(Code $app, Hash $opts = {}) {
         }
     });
 
-    # TODO bless(Server, {host => $sock.sockaddr, port => $sock.sockport})
-    my $server = bless(Server);
-    $server._initialize($sock.sockaddr, $sock.sockport);
-    return $server;
+    return bless(Server, { socket => $sock });
 }
 

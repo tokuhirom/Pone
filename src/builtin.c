@@ -1,5 +1,6 @@
 #include "pone.h" /* PONE_INC */
 #include "pone_exc.h"
+#include "pone_map.h"
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
@@ -174,8 +175,21 @@ PONE_FUNC(meth_internals_dump_lex) {
 
 PONE_FUNC(meth_bless) {
     pone_val* klass;
-    PONE_ARG("bless(Class $class)", "o", &klass);
-    return pone_obj_new(world, klass);
+    pone_val* hash = NULL;
+    PONE_ARG("bless(Class $class[, Hash $hash])", "o:o", &klass, &hash);
+    pone_val* obj = pone_obj_new(world, klass);
+    if (hash) {
+        PONE_MAP_FOREACH(hash, key, value, {
+            // make $.varname
+            pone_val* varname = pone_str_new_strdup(world, "$.", sizeof("$.")-1);
+            pone_str_append(world, varname, key);
+            pone_str_append_c(world, varname, "\0", sizeof("\0")-1);
+            pone_obj_set_ivar(world, obj, pone_str_ptr(varname), value);
+        });
+    }
+    // TODO set default values
+    // TODO check required items
+    return obj;
 }
 
 void pone_builtin_init(pone_world* world) {

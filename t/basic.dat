@@ -932,14 +932,20 @@ sub x() { say "X"; "XX" }
 sub y() { say "Y"; "YY" }
 sub z() { say "Z"; False }
 say x() or y();
+say "**";
 say z() or y();
+say "**";
 say 0 or 0;
 say False or False;
 --- expected
 X
 XX
+Y
+**
 Z
 False
+Y
+**
 0
 False
 
@@ -949,7 +955,9 @@ sub x() { say "X"; "XX" }
 sub y() { say "Y"; "YY" }
 sub z() { say "Z"; False }
 say x() and y();
+say "**";
 say z() and y();
+say "**";
 say 0 and 0;
 say False and False;
 say 0 and False;
@@ -957,10 +965,10 @@ say False and 0;
 --- expected
 X
 XX
-Y
+**
 Z
 False
-Y
+**
 0
 False
 0
