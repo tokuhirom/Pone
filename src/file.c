@@ -2,6 +2,7 @@
 #include "pone_file.h"
 #include "pone_opaque.h"
 #include "pone_module.h"
+#include "pone_stat.h"
 #include "pone_exc.h"
 #include <sys/file.h>
 
@@ -119,6 +120,11 @@ PONE_FUNC(meth_file_flock) {
     }
 }
 
+PONE_FUNC(meth_file_stat) {
+    PONE_ARG("File#stat", "");
+    return pone_fstat(world, fileno(SELF_FH));
+}
+
 PONE_FUNC(meth_open) {
     char* fname;
     pone_int_t fname_len;
@@ -169,8 +175,6 @@ PONE_FUNC(meth_file_slurp_rest) {
         pone_str_append_c(world, retval, buf, n);
     }
 
-    pone_file_close(world, self);
-
     return retval;
 }
 
@@ -220,6 +224,7 @@ void pone_file_init(pone_world* world) {
     pone_add_method_c(world, klass, "eof", strlen("eof"), meth_file_eof);
     pone_add_method_c(world, klass, "getc", strlen("getc"), meth_file_getc);
     pone_add_method_c(world, klass, "flock", strlen("flock"), meth_file_flock);
+    pone_add_method_c(world, klass, "stat", strlen("stat"), meth_file_stat);
     pone_add_method_c(world, klass, "slurp_rest", strlen("slurp_rest"), meth_file_slurp_rest);
 
     world->universe->class_file = klass;

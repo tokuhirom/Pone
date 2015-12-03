@@ -10,6 +10,17 @@ static void stat_finalizer(pone_world* world, pone_val* val) {
     pone_free(world, pone_opaque_ptr(val));
 }
 
+pone_val* pone_fstat(pone_world* world, int fd) {
+    struct stat* st = pone_malloc(world, sizeof(struct stat));
+    if (fstat(fd, st) == 0) {
+        return pone_opaque_new(world, world->universe->class_stat, st, stat_finalizer);
+    } else {
+        pone_free(world, st);
+        pone_world_set_errno(world);
+        return pone_nil();
+    }
+}
+
 pone_val* pone_stat(pone_world* world, char * filename) {
     struct stat* st = pone_malloc(world, sizeof(struct stat));
     if (stat(filename, st) == 0) {

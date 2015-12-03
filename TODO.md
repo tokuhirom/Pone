@@ -40,11 +40,9 @@ done.
  * dir.open('/etc') or `"/etc/".IO.dir?
  * File#say
  * File#readline
- * File#stat
  * File#lines
  * Path::Dir
  * Path::File
- * Path::File#stat
  * IO::Socket::INET#setsockopt
  * IO::Socket::INET#getsockopt
  * Time#strftime
