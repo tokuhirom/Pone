@@ -8,3 +8,7 @@ package num contains classes/utilities around Num class.
 
 This represents 'not a number'.
 
+### `INF`
+
+This represents infinity value.
+
