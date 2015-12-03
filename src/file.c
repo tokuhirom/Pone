@@ -54,13 +54,17 @@ PONE_FUNC(meth_file_rewind) {
     return pone_nil();
 }
 
-PONE_FUNC(meth_file_close) {
-    PONE_ARG("File#close", "");
-
+static void pone_file_close(pone_world* world, pone_val* self) {
     if (fclose(SELF_FH) != 0) {
         pone_world_set_errno(world);
     }
     pone_opaque_set_ptr(self, NULL);
+}
+
+PONE_FUNC(meth_file_close) {
+    PONE_ARG("File#close", "");
+
+    pone_file_close(world, self);
     return pone_nil();
 }
 
@@ -148,6 +152,28 @@ PONE_FUNC(meth_fdopen) {
     }
 }
 
+PONE_FUNC(meth_file_slurp_rest) {
+    PONE_ARG("File#slurp_rest", "");
+
+    FILE* fp = SELF_FH;
+
+    pone_val* retval = pone_str_new_strdup(world, "", 0);
+
+    char buf[512];
+    while (!feof(fp)) {
+        size_t n = fread(buf, 1, 512, fp);
+        if (n == 0) {
+          pone_file_close(world, self);
+            pone_throw_str(world, "Cannot read file: %s", strerror(errno));
+        }
+        pone_str_append_c(world, retval, buf, n);
+    }
+
+    pone_file_close(world, self);
+
+    return retval;
+}
+
 PONE_FUNC(meth_slurp) {
     pone_val* val;
     PONE_ARG("file.slurp", "o", &val);
@@ -183,7 +209,6 @@ void pone_file_init(pone_world* world) {
     // TODO File#printf
     // TODO File#readline
     // TODO File#lines
-    // TODO File#slurp-rest
     pone_val* klass = pone_class_new(world, "File", strlen("File"));
     pone_add_method_c(world, klass, "Str", strlen("Str"), meth_file_str);
     pone_add_method_c(world, klass, "read", strlen("read"), meth_file_read);
@@ -196,6 +221,7 @@ void pone_file_init(pone_world* world) {
     pone_add_method_c(world, klass, "eof", strlen("eof"), meth_file_eof);
     pone_add_method_c(world, klass, "getc", strlen("getc"), meth_file_getc);
     pone_add_method_c(world, klass, "flock", strlen("flock"), meth_file_flock);
+    pone_add_method_c(world, klass, "slurp_rest", strlen("slurp_rest"), meth_file_slurp_rest);
 
     world->universe->class_file = klass;
 
