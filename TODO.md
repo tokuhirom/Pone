@@ -55,6 +55,7 @@ done.
   * uri.parse(Str $uri)
  * http/status
  * getopt
+ * test.subtest
 
 ## Basic features
 
