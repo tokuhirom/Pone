@@ -2,7 +2,7 @@ use json;
 use . test;
 
 like(json.stringify(3),  "3", "int");
-like(json.stringify(3.14), "3.140000", "num");
+like(json.stringify(3.14), "3.1400000000000001", "num");
 like(json.stringify("hoge"), q!"hoge"!, "string");
 like(json.stringify(q!"!), q!"\\u0034"!, "string");
 like(json.stringify(q!🍣!), q!"\\u127843"!, "string");
