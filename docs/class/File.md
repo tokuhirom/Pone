@@ -95,6 +95,10 @@ The argument operation is one of the following:
 
 tests the end-of-file indicator for the stream pointed  to  by  stream
 
+## `File#slurp_rest() --> Bytes`
+
+Read rest of contents from the file.
+
 ## `File#close()`
 
 Close the stream.
