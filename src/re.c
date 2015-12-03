@@ -32,6 +32,7 @@ pone_val* pone_regex_new(pone_world* world, const char* str, size_t len) {
 PONE_FUNC(meth_regex_accepts) {
     pone_val* obj;
     PONE_ARG("Regex#ACCEPTS", "o", &obj);
+    obj = pone_stringify(world, obj);
 
     regex_t* re = pone_opaque_ptr(pone_obj_get_ivar(world, self, "$!re"));
     OnigRegion* region = onig_region_new();
