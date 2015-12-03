@@ -12,7 +12,6 @@ done.
  * chomp
  * chr
  * ord
- * hex
  * sprintf
  * rewrite printf
  * caller
@@ -22,6 +21,7 @@ done.
  * Implement socket.fdopen for server-starter
  * `"0xff".Int(16)`
  * rand()
+  * use xorshift128+. put it in tls.
 
 ## Builtin classes
 
