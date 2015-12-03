@@ -44,3 +44,4 @@ tags
 /rules.ninja
 /libpone.dylib
 /pone_generated.so.dSYM/
+/install_manifest.txt

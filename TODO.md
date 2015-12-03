@@ -18,15 +18,14 @@ done.
  * __FILE__
  * __LINE__
  * LEAVE block
- * Implement socket.fdopen for server-starter
- * `"0xff".Int(16)`
  * rand()
   * use xorshift128+. put it in tls.
 
 ## Builtin classes
 
- * `Socket#listen_un`
- * `Socket#connect_un`
+ * Implement socket.fdopen for server-starter
+ * `socket#listen_un`
+ * `socket#connect_un`
  * `Proc` builtin class
  * Regex.quote
  * Str#index

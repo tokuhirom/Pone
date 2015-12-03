@@ -126,20 +126,21 @@ set_target_properties(libpone
     POSITION_INDEPENDENT_CODE ON
     )
 
-macro(pone_ext target sources output_name)
+macro(pone_ext target sources prefix output_name)
     add_library(${target} SHARED ${sources})
     target_link_libraries(${target} libpone)
-    set_target_properties(${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "blib/")
+    set_target_properties(${target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "blib/${prefix}")
     set_target_properties(${target} PROPERTIES PREFIX "")
     set_target_properties(${target} PROPERTIES OUTPUT_NAME ${output_name})
     set_target_properties(${target} PROPERTIES COMPILE_FLAGS "${PONE_COMPILE_FLAGS}")
     set_target_properties(${target} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    install(TARGETS ${target} DESTINATION "share/pone/${prefix}")
 endmacro()
 
-pone_ext(ext_socket ext/socket.c "socket")
-pone_ext(ext_math ext/math.c "math")
-pone_ext(ext_http_parser "3rd/picohttpparser/picohttpparser.c;ext/http_parser.c" "http/parser")
-pone_ext(ext_json ext/json.c "json")
+pone_ext(ext_socket ext/socket.c "" "socket")
+pone_ext(ext_math ext/math.c "" "math")
+pone_ext(ext_http_parser "3rd/picohttpparser/picohttpparser.c;ext/http_parser.c" "http" "parser")
+pone_ext(ext_json ext/json.c "" "json")
 
 file(MAKE_DIRECTORY blib/http/)
 
@@ -166,5 +167,10 @@ add_custom_command(
     COMMAND perl ${PROJECT_SOURCE_DIR}/build/node.pl ${PROJECT_SOURCE_DIR}/src/pvip.h src/gen.node.c 
     DEPENDS src/pvip.h build/node.pl
     )
+
+install(TARGETS pone DESTINATION bin)
+install(TARGETS libpone DESTINATION lib)
+file(GLOB headers include/*.h)
+install(FILES ${headers} DESTINATION include/)
 
 add_subdirectory(3rd/onigmo-cmake)
