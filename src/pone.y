@@ -112,7 +112,9 @@ static char PVIP_input(char *buf, YY_XTYPE D) {
 comp_init = BOM? pod? e:statementlist - end-of-file {
     $$ = (G->data.root = e);
 }
-    | BOM? pod? ws* end-of-file { $$ = (G->data.root = PVIP_node_new_children(&(G->data), PVIP_NODE_NOP)); }
+    | BOM? pod? ws* end-of-file {
+      $$ = (G->data.root = PVIP_node_new_children(&(G->data), PVIP_NODE_STATEMENTS));
+    }
 
 BOM='\357' '\273' '\277'
 
@@ -130,7 +132,7 @@ statementlist =
             }
         )* eat_terminator?
     )
-    | ws+ { $$=NOP(); }
+    | ws+ { $$=PVIP_node_new_children(&(G->data), PVIP_NODE_STATEMENTS); }
 
 # TODO
 statement =

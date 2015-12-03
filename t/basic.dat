@@ -1109,3 +1109,8 @@ class X { sub x() { say what(self).name; say "OK"  } }; bless(X).x
 X
 OK
 
+===
+--- ONLY
+--- input
+--- expected
+

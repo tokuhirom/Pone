@@ -1353,3 +1353,4 @@ void pone_compile_c(pone_world* world, const char* so_filename, const char* c_fi
         pone_throw_str(world, "cannot compile generated C code");
     }
 }
+
