@@ -3,5 +3,7 @@
 
 #cmakedefine HAVE_SOCK_CLOEXEC
 #cmakedefine HAVE_ACCEPT4
+#define PONE_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/"
+
 
 #endif // PONE_CONFIG_H_IN_
