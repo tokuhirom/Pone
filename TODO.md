@@ -3,7 +3,7 @@ TODO
 
 ## Builtin variables
 
- * `$*ARGV`
+done.
 
 ## Builtin functions
 

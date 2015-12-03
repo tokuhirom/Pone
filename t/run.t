@@ -12,6 +12,10 @@ use Capture::Tiny ':all';
 
 plan tests => 1*blocks;
 
+filters {
+    args => [qw/eval/],
+};
+
 run {
     my $block = shift;
 
@@ -22,7 +26,7 @@ run {
         open \*STDOUT, ">&=", fileno($fh) or die $!;
         open \*STDERR, ">&=", fileno($fh) or die $!;
 
-        exec './bin/pone', '-e', $block->code;
+        exec './bin/pone', '-e', $block->code, @{$block->args || []};
         die;
     } else {
         waitpid $pid, 0;
@@ -84,4 +88,9 @@ like $res, qr/$wd/;
 ===
 --- code: $*INC.unshift("t/lib"); use hoge hoge; say hoge.x()
 --- re: hogehoge
+
+===
+--- code: $*ARGS.say
+--- args: [1,2,3]
+--- re: [1,2,3,]
 

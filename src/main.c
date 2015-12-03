@@ -57,6 +57,13 @@ int main(int argc, char** argv) {
         }
     }
 
+    universe->args = pone_ary_new(world, 0);
+    for (int i=optind; i<argc; ++i) {
+        pone_ary_push(universe,
+                universe->args,
+                pone_str_new_const(world, argv[i], strlen(argv[i])));
+    }
+
     if (setjmp(world->err_handlers[0])) {
         pone_universe_default_err_handler(world);
     } else {

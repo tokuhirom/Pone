@@ -126,6 +126,8 @@ void pone_universe_mark(pone_universe* universe) {
     //      assert(world != world->next);
     //      world = world->next;
     //  }
+    pone_gc_mark_value(universe->inc);
+    pone_gc_mark_value(universe->args);
 
     for (int i = 0; i < PONE_SIGNAL_HANDLERS_SIZE; ++i) {
         for (int j = 0; j < kv_size(universe->signal_channels[i]); j++) {

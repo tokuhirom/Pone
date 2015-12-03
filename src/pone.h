@@ -306,6 +306,8 @@ typedef struct pone_universe {
 
     // $*INC
     struct pone_val* inc;
+    // $*ARGS
+    struct pone_val* args;
 
     khash_t(str) * globals;
 

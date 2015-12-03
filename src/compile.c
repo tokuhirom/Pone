@@ -747,6 +747,9 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
     case PVIP_NODE_FALSE:
         PRINTF("pone_false()");
         break;
+    case PVIP_NODE_TW_ARGS:
+        PRINTF("(world->universe->args)");
+        break;
     case PVIP_NODE_TW_INC:
         PRINTF("(world->universe->inc)");
         break;
