@@ -20,9 +20,8 @@ done.
  * __LINE__
  * LEAVE block
  * Implement socket.fdopen for server-starter
- * math module
-   *         "atan2", "cos", "exp", "hex", "log", "oct", "rand",
-         "sin", "sqrt", "srand"
+ * `"0xff".Int(16)`
+ * rand()
 
 ## Builtin classes
 

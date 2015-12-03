@@ -62,7 +62,8 @@ PONE_FUNC(meth_num_accepts) {
     pone_val* o;
     PONE_ARG("Num#ACCEPTS", "o", &o);
     return pone_num_val(self) == pone_numify(world, o)
-            ? pone_true() : pone_false();
+               ? pone_true()
+               : pone_false();
 }
 
 void pone_num_init(pone_world* world) {
@@ -80,4 +81,3 @@ void pone_num_init(pone_world* world) {
     pone_universe_set_global(world->universe, "INF", pone_num_new(world, INFINITY));
     pone_universe_set_global(world->universe, "Num", universe->class_num);
 }
-

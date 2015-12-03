@@ -31,7 +31,50 @@ PONE_FUNC(meth_abs) {
     }
 }
 
+PONE_FUNC(meth_atan2) {
+    pone_val* y;
+    pone_val* x;
+    PONE_ARG("math.atan2", "oo", &y, &x);
+    return pone_num_new(world, atan2(pone_numify(world, y), pone_numify(world, x)));
+}
+
+PONE_FUNC(meth_cos) {
+    pone_val* x;
+    PONE_ARG("math.cos", "o", &x);
+    return pone_num_new(world, cos(pone_numify(world, x)));
+}
+
+PONE_FUNC(meth_sin) {
+    pone_val* x;
+    PONE_ARG("math.sin", "o", &x);
+    return pone_num_new(world, sin(pone_numify(world, x)));
+}
+
+PONE_FUNC(meth_exp) {
+    pone_val* x;
+    PONE_ARG("math.exp", "o", &x);
+    return pone_num_new(world, exp(pone_numify(world, x)));
+}
+
+PONE_FUNC(meth_sqrt) {
+    pone_val* x;
+    PONE_ARG("math.sqrt", "o", &x);
+    return pone_num_new(world, sqrt(pone_numify(world, x)));
+}
+
+PONE_FUNC(meth_log) {
+    pone_val* x;
+    PONE_ARG("math.log", "o", &x);
+    return pone_num_new(world, log(pone_numify(world, x)));
+}
+
 void PONE_DLL_math(pone_world* world, pone_val* module) {
     pone_module_put(world, module, "abs", pone_code_new_c(world, meth_abs));
+    pone_module_put(world, module, "atan2", pone_code_new_c(world, meth_atan2));
+    pone_module_put(world, module, "cos", pone_code_new_c(world, meth_cos));
+    pone_module_put(world, module, "sin", pone_code_new_c(world, meth_sin));
+    pone_module_put(world, module, "exp", pone_code_new_c(world, meth_exp));
+    pone_module_put(world, module, "log", pone_code_new_c(world, meth_log));
+    pone_module_put(world, module, "sqrt", pone_code_new_c(world, meth_sqrt));
     pone_module_put(world, module, "PI", pone_num_new(world, M_PI));
 }
