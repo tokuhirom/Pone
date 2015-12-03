@@ -1,6 +1,7 @@
 #include "pone.h" /* PONE_INC */
 #include "pone_exc.h"
 #include "oniguruma.h"
+#include <math.h>
 
 void pone_str_mark(pone_val* val) {
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) {
