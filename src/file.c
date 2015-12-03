@@ -163,7 +163,7 @@ PONE_FUNC(meth_file_slurp_rest) {
     while (!feof(fp)) {
         size_t n = fread(buf, 1, 512, fp);
         if (n == 0) {
-          pone_file_close(world, self);
+            pone_file_close(world, self);
             pone_throw_str(world, "Cannot read file: %s", strerror(errno));
         }
         pone_str_append_c(world, retval, buf, n);
@@ -203,7 +203,6 @@ PONE_FUNC(meth_slurp) {
 
     return retval;
 }
-
 
 void pone_file_init(pone_world* world) {
     // TODO File#printf

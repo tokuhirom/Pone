@@ -31,9 +31,9 @@ int main(int argc, char** argv) {
         switch (opt) {
         case 'I':
             pone_ary_push(
-                    world->universe,
-                    universe->inc,
-                    pone_str_new_strdup(world, optarg, strlen(optarg)));
+                world->universe,
+                universe->inc,
+                pone_str_new_strdup(world, optarg, strlen(optarg)));
             break;
         case 'c':
             compile_only = true;

@@ -63,11 +63,11 @@ pone_val* pone_assign_list(pone_world* world, pone_val* val, int nvars, ...) {
 
     if (nvars != pone_ary_size(val)) {
         pone_throw_str(world, "'=' operator: rhs expected %d values but lhs returns %d",
-                nvars, pone_ary_size(val));
+                       nvars, pone_ary_size(val));
     }
     va_list vars;
     va_start(vars, nvars);
-    for (pone_int_t i=0; i<nvars; ++i) {
+    for (pone_int_t i = 0; i < nvars; ++i) {
         pone_assign(world, 0, va_arg(vars, const char*), pone_ary_at_pos(val, i));
     }
 

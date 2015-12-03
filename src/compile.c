@@ -852,19 +852,19 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
                 // my ($x, $y);
                 pone_node* list = varnode->children.nodes[1];
                 // define variables.
-                for (pone_int_t i=0; i<list->children.size; ++i) {
+                for (pone_int_t i = 0; i < list->children.size; ++i) {
                     var = list->children.nodes[i]->pv;
                     def_lex(ctx, PVIP_string_c_str(var));
                 }
                 PRINTF("pone_assign_list(world, ");
                 COMPILE(node->children.nodes[1]);
                 PRINTF(", %d, ", list->children.size);
-                for (pone_int_t i=0; i<list->children.size; ++i) {
+                for (pone_int_t i = 0; i < list->children.size; ++i) {
                     var = list->children.nodes[i]->pv;
                     PRINTF("\"");
                     WRITE_PV(var);
                     PRINTF("\"");
-                    if (i!=list->children.size-1) {
+                    if (i != list->children.size - 1) {
                         PRINTF(",");
                     }
                 }
@@ -1189,7 +1189,7 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, pone_node* node, const char* 
     }
     PRINTF("// --------------- vvvv function prototypes    vvvv -------------------\n");
     for (int i = 0; i < pone_ary_size(ctx->subnames); ++i) {
-        pone_val* v = pone_ary_at_pos(ctx->subnames,i);
+        pone_val* v = pone_ary_at_pos(ctx->subnames, i);
         PRINTF("pone_val* ");
         fwrite(pone_str_ptr(v), 1, pone_str_len(v), fp);
         PRINTF("(pone_world* world, pone_val* self, int n, va_list args);\n");
