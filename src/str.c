@@ -154,8 +154,11 @@ pone_val* pone_str_from_int(pone_world* world, pone_int_t i) {
 }
 
 pone_val* pone_str_from_num(pone_world* world, double n) {
-    char buf[512 + 1];
-    int size = snprintf(buf, 512 + 1, "%f", n);
+    // see picojson.h
+    char buf[256];
+    double tmp;
+    const char* fmt = fabs(n) < (1ULL << 53) && modf(n, &tmp) == 0 ? "%.f" : "%.17g";
+    int size = snprintf(buf, sizeof(buf), fmt, n);
     return pone_str_new_strdup(world, buf, size);
 }
 
