@@ -16,7 +16,7 @@
 #include "pone_compile.h"
 #include "pvip.h"
 #include "pvip_private.h"
-#include "khash.h"
+#include "pone_khash.h"
 
 KHASH_SET_INIT_INT64(i64);
 
@@ -1350,7 +1350,11 @@ pone_node* pone_parse_fp(pone_world* world, pvip_t* pvip, FILE* fp, bool yy_debu
 }
 
 void pone_compile_c(pone_world* world, const char* so_filename, const char* c_filename) {
-    pone_val* cmdline = pone_str_c_str(world, pone_str_new_printf(world, "clang -x c -D_POSIX_C_SOURCE=200809L -rdynamic -fPIC -shared -I%s -I src/ -g -lm -std=c99 -o %s %s -L. -lpone", PONE_INCLUDE_DIR, so_filename, c_filename));
+    const char* include_path = getenv("PONE_INCLUDE"); // should we cache this value?
+    if (!include_path) {
+        include_path = PONE_INCLUDE_DIR;
+    }
+    pone_val* cmdline = pone_str_c_str(world, pone_str_new_printf(world, "clang -x c -D_POSIX_C_SOURCE=200809L -rdynamic -fPIC -shared -I%s -I src/ -g -lm -std=c99 -o %s %s -L. -lpone", include_path, so_filename, c_filename));
     int retval = system(pone_str_ptr(cmdline));
     if (retval != 0) {
         pone_throw_str(world, "cannot compile generated C code");

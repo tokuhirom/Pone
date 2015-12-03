@@ -2,7 +2,7 @@
 #define PONE_HASH_H_
 
 #include "pone.h"
-#include "khash.h"
+#include "pone_khash.h"
 
 #define PONE_MAP_FOREACH(v, kvar, vvar, code)                  \
     assert(pone_type(v) == PONE_MAP);                          \

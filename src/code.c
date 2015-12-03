@@ -1,5 +1,5 @@
 #include "pone.h" /* PONE_INC */
-#include "khash.h"
+#include "pone_khash.h"
 
 void pone_code_mark(pone_val* val) {
     if (val->as.code.lex) {

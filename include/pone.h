@@ -12,7 +12,7 @@
 #include <setjmp.h>
 #include <pthread.h>
 #include <limits.h>
-#include "khash.h"
+#include "pone_khash.h"
 #include "pone_config.h"
 
 typedef long pone_int_t;
@@ -47,19 +47,19 @@ typedef double pone_num_t;
 typedef enum {
     PONE_NIL = 1,
     PONE_INT = 2,
-    PONE_NUM= 3,
-    PONE_STRING= 4,
-    PONE_ARRAY= 5,
-    PONE_BOOL=6,
-    PONE_MAP=7,
-    PONE_CODE=8,
-    PONE_OBJ=9,
-    PONE_LEX=10,
-    PONE_OPAQUE=11,
+    PONE_NUM = 3,
+    PONE_STRING = 4,
+    PONE_ARRAY = 5,
+    PONE_BOOL = 6,
+    PONE_MAP = 7,
+    PONE_CODE = 8,
+    PONE_OBJ = 9,
+    PONE_LEX = 10,
+    PONE_OPAQUE = 11,
 } pone_t;
 
 #define PONE_HEAD \
-  uint64_t type:4, flags:8; 
+    uint64_t type : 4, flags : 8;
 
 struct pone_val;
 struct pone_world;
