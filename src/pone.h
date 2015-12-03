@@ -299,8 +299,8 @@ typedef struct pone_universe {
     struct pone_val* class_x_adhoc;
     // class of Path
     struct pone_val* class_path;
-    // class of FileInfo
-    struct pone_val* class_fileinfo;
+    // class of Stat
+    struct pone_val* class_stat;
     // class of Time
     struct pone_val* class_time;
 

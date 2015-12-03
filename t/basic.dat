@@ -1071,7 +1071,7 @@ Path
 
 ===
 --- input
-say path("CMakeLists.txt").stat.mtime ~~ Time
+say path.new("CMakeLists.txt").stat.mtime ~~ Time
 --- expected
 True
 

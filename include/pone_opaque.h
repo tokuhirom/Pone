@@ -20,7 +20,9 @@ static inline void* pone_opaque_ptr(pone_val* v) {
 }
 static inline pone_val* pone_opaque_class(pone_val* v) {
     assert(pone_type(v) == PONE_OPAQUE);
-    return v->as.opaque.body->klass;
+    pone_val* klass = v->as.opaque.body->klass;
+    assert(klass);
+    return klass;
 }
 
 static inline void pone_opaque_set_ptr(pone_val* v, void* ptr) {
