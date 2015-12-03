@@ -38,6 +38,7 @@ sub start(Code $app, Hash $opts = {}) {
                         my ($got, $env) = parser.parse_request($buf);
                         # TODO chunked support
                         if $got > 0 {
+                            # TODO we need http/status.pn
                             $csock.write(
                                 "HTTP/1.0 200 OK\r\n"
                                 ~ "Content-Length: 8\r\n"
