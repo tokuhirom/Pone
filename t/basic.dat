@@ -63,12 +63,6 @@ hello
 10
 
 ===
---- input: use math; say(math.abs(-1)); printf("%.1f\n", math.abs(-5.1));
---- expected
-1
-5.1
-
-===
 --- input: say((2+3)*4)
 --- expected
 20

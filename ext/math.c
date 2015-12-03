@@ -3,6 +3,8 @@
 #include "pone_opaque.h"
 #include "pone_exc.h"
 
+#include <math.h>
+
 PONE_FUNC(meth_abs) {
     pone_val* val;
     PONE_ARG("abs", "o", &val);
@@ -31,4 +33,5 @@ PONE_FUNC(meth_abs) {
 
 void PONE_DLL_math(pone_world* world, pone_val* module) {
     pone_module_put(world, module, "abs", pone_code_new_c(world, meth_abs));
+    pone_module_put(world, module, "PI", pone_num_new(world, M_PI));
 }
