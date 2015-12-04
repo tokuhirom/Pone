@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/tokuhirom/Pone.png?label=ready&title=Ready)](https://waffle.io/tokuhirom/Pone)
 [![Build Status](https://travis-ci.org/tokuhirom/Pone.svg?branch=master)](https://travis-ci.org/tokuhirom/Pone)
 
 The  ( д)  ﾟﾟPone Programming Language
