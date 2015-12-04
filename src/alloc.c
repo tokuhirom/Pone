@@ -27,7 +27,6 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
         // reuse it.
         val = world->freelist;
         world->freelist = world->freelist->as.free.next;
-        val->as.basic.flags = 0;
     } else {
         // there is no free-ed value.
         // then, use value from arena.
@@ -40,15 +39,19 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
 
             // alloc new arena
             pone_arena* arena = pone_malloc(world, sizeof(pone_arena));
+            arena->next = NULL;
+            arena->idx = 0;
             world->arena_last->next = arena;
             world->arena_last = arena;
-            val = &(arena->values[arena->idx++]);
+            val = &(arena->values[arena->idx]);
+            arena->idx++;
         } else {
             // use last arena entry
             val = &(world->arena_last->values[world->arena_last->idx++]);
         }
     }
 
+    val->as.basic.flags = 0;
     val->as.basic.type = type;
 
     pone_save_tmp(world, val);
