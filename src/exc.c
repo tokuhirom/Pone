@@ -51,6 +51,8 @@ __attribute__((noreturn)) void pone_throw(pone_world* world, pone_val* val) {
     // back to the lex
     world->lex = world->err_handler_lexs[world->err_handler_idx];
 
+    // TODO rewind caller stack
+
     EXC_TRACE("throwing exc");
 
 #ifdef __GLIBC__
@@ -92,7 +94,7 @@ pone_val* pone_try(pone_world* world, pone_val* code) {
     if (setjmp(*(pone_exc_handler_push(world)))) {
         return pone_nil();
     } else {
-        pone_val* v = pone_code_call(world, code, pone_nil(), 0);
+        pone_val* v = pone_code_call(world, __FILE__, __LINE__, __func__, code, pone_nil(), 0);
         pone_exc_handler_pop(world);
         return v;
     }

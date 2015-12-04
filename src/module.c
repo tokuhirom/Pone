@@ -158,7 +158,7 @@ static bool try_load_pn(pone_world* world, pone_val* dir, const char* name, cons
     // create new lex from Code's saved lex.
     world->lex = NULL;
 
-    pone_val* module = pone_code_call(world, code, pone_nil(), 0);
+    pone_val* module = pone_code_call(world, __FILE__, __LINE__, __func__, code, pone_nil(), 0);
 
     world->lex = orig_lex;
 

@@ -235,6 +235,7 @@ static inline pone_node* inject_return(pone_compile_ctx* ctx, pone_node* node) {
         ret->type = PVIP_NODE_RETURN;
         ret->children.size = 0;
         ret->children.nodes = NULL;
+        ret->line_number = node->line_number;
         PVIP_node_push_child(ret, node);
         return ret;
     }
@@ -652,7 +653,7 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         break;
     case PVIP_NODE_IT_METHODCALL:
         // (it_methodcall (ident "say"))
-        PRINTF("pone_call_method(world, pone_get_lex(world, \"$_\"), \"");
+        PRINTF("pone_call_method(world, __FILE__, __LINE__, FUNC_NAME, pone_get_lex(world, \"$_\"), \"");
         WRITE_PV(node->children.nodes[0]->pv);
         PRINTF("\"");
         if (node->children.size > 1) {
@@ -684,7 +685,7 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
     case PVIP_NODE_METHODCALL:
         // (methodcall (variable "$a") (ident "pop") (args))
         // (atpos (variable "$a") (int 0))
-        PRINTF("pone_call_method(world, ");
+        PRINTF("pone_call_method(world, __FILE__, __LINE__, FUNC_NAME, ");
         COMPILE(node->children.nodes[0]);
         PRINTF(", \"");
         WRITE_PV(node->children.nodes[1]->pv);
@@ -761,7 +762,7 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
             node->children.nodes[0]->type == PVIP_NODE_IDENT
             || node->children.nodes[0]->type == PVIP_NODE_VARIABLE);
         const char* name = PVIP_string_c_str(node->children.nodes[0]->pv);
-        PRINTF("pone_code_call(world, pone_get_lex(world, \"%s\"), pone_nil(), %d",
+        PRINTF("pone_code_call(world, __FILE__, __LINE__, FUNC_NAME, pone_get_lex(world, \"%s\"), pone_nil(), %d",
                name, node->children.nodes[1]->children.size);
         if (node->children.nodes[1]->children.size > 0) {
             PRINTF(",");
@@ -1058,6 +1059,13 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         }
         PRINTF("(pone_world* world, pone_val* self, int n, va_list args) {\n");
         PUSH_SCOPE();
+        if (is_anon) {
+            PRINTF("    const char* FUNC_NAME=\"<ANON>\";\n");
+        } else {
+            PRINTF("    const char* FUNC_NAME=\"");
+            WRITE_PV(name->pv);
+            PRINTF("\";\n");
+        }
         COMPILE(node->children.nodes[1]);
         COMPILE(inject_return(ctx, node->children.nodes[3]));
         POP_SCOPE();
@@ -1203,6 +1211,7 @@ void pone_compile(pone_compile_ctx* ctx, FILE* fp, pone_node* node, const char* 
     }
     PRINTF("// --------------- vvvv loader point vvvv -------------------\n");
     PRINTF("pone_val* %s(pone_world* world, pone_val* self, int n, va_list args) {\n", so_funcname);
+    PRINTF("    const char* FUNC_NAME=\"%s\";\n", module_name);
     fwrite(ctx->buf->buf, 1, ctx->buf->len, fp);
     PRINTF("    return pone_module_from_lex(world, \"%s\");\n", module_name);
     PRINTF("}\n");

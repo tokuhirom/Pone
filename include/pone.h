@@ -172,6 +172,9 @@ typedef struct pone_world {
     // $!(errno)
     int errsv;
 
+    // caller stack
+    struct pone_val* caller_stack;
+
     // error handler
     jmp_buf* err_handlers;
     struct pone_val** err_handler_lexs;
@@ -303,6 +306,8 @@ typedef struct pone_universe {
     struct pone_val* class_stat;
     // class of Time
     struct pone_val* class_time;
+    // class of Caller
+    struct pone_val* class_caller;
 
     // $*INC
     struct pone_val* inc;
@@ -430,8 +435,8 @@ void pone_str_mark(pone_val* val);
 pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func);
 void pone_code_bind(pone_world* world, pone_val* code, const char* key, pone_val* val);
 pone_val* pone_code_new(pone_world* world, pone_funcptr_t func);
-pone_val* pone_code_call(pone_world* world, pone_val* code, pone_val* self, int n, ...);
-pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int n, va_list args);
+pone_val* pone_code_call(pone_world* world, const char* filename, int lineno, const char* sub, pone_val* code, pone_val* self, int n, ...);
+pone_val* pone_code_vcall(pone_world* world, const char* filename, int lineno, const char* sub, pone_val* code, pone_val* self, int n, va_list args);
 void pone_code_init(pone_world* world);
 void pone_code_mark(pone_val* val);
 
@@ -523,7 +528,7 @@ void pone_add_method(pone_world* world, pone_val* klass, const char* name, size_
 void pone_add_method_c(pone_world* world, pone_val* klass, const char* name, size_t name_len, pone_funcptr_t funcptr);
 pone_val* pone_find_method(pone_world* world, pone_val* klass, const char* name);
 pone_val* pone_what(pone_world* world, pone_val* obj);
-pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...);
+pone_val* pone_call_method(pone_world* world, const char* filename, int lineno, const char* subname, pone_val* obj, const char* method_name, int n, ...);
 pone_val* pone_call_meta_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...);
 
 // obj.c

@@ -42,12 +42,26 @@ pone_val* pone_code_new(pone_world* world, pone_funcptr_t func) {
     return (pone_val*)cv;
 }
 
-pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int n, va_list args) {
+void pone_push_caller(pone_world* world, const char* filename, int lineno, const char* sub) {
+    pone_ary_push(world->universe, world->caller_stack,
+                  pone_ary_new(world, 3,
+                               pone_str_new_const(world, filename, strlen(filename)),
+                               pone_int_new(world, lineno),
+                               pone_str_new_const(world, sub, strlen(sub))));
+}
+
+void pone_pop_caller(pone_world* world) {
+    pone_ary_pop(world, world->caller_stack);
+}
+
+pone_val* pone_code_vcall(pone_world* world, const char* filename, int lineno, const char* sub, pone_val* code, pone_val* self, int n, va_list args) {
     assert(pone_type(code) == PONE_CODE);
 
     if (world->gc_requested) {
         pone_gc_run(world);
     }
+
+    pone_push_caller(world, filename, lineno, sub);
 
     pone_code* cv = (pone_code*)code;
     if (cv->lex) { //pone level code
@@ -66,21 +80,25 @@ pone_val* pone_code_vcall(pone_world* world, pone_val* code, pone_val* self, int
         // restore original lex.
         world->lex = orig_lex;
 
+        pone_pop_caller(world);
+
         return retval;
     } else {
         pone_funcptr_t func = cv->func;
-        return func(world, self, n, args);
+        pone_val* retval = func(world, self, n, args);
+        pone_pop_caller(world);
+        return retval;
     }
 }
 
-pone_val* pone_code_call(pone_world* world, pone_val* code, pone_val* self, int n, ...) {
+pone_val* pone_code_call(pone_world* world, const char* filename, int lineno, const char* sub, pone_val* code, pone_val* self, int n, ...) {
     assert(pone_alive(code));
     assert(pone_type(code) == PONE_CODE);
     // TODO support callable object
 
     va_list args;
     va_start(args, n);
-    pone_val* retval = pone_code_vcall(world, code, self, n, args);
+    pone_val* retval = pone_code_vcall(world, filename, lineno, sub, code, self, n, args);
     va_end(args);
 
     return retval;

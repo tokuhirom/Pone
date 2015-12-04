@@ -37,7 +37,7 @@ static void* thread_start(void* p) {
             code->as.code.lex->as.lex.thread_id = pthread_self();
             assert(pone_type(code) == PONE_CODE);
             assert(pone_type(code) == PONE_CODE);
-            (void)pone_code_call(world, code, pone_nil(), 0);
+            (void)pone_code_call(world, __FILE__, __LINE__, __func__, code, pone_nil(), 0);
 
             pone_universe* universe = world->universe;
             // move the world to free list

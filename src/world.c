@@ -63,6 +63,8 @@ pone_world* pone_world_new(pone_universe* universe) {
     CHECK_PTHREAD(pthread_mutex_init(&(world->mutex), NULL));
     CHECK_PTHREAD(pthread_cond_init(&(world->cond), NULL));
 
+    world->caller_stack = pone_ary_new(world, 0);
+
     pone_gc_log(world->universe, "[pone gc] create new world %p\n", world);
 
     return world;

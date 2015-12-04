@@ -205,7 +205,7 @@ pone_val* pone_find_method(pone_world* world, pone_val* obj, const char* name) {
 }
 
 // Usage: return pone_call_method(world, iter, "pull-one", 0);
-pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_name, int n, ...) {
+pone_val* pone_call_method(pone_world* world, const char* filename, int lineno, const char* subname, pone_val* obj, const char* method_name, int n, ...) {
     assert(obj);
 #ifndef NDEBUG
     if (!pone_alive(obj)) {
@@ -221,7 +221,7 @@ pone_val* pone_call_method(pone_world* world, pone_val* obj, const char* method_
 
             va_start(args, n);
 
-            pone_val* retval = pone_code_vcall(world, method, obj, n, args);
+            pone_val* retval = pone_code_vcall(world, filename, lineno, subname, method, obj, n, args);
 
             va_end(args);
             return retval;

@@ -164,7 +164,7 @@ pone_val* pone_str_from_num(pone_world* world, double n) {
 }
 
 pone_val* pone_stringify(pone_world* world, pone_val* val) {
-    pone_val* retval = pone_call_method(world, val, "Str", 0);
+    pone_val* retval = pone_call_method(world, __FILE__, __LINE__, __func__, val, "Str", 0);
 #ifndef NDEBUG
     if (pone_type(retval) != PONE_STRING) {
         pone_dd(world, val);

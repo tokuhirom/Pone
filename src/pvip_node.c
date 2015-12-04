@@ -18,6 +18,13 @@
 
 #define PVIP_ARENA_SIZE 1024
 
+#define SET_LINENUMBER()                                                                   \
+    if (parser->line_number_stack_size > 0) {                                              \
+        node->line_number = parser->line_number_stack[parser->line_number_stack_size - 1]; \
+    } else {                                                                               \
+        node->line_number = parser->line_number;                                           \
+    }
+
 #define ALLOC_CHECK(p)                                        \
     do {                                                      \
         if (!p) {                                             \
@@ -86,7 +93,7 @@ pone_node* PVIP_node_new_int(PVIPParserContext* parser, PVIP_node_type_t type, i
     assert(PVIP_node_category(type) == PVIP_CATEGORY_INT);
     node->type = type;
     node->iv = n;
-    node->line_number = 0;
+    SET_LINENUMBER();
     return node;
 }
 
@@ -117,7 +124,7 @@ pone_node* PVIP_node_new_string(PVIPParserContext* parser, PVIP_node_type_t type
         || type != PVIP_NODE_STRING);
     node->type = type;
     node->pv = PVIP_string_new();
-    node->line_number = 0;
+    SET_LINENUMBER();
     PVIP_string_concat(node->pv, str, len);
     return node;
 }
@@ -194,7 +201,7 @@ pone_node* PVIP_node_new_number(PVIPParserContext* parser, PVIP_node_type_t type
     assert(PVIP_node_category(type) == PVIP_CATEGORY_NUMBER);
     node->type = type;
     node->nv = strtod(str, NULL);
-    node->line_number = 0;
+    SET_LINENUMBER();
     return node;
 }
 
@@ -206,11 +213,7 @@ pone_node* PVIP_node_new_children(PVIPParserContext* parser, PVIP_node_type_t ty
     node->type = type;
     node->children.size = 0;
     node->children.nodes = NULL;
-    if (parser->line_number_stack_size > 0) {
-        node->line_number = parser->line_number_stack[parser->line_number_stack_size - 1];
-    } else {
-        node->line_number = parser->line_number;
-    }
+    SET_LINENUMBER();
     return node;
 }
 pone_node* PVIP_node_new_children1(PVIPParserContext* parser, PVIP_node_type_t type, pone_node* n1) {

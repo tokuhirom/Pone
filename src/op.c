@@ -18,6 +18,7 @@ pone_val* pone_get_lex(pone_world* world, const char* key) {
     }
 
     {
+        assert(world->universe->globals);
         khint_t k = kh_get(str, world->universe->globals, key);
         if (k != kh_end(world->universe->globals)) {
             return kh_val(world->universe->globals, k);
@@ -108,7 +109,7 @@ pone_val* pone_assign_pos(pone_world* world, pone_val* var, pone_val* pos, pone_
         pone_ary_assign_pos(world, var, pos, rhs);
         return rhs;
     } else {
-        return pone_call_method(world, var, "ASSIGN-POS", 2, pos, rhs);
+        return pone_call_method(world, __FILE__, __LINE__, __func__, var, "ASSIGN-POS", 2, pos, rhs);
     }
 }
 
@@ -120,7 +121,7 @@ pone_val* pone_assign_pos(pone_world* world, pone_val* var, pone_val* pos, pone_
 //
 //     $var.ASSIGN-KEY($key, $rhs);
 pone_val* pone_assign_key(pone_world* world, pone_val* var, pone_val* key, pone_val* rhs) {
-    return pone_call_method(world, var, "ASSIGN-KEY", 2, key, rhs);
+    return pone_call_method(world, __FILE__, __LINE__, __func__, var, "ASSIGN-KEY", 2, key, rhs);
 }
 
 static void pin(pone_int_t indent) {
@@ -247,17 +248,17 @@ bool pone_so(pone_val* val) {
 }
 
 pone_int_t pone_intify(pone_world* world, pone_val* val) {
-    pone_val* v = pone_call_method(world, val, "Int", 0);
+    pone_val* v = pone_call_method(world, __FILE__, __LINE__, __func__, val, "Int", 0);
     return pone_int_val(v);
 }
 
 pone_num_t pone_numify(pone_world* world, pone_val* val) {
-    pone_val* v = pone_call_method(world, val, "Num", 0);
+    pone_val* v = pone_call_method(world, __FILE__, __LINE__, __func__, val, "Num", 0);
     return pone_num_val(v);
 }
 
 pone_val* pone_smart_match(pone_world* world, pone_val* v1, pone_val* v2) {
-    return pone_call_method(world, v2, "ACCEPTS", 1, v1);
+    return pone_call_method(world, __FILE__, __LINE__, __func__, v2, "ACCEPTS", 1, v1);
 }
 
 pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2) {
@@ -426,7 +427,7 @@ pone_val* pone_at_pos(pone_world* world, pone_val* obj, pone_val* pos) {
     if (pone_type(obj) == PONE_ARRAY) { // specialization for performance
         return pone_ary_at_pos(obj, pone_intify(world, pos));
     } else {
-        return pone_call_method(world, obj, "AT-POS", 1, pos);
+        return pone_call_method(world, __FILE__, __LINE__, __func__, obj, "AT-POS", 1, pos);
     }
 }
 
@@ -434,6 +435,6 @@ pone_val* pone_at_key(pone_world* world, pone_val* obj, pone_val* key) {
     if (pone_type(obj) == PONE_MAP) { // specialization for performance
         return pone_map_at_key(world, obj, pone_stringify(world, key));
     } else {
-        return pone_call_method(world, obj, "AT-KEY", 1, key);
+        return pone_call_method(world, __FILE__, __LINE__, __func__, obj, "AT-KEY", 1, key);
     }
 }
