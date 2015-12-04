@@ -19,6 +19,7 @@ int main(int argc, char** argv) {
 
     // create compiler world.
     pone_world* world = pone_world_new(universe);
+    universe->compiler_world = world;
 
     // parse options.
     // TODO use portable getopt
@@ -58,10 +59,10 @@ int main(int argc, char** argv) {
     }
 
     universe->args = pone_ary_new(world, 0);
-    for (int i=optind; i<argc; ++i) {
+    for (int i = optind; i < argc; ++i) {
         pone_ary_push(universe,
-                universe->args,
-                pone_str_new_const(world, argv[i], strlen(argv[i])));
+                      universe->args,
+                      pone_str_new_const(world, argv[i], strlen(argv[i])));
     }
 
     if (setjmp(world->err_handlers[0])) {
@@ -137,6 +138,5 @@ int main(int argc, char** argv) {
             }
         }
     }
-    pone_world_free(world);
     pone_universe_destroy(universe);
 }

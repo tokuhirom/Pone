@@ -336,7 +336,7 @@ False
 --- input
 say(0.1*10);
 --- expected
-1.000000
+1
 
 ===
 --- input
@@ -350,17 +350,6 @@ say('a\'aa')
 --- expected
 a'aa
 
-===
---- input
-say(0.2+0.1);
-say(0.2-0.1);
-say(0.2*10);
-say(0.2/10);
---- expected
-0.300000
-0.100000
-2.000000
-0.020000
 
 ===
 --- input
@@ -579,14 +568,12 @@ b
 ===
 --- input
 <a b c>.say;
-3.14.say;
 1.say;
 True.say;
 False.say;
 q<a>.say;
 --- expected
 [a,b,c,]
-3.140000
 1
 True
 False
@@ -624,23 +611,6 @@ q<3>.Int.say
 --- expected
 3
 
-===
---- input
-(3.14 + 4.14).say
---- expected
-7.280000
-
-===
---- input
-(3.14 + 3).say
---- expected
-6.140000
-
-===
---- input
-"3.14".Num.say
---- expected
-3.140000
 
 ===
 --- input

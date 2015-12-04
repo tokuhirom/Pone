@@ -324,6 +324,9 @@ typedef struct pone_universe {
     // This doesn't include system worlds.
     pone_world* worker_worlds;
 
+    // compiler world.
+    pone_world* compiler_world;
+
     // mutex for above
     pthread_mutex_t worker_worlds_mutex;
 

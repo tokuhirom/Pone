@@ -112,6 +112,9 @@ void pone_universe_destroy(pone_universe* universe) {
     CHECK_PTHREAD(pthread_mutex_unlock(&(universe->signal_world->mutex)));
     pone_world_free(universe->signal_world);
     CHECK_PTHREAD(pthread_mutex_unlock(&(universe->global_world->mutex)));
+    if (universe->compiler_world) {
+        pone_world_free(universe->compiler_world);
+    }
     pone_world_free(universe->global_world);
     kh_destroy(str, universe->globals);
 
