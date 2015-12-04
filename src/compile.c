@@ -1018,6 +1018,7 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         PRINTF("pone_val* pone_try_%d(", ctx->anon_sub_no);
         PRINTF("pone_world* world, pone_val* self, int n, va_list args) {\n");
         PUSH_SCOPE();
+        PRINTF("  const char* FUNC_NAME=\"<try>\";\n");
         COMPILE(inject_return(ctx, node->children.nodes[0]));
         POP_SCOPE();
         PRINTF("  return pone_nil();\n");
