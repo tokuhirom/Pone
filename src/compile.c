@@ -260,7 +260,6 @@ static inline int find_lex(pone_compile_ctx* ctx, const char* name) {
 void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
 #define PRINTF(fmt, ...) PVIP_string_printf(ctx->buf, fmt, ##__VA_ARGS__)
 #define WRITE_PV(pv) PVIP_string_concat(ctx->buf, pv->buf, pv->len)
-#define LINE(node) PRINTF("#line %d \"%s\"\n", (node)->line_number, ctx->filename);
 #define COMPILE(node) _pone_compile(ctx, node)
 #define PUSH_SCOPE()                           \
     do {                                       \
@@ -280,9 +279,6 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
     case PVIP_NODE_STATEMENTS:
         for (int i = 0; i < node->children.size; ++i) {
             pone_node* child = node->children.nodes[i];
-            int n = (child)->line_number;
-            const char* filename = ctx->filename;
-            PRINTF("#line %d \"%s\"\n", n, filename);
             COMPILE(child);
             PRINTF(";\n");
         }
@@ -653,7 +649,7 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         break;
     case PVIP_NODE_IT_METHODCALL:
         // (it_methodcall (ident "say"))
-        PRINTF("pone_call_method(world, __FILE__, __LINE__, FUNC_NAME, pone_get_lex(world, \"$_\"), \"");
+        PRINTF("pone_call_method(world, __FILE__, %d, FUNC_NAME, pone_get_lex(world, \"$_\"), \"", node->line_number);
         WRITE_PV(node->children.nodes[0]->pv);
         PRINTF("\"");
         if (node->children.size > 1) {
@@ -685,7 +681,7 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
     case PVIP_NODE_METHODCALL:
         // (methodcall (variable "$a") (ident "pop") (args))
         // (atpos (variable "$a") (int 0))
-        PRINTF("pone_call_method(world, __FILE__, __LINE__, FUNC_NAME, ");
+        PRINTF("pone_call_method(world, __FILE__, %d, FUNC_NAME, ", node->line_number);
         COMPILE(node->children.nodes[0]);
         PRINTF(", \"");
         WRITE_PV(node->children.nodes[1]->pv);
@@ -762,8 +758,8 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
             node->children.nodes[0]->type == PVIP_NODE_IDENT
             || node->children.nodes[0]->type == PVIP_NODE_VARIABLE);
         const char* name = PVIP_string_c_str(node->children.nodes[0]->pv);
-        PRINTF("pone_code_call(world, __FILE__, __LINE__, FUNC_NAME, pone_get_lex(world, \"%s\"), pone_nil(), %d",
-               name, node->children.nodes[1]->children.size);
+        PRINTF("pone_code_call(world, __FILE__, %d, FUNC_NAME, pone_get_lex(world, \"%s\"), pone_nil(), %d",
+               node->line_number, name, node->children.nodes[1]->children.size);
         if (node->children.nodes[1]->children.size > 0) {
             PRINTF(",");
         }
@@ -794,7 +790,6 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
     case PVIP_NODE_ELSE:
         PRINTF(" else {\n");
         for (int i = 0; i < node->children.size; ++i) {
-            LINE(node->children.nodes[i]);
             COMPILE(node->children.nodes[i]);
             PRINTF(";\n");
         }
