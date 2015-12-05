@@ -58,6 +58,7 @@ void pone_map_free(pone_world* world, pone_val* val) {
 
 // TODO DEPRECATE
 void pone_map_assign_key_c(pone_world* world, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v) {
+    printf("[DEPRECATED] DO NOT USE THIS: pone_map_assign_key_c\n");
     assert(pone_type(hv) == PONE_MAP);
     int ret;
     khint_t k = kh_put(val, HASH(hv), pone_str_new_const(world, key, key_len), &ret);
@@ -72,6 +73,7 @@ void pone_map_assign_key_c(pone_world* world, pone_val* hv, const char* key, pon
 // TODO DEPRECATE
 bool pone_map_exists_c(pone_world* world, pone_val* hash, const char* name) {
     assert(pone_type(hash) == PONE_MAP);
+    printf("[DEPRECATED] DO NOT USE THIS: pone_map_exists_c\n");
 
     khint_t k = kh_get(val, HASH(hash), pone_str_new_const(world, name, strlen(name)));
     if (k != kh_end(HASH(hash))) {
@@ -92,11 +94,19 @@ pone_val* pone_map_at_key(pone_world* world, pone_val* self, pone_val* key) {
     }
 }
 
-void pone_map_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val* v) {
-    if (pone_type(k) != PONE_STRING) {
-        k = pone_stringify(world, k);
+void pone_map_assign_key(pone_world* world, pone_val* hv, pone_val* key, pone_val* value) {
+    if (pone_type(key) != PONE_STRING) {
+        key = pone_stringify(world, key);
     }
-    pone_map_assign_key_c(world, hv, pone_str_ptr(k), pone_str_len(k), v);
+    assert(pone_type(hv) == PONE_MAP);
+    int ret;
+    khint_t k = kh_put(val, HASH(hv), key, &ret);
+    if (ret == -1) {
+        fprintf(stderr, "[BUG] khash.h returns error: %s\n", pone_str_ptr(pone_str_c_str(world, key)));
+        abort();
+    }
+    kh_val(hv->as.map.body->h, k) = value;
+    hv->as.map.body->len++;
 }
 
 pone_int_t pone_map_size(pone_val* val) {
@@ -113,6 +123,30 @@ pone_val* pone_map_keys(pone_world* world, pone_val* val) {
         pone_ary_push(world->universe, retval, k);
         (void)v;
     });
+
+    return retval;
+}
+
+PONE_FUNC(meth_hash_gist) {
+    PONE_ARG("Map#gist", "");
+
+    pone_val* retval = pone_str_new_strdup(world, "{", 1);
+
+    int i = 10;
+    PONE_MAP_FOREACH(self, k, v, {
+        if (i-- < 0) {
+            break;
+        }
+        pone_str_append(world, retval, k);
+        pone_str_append_c(world, retval, "=>", strlen("=>"));
+        pone_str_append(world, retval, v);
+        pone_str_append_c(world, retval, ", ", strlen(", "));
+    });
+    if (i == 0) {
+        pone_str_append_c(world, retval, "... ", strlen("... "));
+    }
+
+    pone_str_append_c(world, retval, ", ", strlen(", "));
 
     return retval;
 }
@@ -142,6 +176,7 @@ void pone_map_init(pone_world* world) {
 
     universe->class_map = pone_class_new(world, "Map", strlen("Map"));
     pone_add_method_c(world, universe->class_map, "size", strlen("size"), meth_hash_size);
+    pone_add_method_c(world, universe->class_map, "gist", strlen("gist"), meth_hash_gist);
     pone_add_method_c(world, universe->class_map, "ASSIGN-KEY", strlen("ASSIGN-KEY"), meth_hash_assign_key);
     pone_add_method_c(world, universe->class_map, "AT-KEY", strlen("AT-KEY"), meth_hash_at_key);
     pone_universe_set_global(world->universe, "Map", universe->class_map);

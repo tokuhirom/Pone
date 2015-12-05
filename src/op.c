@@ -134,8 +134,13 @@ static void dd(pone_world* world, pone_val* val, pone_int_t indent) {
     pin(indent);
     switch (pone_type(val)) {
     case PONE_STRING: {
-        printf("(string: immutable:%d len:" PoneIntFmt " , ",
-               pone_flags(val) & PONE_FLAGS_FROZEN,
+        printf("(string: %p as.str.p:%p flags:%s%s%s%s len:" PoneIntFmt " , ",
+               val,
+               val->as.str.p,
+               pone_flags(val) & PONE_FLAGS_FROZEN ? "FROZEN," : "",
+               pone_flags(val) & PONE_FLAGS_STR_COPY ? "STR_COPY," : "",
+               pone_flags(val) & PONE_FLAGS_STR_CONST ? "STR_CONST," : "",
+               pone_flags(val) & PONE_FLAGS_STR_UTF8 ? "STR_UTF8," : "",
                pone_str_len(val));
         for (pone_int_t i = 0; i < pone_str_len(val); ++i) {
             if (isprint(*(pone_str_ptr(val) + i))) {
@@ -163,7 +168,7 @@ static void dd(pone_world* world, pone_val* val, pone_int_t indent) {
         printf("(code func:%p)\n", val->as.code.func);
         break;
     case PONE_MAP: {
-        printf("MAP:\n");
+        printf("MAP: %p\n", val);
         pone_val* keys = pone_map_keys(world, val);
         for (pone_int_t i = 0; i < pone_ary_size(keys); i++) {
             pone_val* key = pone_ary_at_pos(keys, i);

@@ -2,6 +2,7 @@
 #include "kvec.h"
 #include "pone_val_vec.h"
 #include "pone_opaque.h"
+#include <sys/time.h>
 
 #define PONE_ERR_HANDLERS_INIT 10
 
@@ -64,6 +65,9 @@ pone_world* pone_world_new(pone_universe* universe) {
     CHECK_PTHREAD(pthread_cond_init(&(world->cond), NULL));
 
     world->caller_stack = pone_ary_new(world, 0);
+
+    world->random_key[0] = 0;
+    world->random_key[1] = 0;
 
     pone_gc_log(world->universe, "[pone gc] create new world %p\n", world);
 

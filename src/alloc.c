@@ -18,7 +18,7 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
     pone_val* val;
 
 #ifdef STRESS_GC
-    pone_gc_log(world->universe, "stress gc\n");
+    // pone_gc_log(world->universe, "stress gc\n");
     world->gc_requested = true;
 #endif
 
@@ -62,6 +62,7 @@ pone_val* pone_obj_alloc(pone_world* world, pone_t type) {
 // needs GVL(only called from GC).
 // GC must get ALLOC_LOCK.
 void pone_val_free(pone_world* world, pone_val* p) {
+    p->as.basic.type = 0;
 #ifndef NDEBUG
     // clear val's memory for debugging
     memset(p, 0, sizeof(pone_val));

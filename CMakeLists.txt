@@ -94,6 +94,7 @@ SET(SRCS
     src/time.c src/module.c src/file.c src/runtime.c src/os.c src/arg.c src/errno.c src/opaque.c src/channel.c src/gc.c src/pair.c src/obj.c src/class.c src/alloc.c src/array.c src/bool.c src/builtin.c src/code.c src/map.c src/int.c src/nil.c src/num.c src/op.c src/pone.c src/scope.c src/str.c src/world.c src/universe.c src/iter.c src/exc.c src/range.c src/re.c src/thread.c src/signal.c
     src/tmpfile.c
     src/pvip_node.c src/pvip_string.c gen.pone.y.c src/gen.node.c
+    src/random.c
     )
 
 add_executable(pone src/main.c 3rd/linenoise/linenoise.c)
