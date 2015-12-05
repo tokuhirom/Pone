@@ -45,3 +45,5 @@ tags
 /libpone.dylib
 /pone_generated.so.dSYM/
 /install_manifest.txt
+pt/*.c
+*.pn.c

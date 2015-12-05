@@ -1308,8 +1308,8 @@ pone_val* pone_compile_fp(pone_world* world, FILE* srcfp, const char* filename) 
     assert(world);
     pone_compile_ctx* ctx = pone_compile_ctx_new(world, filename);
     pone_node* node = pone_parse_fp(world, ctx->pvip, srcfp, false);
-    const char* c_filename = gen_tmpfile(world);
-    const char* so_filename = gen_tmpfile(world);
+    const char* c_filename = pone_str_ptr(pone_str_c_str(world, pone_str_new_printf(world, "%s.c", filename)));
+    const char* so_filename = pone_str_ptr(pone_str_c_str(world, pone_str_new_printf(world, "%s.so", filename)));
     const char* so_funcname = "pone_so_init_0";
     pone_compile_node(world, node, filename, ctx, c_filename, so_filename, so_funcname);
     pone_val* code = pone_load_dll(world, so_filename, so_funcname);
