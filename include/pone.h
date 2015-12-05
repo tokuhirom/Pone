@@ -205,6 +205,8 @@ typedef struct pone_world {
     bool gc_requested;
 
     struct pone_world* next;
+
+    uint64_t random_key[2];
 } pone_world;
 
 typedef struct {
@@ -218,7 +220,7 @@ typedef struct pone_val {
         // list of free'd values.
         // see http://loveruby.net/ja/rhg/book/gc.html
         struct {
-            uint64_t flags;
+            uint64_t type : 4, flags : 8;
             struct pone_val* next; // next free value
         } free;
 
