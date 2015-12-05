@@ -47,3 +47,4 @@ tags
 /install_manifest.txt
 pt/*.c
 *.pn.c
+*.t.c

@@ -125,6 +125,49 @@ PONE_FUNC(meth_file_stat) {
     return pone_fstat(world, fileno(SELF_FH));
 }
 
+PONE_FUNC(meth_file_list_iterator_pull_one) {
+    PONE_ARG("FileSeqIterator#pull-one", "");
+
+    pone_val* file = pone_obj_get_ivar(world, self, "$!file");
+    pone_val* retval = pone_bytes_new_strdup(world, "", 0);
+    FILE* fp = pone_opaque_ptr(file);
+    char buf[512];
+    while (!feof(fp)) {
+        if (fgets(buf, sizeof(buf), fp)) {
+            size_t len = strlen(buf);
+            pone_str_append_c(world, retval, buf, len);
+            if (buf[len - 1] == '\n') {
+                return retval;
+            }
+        }
+    }
+    if (pone_str_len(retval)) {
+        return retval;
+    } else {
+        return world->universe->instance_iteration_end;
+    }
+}
+
+PONE_FUNC(meth_file_seq_iterator) {
+    PONE_ARG("FileSeq#iterator", "");
+    // FileSeqIterator
+    pone_val* klass = pone_obj_get_ivar(world, pone_what(world, self), "FileSeqIterator");
+    pone_val* file = pone_obj_get_ivar(world, self, "$!file");
+    pone_val* iter = pone_obj_new(world, klass);
+    pone_obj_set_ivar(world, iter, "$!file", file);
+    return iter;
+}
+
+// convert lines to list
+PONE_FUNC(meth_file_lines) {
+    PONE_ARG("File#lines", "");
+    pone_val* klass = pone_obj_get_ivar(world, pone_what(world, self), "FileSeq");
+    assert(klass);
+    pone_val* list = pone_obj_new(world, klass);
+    pone_obj_set_ivar(world, list, "$!file", self);
+    return list;
+}
+
 PONE_FUNC(meth_open) {
     char* fname;
     pone_int_t fname_len;
@@ -211,7 +254,6 @@ PONE_FUNC(meth_slurp) {
 void pone_file_init(pone_world* world) {
     // TODO File#printf
     // TODO File#readline
-    // TODO File#lines
     pone_val* klass = pone_class_new(world, "File", strlen("File"));
     pone_add_method_c(world, klass, "Str", strlen("Str"), meth_file_str);
     pone_add_method_c(world, klass, "read", strlen("read"), meth_file_read);
@@ -225,6 +267,19 @@ void pone_file_init(pone_world* world) {
     pone_add_method_c(world, klass, "getc", strlen("getc"), meth_file_getc);
     pone_add_method_c(world, klass, "flock", strlen("flock"), meth_file_flock);
     pone_add_method_c(world, klass, "stat", strlen("stat"), meth_file_stat);
+    {
+        // FileSeqIterator
+        pone_val* seq_iter_klass = pone_class_new(world, "FileSeqIterator", strlen("FileSeqIterator"));
+        pone_add_method_c(world, seq_iter_klass, "pull-one", sizeof("pull-one") - 1, meth_file_list_iterator_pull_one);
+
+        // Seq class for lines.
+        pone_val* seq_klass = pone_class_new(world, "FileLinesSeq", strlen("FileLinesSeq"));
+        pone_add_method_c(world, seq_klass, "iterator", sizeof("iterator") - 1, meth_file_seq_iterator);
+        pone_obj_set_ivar(world, seq_klass, "FileSeqIterator", seq_iter_klass);
+
+        pone_obj_set_ivar(world, klass, "FileSeq", seq_klass);
+        pone_add_method_c(world, klass, "lines", strlen("lines"), meth_file_lines);
+    }
     pone_add_method_c(world, klass, "slurp_rest", strlen("slurp_rest"), meth_file_slurp_rest);
 
     world->universe->class_file = klass;

@@ -19,6 +19,9 @@ pone_val* pone_code_new_c(pone_world* world, pone_funcptr_t func) {
 }
 
 void pone_code_bind(pone_world* world, pone_val* code, const char* key, pone_val* val) {
+    assert(pone_type(code) == PONE_CODE);
+    assert(code->as.code.lex);
+
     khash_t(str)* lex = code->as.code.lex->as.lex.map;
     int ret;
     char* ks = pone_strdup(world, key, strlen(key));
