@@ -131,7 +131,7 @@ void pone_add_method(pone_world* world, pone_val* klass, const char* name, size_
 
     pone_val* methods = pone_obj_get_ivar(world, klass, "$!methods");
     assert(pone_type(methods) == PONE_MAP);
-    pone_map_assign_key_c(world, methods, name, name_len, method);
+    pone_map_assign_key(world, methods, pone_str_new_strdup(world, name, name_len), method);
 }
 
 const char* pone_what_str_c(pone_world* world, pone_val* val) {

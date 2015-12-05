@@ -384,7 +384,6 @@ pone_val* pone_inplace_concat_s(pone_world* world, int level, const char* varnam
 // hash.c
 pone_val* pone_map_new(pone_world* world);
 pone_val* pone_map_assign_keys(pone_world* world, pone_val* hash, pone_int_t n, ...);
-void pone_map_assign_key_c(pone_world* world, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v);
 void pone_map_assign_key(pone_world* world, pone_val* hv, pone_val* k, pone_val* v);
 pone_int_t pone_map_size(pone_val* val);
 void pone_map_free(pone_world* world, pone_val* val);

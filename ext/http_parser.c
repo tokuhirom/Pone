@@ -21,12 +21,13 @@ PONE_FUNC(meth_parse_request) {
     if (pret > 0) {
         // TODO use list
         pone_val* env = pone_map_new(world);
-        pone_map_assign_key_c(world, env, "REQUEST_METHOD", strlen("REQUEST_METHOD"),
-                              pone_str_new_strdup(world, method, method_len));
-        pone_map_assign_key_c(world, env, "REQUEST_URI", strlen("REQUEST_URI"),
-                              pone_str_new_strdup(world, path, path_len));
-        pone_map_assign_key_c(world, env, "SCRIPT_NAME", strlen("SCRIPT_NAME"),
-                              pone_str_new_const(world, "", 0));
+#define SET(key, val)                                                    \
+    pone_map_assign_key(world, env,                                      \
+                        pone_str_new_const(world, key, sizeof(key) - 1), \
+                        val)
+        SET("REQUEST_METHOD", pone_str_new_strdup(world, method, method_len));
+        SET("REQUEST_URI", pone_str_new_strdup(world, path, path_len));
+        SET("SCRIPT_NAME", pone_str_new_const(world, "", 0));
         return pone_ary_new(world, 2, pone_int_new(world, pret), env);
     } else {
         return pone_ary_new(world, 1, pone_int_new(world, pret));

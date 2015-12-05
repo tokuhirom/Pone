@@ -57,20 +57,6 @@ void pone_map_free(pone_world* world, pone_val* val) {
 }
 
 // TODO DEPRECATE
-void pone_map_assign_key_c(pone_world* world, pone_val* hv, const char* key, pone_int_t key_len, pone_val* v) {
-    printf("[DEPRECATED] DO NOT USE THIS: pone_map_assign_key_c\n");
-    assert(pone_type(hv) == PONE_MAP);
-    int ret;
-    khint_t k = kh_put(val, HASH(hv), pone_str_new_const(world, key, key_len), &ret);
-    if (ret == -1) {
-        fprintf(stderr, "[BUG] khash.h returns error: %s\n", key);
-        abort();
-    }
-    kh_val(hv->as.map.body->h, k) = v;
-    hv->as.map.body->len++;
-}
-
-// TODO DEPRECATE
 bool pone_map_exists_c(pone_world* world, pone_val* hash, const char* name) {
     assert(pone_type(hash) == PONE_MAP);
     printf("[DEPRECATED] DO NOT USE THIS: pone_map_exists_c\n");
