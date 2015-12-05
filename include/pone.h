@@ -389,7 +389,6 @@ pone_int_t pone_map_size(pone_val* val);
 void pone_map_free(pone_world* world, pone_val* val);
 pone_val* pone_map_at_key(pone_world* world, pone_val* hash, pone_val* key);
 void pone_map_init(pone_world* world);
-bool pone_map_exists_c(pone_world* world, pone_val* hash, const char* name);
 pone_val* pone_map_keys(pone_world* world, pone_val* val);
 void pone_map_mark(pone_val* val);
 pone_val* pone_map_copy(pone_world* world, pone_val* obj);

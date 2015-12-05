@@ -56,19 +56,6 @@ void pone_map_free(pone_world* world, pone_val* val) {
     pone_free(world, val->as.map.body);
 }
 
-// TODO DEPRECATE
-bool pone_map_exists_c(pone_world* world, pone_val* hash, const char* name) {
-    assert(pone_type(hash) == PONE_MAP);
-    printf("[DEPRECATED] DO NOT USE THIS: pone_map_exists_c\n");
-
-    khint_t k = kh_get(val, HASH(hash), pone_str_new_const(world, name, strlen(name)));
-    if (k != kh_end(HASH(hash))) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 pone_val* pone_map_at_key(pone_world* world, pone_val* self, pone_val* key) {
     assert(pone_type(self) == PONE_MAP);
 
