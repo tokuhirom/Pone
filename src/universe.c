@@ -3,10 +3,6 @@
 #include <errno.h>
 #include "kvec.h"
 
-#ifdef __GLIBC__
-#include <execinfo.h>
-#endif
-
 void pone_universe_default_err_handler(pone_world* world) {
     assert(world->errvar);
     pone_val* str = pone_stringify(world, world->errvar);
@@ -14,11 +10,14 @@ void pone_universe_default_err_handler(pone_world* world) {
     fwrite(pone_str_ptr(str), 1, pone_str_len(str), stderr);
     fwrite("\n\n", 1, strlen("\n\n"), stderr);
 
-    if (world->stacktrace) {
-        for (pone_int_t i = 0; i < pone_ary_size(world->stacktrace); ++i) {
-            printf("%5ld: %s\n", pone_ary_size(world->stacktrace) - i,
-                   pone_str_ptr(pone_str_c_str(world, pone_ary_at_pos(world->stacktrace, i))));
-        }
+    pone_val* st = world->caller_stack;
+    for (pone_int_t i = pone_ary_size(st) - 1; i >= 0; --i) {
+        pone_val* row = pone_ary_at_pos(st, i);
+        printf("%5ld: %s %ld %s\n",
+               pone_ary_size(st) - i,
+               pone_str_ptr(pone_str_c_str(world, pone_ary_at_pos(row, 0))),
+               pone_int_val(pone_ary_at_pos(row, 1)),
+               pone_str_ptr(pone_str_c_str(world, pone_ary_at_pos(row, 2))));
     }
 
     exit(1);

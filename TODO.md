@@ -7,19 +7,15 @@ done.
 
 ## Builtin functions
 
- * rand
  * `system` builtin function
  * chomp
  * chr
  * ord
  * sprintf
  * rewrite printf
- * caller
  * __FILE__
  * __LINE__
  * LEAVE block
- * rand()
-  * use xorshift128+. put it in tls.
 
 ## Builtin classes
 

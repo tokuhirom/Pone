@@ -1,10 +1,6 @@
 #include "pone.h"
 #include "pone_exc.h"
 
-#ifdef __GLIBC__
-#include <execinfo.h>
-#endif
-
 jmp_buf* pone_exc_handler_push(pone_world* world) {
     if (world->err_handler_idx == world->err_handler_max) {
         world->err_handler_max *= 2;
@@ -54,27 +50,6 @@ __attribute__((noreturn)) void pone_throw(pone_world* world, pone_val* val) {
     // TODO rewind caller stack
 
     EXC_TRACE("throwing exc");
-
-#ifdef __GLIBC__
-    {
-        void* buffer[128];
-        int nptrs = backtrace(buffer, 128);
-
-        char** strings = backtrace_symbols(buffer, nptrs);
-        if (strings == NULL) {
-            perror("backtrace_symbols");
-        } else {
-            pone_val* ary = pone_ary_new(world, 0);
-            for (int j = 0; j < nptrs; j++) {
-                pone_ary_push(world->universe, ary, pone_str_new_strdup(world, strings[j], strlen(strings[j])));
-            }
-
-            free(strings);
-
-            world->stacktrace = ary;
-        }
-    }
-#endif
 
     // jmp to exception handler
     longjmp(world->err_handlers[world->err_handler_idx--], 1);
