@@ -173,6 +173,11 @@ PONE_FUNC(meth_internals_dump_lex) {
     return pone_nil();
 }
 
+PONE_FUNC(meth_abort) {
+    PONE_ARG("abort", "");
+    abort();
+}
+
 PONE_FUNC(meth_bless) {
     pone_val* klass;
     pone_val* hash = NULL;
@@ -207,4 +212,5 @@ void pone_builtin_init(pone_world* world) {
     pone_universe_set_global(universe, "printf", pone_code_new_c(world, meth_printf));
     pone_universe_set_global(universe, "INTERNALS__dump_lex", pone_code_new_c(world, meth_internals_dump_lex));
     pone_universe_set_global(universe, "bless", pone_code_new_c(world, meth_bless));
+    pone_universe_set_global(universe, "abort", pone_code_new_c(world, meth_abort));
 }
