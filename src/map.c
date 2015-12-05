@@ -129,6 +129,11 @@ PONE_FUNC(meth_hash_size) {
     return pone_int_new(world, pone_map_size(self));
 }
 
+PONE_FUNC(meth_hash_keys) {
+    PONE_ARG("Map#keys", "");
+    return pone_map_keys(world, self);
+}
+
 PONE_FUNC(meth_hash_at_key) {
     pone_val* key;
     PONE_ARG("Map#AT-KEY", "o", &key);
@@ -149,6 +154,7 @@ void pone_map_init(pone_world* world) {
 
     universe->class_map = pone_class_new(world, "Map", strlen("Map"));
     pone_add_method_c(world, universe->class_map, "size", strlen("size"), meth_hash_size);
+    pone_add_method_c(world, universe->class_map, "keys", strlen("keys"), meth_hash_keys);
     pone_add_method_c(world, universe->class_map, "gist", strlen("gist"), meth_hash_gist);
     pone_add_method_c(world, universe->class_map, "ASSIGN-KEY", strlen("ASSIGN-KEY"), meth_hash_assign_key);
     pone_add_method_c(world, universe->class_map, "AT-KEY", strlen("AT-KEY"), meth_hash_at_key);
