@@ -512,6 +512,7 @@ pone_val* pone_str_concat(pone_world* world, pone_val* v1, pone_val* v2);
 bool pone_so(pone_val* val);
 pone_val* pone_smart_match(pone_world* world, pone_val* v1, pone_val* v2);
 pone_val* pone_assign_key(pone_world* world, pone_val* self, pone_val* key, pone_val* val);
+pone_val* pone_not(pone_world* world, pone_val* val);
 
 // iter.c
 pone_val* pone_iter_init(pone_world* world, pone_val* val);

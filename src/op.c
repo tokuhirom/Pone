@@ -97,6 +97,10 @@ INFIX(pone_inplace_concat_s, pone_str_concat)
 
 #undef INFIX
 
+pone_val* pone_not(pone_world* world, pone_val* val) {
+    return pone_so(val) ? pone_false() : pone_true();
+}
+
 // This function is used by following Perl6 code:
 //
 //     $var[$pos] = $rhs

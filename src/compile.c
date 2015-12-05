@@ -728,6 +728,12 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
         PRINTF("}\n");
         break;
     }
+    case PVIP_NODE_NOT: {
+        PRINTF("pone_not(world, ");
+        COMPILE(node->children.nodes[0]);
+        PRINTF(")");
+        break;
+    }
     case PVIP_NODE_UNARY_MINUS: // Negative numeric context operator.
         PRINTF("pone_subtract(world, pone_int_new(world, 0),");
         COMPILE(node->children.nodes[0]);

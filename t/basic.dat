@@ -1077,3 +1077,11 @@ OK
 --- input
 --- expected
 
+===
+--- input
+say !True;
+say !False;
+--- expected
+False
+True
+
