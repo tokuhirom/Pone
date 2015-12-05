@@ -267,7 +267,15 @@ pone_num_t pone_numify(pone_world* world, pone_val* val) {
 }
 
 pone_val* pone_smart_match(pone_world* world, pone_val* v1, pone_val* v2) {
-    return pone_call_method(world, __FILE__, __LINE__, __func__, v2, "ACCEPTS", 1, v1);
+    pone_val* method = pone_find_method(world, v2, "ACCEPTS");
+    if (method) {
+        // if there's ACCEPTS method, call it.
+        return pone_code_call(world, __FILE__, __LINE__, __func__, method, v2, 1, v1);
+    } else {
+        // otherwise, use 'eq' operator. so, we should use '===' method instead. but i don't have
+        // motivation to do it now. patches welcome.
+        return pone_str_eq(world, v1, v2) ? pone_true() : pone_false();
+    }
 }
 
 pone_val* pone_add(pone_world* world, pone_val* v1, pone_val* v2) {
