@@ -143,7 +143,7 @@ void pone_str_free(pone_world* world, pone_val* val) {
     if (pone_flags(val) & PONE_FLAGS_STR_COPY) {
         // there's no heap ref.
     } else if (!(pone_flags(val) & PONE_FLAGS_STR_CONST)) {
-        pone_free(world, (char*)((pone_string*)val)->p);
+        pone_free(world, val->as.str.p);
     }
 }
 
