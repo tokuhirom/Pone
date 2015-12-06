@@ -884,6 +884,7 @@ dq_string_inner =
         | '#{' - e:expr - "}" { APPEND_N(e); }
         | '#{' - "}" { APPEND_S("", 0); }
         | < [^>"#\\\n$%]+ > { APPEND_S(yytext, yyleng); }
+        | < '#' ![{] > { APPEND_S(yytext, yyleng); }
         | h:variable '<' - k:atkey_key - '>' { APPEND_N((CHILDREN2(PVIP_NODE_ATKEY, h, k))); }
         # %hash{do_a}
         | h:variable '{' - k:expr - '}' {  APPEND_N(CHILDREN2(PVIP_NODE_ATKEY, h, k)); }
