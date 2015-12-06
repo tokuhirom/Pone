@@ -48,3 +48,4 @@ tags
 pt/*.c
 *.pn.c
 *.t.c
+*.so.dSYM
