@@ -1,6 +1,8 @@
 #include "pone.h" /* PONE_INC */
 #include "pone_exc.h"
 
+#include "sort_r.h"
+
 void pone_ary_mark(pone_val* val) {
     pone_int_t l = val->as.ary.len;
     for (pone_int_t i = 0; i < l; i++) {
@@ -252,6 +254,25 @@ PONE_FUNC(meth_ary_str) {
     return v;
 }
 
+static int default_sort_routine(const void* a, const void* b, void* world) {
+    return pone_str_cmp((pone_world*)world, *((pone_val**)a), *((pone_val**)b));
+}
+
+PONE_FUNC(meth_ary_sort) {
+    PONE_ARG("Array#sort", "");
+
+    // shallow copy first.
+    pone_val* retval = pone_ary_new(world, 0);
+    for (pone_int_t i = 0; i < pone_ary_size(self); ++i) {
+        pone_ary_push(world->universe, retval, pone_ary_at_pos(self, i));
+    }
+
+    // run qsort
+    sort_r(retval->as.ary.a, retval->as.ary.len, sizeof(pone_val**), default_sort_routine, world);
+
+    return retval;
+}
+
 PONE_FUNC(meth_ary_assign_pos) {
     pone_val* pos, *value;
     PONE_ARG("Array#ASSIGN-POS", "oo", &pos, &value);
@@ -276,6 +297,7 @@ void pone_ary_init(pone_world* world) {
     pone_add_method_c(world, universe->class_ary, "shift", strlen("shift"), meth_ary_shift);
     pone_add_method_c(world, universe->class_ary, "join", strlen("join"), meth_ary_join);
     pone_add_method_c(world, universe->class_ary, "Str", strlen("Str"), meth_ary_str);
+    pone_add_method_c(world, universe->class_ary, "sort", strlen("sort"), meth_ary_sort);
     pone_add_method_c(world, universe->class_ary, "ASSIGN-POS", strlen("ASSIGN-POS"), meth_ary_assign_pos);
     pone_obj_set_ivar(world, universe->class_ary, "$!iterator-class", iter_class);
 }

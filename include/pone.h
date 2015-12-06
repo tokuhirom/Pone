@@ -379,6 +379,7 @@ pone_val* pone_inplace_bin_xor(pone_world* world, int level, const char* varname
 pone_val* pone_inplace_blshift(pone_world* world, int level, const char* varname, pone_val* val);
 pone_val* pone_inplace_brshift(pone_world* world, int level, const char* varname, pone_val* val);
 pone_val* pone_inplace_concat_s(pone_world* world, int level, const char* varname, pone_val* val);
+pone_int_t pone_str_cmp(pone_world* world, pone_val* v1, pone_val* v2);
 
 // hash.c
 pone_val* pone_map_new(pone_world* world);

@@ -50,3 +50,7 @@ Removes and returns the first item from the array. Fails for an empty arrays.
 
 Treats the elements of the list as strings, interleaves them with $separator and concatenates everything into a single string.
 
+## `Array#sort()`
+
+Get sorted array from an array.
+

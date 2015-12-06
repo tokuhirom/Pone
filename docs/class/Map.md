@@ -16,6 +16,10 @@ Get the number of elements.
 
 Get keys
 
+## `$map.values() --> Array`
+
+Get values
+
 ## `$map{$key} = $value`
 
 Put `$value` to `$key`.
