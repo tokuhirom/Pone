@@ -25,7 +25,6 @@ pone_val* pone_map_copy(pone_world* world, pone_val* obj) {
 }
 
 // TODO: delete key
-// TODO: exists key
 
 pone_val* pone_map_new(pone_world* world) {
     pone_val* hv = pone_obj_alloc(world, PONE_MAP);
@@ -100,6 +99,11 @@ pone_val* pone_map_values(pone_world* world, pone_val* val) {
     return retval;
 }
 
+bool pone_map_exists(pone_world* world, pone_val* self, pone_val* key) {
+    khint_t k = kh_get(val, HASH(self), key);
+    return k != kh_end(HASH(self));
+}
+
 pone_val* pone_map_keys(pone_world* world, pone_val* val) {
     assert(pone_type(val) == PONE_MAP);
 
@@ -152,6 +156,12 @@ PONE_FUNC(meth_hash_values) {
     return pone_map_values(world, self);
 }
 
+PONE_FUNC(meth_hash_exists) {
+    pone_val* key;
+    PONE_ARG("Map#exists", "o", &key);
+    return pone_map_exists(world, self, key) ? pone_true() : pone_false();
+}
+
 PONE_FUNC(meth_hash_at_key) {
     pone_val* key;
     PONE_ARG("Map#AT-KEY", "o", &key);
@@ -174,6 +184,7 @@ void pone_map_init(pone_world* world) {
     pone_add_method_c(world, universe->class_map, "size", strlen("size"), meth_hash_size);
     pone_add_method_c(world, universe->class_map, "keys", strlen("keys"), meth_hash_keys);
     pone_add_method_c(world, universe->class_map, "values", strlen("values"), meth_hash_values);
+    pone_add_method_c(world, universe->class_map, "exists", strlen("exists"), meth_hash_exists);
     pone_add_method_c(world, universe->class_map, "gist", strlen("gist"), meth_hash_gist);
     pone_add_method_c(world, universe->class_map, "ASSIGN-KEY", strlen("ASSIGN-KEY"), meth_hash_assign_key);
     pone_add_method_c(world, universe->class_map, "AT-KEY", strlen("AT-KEY"), meth_hash_at_key);

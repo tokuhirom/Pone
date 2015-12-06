@@ -20,6 +20,10 @@ Get keys
 
 Get values
 
+## `$map.exists($key) --> Bool`
+
+Return true if the `$key` exists in `$map`. False otherwise.
+
 ## `$map{$key} = $value`
 
 Put `$value` to `$key`.
