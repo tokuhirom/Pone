@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
         switch (opt) {
         case 'I':
             pone_ary_push(
-                world->universe,
+                world,
                 universe->inc,
                 pone_str_new_strdup(world, optarg, strlen(optarg)));
             break;
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 
     universe->args = pone_ary_new(world, 0);
     for (int i = optind; i < argc; ++i) {
-        pone_ary_push(universe,
+        pone_ary_push(world,
                       universe->args,
                       pone_str_new_const(world, argv[i], strlen(argv[i])));
     }

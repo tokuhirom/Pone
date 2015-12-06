@@ -224,7 +224,7 @@ PONE_FUNC(meth_file_slurp_rest) {
 PONE_FUNC(meth_slurp) {
     pone_val* val;
     PONE_ARG("file.slurp", "o", &val);
-    if (pone_str_contains_null(world->universe, val)) {
+    if (pone_str_contains_null(world, val)) {
         pone_throw_str(world, "You can't slurp file. Because file name contains \\0.");
     }
 

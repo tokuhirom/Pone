@@ -34,7 +34,7 @@ void pone_chan_send(pone_world* world, pone_val* self, pone_val* val) {
         CHECK_PTHREAD(pthread_cond_wait(&(chan->recv_cond), &(chan->mutex)));
     }
     THREAD_TRACE("pone_chan_send chan:%p val:%p", chan, val);
-    pone_ary_push(world->universe, chan->buffer, pone_val_copy(chan->world, val));
+    pone_ary_push(world, chan->buffer, pone_val_copy(chan->world, val));
     chan->num++;
     CHECK_PTHREAD(pthread_cond_signal(&(chan->send_cond)));
     CHECK_PTHREAD(pthread_mutex_unlock(&(chan->mutex)));
@@ -60,7 +60,7 @@ bool pone_chan_trysend(pone_world* world, pone_val* self, pone_val* val) {
     bool sent = false;
     CHECK_PTHREAD(pthread_mutex_lock(&(chan->mutex)));
     if (chan->limit > chan->num) {
-        pone_ary_push(world->universe, chan->buffer, pone_val_copy(chan->world, val));
+        pone_ary_push(world, chan->buffer, pone_val_copy(chan->world, val));
         chan->num++;
         CHECK_PTHREAD(pthread_cond_signal(&(chan->send_cond)));
         sent = true;

@@ -93,7 +93,7 @@ pone_val* pone_map_keys(pone_world* world, pone_val* val) {
     pone_val* retval = pone_ary_new(world, 0);
 
     PONE_MAP_FOREACH(val, k, v, {
-        pone_ary_push(world->universe, retval, k);
+        pone_ary_push(world, retval, k);
         (void)v;
     });
 

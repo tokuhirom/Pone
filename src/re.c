@@ -84,7 +84,7 @@ void pone_match_push(pone_world* world, pone_val* self, pone_int_t from, pone_in
             return pone_match_push(world, c, from, to);
         }
     }
-    pone_ary_push(world->universe, list, pone_match_new(world, orig, from, to));
+    pone_ary_push(world, list, pone_match_new(world, orig, from, to));
 }
 
 static pone_val* match_str(pone_world* world, pone_val* self, int n, int indent) {

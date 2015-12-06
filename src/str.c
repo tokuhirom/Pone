@@ -192,7 +192,7 @@ inline pone_int_t pone_str_len(pone_val* val) {
     }
 }
 
-bool pone_str_contains_null(pone_universe* universe, pone_val* val) {
+bool pone_str_contains_null(pone_world* world, pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
     if (pone_str_len(val) == 0) {
         return false;
@@ -203,7 +203,7 @@ bool pone_str_contains_null(pone_universe* universe, pone_val* val) {
 
 pone_val* pone_str_c_str(pone_world* world, pone_val* val) {
     assert(pone_type(val) == PONE_STRING);
-    if (pone_str_contains_null(world->universe, val)) {
+    if (pone_str_contains_null(world, val)) {
         pone_throw_str(world, "You can't convert string to c-string. Since it contains \\0.");
     }
 

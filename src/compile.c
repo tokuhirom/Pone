@@ -1053,10 +1053,10 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
 
         PRINTF("pone_val* pone_user_func_");
         if (is_anon) {
-            pone_ary_push(ctx->world->universe, ctx->subnames, pone_str_new_printf(ctx->world, "pone_user_func_anon_%d", ctx->anon_sub_no));
+            pone_ary_push(ctx->world, ctx->subnames, pone_str_new_printf(ctx->world, "pone_user_func_anon_%d", ctx->anon_sub_no));
             PRINTF("anon_%d", ctx->anon_sub_no);
         } else {
-            pone_ary_push(ctx->world->universe, ctx->subnames, pone_str_new_printf(ctx->world, "pone_user_func_%s", PVIP_string_c_str(name->pv)));
+            pone_ary_push(ctx->world, ctx->subnames, pone_str_new_printf(ctx->world, "pone_user_func_%s", PVIP_string_c_str(name->pv)));
             WRITE_PV(name->pv);
         }
         PRINTF("(pone_world* world, pone_val* self, int n, va_list args) {\n");

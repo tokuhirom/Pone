@@ -46,7 +46,7 @@ pone_val* pone_code_new(pone_world* world, pone_funcptr_t func) {
 }
 
 void pone_push_caller(pone_world* world, const char* filename, int lineno, const char* sub) {
-    pone_ary_push(world->universe, world->caller_stack,
+    pone_ary_push(world, world->caller_stack,
                   pone_ary_new(world, 3,
                                pone_str_new_const(world, filename, strlen(filename)),
                                pone_int_new(world, lineno),

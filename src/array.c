@@ -14,7 +14,7 @@ void pone_ary_mark(pone_val* val) {
 pone_val* pone_ary_copy(pone_world* world, pone_val* obj) {
     pone_val* retval = pone_ary_new(world, 0);
     for (pone_int_t i = 0; i < pone_ary_size(obj); ++i) {
-        pone_ary_push(world->universe, retval, pone_val_copy(world, pone_ary_at_pos(obj, i)));
+        pone_ary_push(world, retval, pone_val_copy(world, pone_ary_at_pos(obj, i)));
     }
     return retval;
 }
@@ -135,7 +135,7 @@ PONE_FUNC(meth_ary_size) {
     return pone_int_new(world, pone_ary_size(self));
 }
 
-void pone_ary_push(pone_universe* universe, pone_val* self, pone_val* val) {
+void pone_ary_push(pone_world* world, pone_val* self, pone_val* val) {
     assert(pone_type(self) == PONE_ARRAY);
 
     if (self->as.ary.max == self->as.ary.len) {
@@ -158,7 +158,7 @@ PONE_FUNC(meth_ary_push) {
     pone_val* val;
     PONE_ARG("Array#push", "o", &val);
 
-    pone_ary_push(world->universe, self, val);
+    pone_ary_push(world, self, val);
 
     return pone_nil();
 }
@@ -264,7 +264,7 @@ PONE_FUNC(meth_ary_sort) {
     // shallow copy first.
     pone_val* retval = pone_ary_new(world, 0);
     for (pone_int_t i = 0; i < pone_ary_size(self); ++i) {
-        pone_ary_push(world->universe, retval, pone_ary_at_pos(self, i));
+        pone_ary_push(world, retval, pone_ary_at_pos(self, i));
     }
 
     // run qsort
