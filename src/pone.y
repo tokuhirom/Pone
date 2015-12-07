@@ -86,25 +86,33 @@ static char PVIP_input(char *buf, YY_XTYPE D) {
 #define YY_INPUT(buf, result, max_size, D)		\
     result = PVIP_input(buf, D);
 
+#define S_LAST \
+    kv_A(G->data.literal_str_stack, kv_size(G->data.literal_str_stack)-1)
+
+#define STR_INIT() \
+    kv_push(pone_node*, G->data.literal_str_stack, PVIP_node_new_string(&(G->data), PVIP_NODE_STRING, "", 0))
+
+#define STR_POP() kv_pop(G->data.literal_str_stack)
+
 /* Append string to current string literal */
 #define APPEND_S(s, l) \
-    G->data.literal_str=PVIP_node_append_string(PARSER, G->data.literal_str, (s), (l))
+    S_LAST=PVIP_node_append_string(PARSER, S_LAST, (s), (l))
 
 /* Append node to current string literal */
 #define APPEND_N(e) \
-    G->data.literal_str=PVIP_node_append_string_node(PARSER, G->data.literal_str, e)
+    S_LAST=PVIP_node_append_string_node(PARSER, S_LAST, e)
 
 /* Append dec number to current string literal */
 #define APPEND_DEC(s,l) \
-    G->data.literal_str=PVIP_node_append_string_from_dec(PARSER, G->data.literal_str, yytext, yyleng)
+    S_LAST=PVIP_node_append_string_from_dec(PARSER, S_LAST, yytext, yyleng)
 
 /* Append hex number to current string literal */
 #define APPEND_HEX(s,l) \
-    G->data.literal_str=PVIP_node_append_string_from_hex(PARSER, G->data.literal_str, yytext, yyleng)
+    S_LAST=PVIP_node_append_string_from_hex(PARSER, S_LAST, yytext, yyleng)
 
 /* Append oct number to current string literal */
 #define APPEND_OCT(s,l) \
-    G->data.literal_str=PVIP_node_append_string_from_oct(PARSER, G->data.literal_str, yytext, yyleng)
+    S_LAST=PVIP_node_append_string_from_oct(PARSER, S_LAST, yytext, yyleng)
 
 
 %}
@@ -863,19 +871,19 @@ string = dq_string | sq_string
 dq_string =
     (
         '"' {
-            G->data.literal_str = PVIP_node_new_string(&(G->data), PVIP_NODE_STRING, "", 0);
+            STR_INIT();
         } (
             dq_string_inner
             | '>' { APPEND_S(">", 1); }
-        )* '"' { $$=G->data.literal_str; }
+        )* '"' { $$=STR_POP(); }
     )
     | (
         'qq<' {
-            G->data.literal_str = PVIP_node_new_string(&(G->data), PVIP_NODE_STRING, "", 0);
+            STR_INIT();
         } (
             dq_string_inner
             | '"' { APPEND_S("\"", 1); }
-        )* '>' { $$=G->data.literal_str; }
+        )* '>' { $$=STR_POP(); }
     )
 
 dq_string_inner =

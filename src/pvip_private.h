@@ -1,6 +1,9 @@
 #ifndef PVIP_PRIVATE_H_
 #define PVIP_PRIVATE_H_
 
+#include "kvec.h"
+
+
 /*
  * This file contains private functins in PVIP.
  */
@@ -18,7 +21,7 @@ typedef struct {
     pone_node* root;
     int is_string; /* Parsing from string or file pointer. */
     PVIPParserStringState* str;
-    pone_node* literal_str; /* temporary space for string literal */
+    kvec_t(pone_node*) literal_str_stack; /* temporary string for string literal */
     FILE* fp;
     pvip_t* pvip;
 } PVIPParserContext;
