@@ -1,22 +1,31 @@
 my $NTEST = 0;
+my $TEST_LEVEL = 0;
+my $SUBTEST_NAME = '';
 
 # TODO subtest
+
+sub subtest(Str $name, Code $cb) {
+    $SUBTEST_NAME = $name;
+    say "# Subtest: $name";
+    $cb();
+    $SUBTEST_NAME = '';
+}
 
 sub ok($a, $msg="") {
     $NTEST = $NTEST+1;
     if ($a) {
-        say "ok $NTEST - $msg";
+        say("ok $NTEST - #{[$SUBTEST_NAME, $msg].join(' / ')}");
     } else {
-        say "not ok $NTEST - $msg";
+        say "not ok $NTEST -  #{[$SUBTEST_NAME, $msg].join(" / ")}";
     }
 }
 
 sub like($a, $b, $msg="") {
     $NTEST = $NTEST+1;
     if ($a ~~ $b) {
-        say "ok $NTEST - $msg";
+        say("ok $NTEST - #{[$SUBTEST_NAME, $msg].join(" / ")}");
     } else {
-        say "not ok $NTEST - $msg";
+        say "not ok $NTEST - #{[$SUBTEST_NAME, $msg].join(" / ")}";
         file.stderr.write("  got: $a\n");
         file.stderr.write("  expected: $b\n");
     }
@@ -24,7 +33,7 @@ sub like($a, $b, $msg="") {
 
 sub pass($msg) {
     $NTEST = $NTEST+1;
-    say "ok $NTEST - $msg";
+    say "ok $NTEST - #{[$SUBTEST_NAME, $msg].join(" / ")}";
 }
 
 sub done_testing() {
