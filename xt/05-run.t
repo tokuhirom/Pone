@@ -9,6 +9,7 @@ use Capture::Tiny qw/capture/;
 use File::Which;
 
 plan skip_all => 'valgrind is not available on windows' if $^O eq 'MSWin32';
+plan skip_all => 'valgrind is not available on darwin' if $^O eq 'darwin';
 plan skip_all => "There's no valgrind binary" if !which('valgrind');
 
 spec_file('t/basic.dat');
