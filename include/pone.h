@@ -171,12 +171,13 @@ typedef struct pone_world {
     // $!(errno)
     int errsv;
 
-    // caller stack
+    // caller stack(it contains pone_ary*)
     struct pone_val* caller_stack;
 
     // error handler
     jmp_buf* err_handlers;
     struct pone_val** err_handler_lexs;
+    pone_int_t* err_handler_callers;
     int err_handler_idx;
     int err_handler_max;
 

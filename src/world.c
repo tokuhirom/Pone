@@ -50,6 +50,7 @@ pone_world* pone_world_new(pone_universe* universe) {
 
     world->err_handlers = pone_malloc(world, sizeof(jmp_buf) * PONE_ERR_HANDLERS_INIT);
     world->err_handler_lexs = pone_malloc(world, sizeof(pone_world*) * PONE_ERR_HANDLERS_INIT);
+    world->err_handler_callers = pone_malloc(world, sizeof(pone_int_t) * PONE_ERR_HANDLERS_INIT);
     world->err_handler_idx = 0;
     world->err_handler_max = PONE_ERR_HANDLERS_INIT;
 

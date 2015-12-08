@@ -15,9 +15,16 @@ jmp_buf* pone_exc_handler_push(pone_world* world) {
             fprintf(stderr, "can't alloc mem\n");
             exit(1);
         }
+
+        world->err_handler_callers = realloc(world->err_handler_callers, sizeof(pone_int_t) * world->err_handler_max);
+        if (!world->err_handler_callers) {
+            fprintf(stderr, "can't alloc mem\n");
+            exit(1);
+        }
     }
 
     world->err_handler_lexs[world->err_handler_idx + 1] = world->lex;
+    world->err_handler_callers[world->err_handler_idx + 1] = pone_ary_size(world->caller_stack);
     return &(world->err_handlers[++world->err_handler_idx]);
 }
 
@@ -47,7 +54,11 @@ __attribute__((noreturn)) void pone_throw(pone_world* world, pone_val* val) {
     // back to the lex
     world->lex = world->err_handler_lexs[world->err_handler_idx];
 
-    // TODO rewind caller stack
+    // rewind caller stack
+    pone_int_t size = world->err_handler_callers[world->err_handler_idx];
+    while (pone_ary_size(world->caller_stack) > size) {
+        pone_ary_pop(world, world->caller_stack);
+    }
 
     EXC_TRACE("throwing exc");
 
