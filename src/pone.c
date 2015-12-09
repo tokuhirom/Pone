@@ -16,6 +16,7 @@ void pone_exc_init(pone_world* world);
 void pone_path_init(pone_world* world);
 void pone_stat_init(pone_world* world);
 void pone_random_init(pone_world* world);
+void pone_internals_init(pone_world* world);
 
 void pone_init(pone_universe* universe) {
 #if defined(_WIN32) || defined(_WIN64)
@@ -73,6 +74,7 @@ void pone_init(pone_universe* universe) {
     pone_path_init(world);
     pone_stat_init(world);
     pone_random_init(world);
+    pone_internals_init(world);
 
     // init $*INC
     universe->inc = pone_ary_new(world, 2,
