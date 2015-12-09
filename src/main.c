@@ -64,6 +64,7 @@ int main(int argc, char** argv) {
                       universe->args,
                       pone_str_new_const(world, argv[i], strlen(argv[i])));
     }
+    pone_universe_set_global(world->universe, "$*ARGV", universe->args);
 
     if (setjmp(world->err_handlers[0])) {
         pone_universe_default_err_handler(world);

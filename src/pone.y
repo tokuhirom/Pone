@@ -597,19 +597,7 @@ enum =
 funcref = '&' i:ident { $$ = PVIP_node_new_children1(&(G->data), PVIP_NODE_FUNCREF, i); }
 
 twvars = 
-    '$*ARGS' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_ARGS); }
-    | '$*INC' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_INC); }
-    | '$*VM' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_VM); }
-    | '$*OS' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_OS); }
-    | '$?PACKAGE' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_PACKAGE); }
-    | '$?CLASS' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_CLASS); }
-    | '$?MODULE' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_MODULE); }
-    | '$*PID' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_PID); }
-    | '$*PERLVER' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_PERLVER); }
-    | '$?PERLVER' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_PERLVER); }
-    | '$*EXECUTABLE_NAME' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_EXECUTABLE_NAME); }
-    | '&?ROUTINE' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_ROUTINE); }
-    | '%*ENV' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_ENV); }
+    < '$*' [A-Z] [A-Z_]+ > { $$ = PVIP_node_new_string(&(G->data), PVIP_NODE_TWVAR, yytext, yyleng); }
     | '$^a' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_A); }
     | '$^b' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_B); }
     | '$^c' { $$ = PVIP_node_new_children(&(G->data), PVIP_NODE_TW_C); }

@@ -163,8 +163,7 @@ static inline pone_node* inject_return(pone_compile_ctx* ctx, pone_node* node) {
     case PVIP_NODE_UNARY_UPTO: /* ^ */
     case PVIP_NODE_STDOUT: /* $*OUT */
     case PVIP_NODE_STDERR: /* $*ERR */
-    case PVIP_NODE_TW_OS: /* $*OS */
-    case PVIP_NODE_TW_INC: /* $*INC */
+    case PVIP_NODE_TWVAR: /* $*FOO */
     // DEPRECATE
     case PVIP_NODE_META_METHOD_CALL: /* $foo.^methods */
     case PVIP_NODE_REGEXP:
@@ -175,14 +174,6 @@ static inline pone_node* inject_return(pone_compile_ctx* ctx, pone_node* node) {
     case PVIP_NODE_HAS:
     case PVIP_NODE_ATTRIBUTE_VARIABLE: /* $!var: $.var: @.var */
     case PVIP_NODE_FUNCREF: /* &var */
-    case PVIP_NODE_TW_PACKAGE: /* $?PACKAGE */
-    case PVIP_NODE_TW_CLASS: /* $?CLASS */
-    // DEPRECATE
-    case PVIP_NODE_TW_MODULE: /* $?MODULE */
-    case PVIP_NODE_TW_PID: /* $*PID */
-    case PVIP_NODE_TW_PERLVER: /* $*PPERLVER */
-    case PVIP_NODE_TW_EXECUTABLE_NAME: /* $*EXECUTABLE_NAME */
-    case PVIP_NODE_TW_ROUTINE: /* &?ROUTINE */
     case PVIP_NODE_CMP: /* 'cmp' operator */
     case PVIP_NODE_SPECIAL_VARIABLE_REGEXP_MATCH: /* $/ - regex match */
     case PVIP_NODE_SPECIAL_VARIABLE_EXCEPTIONS: /* $@ - exceptions */
@@ -750,14 +741,10 @@ void _pone_compile(pone_compile_ctx* ctx, pone_node* node) {
     case PVIP_NODE_FALSE:
         PRINTF("pone_false()");
         break;
-    case PVIP_NODE_TW_ARGS:
-        PRINTF("(world->universe->args)");
-        break;
-    case PVIP_NODE_TW_INC:
-        PRINTF("(world->universe->inc)");
-        break;
-    case PVIP_NODE_TW_OS:
-        PRINTF("pone_get_lex(world, \"$*OS\")");
+    case PVIP_NODE_TWVAR:
+        PRINTF("pone_get_lex(world, \"");
+        WRITE_PV(node->pv);
+        PRINTF("\")");
         break;
     case PVIP_NODE_FUNCALL: {
         assert(

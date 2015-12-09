@@ -226,10 +226,12 @@ void pone_str_append_c(pone_world* world, pone_val* val, const char* s, pone_int
     mutable(world, val);
 
     assert(pone_type(val) == PONE_STRING);
-    val->as.str.p = realloc(val->as.str.p, val->as.str.len + s_len);
-    PONE_ALLOC_CHECK(val->as.str.p);
-    memcpy(val->as.str.p + val->as.str.len, s, s_len);
-    val->as.str.len += s_len;
+    if (val->as.str.len + s_len > 0) {
+        val->as.str.p = realloc(val->as.str.p, val->as.str.len + s_len);
+        PONE_ALLOC_CHECK(val->as.str.p);
+        memcpy(val->as.str.p + val->as.str.len, s, s_len);
+        val->as.str.len += s_len;
+    }
 }
 
 void pone_str_append(pone_world* world, pone_val* str, pone_val* s) {

@@ -70,7 +70,7 @@ typedef enum {
     PVIP_NODE_STRLT,
     PVIP_NODE_STRLE,
     PVIP_NODE_POW,
-    PVIP_NODE_TW_ARGS,
+    PVIP_NODE_TWVAR, /* $*FOO */
     PVIP_NODE_HASH,
     PVIP_NODE_PAIR,
     PVIP_NODE_ATKEY,
@@ -116,25 +116,15 @@ typedef enum {
     PVIP_NODE_UNARY_UPTO, /* ^ */
     PVIP_NODE_STDOUT, /* $*OUT */
     PVIP_NODE_STDERR, /* $*ERR */
-    PVIP_NODE_TW_INC, /* @*INC */
     PVIP_NODE_META_METHOD_CALL, /* $foo.^methods */
     PVIP_NODE_REGEXP,
     PVIP_NODE_SMART_MATCH, /* ~~ */
     PVIP_NODE_NOT_SMART_MATCH, /* !~~ */
     PVIP_NODE_TRUE,
     PVIP_NODE_FALSE,
-    PVIP_NODE_TW_VM, /* $*VM */
     PVIP_NODE_HAS,
     PVIP_NODE_ATTRIBUTE_VARIABLE, /* $!var, $.var, @.var */
     PVIP_NODE_FUNCREF, /* &var */
-    PVIP_NODE_TW_PACKAGE, /* $?PACKAGE */
-    PVIP_NODE_TW_CLASS, /* $?CLASS */
-    PVIP_NODE_TW_MODULE, /* $?MODULE */
-    PVIP_NODE_TW_PID, /* $*PID */
-    PVIP_NODE_TW_PERLVER, /* $*PPERLVER */
-    PVIP_NODE_TW_EXECUTABLE_NAME, /* $*EXECUTABLE_NAME */
-    PVIP_NODE_TW_ROUTINE, /* &?ROUTINE */
-    PVIP_NODE_TW_OS, /* $*OS */
     PVIP_NODE_VALUE_IDENTITY, /* '===' operator in S03-operators/value_equivalence.t */
     PVIP_NODE_CMP, /* 'cmp' operator */
     PVIP_NODE_SPECIAL_VARIABLE_REGEXP_MATCH, /* $/ - regex match */
@@ -155,7 +145,6 @@ typedef enum {
     PVIP_NODE_BITWISE_XOR, /* ^ */
     PVIP_NODE_VARGS, /* sub foo (*@a) { } */
     PVIP_NODE_WHATEVER, /* * */
-    PVIP_NODE_TW_ENV, /* %*ENV */
     PVIP_NODE_END, /* END { } */
     PVIP_NODE_BEGIN, /* BEGIN { } */
     PVIP_NODE_BINDAND_MAKE_READONLY, /* ::= */
